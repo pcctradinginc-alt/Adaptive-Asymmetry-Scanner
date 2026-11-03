@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T13:01:28+00:00",
+ "generated": "2026-11-03T15:47:35+00:00",
  "prior": [
   1.0,
   4.0
@@ -424,6 +424,248 @@
    "assessment": "zu wenig getestet"
   },
   "family:cond_sec_filing_delay_z_healthcare": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:surprise_engine": {
+   "tested": 6,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 6,
+   "posterior_success": 0.0909,
+   "posterior_sd": 0.083,
+   "wasted_capacity": 6,
+   "assessment": "verschwendet Kapazität"
+  },
+  "family:option_data_pipeline": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:dev_task_empty_feature": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:dev_task_workflow_recovery": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_oil_price_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_oil_inventory_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_oil_demand_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_gas_price_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_gas_storage_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_oil_crowding_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_copper_price_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_gold_positioning_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cmd_corn_price_x_exposure": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:div_oil_vs_equity": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:div_gas_vs_equity": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:anom_gap_divergence": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:anom_gap_macro_reaction": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:anom_gap_option_vs_stock": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 1,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:openq_tnx": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:lottery_penaltyx_momentum": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "research:autonomous_explorer": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "idea_source:open_question": {
    "tested": 1,
    "success": 0,
    "prospective": 0,

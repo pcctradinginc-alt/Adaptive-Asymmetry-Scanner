@@ -1,12 +1,12 @@
 {
- "generated": "2026-10-03T13:01:29+00:00",
+ "generated": "2026-11-03T15:47:36+00:00",
  "sources": {
   "sec_deep_events": {
    "coverage": 1.0,
-   "freshness": 1.0,
+   "freshness": 0.967,
    "data_quality": 1.0,
    "reliability": 1.0,
-   "mapping_quality": 0.808,
+   "mapping_quality": 0.806,
    "revision_risk": 0.0,
    "maintenance_cost": 0.0,
    "active_features": [
@@ -16,7 +16,7 @@
     "sec_insider_cluster_30d",
     "sec_filing_delay_z"
    ],
-   "oos_value": 0.444,
+   "oos_value": 0.506,
    "forward_value": null,
    "forward_cohorts": 0,
    "alpha_decay": {
@@ -26,16 +26,16 @@
     "sec_insider_cluster_30d": "decaying",
     "sec_filing_delay_z": "decaying"
    },
-   "source_value_score": 0.687,
-   "status": "SHADOW",
-   "verdict": "MODIFY"
+   "source_value_score": 0.723,
+   "status": "REJECTED",
+   "verdict": "REJECT"
   },
   "ted_procurement": {
    "coverage": 0.0,
-   "freshness": 1.0,
+   "freshness": 0.975,
    "data_quality": 1.0,
    "reliability": 1.0,
-   "mapping_quality": 0.808,
+   "mapping_quality": 0.806,
    "revision_risk": 0.0,
    "maintenance_cost": 0.5,
    "active_features": [],
@@ -43,38 +43,106 @@
    "forward_value": null,
    "forward_cohorts": 0,
    "alpha_decay": {},
-   "source_value_score": 0.331,
+   "source_value_score": 0.328,
    "status": "REJECTED",
    "verdict": "REJECT"
   },
   "sec_xbrl_fundamentals": {
    "coverage": 0.989,
-   "freshness": 1.0,
+   "freshness": 0.975,
    "data_quality": 1.0,
    "reliability": 1.0,
-   "mapping_quality": 0.808,
+   "mapping_quality": 0.806,
    "revision_risk": 0.5,
    "maintenance_cost": 0.5,
    "active_features": [
     "xbrl_rev_yoy",
-    "xbrl_asset_growth",
     "xbrl_accruals",
+    "xbrl_asset_growth",
     "xbrl_share_change",
     "xbrl_sue"
    ],
-   "oos_value": 0.409,
+   "oos_value": 0.461,
    "forward_value": null,
    "forward_cohorts": 0,
    "alpha_decay": {
     "xbrl_rev_yoy": "no_early_effect",
-    "xbrl_asset_growth": "decaying",
     "xbrl_accruals": "reversed",
+    "xbrl_asset_growth": "decaying",
     "xbrl_share_change": "stable",
     "xbrl_sue": "no_early_effect"
    },
-   "source_value_score": 0.679,
-   "status": "SHADOW",
-   "verdict": "MODIFY"
+   "source_value_score": 0.711,
+   "status": "REJECTED",
+   "verdict": "REJECT"
+  },
+  "commodity_price": {
+   "coverage": 0.06,
+   "freshness": 0.0,
+   "data_quality": 0.0,
+   "reliability": 0.0,
+   "mapping_quality": 0.806,
+   "revision_risk": 0.0,
+   "maintenance_cost": 0.0,
+   "active_features": [],
+   "oos_value": 0.0,
+   "forward_value": null,
+   "forward_cohorts": 0,
+   "alpha_decay": {},
+   "source_value_score": 0.14,
+   "status": "REJECTED",
+   "verdict": "REJECT"
+  },
+  "commodity_fundamental": {
+   "coverage": 0.053,
+   "freshness": 0.0,
+   "data_quality": 0.0,
+   "reliability": 0.0,
+   "mapping_quality": 0.806,
+   "revision_risk": 0.5,
+   "maintenance_cost": 0.0,
+   "active_features": [],
+   "oos_value": 0.0,
+   "forward_value": null,
+   "forward_cohorts": 0,
+   "alpha_decay": {},
+   "source_value_score": 0.139,
+   "status": "REJECTED",
+   "verdict": "REJECT"
+  },
+  "commodity_positioning": {
+   "coverage": 0.065,
+   "freshness": 0.0,
+   "data_quality": 0.0,
+   "reliability": 0.0,
+   "mapping_quality": 0.806,
+   "revision_risk": 0.0,
+   "maintenance_cost": 0.0,
+   "active_features": [],
+   "oos_value": 0.0,
+   "forward_value": null,
+   "forward_cohorts": 0,
+   "alpha_decay": {},
+   "source_value_score": 0.14,
+   "status": "REJECTED",
+   "verdict": "REJECT"
+  },
+  "commodity_divergence": {
+   "coverage": 0.054,
+   "freshness": 0.0,
+   "data_quality": 0.0,
+   "reliability": 0.0,
+   "mapping_quality": 0.806,
+   "revision_risk": 0.5,
+   "maintenance_cost": 0.0,
+   "active_features": [],
+   "oos_value": 0.0,
+   "forward_value": null,
+   "forward_cohorts": 0,
+   "alpha_decay": {},
+   "source_value_score": 0.139,
+   "status": "REJECTED",
+   "verdict": "REJECT"
   }
  }
 }

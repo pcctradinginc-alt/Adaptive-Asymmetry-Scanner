@@ -1,102 +1,37 @@
 {
- "generated": "2026-10-03T13:01:28+00:00",
+ "generated": "2026-11-03T15:47:35+00:00",
  "results": {
-  "FAC-D4E1EB14": {
+  "FAC-261A6848": {
    "status": "REJECTED",
    "spec": {
-    "signal": "rank(xbrl_sue) * step(-mom_3m)",
+    "signal": "rank(mom_12_1) * step(tnx - 4.7817)",
     "direction": 1,
-    "family": "div_fundamentals_vs_price",
-    "domain": "fundamentals",
+    "family": "openq_tnx",
+    "domain": "regime",
     "exposure_sector": null,
-    "spec_hash": "25b336517fda20f0"
+    "spec_hash": "d23ec4211d57885c",
+    "idea_source": "open_question",
+    "exploratory": null,
+    "priority": null,
+    "novelty": null,
+    "commodity": null,
+    "equity_population": null,
+    "mechanism": null,
+    "domain_features": null,
+    "non_pit_mapping": null,
+    "anomaly_type": null
    },
    "reasons": [
-    "Walk-Forward netto 0.00125 mit t=0.78",
+    "Walk-Forward netto -0.00326 mit t=-3.53",
+    "nur 0.286 der Jahre positiv",
     "bei Stresskosten nicht positiv",
-    "instabil über Hälften {'first': -0.00177, 'second': 0.00426}",
-    "Regime: {'vix_lt_20': 'works', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
-   ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-AD1E02FC": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "rank(vol_60) * step(20 - vix)",
-    "direction": 1,
-    "family": "drift_vol_60",
-    "domain": "drift",
-    "exposure_sector": null,
-    "spec_hash": "e59c02e0c06bbf87"
-   },
-   "reasons": [
-    "zu ähnlich zu verworfener Hypothese FAC-A11F218F (Jaccard 0.90)"
-   ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-195425A4": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "exp_healthcare * rank(sec_insider_net_value_90d)",
-    "direction": -1,
-    "family": "cond_sec_insider_net_value_90d_healthcare",
-    "domain": "sec_deep_events",
-    "exposure_sector": "Healthcare",
-    "spec_hash": "787dc6a170d4bb7f"
-   },
-   "reasons": [
-    "Walk-Forward netto -0.00476 mit t=-1.73",
-    "nur 0.0 der Jahre positiv",
-    "bei Stresskosten nicht positiv",
-    "instabil über Hälften {'first': -0.0043, 'second': -0.00521}",
+    "instabil über Hälften {'first': -0.00519, 'second': -0.00135}",
     "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
    ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-A82BAC5D": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "exp_healthcare * rank(sec_insider_buy_value_90d)",
-    "direction": -1,
-    "family": "cond_sec_insider_buy_value_90d_healthcare",
-    "domain": "sec_deep_events",
-    "exposure_sector": "Healthcare",
-    "spec_hash": "9e1df3ab6fd19048"
-   },
-   "reasons": [
-    "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
-   ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-3A0A8178": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "exp_healthcare * rank(sec_insider_buyers_90d)",
-    "direction": -1,
-    "family": "cond_sec_insider_buyers_90d_healthcare",
-    "domain": "sec_deep_events",
-    "exposure_sector": "Healthcare",
-    "spec_hash": "aebd464154fc758f"
-   },
-   "reasons": [
-    "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
-   ],
-   "data_kind": "historical_walk_forward"
-  },
-  "FAC-01660B09": {
-   "status": "REJECTED",
-   "spec": {
-    "signal": "exp_healthcare * rank(sec_filing_delay_z)",
-    "direction": -1,
-    "family": "cond_sec_filing_delay_z_healthcare",
-    "domain": "sec_deep_events",
-    "exposure_sector": "Healthcare",
-    "spec_hash": "fef293461c83d6b5"
-   },
-   "reasons": [
-    "zu ähnlich zu verworfener Hypothese FAC-195425A4 (Jaccard 0.92)"
-   ],
-   "data_kind": "historical_walk_forward"
+   "data_kind": "historical_walk_forward",
+   "evidence_class": "EXPLORATORY_HISTORICAL",
+   "locked_holdout": "CONTAMINATED – nur informativ, keine unabhängige Bestätigung",
+   "independent_confirmation": "nur prospektiv (Forward-Ledger ab Registrierung, Alpha→Options)"
   }
  }
 }

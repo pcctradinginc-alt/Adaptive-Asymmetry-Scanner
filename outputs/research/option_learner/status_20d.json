@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-31",
+ "as_of": "2026-11-03",
  "horizon": 20,
  "experiment": {
   "name": "option_learner_ridge",
@@ -91,10 +91,10 @@
  "provenance_counts": {
   "ENTRY_NOT_ARCHIVED": 308
  },
- "ledger_rows_7d": 1785,
- "option_snapshots_7d": 107,
+ "ledger_rows_7d": 1276,
+ "option_snapshots_7d": 84,
  "manifest": {
-  "cutoff": "2026-10-31",
+  "cutoff": "2026-11-03",
   "n_labels": 0,
   "labels_sha256": "e3b0c44298fc1c14",
   "first_signal": null,
@@ -169,6 +169,12 @@
    "by_direction": {},
    "span_days": 0,
    "warnings": []
+  },
+  "mean_selected_adverse_entry": null,
+  "segments": {
+   "overall_mean": null,
+   "by": {},
+   "weak": []
   },
   "verdict": "NEED_MORE_DATA",
   "vs_reference": {
@@ -246,6 +252,12 @@
    "span_days": 0,
    "warnings": []
   },
+  "mean_selected_adverse_entry": null,
+  "segments": {
+   "overall_mean": null,
+   "by": {},
+   "weak": []
+  },
   "verdict": "NEED_MORE_DATA",
   "experiment_id": "4a0f886d1979",
   "valid_decisions": 0,
@@ -292,14 +304,54 @@
  "forward_sequential": {
   "experiment_id": "4a0f886d1979",
   "horizon": 20,
-  "evaluated_as_of": "2026-10-31",
+  "evaluated_as_of": "2026-11-03",
   "looks_evaluated": [],
   "binding": null,
-  "status": "NO_PLAN"
+  "status": "AWAITING_LOOK",
+  "plan_id": "FWD-20d-4a0f886d1979",
+  "plan_sha256": "440069c2a964bda206c5d1faa57d3d79038dc0a580b2fca337046fdb1f69d9e5",
+  "start_date": "2026-11-02",
+  "look_cutoffs": [
+   "2027-02-10",
+   "2027-05-21",
+   "2027-08-29"
+  ],
+  "looks": 3,
+  "alpha": 0.05,
+  "look_alpha": [
+   0.0006868948682239306,
+   0.01568777158182444,
+   0.033625333549951675
+  ],
+  "look": 0,
+  "valid_decisions": 0,
+  "next_look": {
+   "look": 1,
+   "cutoff": "2027-02-10",
+   "ready_after": "2027-03-12"
+  }
  },
  "model": null,
  "production_influence": "NONE",
  "orders_created": 0,
+ "label_pipeline": {
+  "verified": 0,
+  "independent_signal_days": 0,
+  "not_yet_due": 588,
+  "technically_missing": {},
+  "historical_gap": {
+   "ENTRY_NOT_ARCHIVED": 308,
+   "NO_LABEL_AFTER_DUE": 1
+  },
+  "archive_start": "2026-10-12",
+  "due_after_archive_start": 0,
+  "technical_missing_share": null
+ },
+ "learning_status": {
+  "state": "NEED_MORE_DATA",
+  "reason": "0 gepr\u00fcfte Labels an 0 Signaltagen, 588 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA",
+  "alpha_claim": "keiner"
+ },
  "model_instances": {
   "count": 0,
   "latest": null
@@ -312,10 +364,10 @@
    "total_alpha": 0.05,
    "max_tests": 20,
    "slot_alpha": 0.0025,
-   "used": 0,
-   "remaining": 20,
+   "used": 3,
+   "remaining": 17,
    "exhausted": false,
-   "frozen_by_registry": false
+   "frozen_by_registry": true
   },
   "variants": {}
  },
@@ -324,7 +376,18 @@
    "as_of": "2026-10-31",
    "verdict": "NEED_MORE_DATA",
    "mean_diff": null
+  },
+  {
+   "as_of": "2026-11-03",
+   "verdict": "NEED_MORE_DATA",
+   "mean_diff": null
   }
  ],
- "vs_previous": null
+ "vs_previous": {
+  "previous_as_of": "2026-10-31",
+  "previous_verdict": "NEED_MORE_DATA",
+  "delta_mean_selected": null,
+  "delta_ic_mean": null,
+  "delta_labels": 0
+ }
 }

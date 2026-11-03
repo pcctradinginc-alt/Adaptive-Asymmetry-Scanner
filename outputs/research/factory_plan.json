@@ -1,11 +1,11 @@
 {
- "generated": "2026-10-03T12:59:49+00:00",
+ "generated": "2026-11-03T15:46:05+00:00",
  "protocol": "factory-v1",
  "budget": {
   "slots": 6,
   "exploratory_slots": 2
  },
- "n_ideas": 24,
+ "n_ideas": 39,
  "ideas": [
   {
    "id": "FAC-1A196936",
@@ -33,7 +33,7 @@
    "mechanism": "Steilere Zinskurve erhöht die Zinsmarge von Banken (Fristentransformation) – Analystenschätzungen passen sich verzögert an.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_financials * sign(curve_10y_3m - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Zinsen/Zinskurve × Financial Services: Steilere Zinskurve erhöht die Zinsmarge von Banken (Fristentransformation) – Analystenschätzungen passen sich verzögert an.",
@@ -49,7 +49,57 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.8,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_financials * sign(curve_10y_3m - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Steilere Zinskurve erhöht die Zinsmarge von Banken (Fristentransformation) – Analystenschätzungen passen sich verzögert an.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "tnx",
+      "curve_10y_3m"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Financial Services vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 1.0,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -79,7 +129,7 @@
    "mechanism": "Steigende Langfristzinsen erhöhen Diskontrate und Finanzierungskosten von REITs.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_real_estate * sign(tnx - 3.0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Zinsen/Zinskurve × Real Estate: Steigende Langfristzinsen erhöhen Diskontrate und Finanzierungskosten von REITs.",
@@ -95,7 +145,57 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.8,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_real_estate * sign(tnx - 3.0) (Richtung -1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Steigende Langfristzinsen erhöhen Diskontrate und Finanzierungskosten von REITs.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "tnx",
+      "curve_10y_3m"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Real Estate vs. übrige Titel",
+    "direction": -1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 1.0,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -124,7 +224,7 @@
    "mechanism": "Ölpreisanstiege erhöhen Upstream-Cashflows; Aktien preisen Futures-Kurve nur teilweise ein.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_energy * sign(wti_63d_chg - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Ölpreis × Energy: Ölpreisanstiege erhöhen Upstream-Cashflows; Aktien preisen Futures-Kurve nur teilweise ein.",
@@ -140,7 +240,56 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.7,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_energy * sign(wti_63d_chg - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Ölpreisanstiege erhöhen Upstream-Cashflows; Aktien preisen Futures-Kurve nur teilweise ein.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "wti_63d_chg"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Energy vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.994,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -169,7 +318,7 @@
    "mechanism": "Höhere Treibstoff- und Energiekosten belasten Margen energieintensiver Industrie/Transport.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_industrials * sign(wti_63d_chg - 0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Ölpreis × Industrials: Höhere Treibstoff- und Energiekosten belasten Margen energieintensiver Industrie/Transport.",
@@ -185,7 +334,56 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.6,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_industrials * sign(wti_63d_chg - 0) (Richtung -1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Höhere Treibstoff- und Energiekosten belasten Margen energieintensiver Industrie/Transport.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "wti_63d_chg"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Industrials vs. übrige Titel",
+    "direction": -1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.994,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -214,7 +412,7 @@
    "mechanism": "Starker Dollar senkt die in USD umgerechneten Auslandsumsätze multinationaler Tech-Firmen.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_technology * sign(usd_63d_chg - 0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "US-Dollar × Technology: Starker Dollar senkt die in USD umgerechneten Auslandsumsätze multinationaler Tech-Firmen.",
@@ -225,12 +423,61 @@
     "flags": [
      "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
     ],
-    "coverage_2016plus": 0.737,
+    "coverage_2016plus": 0.74,
     "data_quality": 0.6,
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.6,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_technology * sign(usd_63d_chg - 0) (Richtung -1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Starker Dollar senkt die in USD umgerechneten Auslandsumsätze multinationaler Tech-Firmen.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "usd_63d_chg"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Technology vs. übrige Titel",
+    "direction": -1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.74,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -259,7 +506,7 @@
    "mechanism": "Basiskonsumgüter geben Kosten mit Preissetzungsmacht weiter; bei hoher Inflation relativ robust.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_consumer_defensive * sign(cpi_yoy - 3.0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Inflation (ALFRED-Vintages) × Consumer Defensive: Basiskonsumgüter geben Kosten mit Preissetzungsmacht weiter; bei hoher Inflation relativ robust.",
@@ -275,7 +522,56 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_consumer_defensive * sign(cpi_yoy - 3.0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Basiskonsumgüter geben Kosten mit Preissetzungsmacht weiter; bei hoher Inflation relativ robust.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cpi_yoy"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Consumer Defensive vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.976,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -305,7 +601,7 @@
    "mechanism": "Steigende Unsicherheit führt zu Umschichtung in defensive, regulierte Cashflows.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_utilities * sign(vix_chg_21 - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Marktvolatilität × Utilities: Steigende Unsicherheit führt zu Umschichtung in defensive, regulierte Cashflows.",
@@ -321,7 +617,57 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_utilities * sign(vix_chg_21 - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Steigende Unsicherheit führt zu Umschichtung in defensive, regulierte Cashflows.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "vix",
+      "vix_chg_21"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Utilities vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 1.0,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -350,7 +696,7 @@
    "mechanism": "Liquiditätszufluss senkt Risikoprämien; lang-duration Wachstumswerte profitieren überproportional.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_technology * sign(fed_assets_13w_chg - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Fed-Bilanz/Liquidität × Technology: Liquiditätszufluss senkt Risikoprämien; lang-duration Wachstumswerte profitieren überproportional.",
@@ -366,7 +712,56 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_technology * sign(fed_assets_13w_chg - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Liquiditätszufluss senkt Risikoprämien; lang-duration Wachstumswerte profitieren überproportional.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "fed_assets_13w_chg"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Technology vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 1.0,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -396,7 +791,7 @@
    "mechanism": "Zyklische Rohstofffirmen reagieren verzögert auf breite Marktmomentum-Phasen (Nachfrageerwartung).",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_basic_materials * sign(spy_mom_63 - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Markttrend × Basic Materials: Zyklische Rohstofffirmen reagieren verzögert auf breite Marktmomentum-Phasen (Nachfrageerwartung).",
@@ -412,7 +807,57 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.4,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_basic_materials * sign(spy_mom_63 - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Zyklische Rohstofffirmen reagieren verzögert auf breite Marktmomentum-Phasen (Nachfrageerwartung).",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "spy_trend_200",
+      "spy_mom_63"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Basic Materials vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 1.0,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -441,7 +886,7 @@
    "mechanism": "Gewonnene EU-Großaufträge erhöhen Auftragsbestand und Umsatzsichtbarkeit; verstreute Bekanntmachungen werden kaum aggregiert.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_industrials * sign(ted_awards_z - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "EU-Ausschreibungen × Industrials: Gewonnene EU-Großaufträge erhöhen Auftragsbestand und Umsatzsichtbarkeit; verstreute Bekanntmachungen werden kaum aggregiert.",
@@ -451,11 +896,52 @@
     "status": "DATA_GAP",
     "reason": "Abdeckung ab 2016 nur 6% (Historie/Mapping zu dünn)",
     "free_sources": [],
-    "data_quality": 0.035,
+    "data_quality": 0.039,
     "cost": 1.5
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_industrials * sign(ted_awards_z - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Gewonnene EU-Großaufträge erhöhen Auftragsbestand und Umsatzsichtbarkeit; verstreute Bekanntmachungen werden kaum aggregiert.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "ted_awards_z"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500, Sektor Industrials vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.039,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 6% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "DATA_GAP"
   },
   {
@@ -483,7 +969,7 @@
    "mechanism": "In Healthcare (Studien, Zulassungen) ist der Informationsvorsprung von Insidern besonders groß.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_healthcare * sign(sec_insider_net_value_90d - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Insider-Transaktionen × Healthcare: In Healthcare (Studien, Zulassungen) ist der Informationsvorsprung von Insidern besonders groß.",
@@ -494,12 +980,61 @@
     "flags": [
      "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
     ],
-    "coverage_2016plus": 0.971,
+    "coverage_2016plus": 0.96,
     "data_quality": 0.6,
     "cost": 1.5
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.5,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_healthcare * sign(sec_insider_net_value_90d - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "In Healthcare (Studien, Zulassungen) ist der Informationsvorsprung von Insidern besonders groß.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "sec_insider_net_value_90d"
+     ],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Healthcare vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.96,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -530,7 +1065,7 @@
    "mechanism": "Wetteranomalien verschieben saisonale Nachfrage (Bekleidung, Freizeit) – Quartalszahlen überraschen.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Wetteranomalien × Consumer Cyclical: Wetteranomalien verschieben saisonale Nachfrage (Bekleidung, Freizeit) – Quartalszahlen überraschen.",
@@ -548,7 +1083,46 @@
     "cost": null
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Offene Frage (Wetteranomalien × Consumer Cyclical): ohne Point-in-Time-Daten nicht testbar.",
+    "mechanism": "Wetteranomalien verschieben saisonale Nachfrage (Bekleidung, Freizeit) – Quartalszahlen überraschen.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500, Sektor Consumer Cyclical vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.0,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Datendomäne nicht im PIT-Feature-Store"
+    ],
+    "effort_cost": {
+     "relative_cost": null,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "DATA_GAP"
   },
   {
@@ -577,7 +1151,7 @@
    "mechanism": "Niedrige Pegel verteuern Binnenschiff-Transporte und drosseln Chemieproduktion (Rhein-Niedrigwasser 2018/2022).",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [None] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Flusspegel/Binnenschifffahrt × Basic Materials: Niedrige Pegel verteuern Binnenschiff-Transporte und drosseln Chemieproduktion (Rhein-Niedrigwasser 2018/2022).",
@@ -594,7 +1168,46 @@
     "cost": null
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Offene Frage (Flusspegel/Binnenschifffahrt × Basic Materials): ohne Point-in-Time-Daten nicht testbar.",
+    "mechanism": "Niedrige Pegel verteuern Binnenschiff-Transporte und drosseln Chemieproduktion (Rhein-Niedrigwasser 2018/2022).",
+    "mechanism_source": "template",
+    "data": {
+     "features": [],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500, Sektor Basic Materials vs. übrige Titel",
+    "direction": -1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.0,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Datendomäne nicht im PIT-Feature-Store"
+    ],
+    "effort_cost": {
+     "relative_cost": null,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "DATA_GAP"
   },
   {
@@ -623,7 +1236,7 @@
    "mechanism": "Industrieller Stromverbrauch ist ein früher Indikator der Produktionsaktivität.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Stromverbrauch × Industrials: Industrieller Stromverbrauch ist ein früher Indikator der Produktionsaktivität.",
@@ -640,7 +1253,46 @@
     "cost": null
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Offene Frage (Stromverbrauch × Industrials): ohne Point-in-Time-Daten nicht testbar.",
+    "mechanism": "Industrieller Stromverbrauch ist ein früher Indikator der Produktionsaktivität.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500, Sektor Industrials vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.0,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Datendomäne nicht im PIT-Feature-Store"
+    ],
+    "effort_cost": {
+     "relative_cost": null,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "DATA_GAP"
   },
   {
@@ -670,7 +1322,7 @@
    "mechanism": "Steigende Paket-/App-Downloads signalisieren Produktadoption vor Umsatzmeldungen.",
    "mechanism_source": "template",
    "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Software-Downloads × Technology: Steigende Paket-/App-Downloads signalisieren Produktadoption vor Umsatzmeldungen.",
@@ -688,7 +1340,897 @@
     "cost": null
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Offene Frage (Software-Downloads × Technology): ohne Point-in-Time-Daten nicht testbar.",
+    "mechanism": "Steigende Paket-/App-Downloads signalisieren Produktadoption vor Umsatzmeldungen.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [],
+     "available_at": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500, Sektor Technology vs. übrige Titel",
+    "direction": 1,
+    "lag": "Merkmal zum Stichtag (PIT), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags (alle übrigen Titel); zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation oder nach Herausrechnen bestehender Merkmale",
+    "data_quality": 0.0,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Datendomäne nicht im PIT-Feature-Store"
+    ],
+    "effort_cost": {
+     "relative_cost": null,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-E2489E9A",
+   "family": "cmd_oil_price_x_exposure",
+   "domain": "commodity_oil_price",
+   "idea_source": "cross_domain",
+   "commodity": "oil",
+   "exploratory": false,
+   "relevance": 0.5,
+   "title": "Ölpreis (FRED/ALFRED) × oil-Exposure",
+   "population": "PIT-S&P-500; Titel mit oil-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_oil != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure oil (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_oil * sign(cmd_wti_ret_20d - 0)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_wti_ret_20d",
+    "cmd_wti_ret_60d",
+    "cmd_wti_z_60d"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_price",
+   "direction": 1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Ölpreisbewegungen ändern Cashflows ölexponierter Titel (Produzenten +, Verbraucher wie Airlines -); Analysten passen Schätzungen verzögert an.",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_oil * sign(cmd_wti_ret_20d - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Ölpreis (FRED/ALFRED) × oil-Exposure: Ölpreisbewegungen ändern Cashflows ölexponierter Titel (Produzenten +, Verbraucher wie Airlines -); Analysten passen Schätzungen verzögert an.",
+   "rationale": "Ölpreisbewegungen ändern Cashflows ölexponierter Titel (Produzenten +, Verbraucher wie Airlines -); Analysten passen Schätzungen verzögert an.",
+   "spec_hash": "719f307a1310d3eb",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 5% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.031,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_oil * sign(cmd_wti_ret_20d - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Ölpreisbewegungen ändern Cashflows ölexponierter Titel (Produzenten +, Verbraucher wie Airlines -); Analysten passen Schätzungen verzögert an.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_wti_ret_20d",
+      "cmd_wti_ret_60d",
+      "cmd_wti_z_60d"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit oil-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": 1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.031,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 5% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-E562759E",
+   "family": "cmd_oil_inventory_x_exposure",
+   "domain": "commodity_oil_fundamentals",
+   "idea_source": "cross_domain",
+   "commodity": "oil",
+   "exploratory": false,
+   "relevance": 0.4,
+   "title": "Öl-Fundamentaldaten (EIA WPSR) × oil-Exposure",
+   "population": "PIT-S&P-500; Titel mit oil-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_oil != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure oil (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_oil * sign(cmd_crude_stocks_vs_5y - 0)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_crude_stocks_vs_5y",
+    "cmd_crude_stocks_chg_z_52w",
+    "cmd_product_supplied_chg_4w",
+    "cmd_refinery_utilization_z_52w"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_fundamental",
+   "direction": -1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Rohölbestände über dem saisonalen 5J-Mittel signalisieren schwache Bilanz und Preisdruck – belastet Produzenten, entlastet Verbraucher.",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_oil * sign(cmd_crude_stocks_vs_5y - 0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Öl-Fundamentaldaten (EIA WPSR) × oil-Exposure: Rohölbestände über dem saisonalen 5J-Mittel signalisieren schwache Bilanz und Preisdruck – belastet Produzenten, entlastet Verbraucher.",
+   "rationale": "Rohölbestände über dem saisonalen 5J-Mittel signalisieren schwache Bilanz und Preisdruck – belastet Produzenten, entlastet Verbraucher.",
+   "spec_hash": "3d0506fdb11d6600",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 5% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.027,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_oil * sign(cmd_crude_stocks_vs_5y - 0) (Richtung -1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Rohölbestände über dem saisonalen 5J-Mittel signalisieren schwache Bilanz und Preisdruck – belastet Produzenten, entlastet Verbraucher.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_crude_stocks_vs_5y",
+      "cmd_crude_stocks_chg_z_52w",
+      "cmd_product_supplied_chg_4w",
+      "cmd_refinery_utilization_z_52w"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit oil-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": -1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.027,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 5% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-3AB12CBC",
+   "family": "cmd_oil_demand_x_exposure",
+   "domain": "commodity_oil_fundamentals",
+   "idea_source": "cross_domain",
+   "commodity": "oil",
+   "exploratory": true,
+   "relevance": 0.3,
+   "title": "Öl-Fundamentaldaten (EIA WPSR) × oil-Exposure",
+   "population": "PIT-S&P-500; Titel mit oil-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_oil != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure oil (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_oil * sign(cmd_product_supplied_chg_4w - 0)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_crude_stocks_vs_5y",
+    "cmd_crude_stocks_chg_z_52w",
+    "cmd_product_supplied_chg_4w",
+    "cmd_refinery_utilization_z_52w"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_fundamental",
+   "direction": 1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Steigende implizite Nachfrage (Product Supplied) stützt den Ölpreis, bevor er sich im Preis zeigt.",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_oil * sign(cmd_product_supplied_chg_4w - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Öl-Fundamentaldaten (EIA WPSR) × oil-Exposure: Steigende implizite Nachfrage (Product Supplied) stützt den Ölpreis, bevor er sich im Preis zeigt.",
+   "rationale": "Steigende implizite Nachfrage (Product Supplied) stützt den Ölpreis, bevor er sich im Preis zeigt.",
+   "spec_hash": "7a523112200ee6cc",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 5% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.031,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_oil * sign(cmd_product_supplied_chg_4w - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Steigende implizite Nachfrage (Product Supplied) stützt den Ölpreis, bevor er sich im Preis zeigt.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_crude_stocks_vs_5y",
+      "cmd_crude_stocks_chg_z_52w",
+      "cmd_product_supplied_chg_4w",
+      "cmd_refinery_utilization_z_52w"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit oil-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": 1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.031,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 5% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-80694923",
+   "family": "cmd_gas_price_x_exposure",
+   "domain": "commodity_gas_price",
+   "idea_source": "cross_domain",
+   "commodity": "natural_gas",
+   "exploratory": false,
+   "relevance": 0.4,
+   "title": "Henry-Hub-Gaspreis (FRED/ALFRED) × natural_gas-Exposure",
+   "population": "PIT-S&P-500; Titel mit natural_gas-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_natural_gas != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure natural_gas (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_natural_gas * sign(cmd_henry_hub_ret_20d - 0)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_henry_hub_ret_20d",
+    "cmd_henry_hub_ret_60d"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_price",
+   "direction": 1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Henry-Hub-Anstiege erhöhen Erlöse von Gasproduzenten und Kosten gasintensiver Chemie/Dünger.",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_natural_gas * sign(cmd_henry_hub_ret_20d - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Henry-Hub-Gaspreis (FRED/ALFRED) × natural_gas-Exposure: Henry-Hub-Anstiege erhöhen Erlöse von Gasproduzenten und Kosten gasintensiver Chemie/Dünger.",
+   "rationale": "Henry-Hub-Anstiege erhöhen Erlöse von Gasproduzenten und Kosten gasintensiver Chemie/Dünger.",
+   "spec_hash": "607fb5e54d72ccd3",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 3% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.016,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_natural_gas * sign(cmd_henry_hub_ret_20d - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Henry-Hub-Anstiege erhöhen Erlöse von Gasproduzenten und Kosten gasintensiver Chemie/Dünger.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_henry_hub_ret_20d",
+      "cmd_henry_hub_ret_60d"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit natural_gas-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": 1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.016,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 3% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-0079F74C",
+   "family": "cmd_gas_storage_x_exposure",
+   "domain": "commodity_gas_fundamentals",
+   "idea_source": "cross_domain",
+   "commodity": "natural_gas",
+   "exploratory": false,
+   "relevance": 0.4,
+   "title": "Gas-Fundamentaldaten (EIA) × natural_gas-Exposure",
+   "population": "PIT-S&P-500; Titel mit natural_gas-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_natural_gas != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure natural_gas (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_natural_gas * sign(cmd_natgas_storage_vs_5y - 0)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_natgas_storage_vs_5y",
+    "cmd_natgas_storage_chg_z_52w",
+    "cmd_lng_exports_yoy"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_fundamental",
+   "direction": -1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Speicher über dem 5J-Mittel drückt den Gaspreis – negativ für Produzenten, positiv für Gasverbraucher.",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_natural_gas * sign(cmd_natgas_storage_vs_5y - 0)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Gas-Fundamentaldaten (EIA) × natural_gas-Exposure: Speicher über dem 5J-Mittel drückt den Gaspreis – negativ für Produzenten, positiv für Gasverbraucher.",
+   "rationale": "Speicher über dem 5J-Mittel drückt den Gaspreis – negativ für Produzenten, positiv für Gasverbraucher.",
+   "spec_hash": "2ed4b42a02712321",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 2% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.014,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_natural_gas * sign(cmd_natgas_storage_vs_5y - 0) (Richtung -1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Speicher über dem 5J-Mittel drückt den Gaspreis – negativ für Produzenten, positiv für Gasverbraucher.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_natgas_storage_vs_5y",
+      "cmd_natgas_storage_chg_z_52w",
+      "cmd_lng_exports_yoy"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit natural_gas-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": -1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.014,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 2% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-8581D177",
+   "family": "cmd_oil_crowding_x_exposure",
+   "domain": "commodity_positioning",
+   "idea_source": "cross_domain",
+   "commodity": "oil",
+   "exploratory": true,
+   "relevance": 0.3,
+   "title": "Futures-Positionierung (CFTC COT) × oil-Exposure",
+   "population": "PIT-S&P-500; Titel mit oil-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_oil != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure oil (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_oil * sign(cmd_cot_crude_oil_mm_pctile_1y - 0.5)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_cot_crude_oil_mm_pctile_1y",
+    "cmd_cot_natural_gas_mm_pctile_1y",
+    "cmd_cot_gold_mm_pctile_1y",
+    "cmd_cot_copper_mm_pctile_1y",
+    "cmd_cot_crude_oil_mm_net_chg_4w"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_positioning",
+   "direction": -1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Überfüllte Managed-Money-Longs im Rohöl erhöhen das Risiko einer Positionsauflösung; exponierte Aktien folgen verzögert.",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_oil * sign(cmd_cot_crude_oil_mm_pctile_1y - 0.5)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Futures-Positionierung (CFTC COT) × oil-Exposure: Überfüllte Managed-Money-Longs im Rohöl erhöhen das Risiko einer Positionsauflösung; exponierte Aktien folgen verzögert.",
+   "rationale": "Überfüllte Managed-Money-Longs im Rohöl erhöhen das Risiko einer Positionsauflösung; exponierte Aktien folgen verzögert.",
+   "spec_hash": "87a10fcf1852648e",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 5% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.031,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_oil * sign(cmd_cot_crude_oil_mm_pctile_1y - 0.5) (Richtung -1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Überfüllte Managed-Money-Longs im Rohöl erhöhen das Risiko einer Positionsauflösung; exponierte Aktien folgen verzögert.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_cot_crude_oil_mm_pctile_1y",
+      "cmd_cot_natural_gas_mm_pctile_1y",
+      "cmd_cot_gold_mm_pctile_1y",
+      "cmd_cot_copper_mm_pctile_1y",
+      "cmd_cot_crude_oil_mm_net_chg_4w"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit oil-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": -1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.031,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 5% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-62A2446B",
+   "family": "cmd_copper_price_x_exposure",
+   "domain": "commodity_metal_ag_price",
+   "idea_source": "cross_domain",
+   "commodity": "copper",
+   "exploratory": false,
+   "relevance": 0.3,
+   "title": "Kupfer/Agrarpreise (IMF via FRED, monatlich) × copper-Exposure",
+   "population": "PIT-S&P-500; Titel mit copper-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_copper != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure copper (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_copper * sign(cmd_copper_ret_3m - 0)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_copper_ret_3m",
+    "cmd_corn_ret_3m",
+    "cmd_wheat_ret_3m",
+    "cmd_soybeans_ret_3m"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_price",
+   "direction": 1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Kupferpreis bestimmt Margen von Minen (+) und Inputkosten von Elektroausrüstern (-).",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_copper * sign(cmd_copper_ret_3m - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Kupfer/Agrarpreise (IMF via FRED, monatlich) × copper-Exposure: Kupferpreis bestimmt Margen von Minen (+) und Inputkosten von Elektroausrüstern (-).",
+   "rationale": "Kupferpreis bestimmt Margen von Minen (+) und Inputkosten von Elektroausrüstern (-).",
+   "spec_hash": "51ee3c501461bfe7",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 1% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.004,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_copper * sign(cmd_copper_ret_3m - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Kupferpreis bestimmt Margen von Minen (+) und Inputkosten von Elektroausrüstern (-).",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_copper_ret_3m",
+      "cmd_corn_ret_3m",
+      "cmd_wheat_ret_3m",
+      "cmd_soybeans_ret_3m"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit copper-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": 1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.004,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 1% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-1241CF06",
+   "family": "cmd_gold_positioning_x_exposure",
+   "domain": "commodity_positioning",
+   "idea_source": "cross_domain",
+   "commodity": "gold",
+   "exploratory": true,
+   "relevance": 0.2,
+   "title": "Futures-Positionierung (CFTC COT) × gold-Exposure",
+   "population": "PIT-S&P-500; Titel mit gold-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_gold != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure gold (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_gold * sign(cmd_cot_gold_mm_pctile_1y - 0.5)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_cot_crude_oil_mm_pctile_1y",
+    "cmd_cot_natural_gas_mm_pctile_1y",
+    "cmd_cot_gold_mm_pctile_1y",
+    "cmd_cot_copper_mm_pctile_1y",
+    "cmd_cot_crude_oil_mm_net_chg_4w"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_positioning",
+   "direction": 1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Ohne offiziellen kostenlosen Goldpreis: Managed-Money-Positionierung als Proxy der Goldnachfrage für Minen/Royalty-Titel.",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_gold * sign(cmd_cot_gold_mm_pctile_1y - 0.5)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Futures-Positionierung (CFTC COT) × gold-Exposure: Ohne offiziellen kostenlosen Goldpreis: Managed-Money-Positionierung als Proxy der Goldnachfrage für Minen/Royalty-Titel.",
+   "rationale": "Ohne offiziellen kostenlosen Goldpreis: Managed-Money-Positionierung als Proxy der Goldnachfrage für Minen/Royalty-Titel.",
+   "spec_hash": "066e65383f256d40",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 2% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.009,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_gold * sign(cmd_cot_gold_mm_pctile_1y - 0.5) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Ohne offiziellen kostenlosen Goldpreis: Managed-Money-Positionierung als Proxy der Goldnachfrage für Minen/Royalty-Titel.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_cot_crude_oil_mm_pctile_1y",
+      "cmd_cot_natural_gas_mm_pctile_1y",
+      "cmd_cot_gold_mm_pctile_1y",
+      "cmd_cot_copper_mm_pctile_1y",
+      "cmd_cot_crude_oil_mm_net_chg_4w"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit gold-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": 1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.009,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 2% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-ECAE1B77",
+   "family": "cmd_corn_price_x_exposure",
+   "domain": "commodity_metal_ag_price",
+   "idea_source": "cross_domain",
+   "commodity": "corn",
+   "exploratory": true,
+   "relevance": 0.2,
+   "title": "Kupfer/Agrarpreise (IMF via FRED, monatlich) × corn-Exposure",
+   "population": "PIT-S&P-500; Titel mit corn-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+   "equity_population": "cmdexp_corn != 0 (Mapping exposure-v1, NON_PIT)",
+   "exposure": "Commodity-Exposure corn (heutige Zuordnung, nicht PIT)",
+   "non_pit_mapping": true,
+   "signal": "cmdexp_corn * sign(cmd_corn_ret_3m - 0)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmd_copper_ret_3m",
+    "cmd_corn_ret_3m",
+    "cmd_wheat_ret_3m",
+    "cmd_soybeans_ret_3m"
+   ],
+   "free_sources": [],
+   "source_id": "commodity_price",
+   "direction": 1,
+   "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+   "horizon": 20,
+   "baseline": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+   "control_group": "Querschnittsmittel desselben Stichtags (alle übrigen Titel)",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+   "oos": "Walk-Forward-Testjahre + gesperrtes Locked-Fenster; danach Forward ab Registrierung",
+   "multiple_testing": "Benjamini-Hochberg über alle Fabrik-Hypothesen des Laufs",
+   "mechanism": "Höhere Maispreise stärken Farmeinkommen -> Nachfrage nach Landmaschinen, Dünger, Pflanzenschutz.",
+   "mechanism_source": "template",
+   "failure_condition": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [cmdexp_corn * sign(cmd_corn_ret_3m - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Kupfer/Agrarpreise (IMF via FRED, monatlich) × corn-Exposure: Höhere Maispreise stärken Farmeinkommen -> Nachfrage nach Landmaschinen, Dünger, Pflanzenschutz.",
+   "rationale": "Höhere Maispreise stärken Farmeinkommen -> Nachfrage nach Landmaschinen, Dünger, Pflanzenschutz.",
+   "spec_hash": "3be5a517ef23a0ad",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 1% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.005,
+    "cost": 1.5
+   },
+   "novelty": 0.857,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt cmdexp_corn * sign(cmd_corn_ret_3m - 0) (Richtung +1) die netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel) voraus?",
+    "mechanism": "Höhere Maispreise stärken Farmeinkommen -> Nachfrage nach Landmaschinen, Dünger, Pflanzenschutz.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmd_copper_ret_3m",
+      "cmd_corn_ret_3m",
+      "cmd_wheat_ret_3m",
+      "cmd_soybeans_ret_3m"
+     ],
+     "available_at": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500; Titel mit corn-Exposure-Mapping vs. übrige Titel mit bekanntem Sektor",
+    "direction": 1,
+    "lag": "Datums-Feature zum Stichtag 21:00 UTC (available_at <= Stichtag), Rendite ab Folgetag",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen bestehende Merkmale",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite)",
+    "falsification": "Walk-Forward netto <= 0 oder nicht signifikant nach BH, Placebo nicht übertroffen, Effekt verschwindet in Replikation, nach Herausrechnen bestehender Merkmale oder zerfällt über die Zeit (RELATIONSHIP DECAYED)",
+    "data_quality": 0.005,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 1% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.857,
+    "selection_evidence": null
+   },
    "plan_status": "DATA_GAP"
   },
   {
@@ -716,7 +2258,7 @@
    "mechanism": "Steigende öffentliche Aufträge bei fallendem Kurs: Markt preist neue Umsatzsichtbarkeit noch nicht ein.",
    "mechanism_source": "template",
    "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [rank(ted_awards_z) * step(-mom_3m)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Divergenz ted_awards_z vs. mom_3m: Steigende öffentliche Aufträge bei fallendem Kurs: Markt preist neue Umsatzsichtbarkeit noch nicht ein.",
@@ -726,11 +2268,52 @@
     "status": "DATA_GAP",
     "reason": "Abdeckung ab 2016 nur 6% (Historie/Mapping zu dünn)",
     "free_sources": [],
-    "data_quality": 0.046,
+    "data_quality": 0.052,
     "cost": 1.5
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt rank(ted_awards_z) * step(-mom_3m) (Richtung +1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Steigende öffentliche Aufträge bei fallendem Kurs: Markt preist neue Umsatzsichtbarkeit noch nicht ein.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "ted_awards_z"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500 mit verfügbarem Alt-Feature",
+    "direction": 1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.052,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 6% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "DATA_GAP"
   },
   {
@@ -758,7 +2341,7 @@
    "mechanism": "Insider kaufen netto, während der Kurs fällt: private Information widerspricht dem Preis.",
    "mechanism_source": "template",
    "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [rank(sec_insider_net_value_90d) * step(-mom_3m)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Divergenz sec_insider_net_value_90d vs. mom_3m: Insider kaufen netto, während der Kurs fällt: private Information widerspricht dem Preis.",
@@ -767,12 +2350,59 @@
    "readiness": {
     "status": "READY",
     "flags": [],
-    "coverage_2016plus": 0.97,
+    "coverage_2016plus": 0.959,
     "data_quality": 0.8,
     "cost": 1.5
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.8,
+    "cost": 1.5,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt rank(sec_insider_net_value_90d) * step(-mom_3m) (Richtung +1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Insider kaufen netto, während der Kurs fällt: private Information widerspricht dem Preis.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "sec_insider_net_value_90d"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500 mit verfügbarem Alt-Feature",
+    "direction": 1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.8,
+    "coverage_2016plus": 0.959,
+    "data_gaps": [],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -801,7 +2431,7 @@
    "mechanism": "Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
    "mechanism_source": "template",
    "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [rank(xbrl_sue) * step(-mom_3m)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "Divergenz xbrl_sue vs. mom_3m: Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
@@ -814,9 +2444,223 @@
     "data_quality": 0.8,
     "cost": 1.5
    },
-   "novelty": 0.6,
-   "priority": 0.04042,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.6,
+    "novelty": 0.0,
+    "data_quality": 0.8,
+    "cost": 1.5,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt rank(xbrl_sue) * step(-mom_3m) (Richtung +1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Berichtete Gewinnüberraschung bei fallendem Kurs: belegte Fundamentaldaten widersprechen dem Preis.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "xbrl_sue"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500 mit verfügbarem Alt-Feature",
+    "direction": 1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.8,
+    "coverage_2016plus": 0.934,
+    "data_gaps": [],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
+  },
+  {
+   "id": "FAC-B7A942D2",
+   "family": "div_oil_vs_equity",
+   "domain": "commodity_oil_price",
+   "idea_source": "cross_source_divergence",
+   "source_id": "commodity_price",
+   "exploratory": true,
+   "relevance": 0.4,
+   "title": "Divergenz cmdx_oil__wti_ret_20d vs. mom_3m",
+   "population": "PIT-S&P-500 mit verfügbarem Alt-Feature",
+   "exposure": "firmenspezifisch",
+   "signal": "rank(cmdx_oil__wti_ret_20d) * step(-mom_3m)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmdx_oil__wti_ret_20d"
+   ],
+   "free_sources": [],
+   "direction": 1,
+   "lag": "PIT (available_at <= Stichtag)",
+   "horizon": 20,
+   "control_group": "Querschnittsmittel desselben Stichtags",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+   "mechanism": "Ölpreis bewegte sich zugunsten der Exposure-Richtung, Aktie fiel dennoch: Markt preist die Rohstoffbewegung verzögert ein (oder die Beziehung ist zerfallen – Test entscheidet).",
+   "mechanism_source": "template",
+   "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [rank(cmdx_oil__wti_ret_20d) * step(-mom_3m)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Divergenz cmdx_oil__wti_ret_20d vs. mom_3m: Ölpreis bewegte sich zugunsten der Exposure-Richtung, Aktie fiel dennoch: Markt preist die Rohstoffbewegung verzögert ein (oder die Beziehung ist zerfallen – Test entscheidet).",
+   "rationale": "Ölpreis bewegte sich zugunsten der Exposure-Richtung, Aktie fiel dennoch: Markt preist die Rohstoffbewegung verzögert ein (oder die Beziehung ist zerfallen – Test entscheidet).",
+   "spec_hash": "5d6e06a86cef70e3",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 4% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.023,
+    "cost": 1.5
+   },
+   "novelty": 0.75,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt rank(cmdx_oil__wti_ret_20d) * step(-mom_3m) (Richtung +1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Ölpreis bewegte sich zugunsten der Exposure-Richtung, Aktie fiel dennoch: Markt preist die Rohstoffbewegung verzögert ein (oder die Beziehung ist zerfallen – Test entscheidet).",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmdx_oil__wti_ret_20d"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500 mit verfügbarem Alt-Feature",
+    "direction": 1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.023,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 4% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.75,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-5E69E436",
+   "family": "div_gas_vs_equity",
+   "domain": "commodity_gas_price",
+   "idea_source": "cross_source_divergence",
+   "source_id": "commodity_price",
+   "exploratory": true,
+   "relevance": 0.3,
+   "title": "Divergenz cmdx_natural_gas__henry_hub_ret_20d vs. mom_3m",
+   "population": "PIT-S&P-500 mit verfügbarem Alt-Feature",
+   "exposure": "firmenspezifisch",
+   "signal": "rank(cmdx_natural_gas__henry_hub_ret_20d) * step(-mom_3m)",
+   "domain_kind": "alt_feature",
+   "domain_features": [
+    "cmdx_natural_gas__henry_hub_ret_20d"
+   ],
+   "free_sources": [],
+   "direction": 1,
+   "lag": "PIT (available_at <= Stichtag)",
+   "horizon": 20,
+   "control_group": "Querschnittsmittel desselben Stichtags",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+   "mechanism": "Gaspreisbewegung zugunsten der Exposure-Richtung bei fallender Aktie: verzögerte Einpreisung.",
+   "mechanism_source": "template",
+   "failure_condition": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [rank(cmdx_natural_gas__henry_hub_ret_20d) * step(-mom_3m)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Divergenz cmdx_natural_gas__henry_hub_ret_20d vs. mom_3m: Gaspreisbewegung zugunsten der Exposure-Richtung bei fallender Aktie: verzögerte Einpreisung.",
+   "rationale": "Gaspreisbewegung zugunsten der Exposure-Richtung bei fallender Aktie: verzögerte Einpreisung.",
+   "spec_hash": "4c3107dbdc07c9f2",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Abdeckung ab 2016 nur 1% (Historie/Mapping zu dünn)",
+    "free_sources": [],
+    "data_quality": 0.008,
+    "cost": 1.5
+   },
+   "novelty": 0.75,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt rank(cmdx_natural_gas__henry_hub_ret_20d) * step(-mom_3m) (Richtung +1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Gaspreisbewegung zugunsten der Exposure-Richtung bei fallender Aktie: verzögerte Einpreisung.",
+    "mechanism_source": "template",
+    "data": {
+     "features": [
+      "cmdx_natural_gas__henry_hub_ret_20d"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500 mit verfügbarem Alt-Feature",
+    "direction": 1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.008,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Abdeckung ab 2016 nur 1% (Historie/Mapping zu dünn)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.75,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
   },
   {
    "id": "FAC-A11F218F",
@@ -843,7 +2687,7 @@
    "mechanism": "Gemessener Decay von vol_20 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
    "mechanism_source": "measured_drift",
    "failure_condition": "wie Cross-Domain",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [rank(vol_20) * step(20 - vix)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "vol_20 nur im Niedrig-Vol-Regime: Gemessener Decay von vol_20 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
@@ -857,7 +2701,55 @@
     "cost": 1.0
    },
    "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.4,
+    "novelty": 0.0,
+    "data_quality": 1.0,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
    "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt rank(vol_20) * step(20 - vix) (Richtung +1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Gemessener Decay von vol_20 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
+    "mechanism_source": "measured_drift",
+    "data": {
+     "features": [
+      "vol_20",
+      "vix"
+     ],
+     "available_at": "PIT",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500",
+    "direction": 1,
+    "lag": "PIT",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain",
+    "data_quality": 1.0,
+    "coverage_2016plus": 1.0,
+    "data_gaps": [],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
    "plan_status": "ALREADY_TESTED",
    "memory_status": "REJECTED"
   },
@@ -886,7 +2778,7 @@
    "mechanism": "Gemessener Decay von vol_60 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
    "mechanism_source": "measured_drift",
    "failure_condition": "wie Cross-Domain",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [rank(vol_60) * step(20 - vix)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "vol_60 nur im Niedrig-Vol-Regime: Gemessener Decay von vol_60 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
@@ -899,8 +2791,147 @@
     "data_quality": 1.0,
     "cost": 1.0
    },
-   "novelty": 0.571,
-   "priority": 0.08298,
+   "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.3076,
+    "relevance": 0.4,
+    "novelty": 0.0,
+    "data_quality": 1.0,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt rank(vol_60) * step(20 - vix) (Richtung +1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Gemessener Decay von vol_60 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
+    "mechanism_source": "measured_drift",
+    "data": {
+     "features": [
+      "vol_60",
+      "vix"
+     ],
+     "available_at": "PIT",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500",
+    "direction": 1,
+    "lag": "PIT",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain",
+    "data_quality": 1.0,
+    "coverage_2016plus": 0.999,
+    "data_gaps": [],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
+  },
+  {
+   "id": "FAC-261A6848",
+   "family": "openq_tnx",
+   "domain": "regime",
+   "idea_source": "open_question",
+   "exploratory": true,
+   "relevance": 0.6,
+   "title": "Momentum außerhalb des tnx-Trainingsbereichs",
+   "population": "PIT-S&P-500",
+   "exposure": "Regime tnx > p99 des Trainingsbereichs",
+   "signal": "rank(mom_12_1) * step(tnx - 4.7817)",
+   "domain_kind": "pit_panel",
+   "domain_features": [
+    "mom_12_1",
+    "tnx"
+   ],
+   "free_sources": [],
+   "direction": 1,
+   "lag": "PIT",
+   "horizon": 20,
+   "control_group": "Querschnittsmittel desselben Stichtags",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+   "mechanism": "tnx liegt außerhalb des bisher gesehenen Bereichs (SystemState-Drift). Offene Frage: tragen die Basis-Effekte dort weiter, oder kehrt sich ihre Wirkung um?",
+   "mechanism_source": "measured_drift",
+   "failure_condition": "wie Cross-Domain; zu wenige Beobachtungen im Bereich -> DATA_GAP statt Schätzung",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [rank(mom_12_1) * step(tnx - 4.7817)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Momentum außerhalb des tnx-Trainingsbereichs: tnx liegt außerhalb des bisher gesehenen Bereichs (SystemState-Drift). Offene Frage: tragen die Basis-Effekte dort weiter, oder kehrt sich ihre Wirkung um?",
+   "rationale": "tnx liegt außerhalb des bisher gesehenen Bereichs (SystemState-Drift). Offene Frage: tragen die Basis-Effekte dort weiter, oder kehrt sich ihre Wirkung um?",
+   "spec_hash": "d23ec4211d57885c",
+   "readiness": {
+    "status": "READY",
+    "flags": [],
+    "coverage_2016plus": 0.996,
+    "data_quality": 1.0,
+    "cost": 1.0
+   },
+   "novelty": 0.667,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.3633,
+    "relevance": 0.6,
+    "novelty": 0.667,
+    "data_quality": 1.0,
+    "cost": 1.0,
+    "plausibility": 1.0,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
+   "priority": 0.14539,
+   "dossier": {
+    "research_question": "Sagt rank(mom_12_1) * step(tnx - 4.7817) (Richtung +1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "tnx liegt außerhalb des bisher gesehenen Bereichs (SystemState-Drift). Offene Frage: tragen die Basis-Effekte dort weiter, oder kehrt sich ihre Wirkung um?",
+    "mechanism_source": "measured_drift",
+    "data": {
+     "features": [
+      "mom_12_1",
+      "tnx"
+     ],
+     "available_at": "PIT",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500",
+    "direction": 1,
+    "lag": "PIT",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain; zu wenige Beobachtungen im Bereich -> DATA_GAP statt Schätzung",
+    "data_quality": 1.0,
+    "coverage_2016plus": 0.996,
+    "data_gaps": [],
+    "effort_cost": {
+     "relative_cost": 1.0,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.667,
+    "selection_evidence": null
+   },
    "plan_status": "SELECTED"
   },
   {
@@ -930,7 +2961,7 @@
    "mechanism_source": "measured_condition",
    "selection_t": 3.81,
    "failure_condition": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_healthcare * rank(sec_insider_net_value_90d)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "sec_insider_net_value_90d wirkt bedingt (Sektor Healthcare): Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
@@ -941,13 +2972,63 @@
     "flags": [
      "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
     ],
-    "coverage_2016plus": 0.971,
+    "coverage_2016plus": 0.96,
     "data_quality": 0.6,
     "cost": 1.5
    },
-   "novelty": 0.667,
-   "priority": 0.02808,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.2666,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.5,
+    "plausibility": 0.75,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_healthcare * rank(sec_insider_net_value_90d) (Richtung -1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+    "mechanism_source": "measured_condition",
+    "data": {
+     "features": [
+      "sec_insider_net_value_90d"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Healthcare",
+    "direction": -1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.96,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
   },
   {
    "id": "FAC-A82BAC5D",
@@ -976,7 +3057,7 @@
    "mechanism_source": "measured_condition",
    "selection_t": 2.48,
    "failure_condition": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_healthcare * rank(sec_insider_buy_value_90d)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "sec_insider_buy_value_90d wirkt bedingt (Sektor Healthcare): Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
@@ -987,13 +3068,63 @@
     "flags": [
      "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
     ],
-    "coverage_2016plus": 0.971,
+    "coverage_2016plus": 0.96,
     "data_quality": 0.6,
     "cost": 1.5
    },
-   "novelty": 0.8,
-   "priority": 0.03368,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.3076,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.5,
+    "plausibility": 0.75,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_healthcare * rank(sec_insider_buy_value_90d) (Richtung -1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+    "mechanism_source": "measured_condition",
+    "data": {
+     "features": [
+      "sec_insider_buy_value_90d"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Healthcare",
+    "direction": -1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.96,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
   },
   {
    "id": "FAC-3A0A8178",
@@ -1018,11 +3149,11 @@
    "horizon": 20,
    "control_group": "Querschnittsmittel desselben Stichtags",
    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
-   "mechanism": "Im Healthcare-Sektor könnten Insiderkäufe häufig als Signal-Management vor kritischen binären Ereignissen (etwa Zulassungsentscheidungen, Studiendaten oder Erstattungsfragen) eingesetzt werden, um Vertrauen zu demonstrieren, ohne dass sie echten Informationsvorsprung widerspiegeln. Wenn viele Insider gleichzeitig kaufen, könnte der Markt dies kurzfristig überinterpretieren und die Aktie über ihren fundamentalen Wert treiben. Diese Überreaktion würde sich dann über die folgenden Wochen wieder abbauen, was eine negative Beziehung zur Folgerendite nahelegt.",
-   "mechanism_source": "llm:claude-opus-5-5",
+   "mechanism": "Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+   "mechanism_source": "measured_condition",
    "selection_t": 2.37,
    "failure_condition": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_healthcare * rank(sec_insider_buyers_90d)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "sec_insider_buyers_90d wirkt bedingt (Sektor Healthcare): Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
@@ -1033,14 +3164,63 @@
     "flags": [
      "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
     ],
-    "coverage_2016plus": 0.971,
+    "coverage_2016plus": 0.96,
     "data_quality": 0.6,
     "cost": 1.5
    },
-   "novelty": 0.8,
-   "priority": 0.03368,
-   "plan_status": "SELECTED",
-   "mechanism_template": "Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet."
+   "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.3076,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.5,
+    "plausibility": 0.75,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_healthcare * rank(sec_insider_buyers_90d) (Richtung -1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+    "mechanism_source": "measured_condition",
+    "data": {
+     "features": [
+      "sec_insider_buyers_90d"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Healthcare",
+    "direction": -1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.96,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
   },
   {
    "id": "FAC-01660B09",
@@ -1069,7 +3249,7 @@
    "mechanism_source": "measured_condition",
    "selection_t": 2.29,
    "failure_condition": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
-   "created_at": "2026-10-03T12:59:49+00:00",
+   "created_at": "2026-11-03T15:46:05+00:00",
    "H0": "H0: [exp_healthcare * rank(sec_filing_delay_z)] × Richtung -1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
    "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
    "statement": "sec_filing_delay_z wirkt bedingt (Sektor Healthcare): Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
@@ -1084,19 +3264,354 @@
     "data_quality": 0.6,
     "cost": 1.5
    },
-   "novelty": 0.667,
-   "priority": 0.02808,
-   "plan_status": "SELECTED"
+   "novelty": 0.0,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "eig": 0.3076,
+    "relevance": 0.5,
+    "novelty": 0.0,
+    "data_quality": 0.6,
+    "cost": 1.5,
+    "plausibility": 0.75,
+    "testability": 1.0,
+    "independent_evidence": 1.0,
+    "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Sagt exp_healthcare * rank(sec_filing_delay_z) (Richtung -1) die netto Top-Dezil-Überrendite je 20 T gegenüber Querschnittsmittel desselben Stichtags voraus?",
+    "mechanism": "Gemessen in den Auswahljahren ([2016, 2017, 2018]): Quelle sec_deep_events zeigt nur bedingt Information. Ökonomischer Mechanismus offen – Test entscheidet.",
+    "mechanism_source": "measured_condition",
+    "data": {
+     "features": [
+      "sec_filing_delay_z"
+     ],
+     "available_at": "PIT (available_at <= Stichtag)",
+     "point_in_time": false
+    },
+    "population": "PIT-S&P-500, Sektor Healthcare",
+    "direction": -1,
+    "lag": "PIT (available_at <= Stichtag)",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "wie Cross-Domain (Walk-Forward der späteren Jahre, BH, Placebo, Replikation, Ablation)",
+    "data_quality": 0.6,
+    "coverage_2016plus": 0.979,
+    "data_gaps": [
+     "non_pit_mapping: Sektorzuordnung von heute (Mapping MEDIUM)"
+    ],
+    "effort_cost": {
+     "relative_cost": 1.5,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.0,
+    "selection_evidence": null
+   },
+   "plan_status": "ALREADY_TESTED",
+   "memory_status": "REJECTED"
+  },
+  {
+   "id": "FAC-C4FC1AFC",
+   "family": "anom_gap_divergence",
+   "domain": "divergence",
+   "idea_source": "anomaly",
+   "anomaly_type": "divergence",
+   "exploratory": true,
+   "relevance": 0.5,
+   "title": "Unerwartete Divergenz zweier Datenreihen – Daten fehlen",
+   "population": "PIT-S&P-500",
+   "exposure": "firmenspezifisch",
+   "signal": null,
+   "domain_kind": "missing",
+   "domain_features": [
+    "ted_any_award_365d",
+    "ted_award_value_365d",
+    "ted_awards_90d",
+    "ted_awards_z",
+    "xbrl_rev_yoy"
+   ],
+   "free_sources": [],
+   "direction": 1,
+   "lag": "PIT",
+   "horizon": 20,
+   "control_group": "Querschnittsmittel desselben Stichtags",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+   "mechanism": "Merkmal ist hoch, während Preis gefallen ist: belegte Unternehmensinformation widerspricht dem Preis. Hypothese: der Markt preist sie verzögert ein (oder die Divergenz ist berechtigt – der Test entscheidet).",
+   "mechanism_source": "measured_anomaly",
+   "failure_condition": "nicht testbar ohne Point-in-Time-Historie – DATA_GAP, nie simuliert",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Unerwartete Divergenz zweier Datenreihen – Daten fehlen: Merkmal ist hoch, während Preis gefallen ist: belegte Unternehmensinformation widerspricht dem Preis. Hypothese: der Markt preist sie verzögert ein (oder die Divergenz ist berechtigt – der Test entscheidet).",
+   "rationale": "Merkmal ist hoch, während Preis gefallen ist: belegte Unternehmensinformation widerspricht dem Preis. Hypothese: der Markt preist sie verzögert ein (oder die Divergenz ist berechtigt – der Test entscheidet).",
+   "spec_hash": "e44cab7ce6ae74df",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Datendomäne nicht im PIT-Feature-Store",
+    "free_sources": [],
+    "data_quality": 0.0,
+    "cost": null
+   },
+   "novelty": 0.75,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Offene Frage (Unerwartete Divergenz zweier Datenreihen – Daten fehlen): ohne Point-in-Time-Daten nicht testbar.",
+    "mechanism": "Merkmal ist hoch, während Preis gefallen ist: belegte Unternehmensinformation widerspricht dem Preis. Hypothese: der Markt preist sie verzögert ein (oder die Divergenz ist berechtigt – der Test entscheidet).",
+    "mechanism_source": "measured_anomaly",
+    "data": {
+     "features": [
+      "ted_any_award_365d",
+      "ted_award_value_365d",
+      "ted_awards_90d",
+      "ted_awards_z",
+      "xbrl_rev_yoy"
+     ],
+     "available_at": "PIT",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500",
+    "direction": 1,
+    "lag": "PIT",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "nicht testbar ohne Point-in-Time-Historie – DATA_GAP, nie simuliert",
+    "data_quality": 0.0,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Datendomäne nicht im PIT-Feature-Store"
+    ],
+    "effort_cost": {
+     "relative_cost": null,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.75,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-AAE5B342",
+   "family": "anom_gap_macro_reaction",
+   "domain": "macro_reaction",
+   "idea_source": "anomaly",
+   "anomaly_type": "macro_reaction",
+   "exploratory": true,
+   "relevance": 0.5,
+   "title": "Verzögerte Reaktion auf einen Wirtschaftsindikator – Daten fehlen",
+   "population": "PIT-S&P-500",
+   "exposure": "firmenspezifisch",
+   "signal": null,
+   "domain_kind": "missing",
+   "domain_features": [
+    "usd_63d_chg"
+   ],
+   "free_sources": [],
+   "direction": 1,
+   "lag": "PIT",
+   "horizon": 20,
+   "control_group": "Querschnittsmittel desselben Stichtags",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+   "mechanism": "Veränderungen von Indikator wirken über Kosten, Nachfrage oder Finanzierung auf Unternehmen des Sektors Sektor. Hypothese: die Aktien reagieren verzögert – die Rendite wird erst ab dem Folgetag über 20 Handelstage gemessen.",
+   "mechanism_source": "measured_anomaly",
+   "failure_condition": "nicht testbar ohne Point-in-Time-Historie – DATA_GAP, nie simuliert",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Verzögerte Reaktion auf einen Wirtschaftsindikator – Daten fehlen: Veränderungen von Indikator wirken über Kosten, Nachfrage oder Finanzierung auf Unternehmen des Sektors Sektor. Hypothese: die Aktien reagieren verzögert – die Rendite wird erst ab dem Folgetag über 20 Handelstage gemessen.",
+   "rationale": "Veränderungen von Indikator wirken über Kosten, Nachfrage oder Finanzierung auf Unternehmen des Sektors Sektor. Hypothese: die Aktien reagieren verzögert – die Rendite wird erst ab dem Folgetag über 20 Handelstage gemessen.",
+   "spec_hash": "e44cab7ce6ae74df",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Datendomäne nicht im PIT-Feature-Store",
+    "free_sources": [],
+    "data_quality": 0.0,
+    "cost": null
+   },
+   "novelty": 0.75,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Offene Frage (Verzögerte Reaktion auf einen Wirtschaftsindikator – Daten fehlen): ohne Point-in-Time-Daten nicht testbar.",
+    "mechanism": "Veränderungen von Indikator wirken über Kosten, Nachfrage oder Finanzierung auf Unternehmen des Sektors Sektor. Hypothese: die Aktien reagieren verzögert – die Rendite wird erst ab dem Folgetag über 20 Handelstage gemessen.",
+    "mechanism_source": "measured_anomaly",
+    "data": {
+     "features": [
+      "usd_63d_chg"
+     ],
+     "available_at": "PIT",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500",
+    "direction": 1,
+    "lag": "PIT",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "nicht testbar ohne Point-in-Time-Historie – DATA_GAP, nie simuliert",
+    "data_quality": 0.0,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Datendomäne nicht im PIT-Feature-Store"
+    ],
+    "effort_cost": {
+     "relative_cost": null,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.75,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
+  },
+  {
+   "id": "FAC-AEE9DBF9",
+   "family": "anom_gap_option_vs_stock",
+   "domain": "option_vs_stock",
+   "idea_source": "anomaly",
+   "anomaly_type": "option_vs_stock",
+   "exploratory": true,
+   "relevance": 0.6,
+   "title": "Abweichung zwischen Aktienbewegung und Optionsbewertung – Daten fehlen",
+   "population": "PIT-S&P-500",
+   "exposure": "firmenspezifisch",
+   "signal": null,
+   "domain_kind": "missing",
+   "domain_features": [
+    "options_iv_history",
+    "options_skew_history"
+   ],
+   "free_sources": [
+    "outputs/options_archive (eigenes Quote-Archiv, ab 2026-10-12; Historie zu kurz)"
+   ],
+   "direction": 1,
+   "lag": "PIT",
+   "horizon": 20,
+   "control_group": "Querschnittsmittel desselben Stichtags",
+   "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+   "mechanism": "Implizite Volatilität bzw. Skew weichen von der späteren Aktienbewegung ab. Hypothese: der Optionsmarkt nimmt Information vorweg oder überschätzt Risiken.",
+   "mechanism_source": "measured_anomaly",
+   "failure_condition": "nicht testbar ohne Point-in-Time-Historie – DATA_GAP, nie simuliert",
+   "created_at": "2026-11-03T15:46:05+00:00",
+   "H0": "H0: [None] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+   "H_alt": "H_alt: Effekt in Gegenrichtung. Gewinnt H_alt, wird die Hypothese REJECTED – kein Vorzeichenwechsel; eine Gegenhypothese ist neu zu registrieren und erneut zu prüfen.",
+   "statement": "Abweichung zwischen Aktienbewegung und Optionsbewertung – Daten fehlen: Implizite Volatilität bzw. Skew weichen von der späteren Aktienbewegung ab. Hypothese: der Optionsmarkt nimmt Information vorweg oder überschätzt Risiken.",
+   "rationale": "Implizite Volatilität bzw. Skew weichen von der späteren Aktienbewegung ab. Hypothese: der Optionsmarkt nimmt Information vorweg oder überschätzt Risiken.",
+   "spec_hash": "e44cab7ce6ae74df",
+   "readiness": {
+    "status": "DATA_GAP",
+    "reason": "Datendomäne nicht im PIT-Feature-Store",
+    "free_sources": [
+     "outputs/options_archive (eigenes Quote-Archiv, ab 2026-10-12; Historie zu kurz)"
+    ],
+    "data_quality": 0.0,
+    "cost": null
+   },
+   "novelty": 0.75,
+   "independent_evidence": {
+    "prospective_positive": 0,
+    "prospective_negative": 0,
+    "related": []
+   },
+   "priority_components": {
+    "status": "DATA_GAP"
+   },
+   "priority": 0.0,
+   "dossier": {
+    "research_question": "Offene Frage (Abweichung zwischen Aktienbewegung und Optionsbewertung – Daten fehlen): ohne Point-in-Time-Daten nicht testbar.",
+    "mechanism": "Implizite Volatilität bzw. Skew weichen von der späteren Aktienbewegung ab. Hypothese: der Optionsmarkt nimmt Information vorweg oder überschätzt Risiken.",
+    "mechanism_source": "measured_anomaly",
+    "data": {
+     "features": [
+      "options_iv_history",
+      "options_skew_history"
+     ],
+     "available_at": "PIT",
+     "point_in_time": true
+    },
+    "population": "PIT-S&P-500",
+    "direction": 1,
+    "lag": "PIT",
+    "horizon_trading_days": 20,
+    "comparison_model": "Querschnittsmittel desselben Stichtags; zusätzlich Ablation gegen alle bestehenden Merkmale (Robustheits-Batterie)",
+    "primary_metric": "netto Top-Dezil-Überrendite je 20 T",
+    "falsification": "nicht testbar ohne Point-in-Time-Historie – DATA_GAP, nie simuliert",
+    "data_quality": 0.0,
+    "coverage_2016plus": null,
+    "data_gaps": [
+     "Datendomäne nicht im PIT-Feature-Store"
+    ],
+    "effort_cost": {
+     "relative_cost": null,
+     "api_calls": 0,
+     "llm_calls": 0,
+     "paid_data": false,
+     "compute": "eine Walk-Forward-Auswertung im bestehenden Research-Lab"
+    },
+    "novelty": 0.75,
+    "selection_evidence": null
+   },
+   "plan_status": "DATA_GAP"
   }
  ],
  "selected": [
-  "FAC-AD1E02FC",
-  "FAC-D4E1EB14",
-  "FAC-A82BAC5D",
-  "FAC-3A0A8178",
-  "FAC-195425A4",
-  "FAC-01660B09"
+  "FAC-261A6848"
  ],
+ "anomaly_scan": {
+  "version": "anomaly-v1",
+  "status": "OK",
+  "window": "2015-01-01..2019-01-01",
+  "n_scanned": 183,
+  "n_significant": 0,
+  "by_type": {
+   "contradiction": 3,
+   "divergence": 25,
+   "macro_reaction": 39,
+   "peer_reaction": 66,
+   "regime_relationship": 50
+  },
+  "data_gaps": {
+   "divergence": [
+    "ted_any_award_365d",
+    "ted_award_value_365d",
+    "ted_awards_90d",
+    "ted_awards_z",
+    "xbrl_rev_yoy"
+   ],
+   "macro_reaction": [
+    "usd_63d_chg"
+   ]
+  },
+  "survivor_ids": []
+ },
  "directions_used": {
   "family:procurement_x_industrials": {
    "tested": 0,
@@ -1294,6 +3809,116 @@
    "posterior_success": 0.1429,
    "posterior_sd": 0.1237,
    "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:div_fundamentals_vs_price": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cond_sec_insider_net_value_90d_healthcare": {
+   "tested": 2,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 2,
+   "posterior_success": 0.1429,
+   "posterior_sd": 0.1237,
+   "wasted_capacity": 2,
+   "assessment": "zu wenig getestet"
+  },
+  "family:drift_vol_60": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cond_sec_insider_buy_value_90d_healthcare": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cond_sec_insider_buyers_90d_healthcare": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:cond_sec_filing_delay_z_healthcare": {
+   "tested": 1,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 1,
+   "posterior_success": 0.1667,
+   "posterior_sd": 0.1409,
+   "wasted_capacity": 1,
+   "assessment": "zu wenig getestet"
+  },
+  "family:surprise_engine": {
+   "tested": 6,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 6,
+   "posterior_success": 0.0909,
+   "posterior_sd": 0.083,
+   "wasted_capacity": 6,
+   "assessment": "verschwendet Kapazität"
+  },
+  "family:option_data_pipeline": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:dev_task_empty_feature": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
+   "assessment": "zu wenig getestet"
+  },
+  "family:dev_task_workflow_recovery": {
+   "tested": 0,
+   "success": 0,
+   "prospective": 0,
+   "data_gap": 0,
+   "rejected": 0,
+   "posterior_success": 0.2,
+   "posterior_sd": 0.1633,
+   "wasted_capacity": 0,
    "assessment": "zu wenig getestet"
   }
  }

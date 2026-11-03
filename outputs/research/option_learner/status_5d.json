@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-31",
+ "as_of": "2026-11-03",
  "horizon": 5,
  "experiment": {
   "name": "option_learner_ridge",
@@ -86,23 +86,23 @@
   "min_coverage": 0.8,
   "due_grace_days": 10
  },
- "verified_labels": 359,
- "label_dates": 8,
+ "verified_labels": 441,
+ "label_dates": 11,
  "provenance_counts": {
   "ENTRY_NOT_ARCHIVED": 308,
-  "VERIFIED": 359
+  "VERIFIED": 441
  },
- "ledger_rows_7d": 1785,
- "option_snapshots_7d": 107,
+ "ledger_rows_7d": 1276,
+ "option_snapshots_7d": 84,
  "manifest": {
-  "cutoff": "2026-10-31",
-  "n_labels": 359,
-  "labels_sha256": "bfa297eef5341a67",
+  "cutoff": "2026-11-03",
+  "n_labels": 441,
+  "labels_sha256": "6f3882a24534aba7",
   "first_signal": "2026-10-14",
-  "last_signal": "2026-10-23",
+  "last_signal": "2026-10-28",
   "by_expression": {
-   "single": 320,
-   "spread": 39
+   "single": 384,
+   "spread": 57
   },
   "all_labels_verified": true,
   "trains_model": true
@@ -117,31 +117,31 @@
   "news_novelty": 0.0,
   "rel_volume": 1.0,
   "scan_day_ret": 1.0,
-  "short_mom": 0.9972,
+  "short_mom": 0.9977,
   "log_market_cap": 1.0,
-  "short_pct_float": 0.9861,
-  "options_skew_25d": 0.9944,
+  "short_pct_float": 0.9887,
+  "options_skew_25d": 0.9955,
   "options_skew_ratio": 1.0,
-  "dealer_oi_ratio": 0.9471,
-  "ml_exp_ret_60": 0.9499,
-  "ml_q10_ret_60": 0.9499,
-  "ml_q90_ret_60": 0.9499,
-  "ml_exp_dd_60": 0.9499,
-  "ml_p_gt10_60": 0.9499,
-  "ml_disagreement_sd": 0.9499,
-  "ml_hgb_xs20_v1": 0.9499,
-  "ml_enet_xs20_v1": 0.9499,
+  "dealer_oi_ratio": 0.9388,
+  "ml_exp_ret_60": 0.9546,
+  "ml_q10_ret_60": 0.9546,
+  "ml_q90_ret_60": 0.9546,
+  "ml_exp_dd_60": 0.9546,
+  "ml_p_gt10_60": 0.9546,
+  "ml_disagreement_sd": 0.9546,
+  "ml_hgb_xs20_v1": 0.9546,
+  "ml_enet_xs20_v1": 0.9546,
   "c_entry_spread": 1.0,
   "c_is_spread": 1.0,
   "c_is_call": 1.0,
-  "c_iv": 0.9916,
+  "c_iv": 0.9932,
   "c_dte": 1.0,
   "c_moneyness": 1.0,
-  "c_delta": 0.9916,
+  "c_delta": 0.9932,
   "c_log_oi": 1.0,
-  "c_iv_rank": 1.0,
-  "c_rv_score": 1.0,
-  "c_term_score": 1.0
+  "c_iv_rank": 0.9977,
+  "c_rv_score": 0.9977,
+  "c_term_score": 0.9977
  },
  "walk_forward": {
   "n": 0,
@@ -173,6 +173,12 @@
    "by_direction": {},
    "span_days": 0,
    "warnings": []
+  },
+  "mean_selected_adverse_entry": null,
+  "segments": {
+   "overall_mean": null,
+   "by": {},
+   "weak": []
   },
   "verdict": "NEED_MORE_DATA",
   "vs_reference": {
@@ -220,24 +226,24 @@
  },
  "by_gate": {
   "bearish_disabled": {
-   "n": 109,
-   "dates": 8,
-   "mean": -0.107155,
-   "win_rate": 0.3211,
-   "sufficient": false
+   "n": 123,
+   "dates": 10,
+   "mean": -0.117632,
+   "win_rate": 0.3008,
+   "sufficient": true
   },
   "earnings_gate": {
-   "n": 27,
-   "dates": 7,
-   "mean": -0.125626,
-   "win_rate": 0.2963,
+   "n": 34,
+   "dates": 9,
+   "mean": -0.139616,
+   "win_rate": 0.2941,
    "sufficient": false
   },
   "impact_x_surprise_below_floor": {
-   "n": 8,
-   "dates": 6,
-   "mean": -0.157024,
-   "win_rate": 0.0,
+   "n": 14,
+   "dates": 8,
+   "mean": -0.043081,
+   "win_rate": 0.3571,
    "sufficient": false
   },
   "intraday_too_late": {
@@ -248,25 +254,25 @@
    "sufficient": false
   },
   "mc_below_threshold": {
-   "n": 36,
-   "dates": 8,
-   "mean": -0.042455,
-   "win_rate": 0.4167,
-   "sufficient": false
+   "n": 44,
+   "dates": 10,
+   "mean": -0.029323,
+   "win_rate": 0.4318,
+   "sufficient": true
   },
   "mismatch_below_min": {
-   "n": 136,
-   "dates": 8,
-   "mean": -0.099009,
-   "win_rate": 0.3529,
-   "sufficient": false
+   "n": 169,
+   "dates": 11,
+   "mean": -0.102734,
+   "win_rate": 0.3373,
+   "sufficient": true
   },
   "options_design_roi_or_edge": {
-   "n": 37,
-   "dates": 8,
-   "mean": -0.134913,
-   "win_rate": 0.2432,
-   "sufficient": false
+   "n": 51,
+   "dates": 10,
+   "mean": -0.132696,
+   "win_rate": 0.2353,
+   "sufficient": true
   },
   "proposed": {
    "n": 3,
@@ -314,17 +320,24 @@
    "span_days": 0,
    "warnings": []
   },
+  "mean_selected_adverse_entry": null,
+  "segments": {
+   "overall_mean": null,
+   "by": {},
+   "weak": []
+  },
   "verdict": "NEED_MORE_DATA",
   "experiment_id": "4a0f886d1979",
-  "valid_decisions": 0,
-  "valid_predictions": 0,
-  "pending_decisions": 0,
+  "valid_decisions": 40,
+  "valid_predictions": 93,
+  "pending_decisions": 40,
   "model_instances": 0,
   "excluded": {
    "OTHER_EXPERIMENT": 40
   },
   "journal_by_experiment": {
-   "298be00d41bc": 40
+   "298be00d41bc": 40,
+   "4a0f886d1979": 173
   },
   "vs_reference": {
    "candidates": 0,
@@ -358,42 +371,104 @@
    },
    "verdict": "NEED_MORE_DATA",
    "mode": "forward",
-   "reference_models": []
+   "reference_models": [
+    "519261c95a8a6da7"
+   ]
   }
  },
  "forward_sequential": {
   "experiment_id": "4a0f886d1979",
   "horizon": 5,
-  "evaluated_as_of": "2026-10-31",
+  "evaluated_as_of": "2026-11-03",
   "looks_evaluated": [],
   "binding": null,
-  "status": "NO_PLAN"
+  "status": "AWAITING_LOOK",
+  "plan_id": "FWD-5d-4a0f886d1979",
+  "plan_sha256": "c3b5ce3b8ffba824d13707bc1dce492ba1980cd540a7602f085b1d4d44ef0089",
+  "start_date": "2026-11-02",
+  "look_cutoffs": [
+   "2026-12-12",
+   "2027-01-21",
+   "2027-03-02"
+  ],
+  "looks": 3,
+  "alpha": 0.05,
+  "look_alpha": [
+   0.0006868948682239306,
+   0.01568777158182444,
+   0.033625333549951675
+  ],
+  "look": 0,
+  "valid_decisions": 40,
+  "next_look": {
+   "look": 1,
+   "cutoff": "2026-12-12",
+   "ready_after": "2026-12-27"
+  }
  },
  "model": {
   "features": 33,
   "clip": [
-   -0.7836,
-   0.4461
+   -0.7647,
+   0.4478
   ],
-  "intercept": -0.10199,
+  "intercept": -0.103555,
   "top_coefficients": {
-   "c_entry_spread": -0.096087,
-   "c_is_spread": -0.03928,
-   "ml_exp_dd_60": -0.030133,
-   "c_iv": -0.026853,
-   "ml_q90_ret_60": -0.025532,
-   "c_log_oi": 0.022793,
-   "c_is_call": 0.021875,
-   "c_term_score": 0.019417
+   "c_entry_spread": -0.091165,
+   "c_is_spread": -0.03829,
+   "c_iv": -0.037268,
+   "c_log_oi": 0.022672,
+   "c_is_call": 0.02186,
+   "ml_exp_dd_60": -0.021398,
+   "scan_day_ret": -0.019739,
+   "ml_q90_ret_60": -0.019006
   }
  },
  "production_influence": "NONE",
  "orders_created": 0,
- "model_instances": {
-  "count": 0,
-  "latest": null
+ "label_pipeline": {
+  "verified": 441,
+  "independent_signal_days": 11,
+  "not_yet_due": 147,
+  "technically_missing": {},
+  "historical_gap": {
+   "ENTRY_NOT_ARCHIVED": 308,
+   "NO_LABEL_AFTER_DUE": 1
+  },
+  "archive_start": "2026-10-12",
+  "due_after_archive_start": 441,
+  "technical_missing_share": 0.0
  },
- "reference": null,
+ "learning_status": {
+  "state": "NEED_MORE_DATA",
+  "reason": "441 gepr\u00fcfte Labels an 11 Signaltagen, 147 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA",
+  "alpha_claim": "keiner"
+ },
+ "model_instances": {
+  "count": 1,
+  "latest": {
+   "model_id": "519261c95a8a6da7",
+   "experiment_id": "4a0f886d1979",
+   "train_cutoff": "2026-11-02",
+   "n_train_labels": 359,
+   "labels_sha256": "bfa297eef5341a67",
+   "weights_sha256": "d8a88fafa38a4a18",
+   "max_label_day": "2026-10-28",
+   "horizon": 5,
+   "registered_at": "2026-11-02T16:22:59+00:00"
+  }
+ },
+ "reference": {
+  "model_id": "519261c95a8a6da7",
+  "experiment_id": "4a0f886d1979",
+  "train_cutoff": "2026-11-02",
+  "n_train_labels": 359,
+  "labels_sha256": "bfa297eef5341a67",
+  "weights_sha256": "d8a88fafa38a4a18",
+  "max_label_day": "2026-10-28",
+  "horizon": 5,
+  "frozen_at": "2026-11-02T16:22:59+00:00"
+ },
  "variants": {
   "horizon": 5,
   "base_experiment_id": "4a0f886d1979",
@@ -401,19 +476,468 @@
    "total_alpha": 0.05,
    "max_tests": 20,
    "slot_alpha": 0.0025,
-   "used": 0,
-   "remaining": 20,
+   "used": 3,
+   "remaining": 17,
    "exhausted": false,
-   "frozen_by_registry": false
+   "frozen_by_registry": true
   },
-  "variants": {}
+  "variants": {
+   "OLV-17f09b47ea": {
+    "variant_id": "OLV-17f09b47ea",
+    "overrides": {
+     "ridge_alpha": 30.0
+    },
+    "experiment_id": "501b23ec5bc8",
+    "base_experiment_id": "4a0f886d1979",
+    "proposal_id": "OLP-7151aca6",
+    "gap_ids": [
+     "model:overfit_risk:5d",
+     "model:untested_alternatives:5d"
+    ],
+    "start_date": "2026-11-01",
+    "days_running": 2,
+    "falsification": {
+     "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
+     "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
+     "comparators": [
+      "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+      "eingefrorene Referenz der Basis",
+      "Nicht-Handeln"
+     ],
+     "looks_days": [
+      30,
+      60,
+      90
+     ],
+     "accept_if": "an einem vorab festgelegten Pr\u00fcfzeitpunkt BEIDE KI ganz \u00fcber 0 (relativ zur Basis UND netto gegen\u00fcber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabh\u00e4ngige Perioden, >= 30 Kandidaten",
+     "reject_if": "relativ KI ganz unter 0 an einem Pr\u00fcfzeitpunkt (FALSIFIED_WORSE); an der letzten Pr\u00fcfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+     "max_days": 90,
+     "test_budget": "total_alpha 0.05 / max_tests 20"
+    },
+    "look_days": [
+     30,
+     60,
+     90
+    ],
+    "look": 0,
+    "looks": 3,
+    "look_cutoff": null,
+    "next_look": {
+     "look": 1,
+     "cutoff": "2026-12-01",
+     "ready_after": "2026-12-16"
+    },
+    "status": "RUNNING",
+    "relative_verdict": "AWAITING_LOOK",
+    "economic_verdict": "AWAITING_LOOK",
+    "current_evidence": {
+     "status": "RUNNING",
+     "look": 0,
+     "relative_verdict": "AWAITING_LOOK",
+     "economic_verdict": "AWAITING_LOOK",
+     "look_report": null,
+     "decision_look_report": null,
+     "contradicts_decision": false
+    },
+    "alpha_slot": 1,
+    "slot_alpha": 0.0025,
+    "alpha_look": 0.0025,
+    "look_report": null,
+    "comparison": {
+     "due_candidates": 0,
+     "compared": 0,
+     "coverage": null,
+     "min_coverage": 0.8,
+     "excluded": {},
+     "decisions_after_cutoff": 40
+    },
+    "valid_decisions": 40,
+    "invalid_entries": {},
+    "vs_base": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "vs_frozen_reference": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "forward": {
+     "n": 0,
+     "dates": 0,
+     "independent_periods": 0,
+     "n_selected": 0,
+     "mean_selected": null,
+     "selected_ci95": null,
+     "coverage": null,
+     "verdict": "NEED_MORE_DATA"
+    }
+   },
+   "OLV-946176e202": {
+    "variant_id": "OLV-946176e202",
+    "overrides": {
+     "drop_feature_group": "ml_scores"
+    },
+    "experiment_id": "4b83387ab2a5",
+    "base_experiment_id": "4a0f886d1979",
+    "proposal_id": "OLP-09d7236c",
+    "gap_ids": [
+     "model:overfit_risk:5d",
+     "model:untested_alternatives:5d"
+    ],
+    "start_date": "2026-11-01",
+    "days_running": 2,
+    "falsification": {
+     "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
+     "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
+     "comparators": [
+      "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+      "eingefrorene Referenz der Basis",
+      "Nicht-Handeln"
+     ],
+     "looks_days": [
+      30,
+      60,
+      90
+     ],
+     "accept_if": "an einem vorab festgelegten Pr\u00fcfzeitpunkt BEIDE KI ganz \u00fcber 0 (relativ zur Basis UND netto gegen\u00fcber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabh\u00e4ngige Perioden, >= 30 Kandidaten",
+     "reject_if": "relativ KI ganz unter 0 an einem Pr\u00fcfzeitpunkt (FALSIFIED_WORSE); an der letzten Pr\u00fcfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+     "max_days": 90,
+     "test_budget": "total_alpha 0.05 / max_tests 20"
+    },
+    "look_days": [
+     30,
+     60,
+     90
+    ],
+    "look": 0,
+    "looks": 3,
+    "look_cutoff": null,
+    "next_look": {
+     "look": 1,
+     "cutoff": "2026-12-01",
+     "ready_after": "2026-12-16"
+    },
+    "status": "RUNNING",
+    "relative_verdict": "AWAITING_LOOK",
+    "economic_verdict": "AWAITING_LOOK",
+    "current_evidence": {
+     "status": "RUNNING",
+     "look": 0,
+     "relative_verdict": "AWAITING_LOOK",
+     "economic_verdict": "AWAITING_LOOK",
+     "look_report": null,
+     "decision_look_report": null,
+     "contradicts_decision": false
+    },
+    "alpha_slot": 2,
+    "slot_alpha": 0.0025,
+    "alpha_look": 0.0025,
+    "look_report": null,
+    "comparison": {
+     "due_candidates": 0,
+     "compared": 0,
+     "coverage": null,
+     "min_coverage": 0.8,
+     "excluded": {},
+     "decisions_after_cutoff": 40
+    },
+    "valid_decisions": 40,
+    "invalid_entries": {},
+    "vs_base": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "vs_frozen_reference": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "forward": {
+     "n": 0,
+     "dates": 0,
+     "independent_periods": 0,
+     "n_selected": 0,
+     "mean_selected": null,
+     "selected_ci95": null,
+     "coverage": null,
+     "verdict": "NEED_MORE_DATA"
+    }
+   },
+   "OLV-2d61b8616c": {
+    "variant_id": "OLV-2d61b8616c",
+    "overrides": {
+     "min_pred": 0.02
+    },
+    "experiment_id": "821727613511",
+    "base_experiment_id": "4a0f886d1979",
+    "proposal_id": "OLP-dfbba2a3",
+    "gap_ids": [
+     "model:untested_alternatives:5d"
+    ],
+    "start_date": "2026-11-01",
+    "days_running": 2,
+    "falsification": {
+     "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
+     "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
+     "comparators": [
+      "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+      "eingefrorene Referenz der Basis",
+      "Nicht-Handeln"
+     ],
+     "looks_days": [
+      30,
+      60,
+      90
+     ],
+     "accept_if": "an einem vorab festgelegten Pr\u00fcfzeitpunkt BEIDE KI ganz \u00fcber 0 (relativ zur Basis UND netto gegen\u00fcber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabh\u00e4ngige Perioden, >= 30 Kandidaten",
+     "reject_if": "relativ KI ganz unter 0 an einem Pr\u00fcfzeitpunkt (FALSIFIED_WORSE); an der letzten Pr\u00fcfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+     "max_days": 90,
+     "test_budget": "total_alpha 0.05 / max_tests 20"
+    },
+    "look_days": [
+     30,
+     60,
+     90
+    ],
+    "look": 0,
+    "looks": 3,
+    "look_cutoff": null,
+    "next_look": {
+     "look": 1,
+     "cutoff": "2026-12-01",
+     "ready_after": "2026-12-16"
+    },
+    "status": "RUNNING",
+    "relative_verdict": "AWAITING_LOOK",
+    "economic_verdict": "AWAITING_LOOK",
+    "current_evidence": {
+     "status": "RUNNING",
+     "look": 0,
+     "relative_verdict": "AWAITING_LOOK",
+     "economic_verdict": "AWAITING_LOOK",
+     "look_report": null,
+     "decision_look_report": null,
+     "contradicts_decision": false
+    },
+    "alpha_slot": 3,
+    "slot_alpha": 0.0025,
+    "alpha_look": 0.0025,
+    "look_report": null,
+    "comparison": {
+     "due_candidates": 0,
+     "compared": 0,
+     "coverage": null,
+     "min_coverage": 0.8,
+     "excluded": {},
+     "decisions_after_cutoff": 40
+    },
+    "valid_decisions": 40,
+    "invalid_entries": {},
+    "vs_base": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "vs_frozen_reference": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "forward": {
+     "n": 0,
+     "dates": 0,
+     "independent_periods": 0,
+     "n_selected": 0,
+     "mean_selected": null,
+     "selected_ci95": null,
+     "coverage": null,
+     "verdict": "NEED_MORE_DATA"
+    }
+   }
+  }
  },
  "learning_trend": [
   {
    "as_of": "2026-10-31",
    "verdict": "NEED_MORE_DATA",
    "mean_diff": null
+  },
+  {
+   "as_of": "2026-11-03",
+   "verdict": "NEED_MORE_DATA",
+   "mean_diff": null
   }
  ],
- "vs_previous": null
+ "vs_previous": {
+  "previous_as_of": "2026-10-31",
+  "previous_verdict": "NEED_MORE_DATA",
+  "delta_mean_selected": null,
+  "delta_ic_mean": null,
+  "delta_labels": 82
+ }
 }

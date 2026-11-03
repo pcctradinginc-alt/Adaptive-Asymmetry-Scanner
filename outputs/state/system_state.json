@@ -1,7 +1,9 @@
 {
  "schema": "system-state-v2",
- "safe_mode": false,
- "safe_mode_reason": [],
+ "safe_mode": true,
+ "safe_mode_reason": [
+  "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19"
+ ],
  "data_health": {
   "status": "OK",
   "data_quality": 0.916,
@@ -21,9 +23,11 @@
   "fallbacks": []
  },
  "model_health": {
-  "status": "OK",
-  "reasons": [],
-  "updated": "2026-10-31T14:49:54+00:00"
+  "status": "SAFE_MODE",
+  "reasons": [
+   "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19"
+  ],
+  "updated": "2026-11-03T16:04:22+00:00"
  },
  "drift_state": {
   "level": "MILD",
@@ -38,42 +42,42 @@
      "vix": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 19.42,
+      "value": 21.15,
       "p01": 12.2374,
       "p99": 33.3101
      },
      "vix_chg_21": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 3.03,
+      "value": 5.84,
       "p01": -11.8762,
       "p99": 13.7307
      },
      "spy_trend_200": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 0.041,
+      "value": 0.0355,
       "p01": -0.1303,
       "p99": 0.1626
      },
      "spy_mom_63": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": -0.0001,
+      "value": -0.0225,
       "p01": -0.1323,
       "p99": 0.1471
      },
      "tnx": {
       "level": "MILD",
-      "excess": 0.04,
-      "value": 4.929,
+      "excess": 0.0305,
+      "value": 4.894,
       "p01": 1.0993,
       "p99": 4.7817
      },
      "curve_10y_3m": {
       "level": "NORMAL",
       "excess": 0.0,
-      "value": 0.956,
+      "value": 0.912,
       "p01": -1.5086,
       "p99": 2.0797
      }
@@ -103,8 +107,8 @@
    "allow_weight_increase": true,
    "safe_mode": false
   },
-  "drift_input_timestamp": "2026-10-31T14:49:39+00:00",
-  "drift_input_age_days": 2.5,
+  "drift_input_timestamp": "2026-11-03T16:00:45+00:00",
+  "drift_input_age_days": 0.0,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -114,7 +118,7 @@
   "version": "scanner_rules@fa6cc74e0def"
  },
  "promotion_state": {
-  "generated": "2026-11-02T23:10:10+00:00",
+  "generated": "2026-11-03T01:43:24+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -177,17 +181,17 @@
   }
  },
  "inputs": {
-  "model_health": "af75c8cf0661",
-  "meta_learning": "731ebdf86d57",
+  "model_health": "631f21079e0c",
+  "meta_learning": "7f4ce3d53158",
   "data_health": "d0b5949e899b",
-  "promotion": "df1b2b4ce044",
+  "promotion": "dbfa646c7dea",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
-  "commodity_status": "4d709beba633"
+  "commodity_status": "238003516e2f"
  },
- "state_version": 87,
- "fingerprint": "1f83ca782ff1de0a",
- "updated_at": "2026-11-03T01:43:24+00:00",
- "code_version": "2b145cfaa11b"
+ "state_version": 89,
+ "fingerprint": "b0790cedacf9308d",
+ "updated_at": "2026-11-03T16:04:22+00:00",
+ "code_version": "3521e0be02fa"
 }

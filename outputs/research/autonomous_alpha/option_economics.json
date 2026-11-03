@@ -1,0 +1,58 @@
+{
+  "benchmarks": {
+    "existing_base_strategy": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+    "frozen_ml_benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+    "random_control": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)"
+  },
+  "coverage": {},
+  "data_origin": "REPOSITORY_JOURNALS_ONLY",
+  "decision_type": "RESEARCH_ONLY",
+  "evidence_classes": {
+    "EXECUTED": {
+      "attribution_checks": {
+        "NO_EX_ANTE_SIGNAL_ID": 4
+      },
+      "n": 0,
+      "real_trade_evidence_classes": {
+        "UNVERIFIABLE": 4
+      },
+      "rule": "documented broker execution (entry and exit fills) AND ex-ante alpha_signal_id",
+      "status": "NONE_DOCUMENTED"
+    },
+    "QUOTE_VERIFIED_PAPER": 0,
+    "UNVERIFIABLE": 0
+  },
+  "execution_model": {
+    "adverse_fraction_of_spread": 0.25,
+    "contracts_per_position": 1,
+    "entry": "long@ask, short@bid",
+    "exit": "long@bid, short@ask",
+    "fee_usd_per_contract_per_side": 0.65
+  },
+  "existing_base_strategy": {
+    "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+    "comparability": {
+      "execution": "ask/bid + commission (no adverse scenario)",
+      "holding_horizon": "20 calendar days vs 20 trading days",
+      "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+    },
+    "reason": "no base journal or no decision days",
+    "status": "NO_CONTEMPORANEOUS_DATA",
+    "used_for_superiority": false
+  },
+  "generated_at": "2026-11-03T16:04:30+00:00",
+  "hypotheses": {},
+  "llm_calls": 0,
+  "order_placed": false,
+  "primary_scenario": "ADVERSE",
+  "production_influence": "NONE",
+  "proposals": {},
+  "rule_hash": "03f872d1d33961ec8075665ed67226a745c26af58ae32f32265640104ba953e0",
+  "rule_version": "alpha-option-rule-v1",
+  "scenarios": [
+    "BASE",
+    "ADVERSE"
+  ],
+  "schema": "alpha-option-economics-v1",
+  "status": "NEED_MORE_DATA"
+}

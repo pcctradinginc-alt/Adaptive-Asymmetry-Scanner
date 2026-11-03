@@ -1,5 +1,5 @@
 {
- "as_of": "2026-10-31",
+ "as_of": "2026-11-03",
  "horizons": [
   20,
   5
@@ -10,11 +10,11 @@
    "question": "Werden Daten automatisch gesammelt?",
    "20d": [
     "Ja",
-    "1785 Kandidaten, 107 mit Optionskontrakt (7 T)"
+    "1276 Kandidaten, 84 mit Optionskontrakt (7 T)"
    ],
    "5d": [
     "Ja",
-    "1785 Kandidaten, 107 mit Optionskontrakt (7 T)"
+    "1276 Kandidaten, 84 mit Optionskontrakt (7 T)"
    ]
   },
   {
@@ -26,7 +26,7 @@
    ],
    "5d": [
     "Teilweise",
-    "359/667 f\u00e4llige Labels gepr\u00fcft"
+    "441/749 f\u00e4llige Labels gepr\u00fcft"
    ]
   },
   {
@@ -38,7 +38,7 @@
    ],
    "5d": [
     "Ja",
-    "359 gepr\u00fcfte Labels, Manifest bfa297eef5341a67"
+    "441 gepr\u00fcfte Labels, Manifest 6f3882a24534aba7"
    ]
   },
   {
@@ -74,7 +74,7 @@
    ],
    "5d": [
     "offen",
-    "NEED_MORE_DATA, 0 f\u00e4llige vorab festgehaltene Entscheidungen, 0 noch nicht f\u00e4llig"
+    "NEED_MORE_DATA, 0 f\u00e4llige vorab festgehaltene Entscheidungen, 40 noch nicht f\u00e4llig"
    ]
   },
   {
@@ -82,11 +82,11 @@
    "question": "Ist das an vorab festgelegten Pr\u00fcfzeitpunkten statistisch korrekt best\u00e4tigt (kein t\u00e4gliches Nachpr\u00fcfen bis zum Zufallstreffer)?",
    "20d": [
     "offen",
-    "kein Pr\u00fcfplan (wird beim n\u00e4chsten Scanner-Lauf vorab festgelegt)"
+    "AWAITING_LOOK, Plan FWD-20d-4a0f886d1979 ab 2026-11-02, Pr\u00fcfung 0/3; n\u00e4chste Pr\u00fcfung nach 2027-03-12"
    ],
    "5d": [
     "offen",
-    "kein Pr\u00fcfplan (wird beim n\u00e4chsten Scanner-Lauf vorab festgelegt)"
+    "AWAITING_LOOK, Plan FWD-5d-4a0f886d1979 ab 2026-11-02, Pr\u00fcfung 0/3; n\u00e4chste Pr\u00fcfung nach 2026-12-27"
    ]
   },
   {
@@ -97,8 +97,8 @@
     "Version 4a0f886d1979; 0 Modellinstanzen; g\u00fcltige Forward-Entscheidungen 0 (Prognosen 0); ausgeschlossen: keine"
    ],
    "5d": [
-    "offen",
-    "Version 4a0f886d1979; 0 Modellinstanzen; g\u00fcltige Forward-Entscheidungen 0 (Prognosen 0); ausgeschlossen: OTHER_EXPERIMENT 40"
+    "Ja",
+    "Version 4a0f886d1979; 1 Modellinstanzen (zuletzt 519261c95a8a6da7, Stichtag 2026-11-02, Labels bfa297eef5341a67); g\u00fcltige Forward-Entscheidungen 40 (Prognosen 93); ausgeschlossen: OTHER_EXPERIMENT 40"
    ]
   },
   {
@@ -106,11 +106,11 @@
    "question": "Entscheidet die lernende Version besser als die eingefrorene Referenz (gleiche Signale)?",
    "20d": [
     "offen",
-    "Forward gegen eingefrorene Referenz None: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 n/a); Verlauf: 10-31 NEED_MORE_DATA n/a"
+    "Forward gegen eingefrorene Referenz None: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 n/a); Verlauf: 10-31 NEED_MORE_DATA n/a \u2192 11-03 NEED_MORE_DATA n/a"
    ],
    "5d": [
     "offen",
-    "Forward gegen eingefrorene Referenz None: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 n/a); Verlauf: 10-31 NEED_MORE_DATA n/a"
+    "Forward gegen eingefrorene Referenz 519261c95a8a6da7: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 n/a); Verlauf: 10-31 NEED_MORE_DATA n/a \u2192 11-03 NEED_MORE_DATA n/a"
    ]
   },
   {
@@ -145,8 +145,32 @@
     "noch keine Gruppe mit >= 20 Labels an >= 10 Tagen"
    ],
    "5d": [
+    "Ja",
+    "mc_below_threshold -2.9 % (n=44); mismatch_below_min -10.3 % (n=169); bearish_disabled -11.8 % (n=123); options_design_roi_or_edge -13.3 % (n=51)"
+   ]
+  },
+  {
+   "key": "labels",
+   "question": "Wie viele Labels sind gepr\u00fcft, ausstehend oder fehlend (mit Ursache)?",
+   "20d": [
+    "Nein",
+    "0 gepr\u00fcft an 0 unabh\u00e4ngigen Signaltagen; 588 noch nicht f\u00e4llig; technisch fehlend keine (Anteil None); historische L\u00fccke vor Archivstart 2026-10-12: {'ENTRY_NOT_ARCHIVED': 308, 'NO_LABEL_AFTER_DUE': 1}"
+   ],
+   "5d": [
+    "Ja",
+    "441 gepr\u00fcft an 11 unabh\u00e4ngigen Signaltagen; 147 noch nicht f\u00e4llig; technisch fehlend keine (Anteil 0.0); historische L\u00fccke vor Archivstart 2026-10-12: {'ENTRY_NOT_ARCHIVED': 308, 'NO_LABEL_AFTER_DUE': 1}"
+   ]
+  },
+  {
+   "key": "learning_state",
+   "question": "Welchen Lernstatus hat das Modell (netto, ADVERSE, schwache Segmente)?",
+   "20d": [
     "offen",
-    "noch keine Gruppe mit >= 20 Labels an >= 10 Tagen"
+    "NEED_MORE_DATA \u2013 0 gepr\u00fcfte Labels an 0 Signaltagen, 588 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA; Netto \u00d8 gew\u00e4hlt (Walk-Forward) n/a, ADVERSE-Einstieg n/a; schwache Segmente: keine belegten"
+   ],
+   "5d": [
+    "offen",
+    "NEED_MORE_DATA \u2013 441 gepr\u00fcfte Labels an 11 Signaltagen, 147 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA; Netto \u00d8 gew\u00e4hlt (Walk-Forward) n/a, ADVERSE-Einstieg n/a; schwache Segmente: keine belegten"
    ]
   },
   {
@@ -182,7 +206,7 @@
    ],
    "5d": [
     "Ja",
-    "4 L\u00fccke(n), zuerst: Merkmal news_novelty nur in 0% der 359 gepr\u00fcften Labels bef\u00fcllt \u2013 vom Modell verworfen; Vorschl\u00e4ge: 8 automatisch testbar, 1 zur Freigabe"
+    "3 L\u00fccke(n), zuerst: Merkmal news_novelty nur in 0% der 441 gepr\u00fcften Labels bef\u00fcllt \u2013 vom Modell verworfen; Vorschl\u00e4ge: 6 automatisch testbar, 1 zur Freigabe"
    ]
   },
   {
@@ -190,11 +214,11 @@
    "question": "Welche Verbesserungen testet es selbst \u2013 mit welchem Ergebnis?",
    "20d": [
     "offen",
-    "noch keine Variante registriert; Fehlerbudget 0/20 Tests verbraucht"
+    "noch keine Variante registriert; Fehlerbudget 3/20 Tests verbraucht"
    ],
    "5d": [
     "offen",
-    "noch keine Variante registriert; Fehlerbudget 0/20 Tests verbraucht"
+    "ridge_alpha=30.0: RUNNING (Slot 1, Pr\u00fcfung 0/3, relativ AWAITING_LOOK, netto AWAITING_LOOK, Abdeckung None, n\u00e4chste Pr\u00fcfung nach 2026-12-16); drop_feature_group=ml_scores: RUNNING (Slot 2, Pr\u00fcfung 0/3, relativ AWAITING_LOOK, netto AWAITING_LOOK, Abdeckung None, n\u00e4chste Pr\u00fcfung nach 2026-12-16); min_pred=0.02: RUNNING (Slot 3, Pr\u00fcfung 0/3, relativ AWAITING_LOOK, netto AWAITING_LOOK, Abdeckung None, n\u00e4chste Pr\u00fcfung nach 2026-12-16); Fehlerbudget 3/20 Tests verbraucht"
    ]
   }
  ],

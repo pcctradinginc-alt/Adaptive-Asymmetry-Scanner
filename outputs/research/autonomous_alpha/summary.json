@@ -1,30 +1,30 @@
 {
-  "appended": 101,
+  "appended": 108,
   "by_kind": {
-    "factory_battery": 6,
-    "factory_plan": 24,
+    "factory_battery": 7,
+    "factory_plan": 39,
     "ml_forward": 6,
     "ml_models": 6,
-    "research_lab": 59
+    "research_lab": 62
   },
   "by_status": {
-    "ALREADY_TESTED": 12,
-    "DATA_GAP": 6,
+    "ALREADY_TESTED": 18,
+    "DATA_GAP": 20,
     "FORWARD_OBSERVED_UNVALIDATED": 6,
     "INCONCLUSIVE": 2,
-    "REJECTED": 59,
+    "REJECTED": 63,
     "REJECTED_SO_FAR": 5,
     "RETEST_LATER": 4,
-    "SELECTED": 6,
+    "SELECTED": 1,
     "VALID": 1
   },
-  "generated": "2026-10-31T14:50:07+00:00",
+  "generated": "2026-11-03T16:04:41+00:00",
   "locked_holdout_policy": "CONTAMINATED",
-  "n_experiments": 101,
+  "n_experiments": 120,
   "n_forward_observation_sets_unvalidated": 6,
-  "n_historically_tested": 71,
+  "n_historically_tested": 75,
   "n_prospectively_confirmed": 0,
-  "n_unique_events": 101,
+  "n_unique_events": 209,
   "next_action": "KEEP_SHADOW_AND_COLLECT_FORWARD",
   "production_effect": "NONE",
   "schema": "alpha-experiment-v1",
@@ -35,13 +35,13 @@
     "sources": {
       "factory_battery": {
         "path": "outputs/research/factory_results.json",
-        "records": 6,
-        "sha256": "ef0137a89667e15fc434c67cca271b00b95365f2088e113190884b68f156e80f"
+        "records": 1,
+        "sha256": "5888f2a2ef1742717d6c295fe769fa868a7c9693ce6fe1cfa9862f35b3584283"
       },
       "factory_plan": {
         "path": "outputs/research/factory_plan.json",
-        "records": 24,
-        "sha256": "521eaba527004d22eb32106d873ce05d18d9047dffecc7cd90abd0cb85dac891"
+        "records": 39,
+        "sha256": "51f5023bb4330ca929ab4488c409ef9faf218ac7b88397cd22da7aa14b209b7c"
       },
       "ml_forward": {
         "path": "outputs/research/ml_forward.json",
@@ -51,14 +51,14 @@
       "ml_models": {
         "path": "outputs/research/ml_research.json",
         "records": 6,
-        "sha256": "128d033d2875b5c6c8704948452f62532f4b891e7c23a18da56526d6b18351fe"
+        "sha256": "28a764429694a25fa37345d55c10b40fb14f4f1452dc411780a1085ff82446c5"
       },
       "research_lab": {
         "path": "outputs/research/hypothesis_db.json",
-        "records": 59,
-        "sha256": "eabc2b3a12c003e0626ee6f548a9751b680124163d9bc6465450613ba7cb9a1c"
+        "records": 62,
+        "sha256": "9737d47417ffed068a53dced52b0a7c16a8a4ed97a0e250d72c8f52b46ec4ab5"
       }
     }
   },
-  "total_unique": 101
+  "total_unique": 209
 }

@@ -78,7 +78,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T13:00:58+00:00",
+      "evaluated_at": "2026-11-03T15:47:11+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -86,7 +86,7 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto 0.00373 mit t=1.56"
+        "Walk-Forward netto 0.00361 mit t=1.51"
       ],
       "signal_key": "cf1f1c3fc00c",
       "coverage": 1.0,
@@ -94,107 +94,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": 0.00373,
-          "median": 0.00219,
-          "hit_rate": 0.531,
-          "t_months": 1.56,
-          "sharpe_ann": 0.62,
-          "max_dd": -0.11617,
+          "mean": 0.00361,
+          "median": 0.00197,
+          "hit_rate": 0.528,
+          "t_months": 1.51,
+          "sharpe_ann": 0.59,
+          "max_dd": -0.11744,
           "years_positive_share": 0.714,
-          "top_mfe": 0.09281,
-          "top_mae": -0.07371,
-          "top_asymmetry": 1.259,
+          "top_mfe": 0.09259,
+          "top_mae": -0.07366,
+          "top_asymmetry": 1.257,
           "univ_asymmetry": 1.154
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": 0.00073,
-          "median": -0.00081,
-          "hit_rate": 0.49,
-          "t_months": 0.32,
-          "sharpe_ann": 0.13,
-          "max_dd": -0.1518,
+          "mean": 0.00061,
+          "median": -0.00103,
+          "hit_rate": 0.487,
+          "t_months": 0.27,
+          "sharpe_ann": 0.11,
+          "max_dd": -0.1545,
           "years_positive_share": 0.714,
-          "top_mfe": 0.09281,
-          "top_mae": -0.07371,
-          "top_asymmetry": 1.259,
+          "top_mfe": 0.09259,
+          "top_mae": -0.07366,
+          "top_asymmetry": 1.257,
           "univ_asymmetry": 1.154
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.02553,
+          "mean_ic": 0.02555,
           "t_months": 1.86
         },
         "halves": {
-          "first": 0.00654,
-          "second": 0.00094
+          "first": 0.00651,
+          "second": 0.00073
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00051,
-            "median": 0.00032,
-            "hit_rate": 0.508,
+            "mean": -0.00058,
+            "median": 0.00031,
+            "hit_rate": 0.503,
             "t_months": -0.31,
             "sharpe_ann": -0.14,
-            "max_dd": -0.14911,
+            "max_dd": -0.15157,
             "years_positive_share": 0.286,
-            "top_mfe": 0.07329,
-            "top_mae": -0.06959,
-            "top_asymmetry": 1.053,
+            "top_mfe": 0.07312,
+            "top_mae": -0.0695,
+            "top_asymmetry": 1.052,
             "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": 0.00994,
-            "median": 0.00763,
+            "mean": 0.00974,
+            "median": 0.00794,
             "hit_rate": 0.566,
-            "t_months": 1.54,
-            "sharpe_ann": 0.81,
-            "max_dd": -0.11587,
+            "t_months": 1.47,
+            "sharpe_ann": 0.77,
+            "max_dd": -0.11876,
             "years_positive_share": 0.857,
-            "top_mfe": 0.12137,
+            "top_mfe": 0.12107,
             "top_mae": -0.07974,
-            "top_asymmetry": 1.522,
+            "top_asymmetry": 1.518,
             "univ_asymmetry": 1.329
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": 0.00155,
-            "median": 0.00131,
-            "hit_rate": 0.531,
-            "t_months": 0.2,
+            "mean": 0.00147,
+            "median": 0.00166,
+            "hit_rate": 0.527,
+            "t_months": 0.18,
             "sharpe_ann": 0.08,
-            "max_dd": -0.15321,
+            "max_dd": -0.15564,
             "years_positive_share": 0.286,
-            "top_mfe": 0.08047,
-            "top_mae": -0.06761,
-            "top_asymmetry": 1.19,
+            "top_mfe": 0.08029,
+            "top_mae": -0.06754,
+            "top_asymmetry": 1.189,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": 0.01131,
-            "median": 0.00802,
+            "mean": 0.01104,
+            "median": 0.00858,
             "hit_rate": 0.533,
-            "t_months": 1.17,
-            "sharpe_ann": 0.81,
-            "max_dd": -0.11587,
+            "t_months": 1.12,
+            "sharpe_ann": 0.77,
+            "max_dd": -0.11876,
             "years_positive_share": 1.0,
-            "top_mfe": 0.13559,
-            "top_mae": -0.09486,
-            "top_asymmetry": 1.429,
+            "top_mfe": 0.13521,
+            "top_mae": -0.09484,
+            "top_asymmetry": 1.426,
             "univ_asymmetry": 1.262
           }
         },
-        "p_value": 0.05938
+        "p_value": 0.065522
       },
-      "p_value": 0.05938,
+      "p_value": 0.065522,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "works",
@@ -215,21 +215,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": false,
-          "finding": "Evidenz: netto 0.00373 je 20 Tage, t=1.56, Rank-IC 0.02553, Asymmetrie Top/Univ 1.259/1.154"
+          "finding": "Evidenz: netto 0.00361 je 20 Tage, t=1.51, Rank-IC 0.02555, Asymmetrie Top/Univ 1.257/1.154"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': 0.00654, 'second': 0.00094}; Jahre positiv 0.714; Regime mit Versagen: ['vix_lt_20']"
+          "finding": "Hälften {'first': 0.00651, 'second': 0.00073}; Jahre positiv 0.714; Regime mit Versagen: ['vix_lt_20']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=1.56, p=0.05938, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=1.51, p=0.065522, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -241,11 +241,11 @@
         },
         "execution_agent": {
           "objection": false,
-          "finding": "Stresskosten 25 bp/Seite: netto 0.00073; Max-DD -0.11617"
+          "finding": "Stresskosten 25 bp/Seite: netto 0.00061; Max-DD -0.11744"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.11617; Jahre positiv 0.714"
+          "finding": "Schlechteste Phase laut Max-DD -0.11744; Jahre positiv 0.714"
         },
         "objections": [
           "skeptic",
@@ -264,7 +264,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T13:00:59+00:00",
+      "evaluated_at": "2026-11-03T15:47:12+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -272,10 +272,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00361 mit t=-1.03",
+        "Walk-Forward netto -0.00363 mit t=-1.03",
         "nur 0.286 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00405, 'second': -0.00317}",
+        "instabil über Hälften {'first': -0.00405, 'second': -0.00321}",
         "Regime: {'vix_lt_20': 'works', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "2015ffe1998a",
@@ -284,101 +284,101 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00361,
-          "median": -0.00404,
+          "mean": -0.00363,
+          "median": -0.00382,
           "hit_rate": 0.463,
           "t_months": -1.03,
           "sharpe_ann": -0.41,
-          "max_dd": -0.28193,
+          "max_dd": -0.28426,
           "years_positive_share": 0.286,
-          "top_mfe": 0.0494,
-          "top_mae": -0.04327,
+          "top_mfe": 0.04938,
+          "top_mae": -0.04324,
           "top_asymmetry": 1.142,
           "univ_asymmetry": 1.154
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00661,
-          "median": -0.00704,
-          "hit_rate": 0.43,
+          "mean": -0.00663,
+          "median": -0.00682,
+          "hit_rate": 0.433,
           "t_months": -1.99,
-          "sharpe_ann": -0.78,
-          "max_dd": -0.41079,
+          "sharpe_ann": -0.79,
+          "max_dd": -0.41195,
           "years_positive_share": 0.0,
-          "top_mfe": 0.0494,
-          "top_mae": -0.04327,
+          "top_mfe": 0.04938,
+          "top_mae": -0.04324,
           "top_asymmetry": 1.142,
           "univ_asymmetry": 1.154
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": -0.01417,
-          "t_months": -0.5
+          "mean_ic": -0.01469,
+          "t_months": -0.52
         },
         "halves": {
           "first": -0.00405,
-          "second": -0.00317
+          "second": -0.00321
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": 0.00107,
-            "median": 0.00085,
+            "mean": 0.001,
+            "median": 0.00208,
             "hit_rate": 0.503,
-            "t_months": 0.72,
-            "sharpe_ann": 0.33,
-            "max_dd": -0.09335,
+            "t_months": 0.7,
+            "sharpe_ann": 0.32,
+            "max_dd": -0.09597,
             "years_positive_share": 0.429,
-            "top_mfe": 0.04189,
+            "top_mfe": 0.04185,
             "top_mae": -0.03847,
-            "top_asymmetry": 1.089,
+            "top_asymmetry": 1.088,
             "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.01046,
-            "median": -0.0083,
+            "mean": -0.0104,
+            "median": -0.00842,
             "hit_rate": 0.404,
-            "t_months": -1.82,
-            "sharpe_ann": -0.95,
-            "max_dd": -0.37004,
+            "t_months": -1.8,
+            "sharpe_ann": -0.94,
+            "max_dd": -0.36861,
             "years_positive_share": 0.0,
-            "top_mfe": 0.06039,
-            "top_mae": -0.05028,
-            "top_asymmetry": 1.201,
+            "top_mfe": 0.06041,
+            "top_mae": -0.05023,
+            "top_asymmetry": 1.203,
             "univ_asymmetry": 1.329
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00082,
-            "median": -0.00352,
+            "mean": -0.00085,
+            "median": -0.00357,
             "hit_rate": 0.473,
-            "t_months": 0.62,
+            "t_months": 0.61,
             "sharpe_ann": 0.26,
-            "max_dd": -0.21507,
+            "max_dd": -0.21577,
             "years_positive_share": 0.286,
-            "top_mfe": 0.04526,
-            "top_mae": -0.03885,
+            "top_mfe": 0.04524,
+            "top_mae": -0.03884,
             "top_asymmetry": 1.165,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": -0.01328,
-            "median": -0.00832,
+            "mean": -0.01325,
+            "median": -0.00859,
             "hit_rate": 0.427,
-            "t_months": -1.5,
-            "sharpe_ann": -1.04,
-            "max_dd": -0.2583,
+            "t_months": -1.49,
+            "sharpe_ann": -1.03,
+            "max_dd": -0.25846,
             "years_positive_share": 0.0,
-            "top_mfe": 0.06375,
-            "top_mae": -0.05856,
-            "top_asymmetry": 1.089,
+            "top_mfe": 0.06376,
+            "top_mae": -0.05849,
+            "top_asymmetry": 1.09,
             "univ_asymmetry": 1.261
           }
         },
@@ -405,17 +405,17 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00361 je 20 Tage, t=-1.03, Rank-IC -0.01417, Asymmetrie Top/Univ 1.142/1.154"
+          "finding": "Evidenz: netto -0.00363 je 20 Tage, t=-1.03, Rank-IC -0.01469, Asymmetrie Top/Univ 1.142/1.154"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00405, 'second': -0.00317}; Jahre positiv 0.286; Regime mit Versagen: ['vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+          "finding": "Hälften {'first': -0.00405, 'second': -0.00321}; Jahre positiv 0.286; Regime mit Versagen: ['vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
@@ -431,11 +431,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00661; Max-DD -0.28193"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00663; Max-DD -0.28426"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.28193; Jahre positiv 0.286"
+          "finding": "Schlechteste Phase laut Max-DD -0.28426; Jahre positiv 0.286"
         },
         "objections": [
           "execution_agent",
@@ -457,7 +457,7 @@
       "direction": -1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T13:01:01+00:00",
+      "evaluated_at": "2026-11-03T15:47:14+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -465,10 +465,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00426 mit t=-1.56",
+        "Walk-Forward netto -0.00427 mit t=-1.56",
         "nur 0.143 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00186, 'second': -0.00664}",
+        "instabil über Hälften {'first': -0.00182, 'second': -0.0067}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "e3b02741a37e",
@@ -477,101 +477,101 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00426,
-          "median": -0.00255,
-          "hit_rate": 0.457,
+          "mean": -0.00427,
+          "median": -0.00271,
+          "hit_rate": 0.454,
           "t_months": -1.56,
           "sharpe_ann": -0.62,
-          "max_dd": -0.32015,
+          "max_dd": -0.32215,
           "years_positive_share": 0.143,
-          "top_mfe": 0.05535,
-          "top_mae": -0.04926,
-          "top_asymmetry": 1.124,
+          "top_mfe": 0.05536,
+          "top_mae": -0.0492,
+          "top_asymmetry": 1.125,
           "univ_asymmetry": 1.154
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00726,
-          "median": -0.00555,
-          "hit_rate": 0.397,
+          "mean": -0.00727,
+          "median": -0.00571,
+          "hit_rate": 0.388,
           "t_months": -2.76,
           "sharpe_ann": -1.09,
-          "max_dd": -0.43955,
+          "max_dd": -0.44001,
           "years_positive_share": 0.0,
-          "top_mfe": 0.05535,
-          "top_mae": -0.04926,
-          "top_asymmetry": 1.124,
+          "top_mfe": 0.05536,
+          "top_mae": -0.0492,
+          "top_asymmetry": 1.125,
           "univ_asymmetry": 1.154
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": -0.00554,
-          "t_months": -0.19
+          "mean_ic": -0.00623,
+          "t_months": -0.23
         },
         "halves": {
-          "first": -0.00186,
-          "second": -0.00664
+          "first": -0.00182,
+          "second": -0.0067
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.0007,
-            "median": -0.00014,
-            "hit_rate": 0.497,
-            "t_months": 0.04,
-            "sharpe_ann": 0.02,
-            "max_dd": -0.12022,
+            "mean": -0.00076,
+            "median": -0.00073,
+            "hit_rate": 0.492,
+            "t_months": 0.0,
+            "sharpe_ann": 0.0,
+            "max_dd": -0.12371,
             "years_positive_share": 0.571,
-            "top_mfe": 0.04708,
-            "top_mae": -0.04472,
-            "top_asymmetry": 1.053,
+            "top_mfe": 0.0471,
+            "top_mae": -0.0447,
+            "top_asymmetry": 1.054,
             "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00946,
-            "median": -0.00485,
+            "mean": -0.0094,
+            "median": -0.00454,
             "hit_rate": 0.397,
-            "t_months": -2.23,
-            "sharpe_ann": -1.17,
-            "max_dd": -0.33385,
+            "t_months": -2.2,
+            "sharpe_ann": -1.15,
+            "max_dd": -0.3327,
             "years_positive_share": 0.0,
             "top_mfe": 0.06746,
-            "top_mae": -0.05591,
-            "top_asymmetry": 1.207,
-            "univ_asymmetry": 1.329
+            "top_mae": -0.05577,
+            "top_asymmetry": 1.21,
+            "univ_asymmetry": 1.33
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00163,
-            "median": -0.00146,
-            "hit_rate": 0.477,
-            "t_months": -0.13,
+            "mean": -0.00167,
+            "median": -0.00138,
+            "hit_rate": 0.473,
+            "t_months": -0.15,
             "sharpe_ann": -0.06,
-            "max_dd": -0.14627,
+            "max_dd": -0.14882,
             "years_positive_share": 0.429,
-            "top_mfe": 0.05092,
-            "top_mae": -0.04457,
-            "top_asymmetry": 1.142,
+            "top_mfe": 0.05094,
+            "top_mae": -0.04456,
+            "top_asymmetry": 1.143,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": -0.01339,
-            "median": -0.00482,
+            "mean": -0.01328,
+            "median": -0.0045,
             "hit_rate": 0.387,
-            "t_months": -2.21,
-            "sharpe_ann": -1.53,
-            "max_dd": -0.28984,
+            "t_months": -2.18,
+            "sharpe_ann": -1.51,
+            "max_dd": -0.28885,
             "years_positive_share": 0.0,
-            "top_mfe": 0.07073,
-            "top_mae": -0.06553,
-            "top_asymmetry": 1.079,
+            "top_mfe": 0.07071,
+            "top_mae": -0.06529,
+            "top_asymmetry": 1.083,
             "univ_asymmetry": 1.262
           }
         },
@@ -598,17 +598,17 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00426 je 20 Tage, t=-1.56, Rank-IC -0.00554, Asymmetrie Top/Univ 1.124/1.154"
+          "finding": "Evidenz: netto -0.00427 je 20 Tage, t=-1.56, Rank-IC -0.00623, Asymmetrie Top/Univ 1.125/1.154"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00186, 'second': -0.00664}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+          "finding": "Hälften {'first': -0.00182, 'second': -0.0067}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
@@ -624,11 +624,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00726; Max-DD -0.32015"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00727; Max-DD -0.32215"
         },
         "failure_agent": {
           "objection": true,
-          "finding": "Schlechteste Phase laut Max-DD -0.32015; Jahre positiv 0.143"
+          "finding": "Schlechteste Phase laut Max-DD -0.32215; Jahre positiv 0.143"
         },
         "objections": [
           "execution_agent",
@@ -651,7 +651,7 @@
       "direction": 1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T13:01:02+00:00",
+      "evaluated_at": "2026-11-03T15:47:15+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -659,10 +659,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00644 mit t=-2.3",
+        "Walk-Forward netto -0.00643 mit t=-2.31",
         "nur 0.0 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00595, 'second': -0.00692}",
+        "instabil über Hälften {'first': -0.00593, 'second': -0.00693}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "800e00cc5a43",
@@ -671,107 +671,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00644,
-          "median": -0.0034,
-          "hit_rate": 0.43,
-          "t_months": -2.3,
+          "mean": -0.00643,
+          "median": -0.00356,
+          "hit_rate": 0.427,
+          "t_months": -2.31,
           "sharpe_ann": -0.91,
-          "max_dd": -0.37792,
+          "max_dd": -0.37798,
           "years_positive_share": 0.0,
-          "top_mfe": 0.05525,
-          "top_mae": -0.05308,
+          "top_mfe": 0.05526,
+          "top_mae": -0.05306,
           "top_asymmetry": 1.041,
           "univ_asymmetry": 1.153
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00944,
-          "median": -0.0064,
-          "hit_rate": 0.367,
-          "t_months": -3.44,
+          "mean": -0.00943,
+          "median": -0.00656,
+          "hit_rate": 0.364,
+          "t_months": -3.45,
           "sharpe_ann": -1.36,
-          "max_dd": -0.50417,
+          "max_dd": -0.50422,
           "years_positive_share": 0.0,
-          "top_mfe": 0.05525,
-          "top_mae": -0.05308,
+          "top_mfe": 0.05526,
+          "top_mae": -0.05306,
           "top_asymmetry": 1.041,
           "univ_asymmetry": 1.153
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": -0.01336,
-          "t_months": -0.54
+          "mean_ic": -0.01371,
+          "t_months": -0.56
         },
         "halves": {
-          "first": -0.00595,
-          "second": -0.00692
+          "first": -0.00593,
+          "second": -0.00693
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00218,
-            "median": -0.00154,
-            "hit_rate": 0.477,
-            "t_months": -0.53,
-            "sharpe_ann": -0.24,
-            "max_dd": -0.12886,
+            "mean": -0.00211,
+            "median": -0.00122,
+            "hit_rate": 0.472,
+            "t_months": -0.5,
+            "sharpe_ann": -0.23,
+            "max_dd": -0.12697,
             "years_positive_share": 0.429,
-            "top_mfe": 0.04754,
-            "top_mae": -0.04892,
-            "top_asymmetry": 0.972,
-            "univ_asymmetry": 1.013
+            "top_mfe": 0.04761,
+            "top_mae": -0.04887,
+            "top_asymmetry": 0.974,
+            "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.01266,
-            "median": -0.00951,
+            "mean": -0.01275,
+            "median": -0.00837,
             "hit_rate": 0.36,
-            "t_months": -2.0,
-            "sharpe_ann": -1.04,
-            "max_dd": -0.4021,
+            "t_months": -2.04,
+            "sharpe_ann": -1.06,
+            "max_dd": -0.4036,
             "years_positive_share": 0.143,
-            "top_mfe": 0.06653,
-            "top_mae": -0.05917,
-            "top_asymmetry": 1.124,
+            "top_mfe": 0.06647,
+            "top_mae": -0.0592,
+            "top_asymmetry": 1.123,
             "univ_asymmetry": 1.328
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00274,
-            "median": -0.00179,
-            "hit_rate": 0.454,
-            "t_months": -0.05,
+            "mean": -0.00273,
+            "median": -0.00193,
+            "hit_rate": 0.45,
+            "t_months": -0.04,
             "sharpe_ann": -0.02,
-            "max_dd": -0.17925,
+            "max_dd": -0.17932,
             "years_positive_share": 0.429,
-            "top_mfe": 0.05248,
-            "top_mae": -0.04938,
-            "top_asymmetry": 1.063,
+            "top_mfe": 0.0525,
+            "top_mae": -0.04935,
+            "top_asymmetry": 1.064,
             "univ_asymmetry": 1.112
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": -0.01924,
-            "median": -0.01513,
+            "mean": -0.01928,
+            "median": -0.0138,
             "hit_rate": 0.347,
-            "t_months": -2.07,
-            "sharpe_ann": -1.43,
-            "max_dd": -0.32676,
+            "t_months": -2.08,
+            "sharpe_ann": -1.44,
+            "max_dd": -0.32742,
             "years_positive_share": 0.0,
-            "top_mfe": 0.06486,
-            "top_mae": -0.06591,
+            "top_mfe": 0.06485,
+            "top_mae": -0.06593,
             "top_asymmetry": 0.984,
             "univ_asymmetry": 1.26
           }
         },
-        "p_value": 0.989276
+        "p_value": 0.989556
       },
-      "p_value": 0.989276,
+      "p_value": 0.989556,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "fails",
@@ -793,21 +793,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00644 je 20 Tage, t=-2.3, Rank-IC -0.01336, Asymmetrie Top/Univ 1.041/1.153"
+          "finding": "Evidenz: netto -0.00643 je 20 Tage, t=-2.31, Rank-IC -0.01371, Asymmetrie Top/Univ 1.041/1.153"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00595, 'second': -0.00692}; Jahre positiv 0.0; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+          "finding": "Hälften {'first': -0.00593, 'second': -0.00693}; Jahre positiv 0.0; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=-2.3, p=0.989276, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=-2.31, p=0.989556, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -819,11 +819,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00944; Max-DD -0.37792"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00943; Max-DD -0.37798"
         },
         "failure_agent": {
           "objection": true,
-          "finding": "Schlechteste Phase laut Max-DD -0.37792; Jahre positiv 0.0"
+          "finding": "Schlechteste Phase laut Max-DD -0.37798; Jahre positiv 0.0"
         },
         "objections": [
           "execution_agent",
@@ -846,7 +846,7 @@
       "direction": 1,
       "source": "human",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T13:01:04+00:00",
+      "evaluated_at": "2026-11-03T15:47:16+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -854,7 +854,7 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto 0.00112 mit t=0.69",
+        "Walk-Forward netto 0.00092 mit t=0.59",
         "bei Stresskosten nicht positiv"
       ],
       "signal_key": "fe18423f7446",
@@ -863,107 +863,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": 0.00112,
-          "median": 0.0018,
-          "hit_rate": 0.519,
-          "t_months": 0.69,
-          "sharpe_ann": 0.27,
-          "max_dd": -0.06743,
+          "mean": 0.00092,
+          "median": 0.00129,
+          "hit_rate": 0.513,
+          "t_months": 0.59,
+          "sharpe_ann": 0.23,
+          "max_dd": -0.06772,
           "years_positive_share": 0.714,
-          "top_mfe": 0.07749,
-          "top_mae": -0.06509,
-          "top_asymmetry": 1.19,
+          "top_mfe": 0.07732,
+          "top_mae": -0.06517,
+          "top_asymmetry": 1.186,
           "univ_asymmetry": 1.153
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00188,
-          "median": -0.0012,
-          "hit_rate": 0.478,
-          "t_months": -0.72,
-          "sharpe_ann": -0.28,
-          "max_dd": -0.17143,
+          "mean": -0.00208,
+          "median": -0.00171,
+          "hit_rate": 0.475,
+          "t_months": -0.81,
+          "sharpe_ann": -0.32,
+          "max_dd": -0.18292,
           "years_positive_share": 0.0,
-          "top_mfe": 0.07749,
-          "top_mae": -0.06509,
-          "top_asymmetry": 1.19,
+          "top_mfe": 0.07732,
+          "top_mae": -0.06517,
+          "top_asymmetry": 1.186,
           "univ_asymmetry": 1.153
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.0147,
-          "t_months": 1.14
+          "mean_ic": 0.0145,
+          "t_months": 1.12
         },
         "halves": {
-          "first": 0.00081,
-          "second": 0.00143
+          "first": 0.00065,
+          "second": 0.00119
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00059,
-            "median": 4e-05,
+            "mean": -0.00062,
+            "median": 2e-05,
             "hit_rate": 0.503,
-            "t_months": -0.48,
-            "sharpe_ann": -0.22,
-            "max_dd": -0.13889,
+            "t_months": -0.5,
+            "sharpe_ann": -0.23,
+            "max_dd": -0.14521,
             "years_positive_share": 0.571,
-            "top_mfe": 0.06518,
-            "top_mae": -0.06349,
-            "top_asymmetry": 1.027,
+            "top_mfe": 0.06516,
+            "top_mae": -0.06352,
+            "top_asymmetry": 1.026,
             "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": 0.00362,
-            "median": 0.00304,
-            "hit_rate": 0.544,
-            "t_months": 1.03,
-            "sharpe_ann": 0.54,
-            "max_dd": -0.06552,
+            "mean": 0.00318,
+            "median": 0.00271,
+            "hit_rate": 0.529,
+            "t_months": 0.92,
+            "sharpe_ann": 0.48,
+            "max_dd": -0.06778,
             "years_positive_share": 0.714,
-            "top_mfe": 0.09549,
-            "top_mae": -0.06743,
-            "top_asymmetry": 1.416,
+            "top_mfe": 0.09512,
+            "top_mae": -0.06758,
+            "top_asymmetry": 1.407,
             "univ_asymmetry": 1.328
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": 0.00032,
-            "median": 0.00142,
-            "hit_rate": 0.515,
-            "t_months": -0.21,
-            "sharpe_ann": -0.09,
-            "max_dd": -0.16389,
+            "mean": 0.00019,
+            "median": 0.00125,
+            "hit_rate": 0.512,
+            "t_months": -0.25,
+            "sharpe_ann": -0.11,
+            "max_dd": -0.16851,
             "years_positive_share": 0.571,
-            "top_mfe": 0.07113,
-            "top_mae": -0.06195,
-            "top_asymmetry": 1.148,
+            "top_mfe": 0.07105,
+            "top_mae": -0.062,
+            "top_asymmetry": 1.146,
             "univ_asymmetry": 1.112
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": 0.00391,
-            "median": 0.00343,
-            "hit_rate": 0.533,
-            "t_months": 0.84,
-            "sharpe_ann": 0.58,
-            "max_dd": -0.06321,
+            "mean": 0.00345,
+            "median": 0.00315,
+            "hit_rate": 0.52,
+            "t_months": 0.73,
+            "sharpe_ann": 0.51,
+            "max_dd": -0.06347,
             "years_positive_share": 0.4,
-            "top_mfe": 0.09951,
-            "top_mae": -0.07598,
-            "top_asymmetry": 1.31,
+            "top_mfe": 0.09908,
+            "top_mae": -0.07616,
+            "top_asymmetry": 1.301,
             "univ_asymmetry": 1.26
           }
         },
-        "p_value": 0.245097
+        "p_value": 0.277595
       },
-      "p_value": 0.245097,
+      "p_value": 0.277595,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "works",
@@ -986,21 +986,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": false,
-          "finding": "Evidenz: netto 0.00112 je 20 Tage, t=0.69, Rank-IC 0.0147, Asymmetrie Top/Univ 1.19/1.153"
+          "finding": "Evidenz: netto 0.00092 je 20 Tage, t=0.59, Rank-IC 0.0145, Asymmetrie Top/Univ 1.186/1.153"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': 0.00081, 'second': 0.00143}; Jahre positiv 0.714; Regime mit Versagen: ['vix_lt_20']"
+          "finding": "Hälften {'first': 0.00065, 'second': 0.00119}; Jahre positiv 0.714; Regime mit Versagen: ['vix_lt_20']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=0.69, p=0.245097, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=0.59, p=0.277595, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -1012,11 +1012,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00188; Max-DD -0.06743"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00208; Max-DD -0.06772"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.06743; Jahre positiv 0.714"
+          "finding": "Schlechteste Phase laut Max-DD -0.06772; Jahre positiv 0.714"
         },
         "objections": [
           "execution_agent",
@@ -1036,7 +1036,7 @@
       "direction": 1,
       "source": "literature",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T13:01:06+00:00",
+      "evaluated_at": "2026-11-03T15:47:18+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -1044,10 +1044,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto 0.00064 mit t=0.11",
+        "Walk-Forward netto 0.00073 mit t=0.14",
         "nur 0.429 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.0003, 'second': 0.00158}",
+        "instabil über Hälften {'first': -0.00022, 'second': 0.00168}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'works', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
       ],
       "signal_key": "2e19bdc2f600",
@@ -1056,107 +1056,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": 0.00064,
-          "median": 0.00075,
-          "hit_rate": 0.513,
-          "t_months": 0.11,
-          "sharpe_ann": 0.04,
-          "max_dd": -0.2728,
+          "mean": 0.00073,
+          "median": 0.00055,
+          "hit_rate": 0.522,
+          "t_months": 0.14,
+          "sharpe_ann": 0.06,
+          "max_dd": -0.26762,
           "years_positive_share": 0.429,
-          "top_mfe": 0.0908,
-          "top_mae": -0.07714,
-          "top_asymmetry": 1.177,
+          "top_mfe": 0.09082,
+          "top_mae": -0.07704,
+          "top_asymmetry": 1.179,
           "univ_asymmetry": 1.153
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00236,
-          "median": -0.00225,
-          "hit_rate": 0.472,
-          "t_months": -0.83,
-          "sharpe_ann": -0.33,
-          "max_dd": -0.33414,
+          "mean": -0.00227,
+          "median": -0.00245,
+          "hit_rate": 0.469,
+          "t_months": -0.8,
+          "sharpe_ann": -0.32,
+          "max_dd": -0.32938,
           "years_positive_share": 0.429,
-          "top_mfe": 0.0908,
-          "top_mae": -0.07714,
-          "top_asymmetry": 1.177,
+          "top_mfe": 0.09082,
+          "top_mae": -0.07704,
+          "top_asymmetry": 1.179,
           "univ_asymmetry": 1.153
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.00296,
-          "t_months": 0.09
+          "mean_ic": 0.00317,
+          "t_months": 0.11
         },
         "halves": {
-          "first": -0.0003,
-          "second": 0.00158
+          "first": -0.00022,
+          "second": 0.00168
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00228,
-            "median": 0.00047,
-            "hit_rate": 0.508,
-            "t_months": -1.14,
-            "sharpe_ann": -0.52,
-            "max_dd": -0.27123,
+            "mean": -0.00218,
+            "median": 0.00049,
+            "hit_rate": 0.518,
+            "t_months": -1.12,
+            "sharpe_ann": -0.51,
+            "max_dd": -0.26831,
             "years_positive_share": 0.286,
-            "top_mfe": 0.06933,
-            "top_mae": -0.0699,
-            "top_asymmetry": 0.992,
+            "top_mfe": 0.06942,
+            "top_mae": -0.06993,
+            "top_asymmetry": 0.993,
             "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": 0.00492,
-            "median": 0.00137,
-            "hit_rate": 0.522,
-            "t_months": 0.63,
+            "mean": 0.005,
+            "median": 0.00135,
+            "hit_rate": 0.529,
+            "t_months": 0.62,
             "sharpe_ann": 0.33,
-            "max_dd": -0.24607,
+            "max_dd": -0.24123,
             "years_positive_share": 0.571,
-            "top_mfe": 0.1222,
-            "top_mae": -0.08775,
-            "top_asymmetry": 1.393,
+            "top_mfe": 0.12214,
+            "top_mae": -0.08746,
+            "top_asymmetry": 1.397,
             "univ_asymmetry": 1.328
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00193,
-            "median": 0.00069,
-            "hit_rate": 0.515,
-            "t_months": -0.7,
+            "mean": -0.00194,
+            "median": 0.00052,
+            "hit_rate": 0.523,
+            "t_months": -0.72,
             "sharpe_ann": -0.3,
-            "max_dd": -0.24491,
+            "max_dd": -0.24827,
             "years_positive_share": 0.429,
             "top_mfe": 0.07444,
-            "top_mae": -0.0686,
+            "top_mae": -0.06861,
             "top_asymmetry": 1.085,
             "univ_asymmetry": 1.112
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": 0.00958,
-            "median": 0.00199,
-            "hit_rate": 0.507,
-            "t_months": 0.68,
-            "sharpe_ann": 0.47,
-            "max_dd": -0.14179,
+            "mean": 0.01001,
+            "median": 0.0012,
+            "hit_rate": 0.52,
+            "t_months": 0.72,
+            "sharpe_ann": 0.5,
+            "max_dd": -0.14181,
             "years_positive_share": 0.6,
-            "top_mfe": 0.14748,
-            "top_mae": -0.10675,
-            "top_asymmetry": 1.382,
+            "top_mfe": 0.14762,
+            "top_mae": -0.10628,
+            "top_asymmetry": 1.389,
             "univ_asymmetry": 1.26
           }
         },
-        "p_value": 0.456205
+        "p_value": 0.44433
       },
-      "p_value": 0.456205,
+      "p_value": 0.44433,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "works",
@@ -1179,21 +1179,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": false,
-          "finding": "Evidenz: netto 0.00064 je 20 Tage, t=0.11, Rank-IC 0.00296, Asymmetrie Top/Univ 1.177/1.153"
+          "finding": "Evidenz: netto 0.00073 je 20 Tage, t=0.14, Rank-IC 0.00317, Asymmetrie Top/Univ 1.179/1.153"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.0003, 'second': 0.00158}; Jahre positiv 0.429; Regime mit Versagen: ['vix_lt_20', 'spy_uptrend']"
+          "finding": "Hälften {'first': -0.00022, 'second': 0.00168}; Jahre positiv 0.429; Regime mit Versagen: ['vix_lt_20', 'spy_uptrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=0.11, p=0.456205, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=0.14, p=0.44433, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -1205,11 +1205,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00236; Max-DD -0.2728"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00227; Max-DD -0.26762"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.2728; Jahre positiv 0.429"
+          "finding": "Schlechteste Phase laut Max-DD -0.26762; Jahre positiv 0.429"
         },
         "objections": [
           "execution_agent",
@@ -1230,7 +1230,7 @@
       "direction": 1,
       "source": "human",
       "created_at": "2026-09-29",
-      "evaluated_at": "2026-10-03T13:01:08+00:00",
+      "evaluated_at": "2026-11-03T15:47:19+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -1238,10 +1238,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00269 mit t=-3.79",
+        "Walk-Forward netto -0.00266 mit t=-3.67",
         "nur 0.143 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00261, 'second': -0.00277}",
+        "instabil über Hälften {'first': -0.00265, 'second': -0.00267}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "7bbbb8e56115",
@@ -1250,107 +1250,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00269,
-          "median": -0.00276,
-          "hit_rate": 0.412,
-          "t_months": -3.79,
-          "sharpe_ann": -1.5,
-          "max_dd": -0.20236,
+          "mean": -0.00266,
+          "median": -0.00249,
+          "hit_rate": 0.415,
+          "t_months": -3.67,
+          "sharpe_ann": -1.45,
+          "max_dd": -0.20494,
           "years_positive_share": 0.143,
-          "top_mfe": 0.06696,
-          "top_mae": -0.05787,
-          "top_asymmetry": 1.157,
+          "top_mfe": 0.0669,
+          "top_mae": -0.05777,
+          "top_asymmetry": 1.158,
           "univ_asymmetry": 1.154
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00569,
-          "median": -0.00576,
-          "hit_rate": 0.307,
-          "t_months": -7.86,
-          "sharpe_ann": -3.1,
-          "max_dd": -0.35585,
+          "mean": -0.00566,
+          "median": -0.00549,
+          "hit_rate": 0.301,
+          "t_months": -7.67,
+          "sharpe_ann": -3.03,
+          "max_dd": -0.35411,
           "years_positive_share": 0.0,
-          "top_mfe": 0.06696,
-          "top_mae": -0.05787,
-          "top_asymmetry": 1.157,
+          "top_mfe": 0.0669,
+          "top_mae": -0.05777,
+          "top_asymmetry": 1.158,
           "univ_asymmetry": 1.154
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.00066,
+          "mean_ic": 0.00068,
           "t_months": 0.07
         },
         "halves": {
-          "first": -0.00261,
-          "second": -0.00277
+          "first": -0.00265,
+          "second": -0.00267
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00169,
-            "median": -0.00108,
-            "hit_rate": 0.462,
-            "t_months": -2.19,
+            "mean": -0.00166,
+            "median": -0.00092,
+            "hit_rate": 0.467,
+            "t_months": -2.18,
             "sharpe_ann": -1.0,
-            "max_dd": -0.1048,
+            "max_dd": -0.10732,
             "years_positive_share": 0.429,
-            "top_mfe": 0.05449,
-            "top_mae": -0.05341,
-            "top_asymmetry": 1.02,
+            "top_mfe": 0.05443,
+            "top_mae": -0.05329,
+            "top_asymmetry": 1.021,
             "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00415,
-            "median": -0.00528,
+            "mean": -0.00411,
+            "median": -0.00482,
             "hit_rate": 0.338,
-            "t_months": -3.77,
-            "sharpe_ann": -1.97,
-            "max_dd": -0.19339,
+            "t_months": -3.7,
+            "sharpe_ann": -1.93,
+            "max_dd": -0.19574,
             "years_positive_share": 0.143,
-            "top_mfe": 0.08521,
-            "top_mae": -0.0644,
-            "top_asymmetry": 1.323,
+            "top_mfe": 0.08516,
+            "top_mae": -0.06432,
+            "top_asymmetry": 1.324,
             "univ_asymmetry": 1.329
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00277,
-            "median": -0.00265,
-            "hit_rate": 0.419,
-            "t_months": -3.22,
-            "sharpe_ann": -1.37,
-            "max_dd": -0.18517,
+            "mean": -0.00276,
+            "median": -0.00247,
+            "hit_rate": 0.423,
+            "t_months": -3.12,
+            "sharpe_ann": -1.33,
+            "max_dd": -0.18577,
             "years_positive_share": 0.143,
-            "top_mfe": 0.05935,
-            "top_mae": -0.05368,
-            "top_asymmetry": 1.106,
+            "top_mfe": 0.05931,
+            "top_mae": -0.05359,
+            "top_asymmetry": 1.107,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": -0.00239,
-            "median": -0.00374,
+            "mean": -0.00231,
+            "median": -0.00403,
             "hit_rate": 0.387,
-            "t_months": -2.17,
-            "sharpe_ann": -1.5,
-            "max_dd": -0.11055,
+            "t_months": -2.09,
+            "sharpe_ann": -1.44,
+            "max_dd": -0.10973,
             "years_positive_share": 0.2,
-            "top_mfe": 0.09335,
-            "top_mae": -0.07238,
+            "top_mfe": 0.09321,
+            "top_mae": -0.07226,
             "top_asymmetry": 1.29,
             "univ_asymmetry": 1.261
           }
         },
-        "p_value": 0.999925
+        "p_value": 0.999879
       },
-      "p_value": 0.999925,
+      "p_value": 0.999879,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "fails",
@@ -1374,21 +1374,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00269 je 20 Tage, t=-3.79, Rank-IC 0.00066, Asymmetrie Top/Univ 1.157/1.154"
+          "finding": "Evidenz: netto -0.00266 je 20 Tage, t=-3.67, Rank-IC 0.00068, Asymmetrie Top/Univ 1.158/1.154"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00261, 'second': -0.00277}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+          "finding": "Hälften {'first': -0.00265, 'second': -0.00267}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=-3.79, p=0.999925, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=-3.67, p=0.999879, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -1400,11 +1400,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00569; Max-DD -0.20236"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00566; Max-DD -0.20494"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.20236; Jahre positiv 0.143"
+          "finding": "Schlechteste Phase laut Max-DD -0.20494; Jahre positiv 0.143"
         },
         "objections": [
           "execution_agent",
@@ -2603,7 +2603,7 @@
       "direction": 1,
       "source": "alt_data:sec_deep_events",
       "created_at": "2026-10-02",
-      "evaluated_at": "2026-10-03T13:01:13+00:00",
+      "evaluated_at": "2026-11-03T15:47:23+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -2611,10 +2611,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00294 mit t=-2.96",
+        "Walk-Forward netto -0.00329 mit t=-3.24",
         "nur 0.143 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00099, 'second': -0.00488}",
+        "instabil über Hälften {'first': -0.00084, 'second': -0.00573}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "daa638ccf60b",
@@ -2623,107 +2623,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00294,
-          "median": -0.00312,
-          "hit_rate": 0.379,
-          "t_months": -2.96,
-          "sharpe_ann": -1.17,
-          "max_dd": -0.19626,
+          "mean": -0.00329,
+          "median": -0.00334,
+          "hit_rate": 0.382,
+          "t_months": -3.24,
+          "sharpe_ann": -1.28,
+          "max_dd": -0.21984,
           "years_positive_share": 0.143,
-          "top_mfe": 0.07367,
-          "top_mae": -0.06514,
-          "top_asymmetry": 1.131,
+          "top_mfe": 0.07347,
+          "top_mae": -0.06549,
+          "top_asymmetry": 1.122,
           "univ_asymmetry": 1.154
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00594,
-          "median": -0.00612,
-          "hit_rate": 0.296,
-          "t_months": -5.99,
-          "sharpe_ann": -2.37,
-          "max_dd": -0.35996,
+          "mean": -0.00629,
+          "median": -0.00634,
+          "hit_rate": 0.284,
+          "t_months": -6.2,
+          "sharpe_ann": -2.45,
+          "max_dd": -0.37791,
           "years_positive_share": 0.0,
-          "top_mfe": 0.07367,
-          "top_mae": -0.06514,
-          "top_asymmetry": 1.131,
+          "top_mfe": 0.07347,
+          "top_mae": -0.06549,
+          "top_asymmetry": 1.122,
           "univ_asymmetry": 1.154
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.00435,
-          "t_months": 1.22
+          "mean_ic": 0.00486,
+          "t_months": 1.38
         },
         "halves": {
-          "first": -0.00099,
-          "second": -0.00488
+          "first": -0.00084,
+          "second": -0.00573
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00383,
-            "median": -0.004,
+            "mean": -0.00431,
+            "median": -0.00406,
             "hit_rate": 0.347,
-            "t_months": -3.31,
-            "sharpe_ann": -1.52,
-            "max_dd": -0.19036,
+            "t_months": -3.78,
+            "sharpe_ann": -1.73,
+            "max_dd": -0.21644,
             "years_positive_share": 0.143,
-            "top_mfe": 0.05955,
-            "top_mae": -0.06027,
-            "top_asymmetry": 0.988,
+            "top_mfe": 0.05948,
+            "top_mae": -0.06076,
+            "top_asymmetry": 0.979,
             "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00164,
-            "median": -0.00157,
-            "hit_rate": 0.426,
-            "t_months": -1.15,
-            "sharpe_ann": -0.6,
-            "max_dd": -0.0685,
+            "mean": -0.0018,
+            "median": -0.00168,
+            "hit_rate": 0.434,
+            "t_months": -1.32,
+            "sharpe_ann": -0.69,
+            "max_dd": -0.0814,
             "years_positive_share": 0.143,
-            "top_mfe": 0.09434,
-            "top_mae": -0.07226,
-            "top_asymmetry": 1.306,
+            "top_mfe": 0.09395,
+            "top_mae": -0.0724,
+            "top_asymmetry": 1.298,
             "univ_asymmetry": 1.329
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00296,
-            "median": -0.00269,
+            "mean": -0.00336,
+            "median": -0.0031,
             "hit_rate": 0.381,
-            "t_months": -2.81,
-            "sharpe_ann": -1.2,
-            "max_dd": -0.18161,
+            "t_months": -3.05,
+            "sharpe_ann": -1.3,
+            "max_dd": -0.20118,
             "years_positive_share": 0.143,
-            "top_mfe": 0.06572,
-            "top_mae": -0.06,
-            "top_asymmetry": 1.095,
+            "top_mfe": 0.06544,
+            "top_mae": -0.06033,
+            "top_asymmetry": 1.085,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": -0.00286,
-            "median": -0.00378,
-            "hit_rate": 0.373,
-            "t_months": -1.45,
-            "sharpe_ann": -1.0,
-            "max_dd": -0.06384,
+            "mean": -0.00304,
+            "median": -0.00538,
+            "hit_rate": 0.387,
+            "t_months": -1.59,
+            "sharpe_ann": -1.1,
+            "max_dd": -0.07052,
             "years_positive_share": 0.0,
-            "top_mfe": 0.10126,
-            "top_mae": -0.08294,
-            "top_asymmetry": 1.221,
+            "top_mfe": 0.10134,
+            "top_mae": -0.08337,
+            "top_asymmetry": 1.216,
             "univ_asymmetry": 1.262
           }
         },
-        "p_value": 0.998462
+        "p_value": 0.999402
       },
-      "p_value": 0.998462,
+      "p_value": 0.999402,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "fails",
@@ -2745,21 +2745,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00294 je 20 Tage, t=-2.96, Rank-IC 0.00435, Asymmetrie Top/Univ 1.131/1.154"
+          "finding": "Evidenz: netto -0.00329 je 20 Tage, t=-3.24, Rank-IC 0.00486, Asymmetrie Top/Univ 1.122/1.154"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00099, 'second': -0.00488}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+          "finding": "Hälften {'first': -0.00084, 'second': -0.00573}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=-2.96, p=0.998462, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=-3.24, p=0.999402, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -2771,11 +2771,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00594; Max-DD -0.19626"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00629; Max-DD -0.21984"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.19626; Jahre positiv 0.143"
+          "finding": "Schlechteste Phase laut Max-DD -0.21984; Jahre positiv 0.143"
         },
         "objections": [
           "execution_agent",
@@ -2797,7 +2797,7 @@
       "direction": 1,
       "source": "alt_data:sec_deep_events",
       "created_at": "2026-10-02",
-      "evaluated_at": "2026-10-03T13:01:15+00:00",
+      "evaluated_at": "2026-11-03T15:47:24+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -2805,11 +2805,11 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00063 mit t=-0.56",
+        "Walk-Forward netto -0.00064 mit t=-0.54",
         "nur 0.429 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': 0.00103, 'second': -0.00228}",
-        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'works', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+        "instabil über Hälften {'first': 0.0012, 'second': -0.00246}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "c443164a3b26",
       "coverage": 1.0,
@@ -2817,110 +2817,110 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00063,
-          "median": -0.0026,
-          "hit_rate": 0.445,
-          "t_months": -0.56,
-          "sharpe_ann": -0.22,
-          "max_dd": -0.13448,
+          "mean": -0.00064,
+          "median": -0.00196,
+          "hit_rate": 0.433,
+          "t_months": -0.54,
+          "sharpe_ann": -0.21,
+          "max_dd": -0.13572,
           "years_positive_share": 0.429,
-          "top_mfe": 0.07878,
-          "top_mae": -0.0661,
-          "top_asymmetry": 1.192,
+          "top_mfe": 0.07865,
+          "top_mae": -0.06593,
+          "top_asymmetry": 1.193,
           "univ_asymmetry": 1.154
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00363,
-          "median": -0.0056,
-          "hit_rate": 0.364,
-          "t_months": -2.82,
-          "sharpe_ann": -1.11,
-          "max_dd": -0.25549,
+          "mean": -0.00364,
+          "median": -0.00496,
+          "hit_rate": 0.358,
+          "t_months": -2.75,
+          "sharpe_ann": -1.08,
+          "max_dd": -0.25655,
           "years_positive_share": 0.143,
-          "top_mfe": 0.07878,
-          "top_mae": -0.0661,
-          "top_asymmetry": 1.192,
+          "top_mfe": 0.07865,
+          "top_mae": -0.06593,
+          "top_asymmetry": 1.193,
           "univ_asymmetry": 1.154
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.00486,
-          "t_months": 0.78
+          "mean_ic": 0.00557,
+          "t_months": 0.9
         },
         "halves": {
-          "first": 0.00103,
-          "second": -0.00228
+          "first": 0.0012,
+          "second": -0.00246
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.0011,
-            "median": -0.0026,
-            "hit_rate": 0.442,
-            "t_months": -1.18,
+            "mean": -0.00107,
+            "median": -0.00148,
+            "hit_rate": 0.427,
+            "t_months": -1.17,
             "sharpe_ann": -0.54,
-            "max_dd": -0.13057,
+            "max_dd": -0.14136,
             "years_positive_share": 0.429,
-            "top_mfe": 0.06362,
-            "top_mae": -0.06097,
-            "top_asymmetry": 1.043,
+            "top_mfe": 0.06345,
+            "top_mae": -0.06095,
+            "top_asymmetry": 1.041,
             "univ_asymmetry": 1.014
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": 7e-05,
-            "median": -0.00226,
-            "hit_rate": 0.449,
-            "t_months": -0.18,
-            "sharpe_ann": -0.09,
-            "max_dd": -0.07679,
-            "years_positive_share": 0.857,
-            "top_mfe": 0.10097,
-            "top_mae": -0.0736,
-            "top_asymmetry": 1.372,
+            "mean": -0.0,
+            "median": -0.00202,
+            "hit_rate": 0.441,
+            "t_months": -0.21,
+            "sharpe_ann": -0.11,
+            "max_dd": -0.07526,
+            "years_positive_share": 0.714,
+            "top_mfe": 0.10088,
+            "top_mae": -0.07322,
+            "top_asymmetry": 1.378,
             "univ_asymmetry": 1.329
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00059,
-            "median": -0.00231,
-            "hit_rate": 0.45,
+            "mean": -0.00069,
+            "median": -0.0014,
+            "hit_rate": 0.438,
             "t_months": -0.8,
             "sharpe_ann": -0.34,
-            "max_dd": -0.12788,
+            "max_dd": -0.13287,
             "years_positive_share": 0.429,
-            "top_mfe": 0.06951,
-            "top_mae": -0.06027,
-            "top_asymmetry": 1.153,
+            "top_mfe": 0.06937,
+            "top_mae": -0.06029,
+            "top_asymmetry": 1.15,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": -0.00078,
-            "median": -0.00438,
-            "hit_rate": 0.427,
-            "t_months": -0.83,
-            "sharpe_ann": -0.57,
-            "max_dd": -0.10323,
+            "mean": -0.00045,
+            "median": -0.00295,
+            "hit_rate": 0.413,
+            "t_months": -0.78,
+            "sharpe_ann": -0.54,
+            "max_dd": -0.09283,
             "years_positive_share": 0.6,
-            "top_mfe": 0.11093,
-            "top_mae": -0.08631,
-            "top_asymmetry": 1.285,
+            "top_mfe": 0.11083,
+            "top_mae": -0.08547,
+            "top_asymmetry": 1.297,
             "univ_asymmetry": 1.262
           }
         },
-        "p_value": 0.71226
+        "p_value": 0.705401
       },
-      "p_value": 0.71226,
+      "p_value": 0.705401,
       "regimes": {
         "vix_lt_20": "fails",
-        "vix_ge_20": "works",
+        "vix_ge_20": "fails",
         "spy_uptrend": "fails",
         "spy_downtrend": "fails"
       },
@@ -2940,21 +2940,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00063 je 20 Tage, t=-0.56, Rank-IC 0.00486, Asymmetrie Top/Univ 1.192/1.154"
+          "finding": "Evidenz: netto -0.00064 je 20 Tage, t=-0.54, Rank-IC 0.00557, Asymmetrie Top/Univ 1.193/1.154"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': 0.00103, 'second': -0.00228}; Jahre positiv 0.429; Regime mit Versagen: ['vix_lt_20', 'spy_uptrend', 'spy_downtrend']"
+          "finding": "Hälften {'first': 0.0012, 'second': -0.00246}; Jahre positiv 0.429; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=-0.56, p=0.71226, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=-0.54, p=0.705401, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -2962,15 +2962,15 @@
         },
         "regime_agent": {
           "objection": true,
-          "finding": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'works', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+          "finding": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00363; Max-DD -0.13448"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00364; Max-DD -0.13572"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.13448; Jahre positiv 0.429"
+          "finding": "Schlechteste Phase laut Max-DD -0.13572; Jahre positiv 0.429"
         },
         "objections": [
           "execution_agent",
@@ -2992,7 +2992,7 @@
       "direction": -1,
       "source": "alt_data:sec_deep_events",
       "created_at": "2026-10-02",
-      "evaluated_at": "2026-10-03T13:01:16+00:00",
+      "evaluated_at": "2026-11-03T15:47:26+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -3000,10 +3000,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00288 mit t=-3.58",
+        "Walk-Forward netto -0.00322 mit t=-3.96",
         "nur 0.143 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00191, 'second': -0.00384}",
+        "instabil über Hälften {'first': -0.00168, 'second': -0.00477}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "b014b3373120",
@@ -3012,107 +3012,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00288,
-          "median": -0.00205,
-          "hit_rate": 0.388,
-          "t_months": -3.58,
-          "sharpe_ann": -1.41,
-          "max_dd": -0.2241,
+          "mean": -0.00322,
+          "median": -0.00326,
+          "hit_rate": 0.337,
+          "t_months": -3.96,
+          "sharpe_ann": -1.56,
+          "max_dd": -0.23893,
           "years_positive_share": 0.143,
-          "top_mfe": 0.07343,
-          "top_mae": -0.06464,
-          "top_asymmetry": 1.136,
+          "top_mfe": 0.07327,
+          "top_mae": -0.06484,
+          "top_asymmetry": 1.13,
           "univ_asymmetry": 1.153
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00588,
-          "median": -0.00505,
-          "hit_rate": 0.245,
-          "t_months": -7.21,
-          "sharpe_ann": -2.85,
-          "max_dd": -0.37167,
+          "mean": -0.00622,
+          "median": -0.00626,
+          "hit_rate": 0.227,
+          "t_months": -7.55,
+          "sharpe_ann": -2.98,
+          "max_dd": -0.38625,
           "years_positive_share": 0.0,
-          "top_mfe": 0.07343,
-          "top_mae": -0.06464,
-          "top_asymmetry": 1.136,
+          "top_mfe": 0.07327,
+          "top_mae": -0.06484,
+          "top_asymmetry": 1.13,
           "univ_asymmetry": 1.153
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.00405,
-          "t_months": 1.04
+          "mean_ic": 0.0041,
+          "t_months": 1.05
         },
         "halves": {
-          "first": -0.00191,
-          "second": -0.00384
+          "first": -0.00168,
+          "second": -0.00477
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00224,
-            "median": -0.00142,
-            "hit_rate": 0.427,
-            "t_months": -3.51,
-            "sharpe_ann": -1.61,
-            "max_dd": -0.18023,
+            "mean": -0.00267,
+            "median": -0.00257,
+            "hit_rate": 0.367,
+            "t_months": -3.82,
+            "sharpe_ann": -1.75,
+            "max_dd": -0.18692,
             "years_positive_share": 0.143,
-            "top_mfe": 0.06036,
-            "top_mae": -0.05994,
-            "top_asymmetry": 1.007,
-            "univ_asymmetry": 1.015
+            "top_mfe": 0.05987,
+            "top_mae": -0.06011,
+            "top_asymmetry": 0.996,
+            "univ_asymmetry": 1.016
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00381,
-            "median": -0.00409,
-            "hit_rate": 0.331,
-            "t_months": -2.34,
-            "sharpe_ann": -1.22,
-            "max_dd": -0.17012,
-            "years_positive_share": 0.429,
-            "top_mfe": 0.09254,
-            "top_mae": -0.07151,
+            "mean": -0.00404,
+            "median": -0.00543,
+            "hit_rate": 0.294,
+            "t_months": -2.48,
+            "sharpe_ann": -1.3,
+            "max_dd": -0.16128,
+            "years_positive_share": 0.143,
+            "top_mfe": 0.09287,
+            "top_mae": -0.07176,
             "top_asymmetry": 1.294,
-            "univ_asymmetry": 1.325
+            "univ_asymmetry": 1.326
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00245,
-            "median": -0.00155,
-            "hit_rate": 0.404,
-            "t_months": -3.22,
-            "sharpe_ann": -1.37,
-            "max_dd": -0.20128,
+            "mean": -0.00289,
+            "median": -0.00291,
+            "hit_rate": 0.354,
+            "t_months": -3.5,
+            "sharpe_ann": -1.49,
+            "max_dd": -0.21117,
             "years_positive_share": 0.286,
-            "top_mfe": 0.06634,
-            "top_mae": -0.06006,
-            "top_asymmetry": 1.105,
+            "top_mfe": 0.06594,
+            "top_mae": -0.06023,
+            "top_asymmetry": 1.095,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": -0.00437,
-            "median": -0.00466,
-            "hit_rate": 0.333,
-            "t_months": -1.93,
-            "sharpe_ann": -1.33,
-            "max_dd": -0.0947,
+            "mean": -0.00438,
+            "median": -0.00515,
+            "hit_rate": 0.28,
+            "t_months": -1.23,
+            "sharpe_ann": -0.85,
+            "max_dd": -0.07435,
             "years_positive_share": 0.4,
-            "top_mfe": 0.098,
-            "top_mae": -0.0805,
-            "top_asymmetry": 1.217,
+            "top_mfe": 0.09865,
+            "top_mae": -0.08081,
+            "top_asymmetry": 1.221,
             "univ_asymmetry": 1.258
           }
         },
-        "p_value": 0.999828
+        "p_value": 0.999963
       },
-      "p_value": 0.999828,
+      "p_value": 0.999963,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "fails",
@@ -3134,21 +3134,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00288 je 20 Tage, t=-3.58, Rank-IC 0.00405, Asymmetrie Top/Univ 1.136/1.153"
+          "finding": "Evidenz: netto -0.00322 je 20 Tage, t=-3.96, Rank-IC 0.0041, Asymmetrie Top/Univ 1.13/1.153"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00191, 'second': -0.00384}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+          "finding": "Hälften {'first': -0.00168, 'second': -0.00477}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=-3.58, p=0.999828, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=-3.96, p=0.999963, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -3160,11 +3160,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00588; Max-DD -0.2241"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00622; Max-DD -0.23893"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.2241; Jahre positiv 0.143"
+          "finding": "Schlechteste Phase laut Max-DD -0.23893; Jahre positiv 0.143"
         },
         "objections": [
           "execution_agent",
@@ -3186,7 +3186,7 @@
       "direction": -1,
       "source": "alt_data:sec_deep_events",
       "created_at": "2026-10-02",
-      "evaluated_at": "2026-10-03T13:01:18+00:00",
+      "evaluated_at": "2026-11-03T15:47:27+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -3194,10 +3194,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00127 mit t=-1.22",
+        "Walk-Forward netto -0.00121 mit t=-1.16",
         "nur 0.143 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00178, 'second': -0.00076}",
+        "instabil über Hälften {'first': -0.00169, 'second': -0.00074}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
       ],
       "signal_key": "17fa2abba3bb",
@@ -3206,107 +3206,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00127,
-          "median": -0.00235,
-          "hit_rate": 0.412,
-          "t_months": -1.22,
-          "sharpe_ann": -0.48,
-          "max_dd": -0.10948,
+          "mean": -0.00121,
+          "median": -0.00227,
+          "hit_rate": 0.418,
+          "t_months": -1.16,
+          "sharpe_ann": -0.46,
+          "max_dd": -0.1049,
           "years_positive_share": 0.143,
-          "top_mfe": 0.07143,
-          "top_mae": -0.06124,
-          "top_asymmetry": 1.166,
+          "top_mfe": 0.07139,
+          "top_mae": -0.06119,
+          "top_asymmetry": 1.167,
           "univ_asymmetry": 1.153
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00427,
-          "median": -0.00535,
-          "hit_rate": 0.319,
-          "t_months": -4.44,
+          "mean": -0.00421,
+          "median": -0.00527,
+          "hit_rate": 0.316,
+          "t_months": -4.43,
           "sharpe_ann": -1.75,
-          "max_dd": -0.27996,
+          "max_dd": -0.27647,
           "years_positive_share": 0.143,
-          "top_mfe": 0.07143,
-          "top_mae": -0.06124,
-          "top_asymmetry": 1.166,
+          "top_mfe": 0.07139,
+          "top_mae": -0.06119,
+          "top_asymmetry": 1.167,
           "univ_asymmetry": 1.153
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": -0.00606,
-          "t_months": -1.14
+          "mean_ic": -0.0056,
+          "t_months": -1.07
         },
         "halves": {
-          "first": -0.00178,
-          "second": -0.00076
+          "first": -0.00169,
+          "second": -0.00074
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
             "mean": -0.00143,
-            "median": -0.00235,
+            "median": -0.00253,
             "hit_rate": 0.402,
-            "t_months": -1.17,
-            "sharpe_ann": -0.54,
-            "max_dd": -0.11862,
+            "t_months": -1.3,
+            "sharpe_ann": -0.59,
+            "max_dd": -0.12267,
             "years_positive_share": 0.143,
-            "top_mfe": 0.05908,
-            "top_mae": -0.0578,
-            "top_asymmetry": 1.022,
+            "top_mfe": 0.05909,
+            "top_mae": -0.05779,
+            "top_asymmetry": 1.023,
             "univ_asymmetry": 1.015
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00103,
-            "median": -0.00251,
-            "hit_rate": 0.426,
-            "t_months": -0.63,
-            "sharpe_ann": -0.33,
-            "max_dd": -0.08135,
+            "mean": -0.0009,
+            "median": -0.00194,
+            "hit_rate": 0.441,
+            "t_months": -0.51,
+            "sharpe_ann": -0.27,
+            "max_dd": -0.07535,
             "years_positive_share": 0.571,
-            "top_mfe": 0.08949,
-            "top_mae": -0.06628,
-            "top_asymmetry": 1.35,
+            "top_mfe": 0.08938,
+            "top_mae": -0.06616,
+            "top_asymmetry": 1.351,
             "univ_asymmetry": 1.325
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00184,
-            "median": -0.00303,
-            "hit_rate": 0.388,
+            "mean": -0.00183,
+            "median": -0.00312,
+            "hit_rate": 0.392,
             "t_months": -2.18,
             "sharpe_ann": -0.93,
-            "max_dd": -0.15047,
+            "max_dd": -0.15255,
             "years_positive_share": 0.143,
             "top_mfe": 0.06445,
-            "top_mae": -0.05796,
+            "top_mae": -0.05795,
             "top_asymmetry": 1.112,
             "univ_asymmetry": 1.113
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": 0.00071,
-            "median": -0.00013,
-            "hit_rate": 0.493,
-            "t_months": 0.38,
-            "sharpe_ann": 0.26,
-            "max_dd": -0.04771,
+            "mean": 0.00091,
+            "median": 0.00042,
+            "hit_rate": 0.507,
+            "t_months": 0.56,
+            "sharpe_ann": 0.39,
+            "max_dd": -0.04158,
             "years_positive_share": 0.8,
-            "top_mfe": 0.09563,
-            "top_mae": -0.07264,
-            "top_asymmetry": 1.317,
-            "univ_asymmetry": 1.257
+            "top_mfe": 0.09544,
+            "top_mae": -0.07241,
+            "top_asymmetry": 1.318,
+            "univ_asymmetry": 1.258
           }
         },
-        "p_value": 0.888768
+        "p_value": 0.876976
       },
-      "p_value": 0.888768,
+      "p_value": 0.876976,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "fails",
@@ -3327,21 +3327,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00127 je 20 Tage, t=-1.22, Rank-IC -0.00606, Asymmetrie Top/Univ 1.166/1.153"
+          "finding": "Evidenz: netto -0.00121 je 20 Tage, t=-1.16, Rank-IC -0.0056, Asymmetrie Top/Univ 1.167/1.153"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00178, 'second': -0.00076}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend']"
+          "finding": "Hälften {'first': -0.00169, 'second': -0.00074}; Jahre positiv 0.143; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=-1.22, p=0.888768, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=-1.16, p=0.876976, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -3353,11 +3353,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00427; Max-DD -0.10948"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00421; Max-DD -0.1049"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.10948; Jahre positiv 0.143"
+          "finding": "Schlechteste Phase laut Max-DD -0.1049; Jahre positiv 0.143"
         },
         "objections": [
           "execution_agent",
@@ -4599,7 +4599,7 @@
       "direction": 1,
       "source": "alt_data:ted_procurement",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T13:01:20+00:00",
+      "evaluated_at": "2026-11-03T15:47:28+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -4624,8 +4624,8 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "canonical_status": "RETEST_LATER"
     },
@@ -4638,7 +4638,7 @@
       "direction": 1,
       "source": "alt_data:ted_procurement",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T13:01:20+00:00",
+      "evaluated_at": "2026-11-03T15:47:28+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -4665,8 +4665,8 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "canonical_status": "RETEST_LATER"
     },
@@ -5874,7 +5874,7 @@
       "direction": 1,
       "source": "alt_data:sec_xbrl_fundamentals",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T13:01:20+00:00",
+      "evaluated_at": "2026-11-03T15:47:29+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -5882,10 +5882,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.0006 mit t=-0.25",
+        "Walk-Forward netto -0.00071 mit t=-0.34",
         "nur 0.429 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00192, 'second': 0.00071}",
+        "instabil über Hälften {'first': -0.0023, 'second': 0.00087}",
         "Regime: {'vix_lt_20': 'works', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
       ],
       "signal_key": "44d0ac729d3e",
@@ -5894,107 +5894,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.0006,
-          "median": 0.00019,
-          "hit_rate": 0.51,
-          "t_months": -0.25,
-          "sharpe_ann": -0.1,
-          "max_dd": -0.13872,
+          "mean": -0.00071,
+          "median": 7e-05,
+          "hit_rate": 0.501,
+          "t_months": -0.34,
+          "sharpe_ann": -0.13,
+          "max_dd": -0.13799,
           "years_positive_share": 0.429,
-          "top_mfe": 0.07248,
-          "top_mae": -0.06153,
-          "top_asymmetry": 1.178,
+          "top_mfe": 0.07225,
+          "top_mae": -0.06146,
+          "top_asymmetry": 1.176,
           "univ_asymmetry": 1.152
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.0036,
-          "median": -0.00281,
-          "hit_rate": 0.415,
-          "t_months": -2.32,
-          "sharpe_ann": -0.91,
-          "max_dd": -0.25034,
+          "mean": -0.00371,
+          "median": -0.00293,
+          "hit_rate": 0.412,
+          "t_months": -2.38,
+          "sharpe_ann": -0.94,
+          "max_dd": -0.25769,
           "years_positive_share": 0.143,
-          "top_mfe": 0.07248,
-          "top_mae": -0.06153,
-          "top_asymmetry": 1.178,
+          "top_mfe": 0.07225,
+          "top_mae": -0.06146,
+          "top_asymmetry": 1.176,
           "univ_asymmetry": 1.152
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.00921,
-          "t_months": 0.99
+          "mean_ic": 0.00954,
+          "t_months": 1.02
         },
         "halves": {
-          "first": -0.00192,
-          "second": 0.00071
+          "first": -0.0023,
+          "second": 0.00087
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": 0.00034,
-            "median": 0.00067,
-            "hit_rate": 0.533,
-            "t_months": -0.45,
-            "sharpe_ann": -0.21,
-            "max_dd": -0.08005,
+            "mean": 0.00021,
+            "median": 0.00058,
+            "hit_rate": 0.523,
+            "t_months": -0.53,
+            "sharpe_ann": -0.24,
+            "max_dd": -0.08517,
             "years_positive_share": 0.429,
-            "top_mfe": 0.06114,
-            "top_mae": -0.05761,
-            "top_asymmetry": 1.061,
+            "top_mfe": 0.0609,
+            "top_mae": -0.05749,
+            "top_asymmetry": 1.059,
             "univ_asymmetry": 1.015
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00196,
-            "median": -0.0011,
-            "hit_rate": 0.478,
-            "t_months": -0.2,
-            "sharpe_ann": -0.1,
-            "max_dd": -0.12809,
-            "years_positive_share": 0.429,
-            "top_mfe": 0.08906,
-            "top_mae": -0.06726,
-            "top_asymmetry": 1.324,
+            "mean": -0.00207,
+            "median": -0.00189,
+            "hit_rate": 0.471,
+            "t_months": -0.27,
+            "sharpe_ann": -0.14,
+            "max_dd": -0.12891,
+            "years_positive_share": 0.571,
+            "top_mfe": 0.08887,
+            "top_mae": -0.06728,
+            "top_asymmetry": 1.321,
             "univ_asymmetry": 1.323
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00146,
-            "median": -0.00016,
-            "hit_rate": 0.5,
-            "t_months": -0.58,
-            "sharpe_ann": -0.25,
-            "max_dd": -0.13908,
+            "mean": -0.00158,
+            "median": -0.00039,
+            "hit_rate": 0.492,
+            "t_months": -0.65,
+            "sharpe_ann": -0.28,
+            "max_dd": -0.13764,
             "years_positive_share": 0.286,
-            "top_mfe": 0.06501,
-            "top_mae": -0.0578,
-            "top_asymmetry": 1.125,
+            "top_mfe": 0.0648,
+            "top_mae": -0.0577,
+            "top_asymmetry": 1.123,
             "univ_asymmetry": 1.112
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": 0.0024,
-            "median": 0.00093,
-            "hit_rate": 0.547,
-            "t_months": 0.88,
-            "sharpe_ann": 0.61,
-            "max_dd": -0.04222,
-            "years_positive_share": 0.6,
-            "top_mfe": 0.09834,
-            "top_mae": -0.07447,
-            "top_asymmetry": 1.321,
+            "mean": 0.0023,
+            "median": 0.00137,
+            "hit_rate": 0.533,
+            "t_months": 0.78,
+            "sharpe_ann": 0.54,
+            "max_dd": -0.03987,
+            "years_positive_share": 0.8,
+            "top_mfe": 0.09808,
+            "top_mae": -0.0745,
+            "top_asymmetry": 1.317,
             "univ_asymmetry": 1.256
           }
         },
-        "p_value": 0.598706
+        "p_value": 0.633072
       },
-      "p_value": 0.598706,
+      "p_value": 0.633072,
       "regimes": {
         "vix_lt_20": "works",
         "vix_ge_20": "fails",
@@ -6015,21 +6015,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.0006 je 20 Tage, t=-0.25, Rank-IC 0.00921, Asymmetrie Top/Univ 1.178/1.152"
+          "finding": "Evidenz: netto -0.00071 je 20 Tage, t=-0.34, Rank-IC 0.00954, Asymmetrie Top/Univ 1.176/1.152"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00192, 'second': 0.00071}; Jahre positiv 0.429; Regime mit Versagen: ['vix_ge_20', 'spy_uptrend']"
+          "finding": "Hälften {'first': -0.0023, 'second': 0.00087}; Jahre positiv 0.429; Regime mit Versagen: ['vix_ge_20', 'spy_uptrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=-0.25, p=0.598706, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=-0.34, p=0.633072, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -6041,11 +6041,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.0036; Max-DD -0.13872"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00371; Max-DD -0.13799"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.13872; Jahre positiv 0.429"
+          "finding": "Schlechteste Phase laut Max-DD -0.13799; Jahre positiv 0.429"
         },
         "objections": [
           "execution_agent",
@@ -6067,7 +6067,7 @@
       "direction": -1,
       "source": "alt_data:sec_xbrl_fundamentals",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T13:01:22+00:00",
+      "evaluated_at": "2026-11-03T15:47:30+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -6075,117 +6075,116 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto 0.00222 mit t=0.98",
-        "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': 0.00465, 'second': -0.00019}"
+        "Walk-Forward netto 0.00196 mit t=0.89",
+        "bei Stresskosten nicht positiv"
       ],
       "signal_key": "7df0a51987b6",
-      "coverage": 0.835,
+      "coverage": 0.834,
       "walk_forward": {
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": 0.00222,
-          "median": 0.00573,
-          "hit_rate": 0.579,
-          "t_months": 0.98,
-          "sharpe_ann": 0.39,
-          "max_dd": -0.08916,
+          "mean": 0.00196,
+          "median": 0.00414,
+          "hit_rate": 0.585,
+          "t_months": 0.89,
+          "sharpe_ann": 0.35,
+          "max_dd": -0.08024,
           "years_positive_share": 0.857,
-          "top_mfe": 0.08982,
-          "top_mae": -0.07403,
-          "top_asymmetry": 1.213,
-          "univ_asymmetry": 1.156
+          "top_mfe": 0.08918,
+          "top_mae": -0.0739,
+          "top_asymmetry": 1.207,
+          "univ_asymmetry": 1.157
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00078,
-          "median": 0.00273,
-          "hit_rate": 0.534,
-          "t_months": -0.51,
-          "sharpe_ann": -0.2,
-          "max_dd": -0.18256,
-          "years_positive_share": 0.143,
-          "top_mfe": 0.08982,
-          "top_mae": -0.07403,
-          "top_asymmetry": 1.213,
-          "univ_asymmetry": 1.156
+          "mean": -0.00104,
+          "median": 0.00114,
+          "hit_rate": 0.537,
+          "t_months": -0.64,
+          "sharpe_ann": -0.25,
+          "max_dd": -0.17351,
+          "years_positive_share": 0.286,
+          "top_mfe": 0.08918,
+          "top_mae": -0.0739,
+          "top_asymmetry": 1.207,
+          "univ_asymmetry": 1.157
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": -0.0012,
-          "t_months": -0.15
+          "mean_ic": -0.00092,
+          "t_months": -0.11
         },
         "halves": {
-          "first": 0.00465,
-          "second": -0.00019
+          "first": 0.00382,
+          "second": 0.00012
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00026,
-            "median": 0.00255,
-            "hit_rate": 0.533,
-            "t_months": -0.62,
-            "sharpe_ann": -0.28,
-            "max_dd": -0.14832,
+            "mean": -0.00036,
+            "median": 0.00272,
+            "hit_rate": 0.538,
+            "t_months": -0.64,
+            "sharpe_ann": -0.29,
+            "max_dd": -0.14874,
             "years_positive_share": 0.571,
-            "top_mfe": 0.0747,
-            "top_mae": -0.07007,
-            "top_asymmetry": 1.066,
-            "univ_asymmetry": 1.018
+            "top_mfe": 0.07399,
+            "top_mae": -0.06977,
+            "top_asymmetry": 1.061,
+            "univ_asymmetry": 1.019
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": 0.00585,
-            "median": 0.00839,
-            "hit_rate": 0.647,
-            "t_months": 1.27,
-            "sharpe_ann": 0.66,
-            "max_dd": -0.07217,
-            "years_positive_share": 0.714,
-            "top_mfe": 0.11194,
-            "top_mae": -0.07981,
-            "top_asymmetry": 1.403,
+            "mean": 0.00536,
+            "median": 0.00807,
+            "hit_rate": 0.654,
+            "t_months": 1.25,
+            "sharpe_ann": 0.65,
+            "max_dd": -0.08136,
+            "years_positive_share": 0.857,
+            "top_mfe": 0.11141,
+            "top_mae": -0.07996,
+            "top_asymmetry": 1.393,
             "univ_asymmetry": 1.33
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": 0.001,
-            "median": 0.00404,
+            "mean": 0.0007,
+            "median": 0.0033,
             "hit_rate": 0.554,
-            "t_months": -0.1,
-            "sharpe_ann": -0.04,
-            "max_dd": -0.1039,
-            "years_positive_share": 0.857,
-            "top_mfe": 0.08161,
-            "top_mae": -0.06975,
-            "top_asymmetry": 1.17,
+            "t_months": -0.23,
+            "sharpe_ann": -0.1,
+            "max_dd": -0.09434,
+            "years_positive_share": 0.714,
+            "top_mfe": 0.0809,
+            "top_mae": -0.0695,
+            "top_asymmetry": 1.164,
             "univ_asymmetry": 1.116
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": 0.00646,
-            "median": 0.00869,
-            "hit_rate": 0.667,
-            "t_months": 1.8,
-            "sharpe_ann": 1.24,
-            "max_dd": -0.03795,
-            "years_positive_share": 0.8,
-            "top_mfe": 0.11826,
-            "top_mae": -0.08884,
-            "top_asymmetry": 1.331,
-            "univ_asymmetry": 1.262
+            "mean": 0.00633,
+            "median": 0.00871,
+            "hit_rate": 0.693,
+            "t_months": 1.89,
+            "sharpe_ann": 1.31,
+            "max_dd": -0.03804,
+            "years_positive_share": 1.0,
+            "top_mfe": 0.11789,
+            "top_mae": -0.08917,
+            "top_asymmetry": 1.322,
+            "univ_asymmetry": 1.263
           }
         },
-        "p_value": 0.163543
+        "p_value": 0.186733
       },
-      "p_value": 0.163543,
+      "p_value": 0.186733,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "works",
@@ -6206,21 +6205,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": false,
-          "finding": "Evidenz: netto 0.00222 je 20 Tage, t=0.98, Rank-IC -0.0012, Asymmetrie Top/Univ 1.213/1.156"
+          "finding": "Evidenz: netto 0.00196 je 20 Tage, t=0.89, Rank-IC -0.00092, Asymmetrie Top/Univ 1.207/1.157"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': 0.00465, 'second': -0.00019}; Jahre positiv 0.857; Regime mit Versagen: ['vix_lt_20']"
+          "finding": "Hälften {'first': 0.00382, 'second': 0.00012}; Jahre positiv 0.857; Regime mit Versagen: ['vix_lt_20']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=0.98, p=0.163543, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=0.89, p=0.186733, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -6232,11 +6231,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00078; Max-DD -0.08916"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00104; Max-DD -0.08024"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.08916; Jahre positiv 0.857"
+          "finding": "Schlechteste Phase laut Max-DD -0.08024; Jahre positiv 0.857"
         },
         "objections": [
           "execution_agent",
@@ -6256,7 +6255,7 @@
       "direction": -1,
       "source": "alt_data:sec_xbrl_fundamentals",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T13:01:24+00:00",
+      "evaluated_at": "2026-11-03T15:47:31+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -6264,10 +6263,10 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto -0.00043 mit t=-0.5",
+        "Walk-Forward netto -0.00046 mit t=-0.53",
         "nur 0.571 der Jahre positiv",
         "bei Stresskosten nicht positiv",
-        "instabil über Hälften {'first': -0.00204, 'second': 0.00118}",
+        "instabil über Hälften {'first': -0.00202, 'second': 0.00109}",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'works', 'spy_downtrend': 'fails'}"
       ],
       "signal_key": "527934f1d3e0",
@@ -6276,107 +6275,107 @@
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00043,
-          "median": -0.00032,
-          "hit_rate": 0.493,
-          "t_months": -0.5,
-          "sharpe_ann": -0.2,
-          "max_dd": -0.13728,
+          "mean": -0.00046,
+          "median": -0.00033,
+          "hit_rate": 0.487,
+          "t_months": -0.53,
+          "sharpe_ann": -0.21,
+          "max_dd": -0.13643,
           "years_positive_share": 0.571,
-          "top_mfe": 0.07597,
-          "top_mae": -0.06358,
-          "top_asymmetry": 1.195,
+          "top_mfe": 0.07585,
+          "top_mae": -0.06351,
+          "top_asymmetry": 1.194,
           "univ_asymmetry": 1.152
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00343,
-          "median": -0.00332,
-          "hit_rate": 0.406,
-          "t_months": -2.57,
-          "sharpe_ann": -1.01,
-          "max_dd": -0.26636,
+          "mean": -0.00346,
+          "median": -0.00333,
+          "hit_rate": 0.403,
+          "t_months": -2.6,
+          "sharpe_ann": -1.03,
+          "max_dd": -0.26895,
           "years_positive_share": 0.0,
-          "top_mfe": 0.07597,
-          "top_mae": -0.06358,
-          "top_asymmetry": 1.195,
+          "top_mfe": 0.07585,
+          "top_mae": -0.06351,
+          "top_asymmetry": 1.194,
           "univ_asymmetry": 1.152
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.01051,
+          "mean_ic": 0.01043,
           "t_months": 0.71
         },
         "halves": {
-          "first": -0.00204,
-          "second": 0.00118
+          "first": -0.00202,
+          "second": 0.00109
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00062,
-            "median": 0.0001,
-            "hit_rate": 0.503,
-            "t_months": -0.05,
-            "sharpe_ann": -0.02,
-            "max_dd": -0.10665,
+            "mean": -0.00067,
+            "median": -8e-05,
+            "hit_rate": 0.492,
+            "t_months": -0.07,
+            "sharpe_ann": -0.03,
+            "max_dd": -0.10484,
             "years_positive_share": 0.429,
-            "top_mfe": 0.06195,
-            "top_mae": -0.05891,
-            "top_asymmetry": 1.052,
+            "top_mfe": 0.0618,
+            "top_mae": -0.05885,
+            "top_asymmetry": 1.05,
             "univ_asymmetry": 1.012
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": -0.00014,
-            "median": -0.00135,
+            "mean": -0.00016,
+            "median": -0.00096,
             "hit_rate": 0.478,
-            "t_months": 0.07,
-            "sharpe_ann": 0.04,
-            "max_dd": -0.09741,
+            "t_months": 0.05,
+            "sharpe_ann": 0.02,
+            "max_dd": -0.09957,
             "years_positive_share": 0.714,
-            "top_mfe": 0.09648,
-            "top_mae": -0.07041,
-            "top_asymmetry": 1.37,
+            "top_mfe": 0.09642,
+            "top_mae": -0.07033,
+            "top_asymmetry": 1.371,
             "univ_asymmetry": 1.328
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": 0.00043,
-            "median": 0.00056,
-            "hit_rate": 0.519,
-            "t_months": 0.17,
-            "sharpe_ann": 0.07,
-            "max_dd": -0.11143,
+            "mean": 0.00035,
+            "median": 0.00028,
+            "hit_rate": 0.512,
+            "t_months": 0.12,
+            "sharpe_ann": 0.05,
+            "max_dd": -0.11015,
             "years_positive_share": 0.714,
-            "top_mfe": 0.06822,
+            "top_mfe": 0.06812,
             "top_mae": -0.05854,
-            "top_asymmetry": 1.165,
+            "top_asymmetry": 1.164,
             "univ_asymmetry": 1.11
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": -0.00339,
-            "median": -0.00318,
+            "mean": -0.00328,
+            "median": -0.00265,
             "hit_rate": 0.4,
-            "t_months": -1.82,
-            "sharpe_ann": -1.26,
-            "max_dd": -0.13163,
+            "t_months": -1.79,
+            "sharpe_ann": -1.24,
+            "max_dd": -0.12838,
             "years_positive_share": 0.4,
-            "top_mfe": 0.10282,
-            "top_mae": -0.08104,
-            "top_asymmetry": 1.269,
+            "top_mfe": 0.10267,
+            "top_mae": -0.08074,
+            "top_asymmetry": 1.272,
             "univ_asymmetry": 1.263
           }
         },
-        "p_value": 0.691462
+        "p_value": 0.701944
       },
-      "p_value": 0.691462,
+      "p_value": 0.701944,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "fails",
@@ -6397,21 +6396,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": true,
-          "finding": "Evidenz: netto -0.00043 je 20 Tage, t=-0.5, Rank-IC 0.01051, Asymmetrie Top/Univ 1.195/1.152"
+          "finding": "Evidenz: netto -0.00046 je 20 Tage, t=-0.53, Rank-IC 0.01043, Asymmetrie Top/Univ 1.194/1.152"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': -0.00204, 'second': 0.00118}; Jahre positiv 0.571; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_downtrend']"
+          "finding": "Hälften {'first': -0.00202, 'second': 0.00109}; Jahre positiv 0.571; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_downtrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=-0.5, p=0.691462, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=-0.53, p=0.701944, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -6423,11 +6422,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00343; Max-DD -0.13728"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00346; Max-DD -0.13643"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.13728; Jahre positiv 0.571"
+          "finding": "Schlechteste Phase laut Max-DD -0.13643; Jahre positiv 0.571"
         },
         "objections": [
           "execution_agent",
@@ -6449,7 +6448,7 @@
       "direction": 1,
       "source": "alt_data:sec_xbrl_fundamentals",
       "created_at": "2026-10-03",
-      "evaluated_at": "2026-10-03T13:01:25+00:00",
+      "evaluated_at": "2026-11-03T15:47:33+00:00",
       "stages": {
         "leakage": "pass",
         "duplicate": "pass",
@@ -6457,117 +6456,118 @@
         "walk_forward": "fail"
       },
       "reasons": [
-        "Walk-Forward netto 0.00142 mit t=0.76",
+        "Walk-Forward netto 0.00156 mit t=0.85",
+        "nur 0.571 der Jahre positiv",
         "bei Stresskosten nicht positiv",
         "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'works', 'spy_uptrend': 'fails', 'spy_downtrend': 'works'}"
       ],
       "signal_key": "cd36013e6a4a",
-      "coverage": 0.822,
+      "coverage": 0.821,
       "walk_forward": {
         "base": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": 0.00142,
-          "median": -0.00151,
-          "hit_rate": 0.481,
-          "t_months": 0.76,
-          "sharpe_ann": 0.3,
-          "max_dd": -0.1129,
-          "years_positive_share": 0.714,
-          "top_mfe": 0.08216,
-          "top_mae": -0.06847,
-          "top_asymmetry": 1.2,
+          "mean": 0.00156,
+          "median": -0.00129,
+          "hit_rate": 0.475,
+          "t_months": 0.85,
+          "sharpe_ann": 0.33,
+          "max_dd": -0.11174,
+          "years_positive_share": 0.571,
+          "top_mfe": 0.08203,
+          "top_mae": -0.06824,
+          "top_asymmetry": 1.202,
           "univ_asymmetry": 1.156
         },
         "stress": {
           "n_cohorts": 335,
           "n_months": 77,
-          "mean": -0.00158,
-          "median": -0.00451,
-          "hit_rate": 0.421,
-          "t_months": -0.61,
-          "sharpe_ann": -0.24,
-          "max_dd": -0.17755,
+          "mean": -0.00144,
+          "median": -0.00429,
+          "hit_rate": 0.43,
+          "t_months": -0.53,
+          "sharpe_ann": -0.21,
+          "max_dd": -0.16938,
           "years_positive_share": 0.286,
-          "top_mfe": 0.08216,
-          "top_mae": -0.06847,
-          "top_asymmetry": 1.2,
+          "top_mfe": 0.08203,
+          "top_mae": -0.06824,
+          "top_asymmetry": 1.202,
           "univ_asymmetry": 1.156
         },
         "ic": {
           "n_dates": 335,
-          "mean_ic": 0.00712,
-          "t_months": 0.81
+          "mean_ic": 0.00767,
+          "t_months": 0.87
         },
         "halves": {
-          "first": 0.002,
-          "second": 0.00085
+          "first": 0.00215,
+          "second": 0.00098
         },
         "regimes": {
           "vix_lt_20": {
             "n_cohorts": 199,
             "n_months": 57,
-            "mean": -0.00038,
-            "median": -0.00201,
-            "hit_rate": 0.467,
-            "t_months": -0.61,
-            "sharpe_ann": -0.28,
-            "max_dd": -0.15638,
+            "mean": -0.00017,
+            "median": -0.00156,
+            "hit_rate": 0.457,
+            "t_months": -0.49,
+            "sharpe_ann": -0.23,
+            "max_dd": -0.14611,
             "years_positive_share": 0.429,
-            "top_mfe": 0.06659,
-            "top_mae": -0.06404,
-            "top_asymmetry": 1.04,
+            "top_mfe": 0.06654,
+            "top_mae": -0.06382,
+            "top_asymmetry": 1.043,
             "univ_asymmetry": 1.019
           },
           "vix_ge_20": {
             "n_cohorts": 136,
             "n_months": 44,
-            "mean": 0.00406,
-            "median": 0.00038,
+            "mean": 0.0041,
+            "median": 0.00044,
             "hit_rate": 0.5,
-            "t_months": 1.8,
-            "sharpe_ann": 0.94,
-            "max_dd": -0.11007,
-            "years_positive_share": 0.857,
-            "top_mfe": 0.10494,
-            "top_mae": -0.07495,
-            "top_asymmetry": 1.4,
+            "t_months": 1.87,
+            "sharpe_ann": 0.98,
+            "max_dd": -0.10958,
+            "years_positive_share": 1.0,
+            "top_mfe": 0.1047,
+            "top_mae": -0.07471,
+            "top_asymmetry": 1.402,
             "univ_asymmetry": 1.329
           },
           "spy_uptrend": {
             "n_cohorts": 260,
             "n_months": 66,
-            "mean": -0.00067,
-            "median": -0.00273,
-            "hit_rate": 0.458,
-            "t_months": -0.7,
-            "sharpe_ann": -0.3,
-            "max_dd": -0.12525,
+            "mean": -0.00044,
+            "median": -0.00243,
+            "hit_rate": 0.45,
+            "t_months": -0.6,
+            "sharpe_ann": -0.26,
+            "max_dd": -0.11539,
             "years_positive_share": 0.286,
-            "top_mfe": 0.07163,
-            "top_mae": -0.0628,
-            "top_asymmetry": 1.141,
+            "top_mfe": 0.07158,
+            "top_mae": -0.06258,
+            "top_asymmetry": 1.144,
             "univ_asymmetry": 1.115
           },
           "spy_downtrend": {
             "n_cohorts": 75,
             "n_months": 25,
-            "mean": 0.00867,
-            "median": 0.00266,
+            "mean": 0.00849,
+            "median": 0.00302,
             "hit_rate": 0.56,
-            "t_months": 1.72,
-            "sharpe_ann": 1.19,
-            "max_dd": -0.03994,
+            "t_months": 1.7,
+            "sharpe_ann": 1.18,
+            "max_dd": -0.04045,
             "years_positive_share": 1.0,
-            "top_mfe": 0.11868,
-            "top_mae": -0.08812,
-            "top_asymmetry": 1.347,
+            "top_mfe": 0.11828,
+            "top_mae": -0.08787,
+            "top_asymmetry": 1.346,
             "univ_asymmetry": 1.266
           }
         },
-        "p_value": 0.223627
+        "p_value": 0.197663
       },
-      "p_value": 0.223627,
+      "p_value": 0.197663,
       "regimes": {
         "vix_lt_20": "fails",
         "vix_ge_20": "works",
@@ -6590,21 +6590,21 @@
         "parameters": "keine (festes Signal, Richtung vorab)",
         "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
         "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
-        "decision_date": "2026-10-03",
-        "model_version": "3efb2583968b"
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
       },
       "adversarial_review": {
         "researcher": {
           "objection": false,
-          "finding": "Evidenz: netto 0.00142 je 20 Tage, t=0.76, Rank-IC 0.00712, Asymmetrie Top/Univ 1.2/1.156"
+          "finding": "Evidenz: netto 0.00156 je 20 Tage, t=0.85, Rank-IC 0.00767, Asymmetrie Top/Univ 1.202/1.156"
         },
         "skeptic": {
           "objection": true,
-          "finding": "Hälften {'first': 0.002, 'second': 0.00085}; Jahre positiv 0.714; Regime mit Versagen: ['vix_lt_20', 'spy_uptrend']"
+          "finding": "Hälften {'first': 0.00215, 'second': 0.00098}; Jahre positiv 0.571; Regime mit Versagen: ['vix_lt_20', 'spy_uptrend']"
         },
         "statistician": {
           "objection": true,
-          "finding": "n=335 Kohorten/77 Monate, t=0.76, p=0.223627, BH über alle getesteten Hypothesen"
+          "finding": "n=335 Kohorten/77 Monate, t=0.85, p=0.197663, BH über alle getesteten Hypothesen"
         },
         "leakage_auditor": {
           "objection": false,
@@ -6616,11 +6616,11 @@
         },
         "execution_agent": {
           "objection": true,
-          "finding": "Stresskosten 25 bp/Seite: netto -0.00158; Max-DD -0.1129"
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00144; Max-DD -0.11174"
         },
         "failure_agent": {
           "objection": false,
-          "finding": "Schlechteste Phase laut Max-DD -0.1129; Jahre positiv 0.714"
+          "finding": "Schlechteste Phase laut Max-DD -0.11174; Jahre positiv 0.571"
         },
         "objections": [
           "execution_agent",
@@ -7083,6 +7083,421 @@
       ],
       "evaluated_at": "2026-10-03T13:01:13+00:00",
       "canonical_status": "REJECTED"
+    },
+    "FAC-261A6848": {
+      "id": "FAC-261A6848",
+      "title": "Momentum außerhalb des tnx-Trainingsbereichs",
+      "statement": "Momentum außerhalb des tnx-Trainingsbereichs: tnx liegt außerhalb des bisher gesehenen Bereichs (SystemState-Drift). Offene Frage: tragen die Basis-Effekte dort weiter, oder kehrt sich ihre Wirkung um?",
+      "contract_hash": null,
+      "signal": "rank(mom_12_1) * step(tnx - 4.7817)",
+      "direction": 1,
+      "source": "factory",
+      "created_at": "2026-11-03T15:46:05+00:00",
+      "evaluated_at": "2026-11-03T15:47:21+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto -0.00326 mit t=-3.53",
+        "nur 0.286 der Jahre positiv",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.00519, 'second': -0.00135}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+      ],
+      "family": "openq_tnx",
+      "domain": "regime",
+      "spec_hash": "d23ec4211d57885c",
+      "signal_key": "08b3dd9c955f",
+      "coverage": 0.996,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00326,
+          "median": -0.00313,
+          "hit_rate": 0.373,
+          "t_months": -3.53,
+          "sharpe_ann": -1.39,
+          "max_dd": -0.24941,
+          "years_positive_share": 0.286,
+          "top_mfe": 0.06997,
+          "top_mae": -0.06217,
+          "top_asymmetry": 1.126,
+          "univ_asymmetry": 1.153
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00626,
+          "median": -0.00613,
+          "hit_rate": 0.278,
+          "t_months": -6.85,
+          "sharpe_ann": -2.71,
+          "max_dd": -0.38564,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.06997,
+          "top_mae": -0.06217,
+          "top_asymmetry": 1.126,
+          "univ_asymmetry": 1.153
+        },
+        "ic": {
+          "n_dates": 3,
+          "mean_ic": 0.0898,
+          "t_months": null
+        },
+        "halves": {
+          "first": -0.00519,
+          "second": -0.00135
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.00259,
+            "median": -0.00277,
+            "hit_rate": 0.387,
+            "t_months": -2.07,
+            "sharpe_ann": -0.95,
+            "max_dd": -0.14264,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.05683,
+            "top_mae": -0.05749,
+            "top_asymmetry": 0.989,
+            "univ_asymmetry": 1.014
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": -0.00424,
+            "median": -0.00394,
+            "hit_rate": 0.353,
+            "t_months": -1.74,
+            "sharpe_ann": -0.91,
+            "max_dd": -0.19663,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.0892,
+            "top_mae": -0.069,
+            "top_asymmetry": 1.293,
+            "univ_asymmetry": 1.328
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00294,
+            "median": -0.00308,
+            "hit_rate": 0.388,
+            "t_months": -2.99,
+            "sharpe_ann": -1.27,
+            "max_dd": -0.20546,
+            "years_positive_share": 0.429,
+            "top_mfe": 0.0627,
+            "top_mae": -0.05771,
+            "top_asymmetry": 1.086,
+            "univ_asymmetry": 1.112
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": -0.00436,
+            "median": -0.00316,
+            "hit_rate": 0.32,
+            "t_months": -0.84,
+            "sharpe_ann": -0.58,
+            "max_dd": -0.10409,
+            "years_positive_share": 0.4,
+            "top_mfe": 0.09518,
+            "top_mae": -0.07761,
+            "top_asymmetry": 1.226,
+            "univ_asymmetry": 1.26
+          }
+        },
+        "p_value": 0.999792
+      },
+      "p_value": 0.999792,
+      "regimes": {
+        "vix_lt_20": "fails",
+        "vix_ge_20": "fails",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "fails"
+      },
+      "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
+      "status": "rejected",
+      "memory": {
+        "question": "Momentum außerhalb des tnx-Trainingsbereichs: tnx liegt außerhalb des bisher gesehenen Bereichs (SystemState-Drift). Offene Frage: tragen die Basis-Effekte dort weiter, oder kehrt sich ihre Wirkung um?",
+        "why_tested": "tnx liegt außerhalb des bisher gesehenen Bereichs (SystemState-Drift). Offene Frage: tragen die Basis-Effekte dort weiter, oder kehrt sich ihre Wirkung um?",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "mom_12_1",
+          "tnx"
+        ],
+        "feature_definitions": {
+          "mom_12_1": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "tnx": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
+      },
+      "adversarial_review": {
+        "researcher": {
+          "objection": true,
+          "finding": "Evidenz: netto -0.00326 je 20 Tage, t=-3.53, Rank-IC 0.0898, Asymmetrie Top/Univ 1.126/1.153"
+        },
+        "skeptic": {
+          "objection": true,
+          "finding": "Hälften {'first': -0.00519, 'second': -0.00135}; Jahre positiv 0.286; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+        },
+        "statistician": {
+          "objection": true,
+          "finding": "n=335 Kohorten/77 Monate, t=-3.53, p=0.999792, BH über alle getesteten Hypothesen"
+        },
+        "leakage_auditor": {
+          "objection": false,
+          "finding": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; PIT-Universum (Audit F01); Locked KONTAMINIERT (nur Ablehnung)"
+        },
+        "regime_agent": {
+          "objection": true,
+          "finding": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+        },
+        "execution_agent": {
+          "objection": true,
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00626; Max-DD -0.24941"
+        },
+        "failure_agent": {
+          "objection": false,
+          "finding": "Schlechteste Phase laut Max-DD -0.24941; Jahre positiv 0.286"
+        },
+        "objections": [
+          "execution_agent",
+          "regime_agent",
+          "researcher",
+          "skeptic",
+          "statistician"
+        ],
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
+    },
+    "AUTO-F34E5C6BBF7D": {
+      "id": "AUTO-F34E5C6BBF7D",
+      "title": "Automated regime: lottery_penalty × momentum",
+      "statement": "Exploratory combination of preregistered parent signs; not established alpha.",
+      "contract_hash": null,
+      "signal": "((rank(max_ret_21) * -1) + (rank(mom_12_1) * 1)) * step(vix - 20)",
+      "direction": 1,
+      "source": "autonomous_explorer",
+      "created_at": null,
+      "evaluated_at": "2026-11-03T15:47:22+00:00",
+      "stages": {
+        "leakage": "pass",
+        "duplicate": "pass",
+        "coverage": "pass",
+        "walk_forward": "fail"
+      },
+      "reasons": [
+        "Walk-Forward netto -0.00506 mit t=-2.5",
+        "nur 0.0 der Jahre positiv",
+        "bei Stresskosten nicht positiv",
+        "instabil über Hälften {'first': -0.00703, 'second': -0.00311}",
+        "Regime: {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+      ],
+      "family": "lottery_penaltyx_momentum",
+      "domain": "point_in_time_factor_recombination",
+      "spec_hash": "f34e5c6bbf7d947e7f6961ab1b39904d5d1b04e686e16f739f337e54d60898fd",
+      "signal_key": "0a0767501af3",
+      "coverage": 0.996,
+      "walk_forward": {
+        "base": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00506,
+          "median": -0.00274,
+          "hit_rate": 0.403,
+          "t_months": -2.5,
+          "sharpe_ann": -0.99,
+          "max_dd": -0.31754,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.0621,
+          "top_mae": -0.0575,
+          "top_asymmetry": 1.08,
+          "univ_asymmetry": 1.153
+        },
+        "stress": {
+          "n_cohorts": 335,
+          "n_months": 77,
+          "mean": -0.00806,
+          "median": -0.00574,
+          "hit_rate": 0.334,
+          "t_months": -4.05,
+          "sharpe_ann": -1.6,
+          "max_dd": -0.45695,
+          "years_positive_share": 0.0,
+          "top_mfe": 0.0621,
+          "top_mae": -0.0575,
+          "top_asymmetry": 1.08,
+          "univ_asymmetry": 1.153
+        },
+        "ic": {
+          "n_dates": 136,
+          "mean_ic": -0.0361,
+          "t_months": -1.03
+        },
+        "halves": {
+          "first": -0.00703,
+          "second": -0.00311
+        },
+        "regimes": {
+          "vix_lt_20": {
+            "n_cohorts": 199,
+            "n_months": 57,
+            "mean": -0.00257,
+            "median": -0.00274,
+            "hit_rate": 0.387,
+            "t_months": -2.04,
+            "sharpe_ann": -0.94,
+            "max_dd": -0.14141,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.05681,
+            "top_mae": -0.05742,
+            "top_asymmetry": 0.989,
+            "univ_asymmetry": 1.014
+          },
+          "vix_ge_20": {
+            "n_cohorts": 136,
+            "n_months": 44,
+            "mean": -0.00871,
+            "median": -0.00277,
+            "hit_rate": 0.426,
+            "t_months": -1.73,
+            "sharpe_ann": -0.9,
+            "max_dd": -0.30695,
+            "years_positive_share": 0.143,
+            "top_mfe": 0.06983,
+            "top_mae": -0.05763,
+            "top_asymmetry": 1.212,
+            "univ_asymmetry": 1.328
+          },
+          "spy_uptrend": {
+            "n_cohorts": 260,
+            "n_months": 66,
+            "mean": -0.00321,
+            "median": -0.00295,
+            "hit_rate": 0.4,
+            "t_months": -1.45,
+            "sharpe_ann": -0.62,
+            "max_dd": -0.18252,
+            "years_positive_share": 0.286,
+            "top_mfe": 0.05943,
+            "top_mae": -0.05533,
+            "top_asymmetry": 1.074,
+            "univ_asymmetry": 1.112
+          },
+          "spy_downtrend": {
+            "n_cohorts": 75,
+            "n_months": 25,
+            "mean": -0.01151,
+            "median": -0.00205,
+            "hit_rate": 0.413,
+            "t_months": -1.49,
+            "sharpe_ann": -1.03,
+            "max_dd": -0.26906,
+            "years_positive_share": 0.0,
+            "top_mfe": 0.07136,
+            "top_mae": -0.06502,
+            "top_asymmetry": 1.097,
+            "univ_asymmetry": 1.26
+          }
+        },
+        "p_value": 0.99379
+      },
+      "p_value": 0.99379,
+      "regimes": {
+        "vix_lt_20": "fails",
+        "vix_ge_20": "fails",
+        "spy_uptrend": "fails",
+        "spy_downtrend": "fails"
+      },
+      "counter_hypothesis": "Gegenrichtung signifikant – wäre eigene, neu zu registrierende Hypothese",
+      "status": "rejected",
+      "memory": {
+        "question": "Exploratory combination of preregistered parent signs; not established alpha.",
+        "why_tested": "Test a cost-adjusted cross-sectional interaction without estimating new signs from historical results.",
+        "data_used": [
+          "ml_research Feature-Store (wöchentliche PIT-Querschnitte)",
+          "max_ret_21",
+          "mom_12_1",
+          "vix"
+        ],
+        "feature_definitions": {
+          "max_ret_21": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "mom_12_1": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py",
+          "vix": "Querschnittsrang/Datumsmerkmal aus modules/ml_research.py"
+        },
+        "parameters": "keine (festes Signal, Richtung vorab)",
+        "baseline": "Querschnittsmittel desselben Stichtags, 10 bp/Seite",
+        "validation_design": "Walk-Forward 2019..Locked (jedes Jahr OOS), Kosten/Stabilität/Regime, BH über alle, Locked einmalig",
+        "decision_date": "2026-11-03",
+        "model_version": "3521e0be02fa"
+      },
+      "adversarial_review": {
+        "researcher": {
+          "objection": true,
+          "finding": "Evidenz: netto -0.00506 je 20 Tage, t=-2.5, Rank-IC -0.0361, Asymmetrie Top/Univ 1.08/1.153"
+        },
+        "skeptic": {
+          "objection": true,
+          "finding": "Hälften {'first': -0.00703, 'second': -0.00311}; Jahre positiv 0.0; Regime mit Versagen: ['vix_lt_20', 'vix_ge_20', 'spy_uptrend', 'spy_downtrend']"
+        },
+        "statistician": {
+          "objection": true,
+          "finding": "n=335 Kohorten/77 Monate, t=-2.5, p=0.99379, BH über alle getesteten Hypothesen"
+        },
+        "leakage_auditor": {
+          "objection": false,
+          "finding": "nur PIT-Merkmale (DSL-Whitelist), Labels nicht referenzierbar, Test-Labels enden vor Locked; PIT-Universum (Audit F01); Locked KONTAMINIERT (nur Ablehnung)"
+        },
+        "regime_agent": {
+          "objection": true,
+          "finding": "Regime-Urteile {'vix_lt_20': 'fails', 'vix_ge_20': 'fails', 'spy_uptrend': 'fails', 'spy_downtrend': 'fails'}"
+        },
+        "execution_agent": {
+          "objection": true,
+          "finding": "Stresskosten 25 bp/Seite: netto -0.00806; Max-DD -0.31754"
+        },
+        "failure_agent": {
+          "objection": true,
+          "finding": "Schlechteste Phase laut Max-DD -0.31754; Jahre positiv 0.0"
+        },
+        "objections": [
+          "execution_agent",
+          "failure_agent",
+          "regime_agent",
+          "researcher",
+          "skeptic",
+          "statistician"
+        ],
+        "final_decision_by": "vorab definierte Prüfkette (config/research_protocol.yaml), nicht durch eine Rolle"
+      },
+      "canonical_status": "REJECTED"
+    },
+    "AUTO-9F3C98A8BD0B": {
+      "id": "AUTO-9F3C98A8BD0B",
+      "title": "Automated regime: low_vol × relative_volume",
+      "signal": "((rank(vol_60) * -1) + (rank(relvol_5_60) * 1)) * step(vix - 20)",
+      "source": "autonomous_explorer",
+      "status": "blocked_similar_to_rejected",
+      "similar_to": "AUTO-F34E5C6BBF7D",
+      "similarity": 0.619,
+      "reasons": [
+        "zu ähnlich zu verworfener Hypothese AUTO-F34E5C6BBF7D (Jaccard 0.62)"
+      ],
+      "evaluated_at": "2026-11-03T15:47:23+00:00",
+      "canonical_status": "REJECTED"
     }
   },
   "discovery": {
@@ -7091,11 +7506,11 @@
     "window": "2015-01-01..2019-01-01",
     "survivor_ids": []
   },
-  "n_tested_total": 35,
-  "generated": "2026-10-03T13:01:27+00:00",
+  "n_tested_total": 37,
+  "generated": "2026-11-03T15:47:34+00:00",
   "status_counts": {
     "ACCEPTED": 0,
-    "REJECTED": 53,
+    "REJECTED": 56,
     "INCONCLUSIVE": 2,
     "RETEST_LATER": 4
   },

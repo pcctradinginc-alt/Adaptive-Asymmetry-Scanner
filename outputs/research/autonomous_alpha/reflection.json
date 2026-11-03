@@ -2,13 +2,22 @@
   "alpha_validated": false,
   "code_changes_authorized": false,
   "exploration_slots_recommended": 1,
-  "explorer_states": {},
-  "family_states": {},
+  "explorer_states": {
+    "REJECTED": 2
+  },
+  "family_states": {
+    "lottery_penaltyx_momentum": {
+      "REJECTED": 1
+    },
+    "low_volx_relative_volume": {
+      "REJECTED": 1
+    }
+  },
   "forward_stock_family_exploratory_counts": {},
-  "generated": "2026-10-31T14:49:59+00:00",
+  "generated": "2026-11-03T16:04:30+00:00",
   "llm_calls": 0,
-  "n_frozen_hypotheses": 0,
-  "n_historical_recorded": 59,
+  "n_frozen_hypotheses": 2,
+  "n_historical_recorded": 62,
   "n_matured_stock_factor_cohorts": 0,
   "next_research_tasks": [
     {
@@ -25,6 +34,11 @@
       "id": "MORE_EXECUTABLE_QUOTES",
       "priority": 3,
       "reason": "Too few quote-verifiable post-registration option outcomes."
+    },
+    {
+      "id": "DIVERSIFY_REJECTED_FAMILIES",
+      "priority": 4,
+      "reason": "Historical rejects are exploratory feedback, not proof of inverse alpha."
     },
     {
       "id": "COLLECT_ROI_COUNTERFACTUALS",
@@ -76,7 +90,5 @@
     }
   },
   "schema": "alpha-reflection-v1",
-  "source_gaps": [
-    "NO_REGISTERED_AUTONOMOUS_FACTORS"
-  ]
+  "source_gaps": []
 }

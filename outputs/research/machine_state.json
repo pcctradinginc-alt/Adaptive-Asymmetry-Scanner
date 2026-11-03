@@ -1,85 +1,91 @@
 {
- "generated": "2026-10-31T14:49:54+00:00",
+ "generated": "2026-11-03T16:04:23+00:00",
  "self_assessment": {
-  "overall_calibration": "GOOD",
+  "overall_calibration": "WEAK",
   "world_model_uncertainty": "MODERATE",
   "world_model_validation": "MODIFY",
-  "meta_learning": "NEED_MORE_DATA",
+  "meta_learning": "REJECT",
   "next_architecture": "KEEP_CHAMPION",
-  "safe_mode": false
+  "safe_mode": true
  },
  "what_do_we_know": [
-  "Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00028 je Position, Sharpe 0.04, Trefferquote 0.4834",
-  "Regime-Abhängigkeit: vix_lt_20 -0.00392, vix_ge_20 0.0069, spy_uptrend -0.00204, spy_downtrend 0.00768",
-  "Abstinenz-Regel historisch [2019, 2020] (Status CONTAMINATED, zählt nicht): aktiv 0.01573 vs. inaktiv 0.00178 (t=1.66)",
-  "Abstinenz-Regel VORWÄRTS ab 2026-09-29: 0 aktive / 0 inaktive fertige Kohorten, Status ACCUMULATING"
+  "Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00166 je Position, Sharpe 0.218, Trefferquote 0.4881",
+  "Regime-Abhängigkeit: vix_lt_20 -0.00267, vix_ge_20 0.00846, spy_uptrend -0.001, spy_downtrend 0.01016",
+  "Abstinenz-Regel historisch [2019, 2020] (Status CONTAMINATED, zählt nicht): aktiv 0.01658 vs. inaktiv 0.00311 (t=1.68)",
+  "Abstinenz-Regel VORWÄRTS ab 2026-09-29: 0 aktive / 2 inaktive fertige Kohorten, Status ACCUMULATING"
  ],
  "what_are_we_uncertain_about": [
-  "80-%-Intervalle: roh 0.6582, korrigiert 0.7887; P(>+10 %) Skill -0.156",
-  "World-Model-Unsicherheit 0.4169; nicht verfügbar: ['earnings_momentum']"
+  "80-%-Intervalle: roh 0.6691, korrigiert 0.7818; P(>+10 %) Skill -0.1344",
+  "World-Model-Unsicherheit 0.4721; nicht verfügbar: ['earnings_momentum', 'freight_supply_chain']"
  ],
  "where_are_we_systematically_wrong": [
-  "UNKNOWN_CLUSTER_001: {'sector': 'Energy', 'momentum': 'loser_12m'} (Fehler -0.1609, Lift 2.87, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_002: {'sector': 'Energy', 'beta': 'high_beta'} (Fehler -0.1654, Lift 2.82, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_003: {'sector': 'Energy', 'volatility': 'high_vol'} (Fehler -0.1618, Lift 2.53, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_004: {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'} (Fehler -0.1845, Lift 2.46, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_005: {'sector': 'Energy', 'liquidity': 'less_liquid'} (Fehler -0.1688, Lift 2.32, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_006: {'sector': 'Energy', 'vix': 'vix_ge_20'} (Fehler -0.1526, Lift 2.24, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_007: {'lottery': 'lottery_profile'} (Fehler -0.1782, Lift 1.96, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_008: {'sector': 'Energy'} (Fehler -0.1541, Lift 1.85, Abdeckung MEDIUM)",
-  "UNKNOWN_CLUSTER_009: {'recent_move': 'extreme_5d_move', 'beta': 'high_beta'} (Fehler -0.1696, Lift 1.75, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_010: {'sector': 'Consumer Cyclical', 'beta': 'high_beta'} (Fehler -0.1708, Lift 1.74, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_011: {'volatility': 'high_vol'} (Fehler -0.1652, Lift 1.7, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_012: {'momentum': 'loser_12m', 'trend': 'downtrend'} (Fehler -0.1861, Lift 1.66, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_013: {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'} (Fehler -0.1724, Lift 1.65, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_014: {'momentum': 'loser_12m', 'beta': 'high_beta'} (Fehler -0.1726, Lift 1.64, Abdeckung LOW)",
-  "UNKNOWN_CLUSTER_015: {'sector': 'Consumer Cyclical', 'recent_move': 'extreme_5d_move'} (Fehler -0.1821, Lift 1.61, Abdeckung LOW)"
+  "UNKNOWN_CLUSTER_001: {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'} (Fehler -0.1868, Lift 2.55, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_002: {'volatility': 'high_vol', 'near_high': 'near_52w_high'} (Fehler -0.16, Lift 2.08, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_003: {'lottery': 'lottery_profile'} (Fehler -0.1802, Lift 2.01, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_004: {'recent_move': 'extreme_5d_move', 'beta': 'high_beta'} (Fehler -0.1692, Lift 1.77, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_005: {'momentum': 'loser_12m', 'recent_move': 'extreme_5d_move'} (Fehler -0.1631, Lift 1.71, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_006: {'momentum': 'loser_12m', 'trend': 'downtrend'} (Fehler -0.1807, Lift 1.7, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_007: {'recent_move': 'extreme_5d_move', 'near_high': 'near_52w_high'} (Fehler -0.1636, Lift 1.64, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_008: {'volatility': 'high_vol'} (Fehler -0.1655, Lift 1.64, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_009: {'momentum': 'loser_12m', 'beta': 'high_beta'} (Fehler -0.1672, Lift 1.59, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_010: {'momentum': 'winner_12m', 'recent_move': 'extreme_5d_move'} (Fehler -0.1644, Lift 1.53, Abdeckung LOW)",
+  "UNKNOWN_CLUSTER_011: {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} (Fehler -0.1638, Lift 1.5, Abdeckung LOW)",
+  "Überkonfident im Bucket 55–60 %: prognostiziert 0.5909, realisiert 0.4657 (n=204)"
  ],
  "which_assumptions_are_stale": [
-  "tnx: Wert 4.929 außerhalb Trainingsband [1.0993, 4.7817]"
+  "tnx: Wert 4.894 außerhalb Trainingsband [1.0993, 4.7817]"
  ],
  "which_models_are_redundant": [
   "rs_63 ≡ mom_3m (identische Querschnittsränge, Audit A1)",
-  "momentum_12_1: Leave-one-out-Beitrag -0.00059 (≤ 0 = entbehrlich)",
-  "hgb_asym20_v1: Leave-one-out-Beitrag -0.0001 (≤ 0 = entbehrlich)"
+  "hgb_asym20_v1: Leave-one-out-Beitrag -0.00031 (≤ 0 = entbehrlich)"
  ],
  "which_features_are_decaying": [
-  "Modell enet_xs20_v1: 0.0679 -> -0.1769 (t=-2.5)",
-  "vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.415)",
-  "vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.529)",
-  "max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.415)"
+  "Modell enet_xs20_v1: 0.0676 -> -0.1778 (t=-2.5)",
+  "vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.417)",
+  "vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.53)",
+  "max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.416)"
  ],
- "where_is_data_quality_low": [
-  "imf_portwatch_ports: FAIL",
-  "imf_portwatch_disruptions: FAIL"
- ],
+ "where_is_data_quality_low": [],
  "where_is_model_disagreement_high": [
-  "aktuell LOW (mittlere Rang-Streuung 0.2185)"
+  "aktuell LOW (mittlere Rang-Streuung 0.1963)"
  ],
  "research_tracks_with_real_oos_value": [],
  "research_tracks_wasting_resources": [
   "literature: 0/5 akzeptiert",
   "director: 0/16 akzeptiert",
-  "factory: 0/18 akzeptiert",
+  "factory: 0/19 akzeptiert",
   "discovery_engine: 0/117 akzeptiert",
   "ml_models: 0/6 akzeptiert",
   "meta_learning: 0/12 akzeptiert"
  ],
- "highest_research_priority": "Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.76)?",
- "option_learner_gaps": [],
- "open_improvement_tasks": [],
- "improvement_mail_status": {},
+ "highest_research_priority": "Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.5)?",
+ "option_learner_gaps": [
+  "[1.0] Merkmal news_novelty nur in 0% der 359 geprüften Labels befüllt – vom Modell verworfen",
+  "[0.456] 33 Merkmale auf 359 geprüfte Labels (11 je Merkmal, Faustregel >= 20)",
+  "[0.4] für 5 T wurde noch keine Modell-, Merkmals- oder Auswahlvariante prospektiv gegen die Basis getestet",
+  "[0.3] NEED_MORE_DATA – walk_forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle; forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle",
+  "[0.3] NEED_MORE_DATA – walk_forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle; forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle"
+ ],
+ "open_improvement_tasks": [
+  "[P1] IMP-4a0d2d31 Merkmal news_novelty im Options-Lernmodell leer (NOTIFIED)",
+  "[P2] IMP-b4f3b983 Workflow source_health muss regelmäßig nachgestartet werden (NOTIFIED)"
+ ],
+ "improvement_mail_status": {
+  "critical": "nothing_to_send",
+  "weekly": "sent"
+ },
+ "alpha_to_options": [],
  "feature_decay": {
   "mom_12_1": {
    "n": 609,
-   "ic_all": -0.0003,
+   "ic_all": -0.0002,
    "ic_prev_52w": 0.0252,
-   "ic_last_52w": 0.029,
-   "ic_last_13w": -0.1058,
+   "ic_last_52w": 0.0291,
+   "ic_last_13w": -0.106,
    "delta_t": 0.11,
    "structural_break": {
     "break": false,
-    "stat": 1.215,
+    "stat": 1.218,
     "at": null
    },
    "status": "stable"
@@ -88,12 +94,12 @@
    "n": 639,
    "ic_all": -0.0106,
    "ic_prev_52w": -0.0129,
-   "ic_last_52w": -0.0135,
+   "ic_last_52w": -0.0136,
    "ic_last_13w": -0.149,
-   "delta_t": -0.01,
+   "delta_t": -0.02,
    "structural_break": {
     "break": false,
-    "stat": 1.28,
+    "stat": 1.282,
     "at": null
    },
    "status": "stable"
@@ -101,13 +107,13 @@
   "rev_1m": {
    "n": 639,
    "ic_all": -0.0183,
-   "ic_prev_52w": 0.0161,
-   "ic_last_52w": -0.0056,
+   "ic_prev_52w": 0.0165,
+   "ic_last_52w": -0.0057,
    "ic_last_13w": -0.0548,
-   "delta_t": -0.62,
+   "delta_t": -0.63,
    "structural_break": {
     "break": false,
-    "stat": 1.102,
+    "stat": 1.103,
     "at": null
    },
    "status": "stable"
@@ -115,9 +121,9 @@
   "ret_5d": {
    "n": 639,
    "ic_all": -0.0131,
-   "ic_prev_52w": 0.0018,
-   "ic_last_52w": -0.0087,
-   "ic_last_13w": -0.0706,
+   "ic_prev_52w": 0.0017,
+   "ic_last_52w": -0.0089,
+   "ic_last_13w": -0.0708,
    "delta_t": -0.33,
    "structural_break": {
     "break": false,
@@ -130,65 +136,65 @@
    "n": 639,
    "ic_all": -0.0106,
    "ic_prev_52w": -0.0129,
-   "ic_last_52w": -0.0135,
+   "ic_last_52w": -0.0136,
    "ic_last_13w": -0.149,
-   "delta_t": -0.01,
+   "delta_t": -0.02,
    "structural_break": {
     "break": false,
-    "stat": 1.28,
+    "stat": 1.282,
     "at": null
    },
    "status": "stable"
   },
   "vol_20": {
    "n": 639,
-   "ic_all": 0.0067,
+   "ic_all": 0.0068,
    "ic_prev_52w": 0.0666,
-   "ic_last_52w": 0.0468,
-   "ic_last_13w": 0.0092,
-   "delta_t": -0.51,
+   "ic_last_52w": 0.0472,
+   "ic_last_13w": 0.0089,
+   "delta_t": -0.5,
    "structural_break": {
     "break": true,
-    "stat": 1.415,
+    "stat": 1.417,
     "at": "2018-11-30"
    },
    "status": "break"
   },
   "vol_60": {
    "n": 639,
-   "ic_all": 0.0057,
-   "ic_prev_52w": 0.0895,
-   "ic_last_52w": 0.0432,
-   "ic_last_13w": 0.0032,
-   "delta_t": -1.08,
+   "ic_all": 0.0058,
+   "ic_prev_52w": 0.0896,
+   "ic_last_52w": 0.0435,
+   "ic_last_13w": 0.003,
+   "delta_t": -1.07,
    "structural_break": {
     "break": true,
-    "stat": 1.529,
+    "stat": 1.53,
     "at": "2019-08-02"
    },
    "status": "break"
   },
   "vol_ratio": {
    "n": 639,
-   "ic_all": -0.0008,
-   "ic_prev_52w": -0.0089,
-   "ic_last_52w": -0.0004,
-   "ic_last_13w": -0.0133,
-   "delta_t": 0.43,
+   "ic_all": -0.0007,
+   "ic_prev_52w": -0.009,
+   "ic_last_52w": -0.0001,
+   "ic_last_13w": -0.0137,
+   "delta_t": 0.45,
    "structural_break": {
     "break": false,
-    "stat": 0.953,
+    "stat": 0.951,
     "at": null
    },
    "status": "stable"
   },
   "relvol_5_60": {
    "n": 639,
-   "ic_all": -0.0023,
-   "ic_prev_52w": -0.0128,
-   "ic_last_52w": -0.0079,
-   "ic_last_13w": -0.0214,
-   "delta_t": 0.29,
+   "ic_all": -0.0024,
+   "ic_prev_52w": -0.0133,
+   "ic_last_52w": -0.008,
+   "ic_last_13w": -0.0215,
+   "delta_t": 0.31,
    "structural_break": {
     "break": false,
     "stat": 1.025,
@@ -198,42 +204,42 @@
   },
   "log_dollar_vol": {
    "n": 639,
-   "ic_all": 0.0153,
-   "ic_prev_52w": 0.0579,
-   "ic_last_52w": 0.0223,
-   "ic_last_13w": 0.0039,
+   "ic_all": 0.0154,
+   "ic_prev_52w": 0.0584,
+   "ic_last_52w": 0.0226,
+   "ic_last_13w": 0.0038,
    "delta_t": -1.58,
    "structural_break": {
     "break": false,
-    "stat": 1.076,
+    "stat": 1.093,
     "at": null
    },
    "status": "stable"
   },
   "dist_52w_high": {
    "n": 620,
-   "ic_all": -0.0037,
-   "ic_prev_52w": -0.0135,
-   "ic_last_52w": -0.0097,
-   "ic_last_13w": -0.1332,
-   "delta_t": 0.1,
+   "ic_all": -0.0036,
+   "ic_prev_52w": -0.0128,
+   "ic_last_52w": -0.0098,
+   "ic_last_13w": -0.133,
+   "delta_t": 0.08,
    "structural_break": {
     "break": false,
-    "stat": 1.187,
+    "stat": 1.186,
     "at": null
    },
    "status": "stable"
   },
   "max_ret_21": {
    "n": 639,
-   "ic_all": 0.0037,
-   "ic_prev_52w": 0.0729,
-   "ic_last_52w": 0.0244,
-   "ic_last_13w": 0.0051,
-   "delta_t": -1.42,
+   "ic_all": 0.0038,
+   "ic_prev_52w": 0.0727,
+   "ic_last_52w": 0.0243,
+   "ic_last_13w": 0.0047,
+   "delta_t": -1.41,
    "structural_break": {
     "break": true,
-    "stat": 1.415,
+    "stat": 1.416,
     "at": "2022-12-02"
    },
    "status": "break"
@@ -241,13 +247,13 @@
   "beta_126": {
    "n": 639,
    "ic_all": 0.0174,
-   "ic_prev_52w": 0.1021,
-   "ic_last_52w": 0.045,
-   "ic_last_13w": -0.1294,
-   "delta_t": -0.93,
+   "ic_prev_52w": 0.1014,
+   "ic_last_52w": 0.0448,
+   "ic_last_13w": -0.1296,
+   "delta_t": -0.92,
    "structural_break": {
     "break": false,
-    "stat": 1.297,
+    "stat": 1.294,
     "at": null
    },
    "status": "stable"
@@ -257,38 +263,38 @@
   "momentum_12_1": {
    "trend": "stable",
    "trend_t": -0.87,
-   "recent_ic": -0.036,
-   "prior_ic": 0.0371
+   "recent_ic": -0.0365,
+   "prior_ic": 0.0372
   },
   "enet_xs20_v1": {
    "trend": "deteriorating",
    "trend_t": -2.5,
-   "recent_ic": -0.1769,
-   "prior_ic": 0.0679
+   "recent_ic": -0.1778,
+   "prior_ic": 0.0676
   },
   "hgb_xs20_v1": {
    "trend": "improving",
-   "trend_t": 3.4,
-   "recent_ic": 0.1573,
-   "prior_ic": -0.0475
+   "trend_t": 2.92,
+   "recent_ic": 0.1041,
+   "prior_ic": -0.0476
   },
   "hgb_asym20_v1": {
    "trend": "improving",
-   "trend_t": 3.11,
-   "recent_ic": 0.1248,
-   "prior_ic": -0.0451
+   "trend_t": 2.6,
+   "recent_ic": 0.1222,
+   "prior_ic": -0.0457
   },
   "hgb_xs20_momentum_v1": {
    "trend": "stable",
-   "trend_t": 1.64,
-   "recent_ic": 0.0507,
+   "trend_t": 1.49,
+   "recent_ic": 0.0423,
    "prior_ic": -0.0062
   },
   "hgb_xs20_risk_regime_v1": {
-   "trend": "improving",
-   "trend_t": 3.13,
-   "recent_ic": 0.1503,
-   "prior_ic": -0.0317
+   "trend": "stable",
+   "trend_t": 1.37,
+   "recent_ic": 0.092,
+   "prior_ic": 0.0089
   }
  },
  "research_value": {
@@ -342,10 +348,10 @@
    "research_efficiency": "LOW"
   },
   "factory": {
-   "experiments": 18,
+   "experiments": 19,
    "accepted": 0,
    "oos_contribution": 0.0,
-   "rejected": 18,
+   "rejected": 19,
    "research_efficiency": "LOW"
   },
   "alt_data:ted_procurement": {
@@ -360,6 +366,13 @@
    "accepted": 0,
    "oos_contribution": 0.0,
    "rejected": 4,
+   "research_efficiency": "LOW"
+  },
+  "autonomous_explorer": {
+   "experiments": 2,
+   "accepted": 0,
+   "oos_contribution": 0.0,
+   "rejected": 2,
    "research_efficiency": "LOW"
   },
   "discovery_engine": {
@@ -385,10 +398,12 @@
   }
  },
  "safe_mode": {
-  "active": false,
-  "reasons": [],
+  "active": true,
+  "reasons": [
+   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19"
+  ],
   "known": true,
-  "state_version": 82,
+  "state_version": 89,
   "drift_level": "MILD",
   "consequences": {
    "confidence_multiplier": 0.9,
@@ -399,13 +414,17 @@
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
-  "data_quality": 0.912,
+  "data_quality": 0.916,
   "model_health_component": {
-   "active": false,
-   "reasons": [],
+   "active": true,
+   "reasons": [
+    "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19"
+   ],
    "components": {
     "drift": [],
-    "model": [],
+    "model": [
+     "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19"
+    ],
     "data": []
    },
    "drift": {
@@ -419,42 +438,42 @@
       "vix": {
        "level": "NORMAL",
        "excess": 0.0,
-       "value": 19.42,
+       "value": 21.15,
        "p01": 12.2374,
        "p99": 33.3101
       },
       "vix_chg_21": {
        "level": "NORMAL",
        "excess": 0.0,
-       "value": 3.03,
+       "value": 5.84,
        "p01": -11.8762,
        "p99": 13.7307
       },
       "spy_trend_200": {
        "level": "NORMAL",
        "excess": 0.0,
-       "value": 0.041,
+       "value": 0.0355,
        "p01": -0.1303,
        "p99": 0.1626
       },
       "spy_mom_63": {
        "level": "NORMAL",
        "excess": 0.0,
-       "value": -0.0001,
+       "value": -0.0225,
        "p01": -0.1323,
        "p99": 0.1471
       },
       "tnx": {
        "level": "MILD",
-       "excess": 0.04,
-       "value": 4.929,
+       "excess": 0.0305,
+       "value": 4.894,
        "p01": 1.0993,
        "p99": 4.7817
       },
       "curve_10y_3m": {
        "level": "NORMAL",
        "excess": 0.0,
-       "value": 0.956,
+       "value": 0.912,
        "p01": -1.5086,
        "p99": 2.0797
       }
@@ -472,7 +491,7 @@
    "canonical": false,
    "see": "outputs/state/system_state.json",
    "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
-   "updated": "2026-10-31T14:49:54+00:00"
+   "updated": "2026-11-03T16:04:22+00:00"
   }
  }
 }

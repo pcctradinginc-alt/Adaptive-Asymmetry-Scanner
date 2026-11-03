@@ -1,0 +1,418 @@
+{
+  "as_of": "2026-11-03",
+  "decisions_by_class": {},
+  "economic_result": "NOT_EVALUATED_IN_PHASE_A",
+  "executed": {
+    "attribution": {
+      "NO_EX_ANTE_SIGNAL_ID": 4
+    },
+    "broker_execution_checks": {
+      "NO_BROKER_EXECUTION_RECORD": 4
+    },
+    "n_attributed_ex_ante": 0,
+    "n_documented_broker_executions": 0,
+    "n_executed_evidence": 0,
+    "n_real_trades": 4,
+    "note": "The trade outcomes are scanner paper trades valued from archived bid/ask quotes, without broker fills: they are never EXECUTED evidence. EXECUTED needs a documented broker execution AND an ex-ante alpha_signal_id (neither exists today; trading path unchanged)."
+  },
+  "generated_at": "2026-11-03T16:04:29+00:00",
+  "hypotheses": {
+    "CONTROL-UNIVERSE-RANDOM": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "CONTROL",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "control",
+      "overdue_decision": 0,
+      "pending_decision": 10,
+      "signals": 5,
+      "status": "NEED_MORE_DATA",
+      "untradable": {},
+      "versions": [
+        "f88636597f2936ba"
+      ]
+    },
+    "enet_xs20_v1": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "TREATMENT",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "ml_registry",
+      "overdue_decision": 0,
+      "pending_decision": 6,
+      "signals": 6,
+      "status": "NEED_MORE_DATA",
+      "untradable": {
+        "NO_ALLOWED_STRUCTURE": 3
+      },
+      "versions": [
+        "8de25a33fe281eb9"
+      ]
+    },
+    "hgb_asym20_v1": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "TREATMENT",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "ml_registry",
+      "overdue_decision": 0,
+      "pending_decision": 6,
+      "signals": 6,
+      "status": "NEED_MORE_DATA",
+      "untradable": {
+        "NO_ALLOWED_STRUCTURE": 3
+      },
+      "versions": [
+        "7422b09c3c93c911"
+      ]
+    },
+    "hgb_xs20_momentum_v1": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "TREATMENT",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "ml_registry",
+      "overdue_decision": 0,
+      "pending_decision": 6,
+      "signals": 6,
+      "status": "NEED_MORE_DATA",
+      "untradable": {
+        "NO_ALLOWED_STRUCTURE": 3
+      },
+      "versions": [
+        "dbbebe4ad1475752"
+      ]
+    },
+    "hgb_xs20_risk_regime_v1": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "TREATMENT",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "ml_registry",
+      "overdue_decision": 0,
+      "pending_decision": 6,
+      "signals": 6,
+      "status": "NEED_MORE_DATA",
+      "untradable": {
+        "NO_ALLOWED_STRUCTURE": 3
+      },
+      "versions": [
+        "bc68f4e5430f286f"
+      ]
+    },
+    "hgb_xs20_v1": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "TREATMENT",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "ml_registry",
+      "overdue_decision": 0,
+      "pending_decision": 6,
+      "signals": 6,
+      "status": "NEED_MORE_DATA",
+      "untradable": {
+        "NO_ALLOWED_STRUCTURE": 3
+      },
+      "versions": [
+        "1d342821148821bd"
+      ]
+    },
+    "momentum_12_1": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "REFERENCE",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "ml_registry",
+      "overdue_decision": 0,
+      "pending_decision": 6,
+      "signals": 6,
+      "status": "NEED_MORE_DATA",
+      "untradable": {
+        "NO_ALLOWED_STRUCTURE": 3
+      },
+      "versions": [
+        "60f816ac9441b233"
+      ]
+    }
+  },
+  "integrity": {
+    "conflicting_duplicates": 0,
+    "corrections": 0,
+    "journals": {
+      "corrections": {
+        "conflicting_duplicates": 0,
+        "rows": 0,
+        "unique": 0
+      },
+      "decisions": {
+        "conflicting_duplicates": 0,
+        "rows": 0,
+        "unique": 0
+      },
+      "outcomes": {
+        "conflicting_duplicates": 0,
+        "rows": 0,
+        "unique": 0
+      },
+      "signals": {
+        "conflicting_duplicates": 0,
+        "rows": 41,
+        "unique": 41
+      }
+    },
+    "status": "OK"
+  },
+  "link_start": "2026-11-02",
+  "link_version": "alpha-option-link-v1",
+  "llm_calls": 0,
+  "n_decisions": 0,
+  "n_outcomes": 0,
+  "n_signals": 41,
+  "order_placed": false,
+  "outcomes_by_evidence_class": {
+    "EXECUTED": 0,
+    "QUOTE_VERIFIED_PAPER": 0,
+    "UNVERIFIABLE": 0
+  },
+  "pre_link": {
+    "ml_prediction_rows": 48,
+    "prediction_dates": [
+      "2026-09-28",
+      "2026-10-01",
+      "2026-10-02",
+      "2026-10-09",
+      "2026-10-14",
+      "2026-10-16",
+      "2026-10-23",
+      "2026-10-30"
+    ],
+    "reason": "No option decision was observed when these predictions were made.",
+    "status": "NOT_LINKABLE_RETROACTIVELY"
+  },
+  "production_influence": "NONE",
+  "rule_hash": "03f872d1d33961ec8075665ed67226a745c26af58ae32f32265640104ba953e0",
+  "rule_version": "alpha-option-rule-v1",
+  "schema": "alpha-option-link-coverage-v1",
+  "source_stats": {
+    "ml_broken_lines": 0,
+    "ml_pre_link_rows": 48
+  },
+  "status": "NEED_MORE_DATA"
+}

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-03T12:59:48+00:00",
+ "generated": "2026-11-03T15:46:04+00:00",
  "data_gaps": [
   {
    "source": "earnings_calendar_history",
@@ -52,17 +52,66 @@
    "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
   },
   {
+   "source": "portwatch_history_pit",
+   "dimensions": [
+    "freight_supply_chain"
+   ],
+   "current_uncertainty": 1.0,
+   "expected_information_gain": 0.2,
+   "available": true,
+   "reliability": 0.3,
+   "acquisition_cost": 1,
+   "priority": 0.3,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "ok",
+    "historical_coverage": "insufficient",
+    "timestamp_integrity": "forward_only",
+    "revision_analysis": "pending",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "IMF Terms (frei mit Quellenangabe)",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  },
+  {
+   "source": "destatis_truck_toll_pit",
+   "dimensions": [
+    "freight_supply_chain",
+    "industrial_activity"
+   ],
+   "current_uncertainty": 1.0,
+   "expected_information_gain": 0.2,
+   "available": true,
+   "reliability": 0.3,
+   "acquisition_cost": 1,
+   "priority": 0.3,
+   "onboarding_checklist": {
+    "provenance": "ok",
+    "license": "ok",
+    "historical_coverage": "insufficient",
+    "timestamp_integrity": "forward_only",
+    "revision_analysis": "pending",
+    "missing_data_analysis": "pending",
+    "leakage_audit": "pending",
+    "incremental_oos_test": "pending"
+   },
+   "license": "DL-DE-BY-2.0",
+   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
+  },
+  {
    "source": "cboe_put_call",
    "dimensions": [
     "positioning",
     "risk_appetite"
    ],
-   "current_uncertainty": 0.809,
-   "expected_information_gain": 0.809,
+   "current_uncertainty": 0.644,
+   "expected_information_gain": 0.644,
    "available": true,
    "reliability": 1.0,
    "acquisition_cost": 3,
-   "priority": 0.26967,
+   "priority": 0.21467,
    "onboarding_checklist": {
     "provenance": "ok",
     "license": "review_required",
@@ -98,55 +147,6 @@
     "incremental_oos_test": "pending"
    },
    "license": "kommerziell, REVIEW_REQUIRED",
-   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
-  },
-  {
-   "source": "portwatch_history_pit",
-   "dimensions": [
-    "freight_supply_chain"
-   ],
-   "current_uncertainty": 0.197,
-   "expected_information_gain": 0.039,
-   "available": true,
-   "reliability": 0.3,
-   "acquisition_cost": 1,
-   "priority": 0.0591,
-   "onboarding_checklist": {
-    "provenance": "ok",
-    "license": "ok",
-    "historical_coverage": "insufficient",
-    "timestamp_integrity": "forward_only",
-    "revision_analysis": "pending",
-    "missing_data_analysis": "pending",
-    "leakage_audit": "pending",
-    "incremental_oos_test": "pending"
-   },
-   "license": "IMF Terms (frei mit Quellenangabe)",
-   "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
-  },
-  {
-   "source": "destatis_truck_toll_pit",
-   "dimensions": [
-    "freight_supply_chain",
-    "industrial_activity"
-   ],
-   "current_uncertainty": 0.197,
-   "expected_information_gain": 0.039,
-   "available": true,
-   "reliability": 0.3,
-   "acquisition_cost": 1,
-   "priority": 0.0591,
-   "onboarding_checklist": {
-    "provenance": "ok",
-    "license": "ok",
-    "historical_coverage": "insufficient",
-    "timestamp_integrity": "forward_only",
-    "revision_analysis": "pending",
-    "missing_data_analysis": "pending",
-    "leakage_audit": "pending",
-    "incremental_oos_test": "pending"
-   },
-   "license": "DL-DE-BY-2.0",
    "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"
   },
   {
