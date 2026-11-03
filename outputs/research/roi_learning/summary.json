@@ -1,6 +1,6 @@
 {
   "actual_production_roi_gate_changed": false,
-  "as_of": "2026-11-02",
+  "as_of": "2026-11-03",
   "candidate_underlying_by_gate": {
     "by_reject_reason": {
       "bearish_disabled": {
@@ -92,9 +92,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 0,
+            "independent_days": 1,
             "mean_stock_return": null,
-            "observed": 0,
+            "observed": 5,
             "status": "NEED_MORE_DATA"
           }
         }
@@ -116,9 +116,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 0,
+            "independent_days": 1,
             "mean_stock_return": null,
-            "observed": 0,
+            "observed": 350,
             "status": "NEED_MORE_DATA"
           }
         }
@@ -212,9 +212,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 17,
-            "mean_stock_return": 0.00246,
-            "observed": 338,
+            "independent_days": 18,
+            "mean_stock_return": 0.002466,
+            "observed": 339,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -332,9 +332,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 19,
-            "mean_stock_return": 0.005058,
-            "observed": 3891,
+            "independent_days": 20,
+            "mean_stock_return": 0.005081,
+            "observed": 3893,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -380,9 +380,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 19,
-            "mean_stock_return": 0.010348,
-            "observed": 568,
+            "independent_days": 20,
+            "mean_stock_return": 0.008928,
+            "observed": 603,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
