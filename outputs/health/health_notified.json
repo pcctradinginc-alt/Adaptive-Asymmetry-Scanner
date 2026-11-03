@@ -1,12 +1,19 @@
 {
- "at": "2026-11-02T21:54:55+00:00",
+ "at": "2026-11-03T16:20:10+00:00",
  "changes": [
   {
    "source_id": "imf_portwatch_chokepoints",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "BROKEN",
+   "error": "Schema geändert (Orchestrator); Data-Quality-Befund schwerwiegend"
+  },
+  {
+   "source_id": "*",
+   "type": "safe_mode_on",
+   "from": false,
+   "to": true,
+   "error": "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
   }
  ],
  "mail": "sent"

@@ -2,20 +2,23 @@
  "schema": "system-state-v2",
  "safe_mode": true,
  "safe_mode_reason": [
+  "DATA: 2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']",
   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19"
  ],
  "data_health": {
-  "status": "OK",
-  "data_quality": 0.916,
+  "status": "SAFE_MODE",
+  "data_quality": 0.888,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
-  "global_reasons": [],
-  "generated": "2026-11-02T21:54:55+00:00",
+  "global_reasons": [
+   "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
+  ],
+  "generated": "2026-11-03T16:20:10+00:00",
   "counts": {
-   "HEALTHY": 43,
-   "DEGRADED": 1,
+   "HEALTHY": 42,
+   "DEGRADED": 2,
    "STALE": 1,
    "BROKEN": 2,
    "UNVALIDATED": 8
@@ -92,13 +95,14 @@
     "n_models": 6
    },
    "data": {
-    "level": "NORMAL",
-    "data_quality": 0.916
+    "level": "MILD",
+    "data_quality": 0.888
    }
   },
   "reasons": [
    "FEATURE DRIFT MILD: ['tnx']",
-   "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich"
+   "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich",
+   "DATA DRIFT MILD: Data Quality 0.888"
   ],
   "policy_version": "drift-v1",
   "consequences": {
@@ -183,15 +187,15 @@
  "inputs": {
   "model_health": "631f21079e0c",
   "meta_learning": "7f4ce3d53158",
-  "data_health": "d0b5949e899b",
+  "data_health": "191e5ebc2b6c",
   "promotion": "dbfa646c7dea",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "238003516e2f"
  },
- "state_version": 89,
- "fingerprint": "b0790cedacf9308d",
- "updated_at": "2026-11-03T16:04:22+00:00",
- "code_version": "3521e0be02fa"
+ "state_version": 90,
+ "fingerprint": "4cccaa34890cd0f5",
+ "updated_at": "2026-11-03T16:20:10+00:00",
+ "code_version": "1a02aebc0b7a"
 }
