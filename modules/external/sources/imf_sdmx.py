@@ -93,7 +93,7 @@ def _catalog(root: ET.Element, flow: str):
         if ref is None:
             raise IMFSDMXError("DIMENSION_ENUMERATION_UNRESOLVED:" + str(e.get("id"))
                                + " xml=" + ET.tostring(e, encoding="unicode")[:650])
-        dimensions.append((str(e.get("id", "")).upper(), ref.get("id"))
+        dimensions.append((str(e.get("id", "")).upper(), ref.get("id")))
     if not dimensions or len(dimensions) > 12 or len({x[0] for x in dimensions}) != len(dimensions):
         raise IMFSDMXError("INVALID_DIMENSIONS")
     lists = {}
