@@ -91,8 +91,35 @@ def _catalog(root: ET.Element, flow: str):
         enum = _first(e, "Enumeration")
         ref = _first(enum, "Ref") if enum is not None else None
         if ref is None:
-            raise IMFSDMXError("DIMENSION_ENUMERATION_UNRESOLVED:" + str(e.get("id"))
-                               + " xml=" + ET.tostring(e, encoding="unicode")[:650])
+            # IMF STA DSDs (MFS_MA, CCI, FAS) can define COUNTRY via
+            # ConceptIdentity alone, with the codelist in the official
+            # concept's CoreRepresentation. Resolve that exact chain:
+            # dimension -> concept scheme/version -> concept -> enumeration.
+            identity = _first(e, "ConceptIdentity")
+            identity_ref = _first(identity, "Ref") if identity is not None else None
+            if identity_ref is None or identity_ref.get("id") != e.get("id"):
+                raise IMFSDMXError(f"DIMENSION_CONCEPT_IDENTITY_MISSING:{e.get('id')}")
+            parent_id = identity_ref.get("maintainableParentID")
+            parent_version = identity_ref.get("maintainableParentVersion")
+            owner = identity_ref.get("agencyID")
+            if not (parent_id and parent_version and owner and owner.startswith("IMF")):
+                raise IMFSDMXError(f"DIMENSION_CONCEPT_PARENT_INVALID:{e.get('id')}")
+            schemes = [x for x in root.iter() if _local(x) == "ConceptScheme"
+                       and x.get("id") == parent_id and x.get("agencyID") == owner
+                       and x.get("version") == parent_version]
+            if len(schemes) != 1:
+                raise IMFSDMXError(f"CONCEPT_SCHEME_NOT_RESOLVED:{owner}:{parent_id}:{parent_version}")
+            concepts = [x for x in schemes[0] if _local(x) == "Concept"
+                        and x.get("id") == identity_ref.get("id")]
+            if len(concepts) != 1:
+                raise IMFSDMXError(f"DIMENSION_CONCEPT_NOT_RESOLVED:{e.get('id')}")
+            core = _first(concepts[0], "CoreRepresentation")
+            enum = _first(core, "Enumeration") if core is not None else None
+            ref = _first(enum, "Ref") if enum is not None else None
+            if ref is None:
+                raise IMFSDMXError(f"CONCEPT_CORE_ENUMERATION_MISSING:{e.get('id')}")
+        if not ref.get("id"):
+            raise IMFSDMXError(f"DIMENSION_CODELIST_REF_MISSING:{e.get('id')}")
         dimensions.append((str(e.get("id", "")).upper(), ref.get("id")))
     if not dimensions or len(dimensions) > 12 or len({x[0] for x in dimensions}) != len(dimensions):
         raise IMFSDMXError("INVALID_DIMENSIONS")
