@@ -106,6 +106,35 @@ def summarize_run_outcome(run: dict, jobs: list[dict]) -> dict:
             "business_evidence": "NOT_EVALUATED"}
 
 
+def _repo_from_jobs_url(url: str | None) -> str:
+    """The REST job-list URL is emitted by GitHub; avoid guessing repository identity."""
+    m = re.search(r"/repos/([^/]+/[^/]+)/actions/runs/\\d+/jobs(?:[?].*)?$", url or "")
+    if not m:
+        raise ValueError("No GitHub repository in jobs_url")
+    return m.group(1)
+
+
+STAGE_LEDGER_PATHS = frozenset({".github/workflows/ml_research.yml", ".github/workflows/feedback.yml"})
+
+
+def stage_failure_names(job_log: str) -> list[str]:
+    """Extract machine-reported failures from the CI stage-balance, not generic log errors.
+
+    GitHub marks `continue-on-error` steps as successful in the job API, although the
+    stage-balance contains `commodity_evaluate=failure` or a matching warning.
+    Only the authoritative CRITICAL/DEGRADED balance is interpreted as a failure.
+    """
+    failed = set()
+    for line in (job_log or "").splitlines():
+        if "  CRITICAL:" in line or "  DEGRADED:" in line:
+            failed.update(re.findall(r"\\b([a-z][a-z0-9_]+)=failure\\b", line))
+        if "##[warning]Stufe '" in line and "' ausgefallen" in line:
+            m = re.search(r"Stufe '([^']+)' ausgefallen", line)
+            if m:
+                failed.add(m.group(1))
+    return sorted(failed)
+
+
 def recent_run_outcomes(session, runs: list[dict]) -> list[dict]:
     """One recent run per core workflow; individual job API failures do not mask other runs."""
     latest = {}
@@ -119,7 +148,23 @@ def recent_run_outcomes(session, runs: list[dict]) -> list[dict]:
     for r in latest.values():
         try:
             jobs = (_get(session, r["jobs_url"]).json().get("jobs") or []) if r.get("jobs_url") else []
-            out.append(summarize_run_outcome(r, jobs))
+            record = summarize_run_outcome(r, jobs)
+            # These jobs run `continue-on-error` stages: REST reports "success"
+            # even when `ci_stage_check.sh` identified a failed substage.
+            if r.get("path") in STAGE_LEDGER_PATHS and record["effective_status"] == "TECHNICALLY_SUCCESSFUL":
+                try:
+                    primary = next(j for j in jobs if j.get("name") in {"ml", "feedback"})
+                    report = _get(session, f"{API}/repos/{_repo_from_jobs_url(r.get('jobs_url'))}/actions/jobs/{primary['id']}/logs").text
+                    failures = stage_failure_names(report)
+                    if failures:
+                        record["effective_status"] = "DEGRADED_STEP_FAILURE"
+                        record["failed_steps"] += [(primary["name"], name) for name in failures]
+                    record["stage_balance"] = "FAILURE" if failures else "NO_FAILURE_REPORTED"
+                except Exception as exc:  # noqa: BLE001
+                    record["effective_status"] = "UNVERIFIED"
+                    record["stage_balance"] = "UNAVAILABLE"
+                    record["stage_error"] = type(exc).__name__
+            out.append(record)
         except Exception as exc:  # noqa: BLE001 - missing job metadata must be visible, not silently green
             out.append({"workflow": r.get("name"), "run_id": r.get("id"),
                         "url": r.get("html_url"), "conclusion": r.get("conclusion"),
