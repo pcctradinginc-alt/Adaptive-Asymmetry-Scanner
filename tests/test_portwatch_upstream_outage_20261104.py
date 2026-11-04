@@ -144,3 +144,21 @@ def test_reference_service_outage_falls_back_to_verified_daily_layer(tmp_path):
     assert endpoints["ports_reference"]["service_url"] == endpoints["ports_daily"]["service_url"]
     assert endpoints["ports_reference"]["layer_id"] == endpoints["ports_daily"]["layer_id"]
     # The fallback uses the same verified publisher, not another ArcGIS owner.
+
+
+
+def test_failed_forced_discovery_cannot_poison_last_known_endpoint_cache(tmp_path):
+    original_fetch, _ = make_fake_fetch()
+    cache_path = tmp_path / "endpoints.json"
+    mw.discover_endpoints(http_fetch=original_fetch, cache_path=str(cache_path), now=NOW)
+    before = cache_path.read_bytes()
+
+    def outage_fetch(url, params=None, **kwargs):
+        if url == SERVICE_URLS["ports_daily"]:
+            return FakeResponse(_upstream_400("Invalid URL"))
+        return original_fetch(url, params=params, **kwargs)
+
+    with pytest.raises(mw.PortWatchUpstreamUnavailable):
+        mw.discover_endpoints(http_fetch=outage_fetch, cache_path=str(cache_path),
+                              now=NOW, force_refresh=True)
+    assert cache_path.read_bytes() == before
