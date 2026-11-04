@@ -107,7 +107,7 @@ def synthetic_structure(flow, label1, label2):
     return f"""<?xml version="1.0"?>
 <mes:Structure xmlns:mes="urn:mes" xmlns:str="urn:struct" xmlns:com="urn:common"
 xmlns:xml="http://www.w3.org/XML/1998/namespace">
-<str:Dataflows><str:Dataflow id="{flow}" agencyID="IMF.STA"/></str:Dataflows>
+<str:Dataflows><str:Dataflow id="{flow}" agencyID="IMF.STA"><str:Structure><Ref id="DSD_{flow}"/></str:Structure></str:Dataflow></str:Dataflows>
 <str:DataStructures><str:DataStructure id="DSD_{flow}" agencyID="IMF.STA">
 <str:DataStructureComponents><str:DimensionList>
 <str:Dimension id="COUNTRY"><str:LocalRepresentation><str:Enumeration><Ref id="COUNTRIES"/></str:Enumeration></str:LocalRepresentation></str:Dimension>
