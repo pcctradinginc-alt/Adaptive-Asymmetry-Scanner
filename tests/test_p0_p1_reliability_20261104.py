@@ -190,3 +190,22 @@ def test_continue_on_error_stage_balance_not_misclassified_as_success():
     }])
     assert outcome[0]["effective_status"] == "DEGRADED_STEP_FAILURE"
     assert outcome[0]["failed_steps"] == [("ml", "commodity_evaluate")]
+
+
+
+def test_capture_coverage_does_not_import_pandas_dependent_research(monkeypatch, tmp_path):
+    """Capture runner installs only requests+pyyaml; weekly research may use pandas."""
+    from modules.autonomous_alpha import option_link as al
+    import shutil
+    config = tmp_path / al.CONFIG
+    config.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(Path(__file__).resolve().parents[1] / al.CONFIG, config)
+    (tmp_path / al.FACTOR_PRED_DIR).mkdir(parents=True, exist_ok=True)
+    (tmp_path / al.FACTOR_PRED_DIR / "2026-11.jsonl").write_text("{}\\n")
+    def no_heavy_sources(*args, **kwargs):
+        raise AssertionError("capture must not load pandas-dependent research sources")
+    monkeypatch.setattr(al, "_sources", no_heavy_sources)
+    out = al.coverage(tmp_path, now=NOW, persist=False, include_source_stats=False)
+    assert out["status"] == "NEED_MORE_DATA"
+    assert out["source_stats"]["status"] == "SKIPPED_CAPTURE_LIGHTWEIGHT"
+    assert out["n_decisions"] == 0
