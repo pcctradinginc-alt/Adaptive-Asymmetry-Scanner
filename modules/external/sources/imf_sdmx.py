@@ -116,7 +116,7 @@ def _select(dimensions, lists, flow: str, phrases: tuple[str, ...]):
     for dim, list_id in dimensions:
         codes = lists.get(list_id) or {}
         if not codes:
-            raise IMFSDMXError(f"MISSING_OFFICIAL_CODELIST:{dim}")
+            raise IMFSDMXError(f"MISSING_OFFICIAL_CODELIST:{dim} ref={list_id!r} available={sorted(lists)[:12]!r}")
         if dim in ("COUNTRY", "REF_AREA", "GEO", "GEOGRAPHY"):
             country = []
             for aliases, labels in zip(COUNTRY_CODES, COUNTRY_LABELS):
