@@ -159,8 +159,13 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
         if res.get("alpha_link", {}).get("status") != "ERROR":
             try:
                 from modules.autonomous_alpha import option_link as al
-                res["alpha_link_settlement"] = al.settle(now=now if fixed_clock else None)
-                res["alpha_link_coverage"] = al.coverage(now=now if fixed_clock else None)
+                # A supplied clock is used by simulation/tests: never persist research
+                # reports/outcomes into the real repository from a deterministic replay.
+                # Production capture (no supplied clock) persists normally.
+                res["alpha_link_settlement"] = al.settle(
+                    now=now if fixed_clock else None, persist=not fixed_clock)
+                res["alpha_link_coverage"] = al.coverage(
+                    now=now if fixed_clock else None, persist=not fixed_clock)
             except Exception as exc:  # noqa: BLE001 - reporting cannot lose archived quotes
                 log.warning("alpha option settlement/coverage unavailable: %s", exc)
                 res["alpha_link"] = {"status": "ERROR", "error": f"{type(exc).__name__}: {exc}"[:300]}
