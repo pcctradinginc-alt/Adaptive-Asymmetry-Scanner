@@ -26,7 +26,8 @@ def catalog():
     d = {}
     for c in dm.CONNECTORS.values():
         for indicator in c.INDICATORS:
-            d[indicator] = {"dataset": c.DATASET, "label": indicator, "unit": "percent"}
+            d[indicator] = {"dataset": c.DATASET, "label": indicator, "unit": "percent",
+                            **({"projection-year": 2026} if c.DATASET == "WEO" else {})}
     return {"indicators": d}
 
 
@@ -70,6 +71,8 @@ def test_four_datamapper_feeds_ingest_only_approved_prospective_vintages(cls):
     if cls.DATASET == "WEO":
         future = [o for o in x.observations if o.observation_time.year == 2027]
         assert future and all(o.forecast_issue_time == NOW and o.forecast_valid_time for o in future)
+        current_projection = [o for o in x.observations if o.observation_time.year == 2026]
+        assert current_projection and all(o.forecast_issue_time == NOW for o in current_projection)
     else:
         assert all(o.forecast_issue_time is None for o in x.observations)
 
