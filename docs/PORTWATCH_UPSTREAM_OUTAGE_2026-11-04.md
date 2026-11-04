@@ -16,7 +16,8 @@ The two daily ArcGIS endpoints are presently **not healthy**. The official servi
 2. FeatureServer root resolves real map-layer **or table** IDs. Service-level 400 error cannot silently become a guessed layer 0, and discovery cannot cache a known failed root as a valid endpoint.
 3. The fallback for an inaccessible *reference* service is limited to ID/name extraction from the already verified **same daily** layer. No other organization is accepted.
 4. If even the minimal `ObjectID` query returns `400 Invalid URL`, isolation stops after this one probe and reports `UPSTREAM_UNAVAILABLE` instead of wasting further queries.
-5. Existing strict publisher identity checks, provenance, `PASS/WARN/FAIL` semantics and Source Health two-independent-success recovery gate remain unchanged. No invented quote/metric, no data-safe-mode override, no production influence.
+5. If the publisher briefly returns JSON-400 during a refresh but the official **same** URL recovers, a bounded metadata + minimal ObjectID read-only probe can allow one full retry. A still-broken endpoint never returns PASS, and no unverified endpoint replacement is accepted.
+6. Existing strict publisher identity checks, provenance, `PASS/WARN/FAIL` semantics and Source Health two-independent-success recovery gate remain unchanged. No invented quote/metric, no data-safe-mode override, no production influence.
 
 ## Acceptance checks
 
