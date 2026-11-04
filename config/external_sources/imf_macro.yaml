@@ -42,7 +42,7 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v2"
     access_method: "IMF DataMapper JSON API v1, curated indicators"
     requires_auth: false
     auth_env_variable: ""
@@ -106,7 +106,7 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v2"
     access_method: "IMF DataMapper JSON API v1, curated indicators"
     requires_auth: false
     auth_env_variable: ""
@@ -138,7 +138,7 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v2"
     access_method: "IMF DataMapper JSON API v1, curated indicators"
     requires_auth: false
     auth_env_variable: ""
@@ -234,7 +234,7 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v2"
     access_method: "IMF DataMapper JSON API v1, curated indicators"
     requires_auth: false
     auth_env_variable: ""
