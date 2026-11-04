@@ -162,3 +162,30 @@ def test_failed_forced_discovery_cannot_poison_last_known_endpoint_cache(tmp_pat
         mw.discover_endpoints(http_fetch=outage_fetch, cache_path=str(cache_path),
                               now=NOW, force_refresh=True)
     assert cache_path.read_bytes() == before
+
+
+
+def test_same_endpoint_transient_provider_error_recovers_only_after_verified_read(tmp_path):
+    baseline, _ = make_fake_fetch()
+    state = {"metadata": 0, "probe": 0}
+
+    def fetch(url, params=None, **kwargs):
+        if url == SERVICE_URLS["ports_daily"] + "/0":
+            state["metadata"] += 1
+            if state["metadata"] == 1:
+                return FakeResponse(_upstream_400("Layer temporarily inaccessible"))
+        if (url == SERVICE_URLS["ports_daily"] + "/0/query" and params
+                and params.get("where") == "1=1" and params.get("outFields") == "OBJECTID"
+                and params.get("resultRecordCount") == 1):
+            state["probe"] += 1
+            return FakeResponse({"features": [{"attributes": {"OBJECTID": 1}}],
+                                 "exceededTransferLimit": False})
+        return baseline(url, params=params, **kwargs)
+
+    connector = mw.PortWatchPortsConnector(http_fetch=fetch,
+                                           cache_path=str(tmp_path / "endpoints.json"))
+    result = connector.fetch(NOW)
+    assert result.status in (SourceStatus.PASS, SourceStatus.WARN)
+    assert result.observations and result.raw
+    assert state["probe"] == 1
+    assert state["metadata"] == 3    # initial error + verified probe + full successful retry
