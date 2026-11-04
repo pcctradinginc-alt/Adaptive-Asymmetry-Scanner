@@ -1346,6 +1346,74 @@
         "reason": null,
         "state": "OK"
       }
+    },
+    "2026-11-04": {
+      "external_data": {
+        "file": "external_data.yml",
+        "expected": "2026-11-04T06:17+00:00",
+        "deadline": "2026-11-04T16:17+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "source_health": {
+        "file": "source_health.yml",
+        "expected": "2026-11-04T12:41+00:00",
+        "deadline": "2026-11-04T15:41+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "scanner": {
+        "file": "scanner.yml",
+        "expected": "2026-11-04T13:30+00:00",
+        "deadline": "2026-11-04T17:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [
+          "source_health"
+        ],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "feedback": {
+        "file": "feedback.yml",
+        "expected": "2026-11-04T15:30+00:00",
+        "deadline": "2026-11-04T23:30+00:00",
+        "actual_last_run": "2026-11-04T00:01:45Z",
+        "conclusion": "success",
+        "delay_hours": -15.5,
+        "runs_today": 1,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": null,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "OK"
+      }
     }
   },
   "recoveries": {
