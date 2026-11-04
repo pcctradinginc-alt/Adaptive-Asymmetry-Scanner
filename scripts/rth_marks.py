@@ -112,6 +112,7 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
     res = {"mode": "capture" if capture_only else "full", "window": window,
            "session": ms.us_market_session(now), "skipped": not ok}
     if not ok:
+        res["capture_status"] = "SKIPPED_OUTSIDE_WINDOW"
         return res
     history = _read_history(history_path)
     targets = trade_targets(history, now)
@@ -135,6 +136,10 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
         try:
             from modules.autonomous_alpha import option_link as al
             res["alpha_link"] = al.decide(now=now if fixed_clock else None)
+            # The research report was formerly only refreshed by weekly ML, so a successful
+            # RTH decision appeared as "0 decisions" until the next research run.
+            # Coverage is descriptive; it never approves a trade or invents a fill.
+            res["alpha_link_coverage"] = al.coverage(now=now if fixed_clock else None)
             for sym, earliest in al.due_capture_targets(today=now.astimezone(ms.NY_TZ).date()).items():
                 cand_t[sym] = max(cand_t.get(sym, day0), earliest)
         except Exception as exc:  # noqa: BLE001 – research add-on, never a capture condition
@@ -152,11 +157,40 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
         res.update(targets=len(trade_syms) + len(cand_syms), already_captured=len(done),
                    requested=len(todo_t) + len(todo_c), quotes=len(got),
                    missing=sorted(set(todo_t + todo_c) - set(got)))
+        if res.get("alpha_link", {}).get("status") == "ERROR":
+            res["capture_status"] = "ALPHA_LINK_ERROR"
+        elif res["missing"]:
+            res["capture_status"] = "PARTIAL_MISSING_QUOTES"
+        elif not res["requested"]:
+            res["capture_status"] = "ALREADY_CAPTURED" if done else "NO_TARGETS"
+        else:
+            res["capture_status"] = "COMPLETE"
         return res
     cl.update_outcomes(now.strftime("%Y-%m-%d"))
     quotes = ms.fetch_option_quotes(trade_syms, context="trade_mark_rth") if trade_syms else {}
     res.update(active_contracts=len(trade_syms), quotes=len(quotes), missing=sorted(set(trade_syms) - set(quotes)))
+    res["capture_status"] = "PARTIAL_MISSING_QUOTES" if res["missing"] else "COMPLETE"
     return res
+
+
+def persist_capture_status(res: dict, *, now: datetime | None = None,
+                           root: Path = Path("outputs/options_archive/capture_status")) -> Path | None:
+    """Persist the last *in-window* run; out-of-window cron delays must not overwrite it.
+
+    This is telemetry, not quote evidence or a substitute for an RTH capture.
+    """
+    if res.get("mode") != "capture" or res.get("window") != "IN_WINDOW":
+        return None
+    from modules import option_quotes as oq
+    day = oq.ny_date(now or datetime.now(timezone.utc))
+    if not day:
+        return None
+    root.mkdir(parents=True, exist_ok=True)
+    dest = root / f"{day}.json"
+    payload = dict(res)
+    payload["observed_at"] = (now or datetime.now(timezone.utc)).isoformat()
+    dest.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
+    return dest
 
 
 def main(argv=None) -> int:
@@ -171,6 +205,10 @@ def main(argv=None) -> int:
         print(f"::error::rth_marks fehlgeschlagen: {type(e).__name__}: {e}")
         return 1
     print(json.dumps(res, ensure_ascii=False))
+    if a.capture_only:
+        persist_capture_status(res)
+    if res.get("capture_status") == "SKIPPED_OUTSIDE_WINDOW":
+        print(f"::notice::Options capture skipped: {res['window']} (no RTH quote invented)")
     if not res.get("skipped") and res.get("missing"):
         print(f"::warning::{len(res['missing'])} Kontrakt(e) ohne Quote: {res['missing'][:10]}")
     return 0
