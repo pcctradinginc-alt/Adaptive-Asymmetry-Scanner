@@ -82,8 +82,8 @@ def test_datamapper_rejects_invalid_metadata_without_writing_observations():
 
 def test_datamapper_rejects_missing_series_without_partial_ingestion():
     x = dm.IMFWEOConnector({}, fetch_fn=DataMapperFake(empty_code="PCPIPCH")).fetch(NOW)
-    assert x.status is SourceStatus.PASS  # missing selected indicator historically may be genuinely absent
-    assert "WEO:PCPIPCH" not in {o.series_id for o in x.observations}
+    assert x.status is SourceStatus.SCHEMA_CHANGED  # selected indicator entirely absent is not a valid success
+    assert not x.observations
 
 
 @pytest.mark.parametrize("invalid", ["NaN", "Infinity", "not-a-number", True])
