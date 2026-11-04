@@ -119,6 +119,14 @@ class DiscoveryError(Exception):
     """Endpoint konnte nicht über die ArcGIS-Sharing-Search-API gefunden werden."""
 
 
+class PortWatchUpstreamUnavailable(FetchError):
+    """The official ArcGIS publisher reports a broken/unavailable layer.
+
+    This is *not* schema drift. Keep the source FAIL and preserve Safe Mode
+    until fresh provider observations pass the ordinary integrity checks.
+    """
+
+
 class SchemaError(Exception):
     """Layer-Metadaten passen nicht zum erwarteten Kern-Schema -> SCHEMA_CHANGED.
 
@@ -198,11 +206,24 @@ def _resolve_layer(service_url: str, http_fetch: FetchFn) -> dict:
     Layer-Index die eigentlichen Daten trägt (meist 0, aber nie annehmen)."""
     res = http_fetch(service_url, params={"f": "json"})
     data = res.json()
-    layers = data.get("layers", [])
-    if not layers:
-        # manche Services geben den Layer direkt zurück statt einer Liste
-        return {"layer_id": 0}
-    return {"layer_id": layers[0].get("id", 0)}
+    if not isinstance(data, dict):
+        raise DiscoveryError(f"ArcGIS-FeatureServer-Root nicht JSON-Objekt: {service_url}")
+    if isinstance(data.get("error"), dict):
+        err = data["error"]
+        raise PortWatchUpstreamUnavailable(
+            f"UPSTREAM_UNAVAILABLE service={service_url} arcgis_code={err.get('code')} "
+            f"reason={str(err.get('message') or '')[:160]}")
+    # Official PortWatch daily services can expose a *table*, not a map layer.
+    candidates = (data.get("layers") or []) + (data.get("tables") or [])
+    if candidates:
+        ident = candidates[0].get("id") if isinstance(candidates[0], dict) else None
+        if not isinstance(ident, int) or ident < 0:
+            raise DiscoveryError(f"ArcGIS-Service ohne gültige Layer-/Tabellen-ID: {service_url}")
+        return {"layer_id": ident}
+    # Backward-compatible for a verified bare layer root (metadata contains fields).
+    if "fields" in data and data.get("id") is not None:
+        return {"layer_id": data["id"]}
+    raise DiscoveryError(f"ArcGIS-Service liefert weder Layer noch Tabellen: {service_url}")
 
 
 # Referenz-Layer-Key -> zugehöriger Daily-Layer-Key, dessen bereits
@@ -342,6 +363,13 @@ def fetch_layer_metadata(service_url: str, layer_id: int, http_fetch: FetchFn) -
     url = f"{service_url}/{layer_id}"
     res = http_fetch(url, params={"f": "json"})
     meta = res.json()
+    if isinstance(meta, dict) and isinstance(meta.get("error"), dict):
+        err = meta["error"]
+        # ArcGIS returns HTTP 200 even when the JSON payload is a 400 error.
+        # The provider's inaccessible layer must never become SCHEMA_CHANGED.
+        raise PortWatchUpstreamUnavailable(
+            f"UPSTREAM_UNAVAILABLE service={url} arcgis_code={err.get('code')} "
+            f"reason={str(err.get('message') or '')[:160]}")
     if not isinstance(meta, dict) or "fields" not in meta:
         body_snippet = json.dumps(meta)[:600] if isinstance(meta, (dict, list)) else str(meta)[:600]
         raise SchemaError(
@@ -565,6 +593,12 @@ def isolate_query_error(service_url: str, layer_id: int, http_fetch: FetchFn, *,
             err = data.get("error") or {}
             detail = "; ".join(str(d) for d in (err.get("details") or [])) or str(err.get("message") or "")
             result[name] = {"result": f"FAIL({err.get('code')})", "detail": detail[:160]}
+            if name == "basis" and "invalid url" in detail.lower():
+                # If the endpoint itself rejects a minimal ObjectID read, altering
+                # filters/pagination cannot fix it. Avoid four futile API calls.
+                for remaining in list(probes)[list(probes).index(name) + 1:]:
+                    result[remaining] = {"result": "SKIPPED(UPSTREAM_DOWN)", "detail": ""}
+                break
         else:
             result[name] = {"result": "OK", "detail": ""}
     return result
@@ -626,7 +660,10 @@ def query_features(
                                              page_size=page_size if paging else None)
                          if isolation_field else None)
             # Isolation vorn: der Source-Health-Snapshot kürzt Meldungen auf 200 Zeichen
-            prefix = f"[Isolation {isolation_summary(isolation)}] " if isolation else ""
+            is_backend_down = bool(isolation and
+                "invalid url" in str((isolation.get("basis") or {}).get("detail") or "").lower())
+            prefix = ("[UPSTREAM_UNAVAILABLE] " if is_backend_down else "") + (
+                f"[Isolation {isolation_summary(isolation)}] " if isolation else "")
             details = {k: v["detail"] for k, v in (isolation or {}).items() if v["detail"]}
             raise ArcGISQueryError(
                 f"{prefix}ArcGIS-Query-Fehler: {data['error']} (where={where}, orderByFields={order_by or '-'}, "
@@ -1083,7 +1120,9 @@ class _PortWatchConnectorBase(Connector):
         if not prior:
             return False
         message = str(error).lower()
-        if "invalid url" not in message and "layer-metadaten ohne 'fields'" not in message:
+        if (not isinstance(error, PortWatchUpstreamUnavailable)
+                and "invalid url" not in message
+                and "layer-metadaten ohne 'fields'" not in message):
             return False
         # Provenienz (Review 2026-11-04): Die Daily-Layer werden OHNE Owner-Einschränkung gesucht und bei
         # Mehrdeutigkeit gewinnt der zuletzt geänderte Treffer. Gerade wenn der IMF-Layer ausfällt, kann die
