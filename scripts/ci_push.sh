@@ -6,7 +6,10 @@
 #  - Append-only Ledger (*.jsonl): Union-Merge über .gitattributes – beide Seiten bleiben erhalten.
 #  - Abgeleitete, jederzeit neu berechenbare Zustandsdateien (outputs/state/*.json,
 #    outputs/health/*.json, outputs/research/improvement_tasks.json – abgeleitet aus dem append-only
-#    improvement_tasks.jsonl): bei Konflikt gilt die Version DIESES Laufs (wird ohnehin neu abgeleitet).
+#    improvement_tasks.jsonl; outputs/research/autonomous_alpha/option_link.json – von option_link.coverage()
+#    aus den append-only Journalen signals/decisions/outcomes neu berechnet, Schreiber: options_capture.yml
+#    UND ml_research.yml in verschiedenen concurrency-Gruppen): bei Konflikt gilt die Version DIESES Laufs
+#    (wird ohnehin neu abgeleitet) – ein Report-Konflikt darf nie den Commit des Quote-Archivs kosten.
 #  - Jeder andere Konflikt: Abbruch, Lauf ROT (fail-closed, nie still eine Seite verwerfen).
 #  - Push-Ablehnung (main hat sich bewegt): bis zu 5 Versuche mit Backoff.
 set -uo pipefail
@@ -42,7 +45,7 @@ resolve_rebase() {
     conflicted=$(git diff --name-only --diff-filter=U)
     for f in $conflicted; do
       case "$f" in
-        outputs/state/*.json|outputs/health/*.json|outputs/research/improvement_tasks.json)
+        outputs/state/*.json|outputs/health/*.json|outputs/research/autonomous_alpha/option_link.json|outputs/research/improvement_tasks.json)
           echo "Konflikt in abgeleiteter Datei $f -> Version dieses Laufs"
           git checkout --theirs -- "$f" && git add -- "$f" ;;
         *)

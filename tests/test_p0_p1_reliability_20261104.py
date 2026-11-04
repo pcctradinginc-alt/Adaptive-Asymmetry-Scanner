@@ -4,21 +4,21 @@ No network, no orders, no synthetic option marks or claimed source recovery.
 """
 from __future__ import annotations
 
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
-import sys
 
-from modules.external.sources import maritime as mw
-from modules.external.sources.base import SourceStatus
-from modules import ops_workflows as ow
 from modules import candidate_ledger as cl
 from modules import market_snapshot as ms
+from modules import ops_workflows as ow
+from modules.external.sources import maritime as mw
+from modules.external.sources.base import SourceStatus
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-import rth_marks  # noqa: E402
-
+import rth_marks
 
 NOW = datetime(2026, 11, 3, 19, 0, tzinfo=timezone.utc)
+IMF_OWNER = "IMF-portwatch_imf_dataviz"          # Owner im produktiven Endpoint-Cache (2026-10-28)
 
 
 def test_commodity_cli_dispatch_occurs_after_evaluate_definition():
@@ -38,8 +38,9 @@ def test_portwatch_rediscovers_invalid_arcgis_endpoint_once_and_fails_closed(mon
         if force_refresh:
             state["current"] = "https://new.example/FeatureServer"
             state["refreshes"] += 1
-        return {"ports_daily": {"service_url": state["current"], "layer_id": 0},
-                "ports_reference": {"service_url": state["current"], "layer_id": 0}}
+        # Ersatz-Layer desselben, bereits verifizierten Herausgebers (Owner aus dem Cache)
+        return {"ports_daily": {"service_url": state["current"], "layer_id": 0, "owner": IMF_OWNER},
+                "ports_reference": {"service_url": state["current"], "layer_id": 0, "owner": IMF_OWNER}}
 
     def bad_metadata(url, layer_id, http_fetch):
         seen.append(url)
@@ -106,8 +107,8 @@ def test_capture_status_persists_only_real_rth_attempts(tmp_path):
 
 
 def test_capture_refreshes_alpha_coverage_after_decisions(monkeypatch, tmp_path):
-    from modules.autonomous_alpha import option_link as al
     from modules import roi_learning_shadow as rls
+    from modules.autonomous_alpha import option_link as al
     calls = []
     monkeypatch.setattr(ms, "us_market_session", lambda t: "regular")
     monkeypatch.setattr(cl, "due_mark_symbols", lambda d: [])
@@ -195,8 +196,9 @@ def test_continue_on_error_stage_balance_not_misclassified_as_success():
 
 def test_capture_coverage_does_not_import_pandas_dependent_research(monkeypatch, tmp_path):
     """Capture runner installs only requests+pyyaml; weekly research may use pandas."""
-    from modules.autonomous_alpha import option_link as al
     import shutil
+
+    from modules.autonomous_alpha import option_link as al
     config = tmp_path / al.CONFIG
     config.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy(Path(__file__).resolve().parents[1] / al.CONFIG, config)
@@ -224,3 +226,101 @@ def test_missing_alpha_link_configuration_does_not_fake_capture_error(monkeypatc
     assert res["alpha_link"]["status"] == "NOT_CONFIGURED"
     assert "alpha_link_settlement" not in res
     assert res["capture_status"] == "NO_TARGETS"
+
+
+# ── Review 2026-11-04 (Claude Code): Provenienz der Neuentdeckung, Push-Konflikt zweier Report-Schreiber ──
+def _cache_with(tmp_path, owner=IMF_OWNER):
+    import json
+    cache = tmp_path / "portwatch_endpoints.json"
+    ep = {"service_url": "https://services9.arcgis.com/imf/arcgis/rest/services/Daily_Ports_Data/FeatureServer",
+          "layer_id": 0, "item_id": "imf-item", "title": "Daily_Ports_Data", "ambiguous": False,
+          "owner": owner, "orgId": None}
+    payload = {"discovered_at": NOW.isoformat(),
+               "endpoints": {"ports_daily": ep, "ports_reference": {**ep, "fallback_to_daily_layer": True},
+                             "chokepoints_daily": ep, "chokepoints_reference": ep}}
+    cache.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    return cache
+
+
+def _foreign_search_fetch(foreign_url, calls):
+    """ArcGIS-Suche liefert (wie bei einem zurückgezogenen IMF-Layer denkbar) die Kopie einer fremden Org."""
+    def fetch(url, params=None, **kw):
+        calls.append(url)
+        if url == mw.ARCGIS_SEARCH_URL:
+            return type("R", (), {"json": lambda self: {"results": [{
+                "id": "foreign-item", "title": params["q"].split('"')[1], "type": "Feature Service",
+                "url": foreign_url, "owner": "someone_else", "orgId": "foreignorg", "modified": 2}]}})()
+        if url == foreign_url:
+            return type("R", (), {"json": lambda self: {"layers": [{"id": 0}]}})()
+        if url.endswith("/0") and "where" not in (params or {}):
+            return type("R", (), {"json": lambda self: {"name": "x"}})()      # Metadaten ohne 'fields'
+        raise AssertionError(f"unerwartete Abfrage {url} {params}")
+    return fetch
+
+
+def test_portwatch_rediscovery_rejects_foreign_publisher_and_restores_cache(tmp_path):
+    """Ein Ersatz-Layer einer fremden Organisation wird nie genutzt, auch nicht im nächsten Lauf über den Cache."""
+    cache = _cache_with(tmp_path)
+    before = cache.read_text(encoding="utf-8")
+    foreign = "https://services.arcgis.com/foreign/arcgis/rest/services/Daily_Ports_Data/FeatureServer"
+    calls: list = []
+    c = mw.PortWatchPortsConnector(http_fetch=_foreign_search_fetch(foreign, calls), cache_path=str(cache))
+    result = c.fetch(NOW)
+    assert result.status == SourceStatus.SCHEMA_CHANGED and not result.observations    # bleibt gesperrt
+    assert foreign + "/0" not in calls                                    # fremder Layer nie abgefragt
+    assert cache.read_text(encoding="utf-8") == before                    # Cache unverändert wiederhergestellt
+    again = mw.PortWatchPortsConnector(http_fetch=_foreign_search_fetch(foreign, []), cache_path=str(cache))
+    assert again._discover()["ports_daily"]["owner"] == IMF_OWNER         # Folge-Lauf liest weiter den IMF-Endpoint
+
+
+def test_portwatch_rediscovery_without_verified_owner_fails_closed(tmp_path):
+    cache = _cache_with(tmp_path, owner=None)
+    foreign = "https://services.arcgis.com/foreign/arcgis/rest/services/Daily_Ports_Data/FeatureServer"
+    calls: list = []
+    c = mw.PortWatchPortsConnector(http_fetch=_foreign_search_fetch(foreign, calls), cache_path=str(cache))
+    assert c.fetch(NOW).status == SourceStatus.SCHEMA_CHANGED and foreign + "/0" not in calls
+
+
+def test_option_link_report_conflict_never_costs_the_quote_archive_push(tmp_path):
+    """options_capture.yml und ml_research.yml (verschiedene concurrency-Gruppen) schreiben beide den abgeleiteten
+    Report option_link.json. Ein Rebase-Konflikt darauf darf den Push der RTH-Quotes nicht abbrechen."""
+    import subprocess
+
+    from tests.test_ops_readiness_independent import _ci_sandbox
+    c1, c2, ci_push, remote = _ci_sandbox(tmp_path)
+    report = Path("outputs/research/autonomous_alpha/option_link.json")
+    g = ["git", "-c", "user.name=t", "-c", "user.email=t@t"]
+    (c2 / report).parent.mkdir(parents=True)
+    (c2 / report).write_text('{"n_decisions": 1}\n', encoding="utf-8")
+    assert ci_push(c2, "research base", "outputs/research/").returncode == 0
+    subprocess.run(g + ["pull", "-q", "--rebase", "origin", "main"], cwd=c1, check=True, capture_output=True)
+    (c2 / report).write_text('{"n_decisions": 2, "writer": "ml_research"}\n', encoding="utf-8")
+    assert ci_push(c2, "ml research", "outputs/research/").returncode == 0
+    quotes = c1 / "outputs/options_archive/quotes/2026-10-14.jsonl"
+    quotes.write_text(quotes.read_text() + '{"id": "rth-quote"}\n', encoding="utf-8")
+    (c1 / report).write_text('{"n_decisions": 3, "writer": "options_capture"}\n', encoding="utf-8")
+    r = ci_push(c1, "options capture", "outputs/options_archive/",
+                "outputs/research/autonomous_alpha/option_link/", str(report))
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert '"rth-quote"' in remote("outputs/options_archive/quotes/2026-10-14.jsonl")   # Quote-Archiv gesichert
+    assert "options_capture" in remote(str(report))                     # Version dieses Laufs (abgeleitet)
+
+
+def test_ops_report_surfaces_green_but_incomplete_runs():
+    """recent_outcomes darf nicht nur im JSON stehen: der Bericht zeigt übersprungene Scans und verdeckte
+    continue-on-error-Ausfälle, statt allein 'Keine fehlgeschlagenen Läufe.' zu melden."""
+    from modules import ops_report
+    from tests.test_ops_report import make_status
+    s = make_status()
+    s["workflows"] = {"status": "OK", "since": "2026-11-03T00:00:00Z", "window_hours": 24, "runs_total": 3,
+                      "failed": [], "scanner_start": {}, "recent_outcomes": [
+                          {"workflow": "Adaptive Asymmetry Scanner", "effective_status": "SKIPPED_SCAN",
+                           "conclusion": "success", "skipped_jobs": ["scan"], "failed_steps": []},
+                          {"workflow": "ML Research", "effective_status": "DEGRADED_STEP_FAILURE",
+                           "conclusion": "success", "skipped_jobs": [], "failed_steps": [["ml", "commodity_evaluate"]]},
+                          {"workflow": "Options Capture", "effective_status": "TECHNICALLY_SUCCESSFUL",
+                           "conclusion": "success", "skipped_jobs": [], "failed_steps": []}]}
+    row = ops_report.history_row(s)
+    md = ops_report.render_markdown(s, row, ops_report.deltas(row, []), [])
+    assert "SKIPPED_SCAN" in md and "DEGRADED_STEP_FAILURE" in md and "ml/commodity_evaluate" in md
+    assert "Options Capture" not in md.split("Grün, aber nicht vollständig ausgeführt")[1].split("##")[0]

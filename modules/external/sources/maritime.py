@@ -1085,6 +1085,17 @@ class _PortWatchConnectorBase(Connector):
         message = str(error).lower()
         if "invalid url" not in message and "layer-metadaten ohne 'fields'" not in message:
             return False
+        # Provenienz (Review 2026-11-04): Die Daily-Layer werden OHNE Owner-Einschränkung gesucht und bei
+        # Mehrdeutigkeit gewinnt der zuletzt geänderte Treffer. Gerade wenn der IMF-Layer ausfällt, kann die
+        # Suche eine fremde Kopie liefern. Ein Ersatz zählt nur beim bisher verifizierten Herausgeber
+        # (owner/orgId aus dem Cache). Andernfalls wird der Cache unverändert wiederhergestellt, weil
+        # discover_endpoints ihn sonst für alle Folge-Läufe mit dem fremden Endpoint überschreiben würde.
+        prior_owner, prior_org = prior.get("owner"), prior.get("orgId")
+        try:
+            with open(self._cache_path, "rb") as fh:
+                cache_before = fh.read()
+        except OSError:
+            cache_before = None
         try:
             fresh = self._discover(force_refresh=True).get(key) or {}
         except (DiscoveryError, FetchError, SchemaError, ValueError, KeyError) as exc:
@@ -1095,6 +1106,17 @@ class _PortWatchConnectorBase(Connector):
         new_id = (str(fresh.get("service_url", "")).rstrip("/"), fresh.get("layer_id"))
         if not fresh.get("service_url") or old_id == new_id:
             log.warning("PortWatch %s: rediscovery returned same endpoint; source remains unhealthy", key)
+            return False
+        same_publisher = bool(prior_owner or prior_org) and (
+            (not prior_owner or fresh.get("owner") == prior_owner)
+            and (not prior_org or fresh.get("orgId") == prior_org))
+        if not same_publisher:
+            if cache_before is not None:
+                with open(self._cache_path, "wb") as fh:
+                    fh.write(cache_before)
+            log.warning("PortWatch %s: rediscovered endpoint not from verified publisher "
+                        "(owner %r/%r -> %r/%r); cache restored, source remains unhealthy",
+                        key, prior_owner, prior_org, fresh.get("owner"), fresh.get("orgId"))
             return False
         log.warning("PortWatch %s: ArcGIS endpoint changed; retrying once with new discovered layer", key)
         return True
