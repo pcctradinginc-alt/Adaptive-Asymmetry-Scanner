@@ -1,20 +1,20 @@
 {
  "schema": "ops-report-v1",
- "as_of": "2026-11-03",
- "generated": "2026-11-03T16:29:03+00:00",
+ "as_of": "2026-11-04",
+ "generated": "2026-11-04T18:06:28+00:00",
  "read_only": true,
  "status": {
   "schema": "ops-status-v1",
-  "generated": "2026-11-03T16:29:03+00:00",
-  "as_of": "2026-11-03",
+  "generated": "2026-11-04T18:06:28+00:00",
+  "as_of": "2026-11-04",
   "read_only": true,
   "run": {
    "workflows": {
     "external_data": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-11-03T14:19:19Z",
-     "delay_hours": 8.0
+     "last_run": "2026-11-04T14:36:02Z",
+     "delay_hours": 8.3
     },
     "source_health": {
      "state": "RECOVERY_TRIGGERED",
@@ -23,7 +23,7 @@
      "delay_hours": null
     },
     "scanner": {
-     "state": "PENDING",
+     "state": "MISSED",
      "conclusion": null,
      "last_run": null,
      "delay_hours": null
@@ -31,11 +31,11 @@
     "feedback": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-11-03T01:41:29Z",
-     "delay_hours": -13.8
+     "last_run": "2026-11-04T00:01:45Z",
+     "delay_hours": -15.5
     }
    },
-   "report_date": "2026-11-03",
+   "report_date": "2026-11-04",
    "report_is_today": true,
    "scanner": {
     "universe": 518,
@@ -43,7 +43,7 @@
     "champion_candidates": 0,
     "contracts_designed": null,
     "trades": 0,
-    "stop_reason": "Alle Signale bearish (Bearish-Trades deaktiviert).",
+    "stop_reason": "Kein Signal hat Mismatch-Filter bestanden.",
     "session": "regular",
     "direction_conflicts": 0,
     "direction_conflict_share": 0.0
@@ -200,36 +200,36 @@
    },
    "candidate_marks": {
     "real_opt_ret_5d": {
-     "due": 660,
-     "marked": 659,
+     "due": 700,
+     "marked": 699,
      "pending": 0,
      "late_marks": 50,
      "unavailable": 1,
      "oldest_pending_days": null
     },
     "real_opt_ret_20d": {
-     "due": 313,
-     "marked": 312,
-     "pending": 1,
+     "due": 353,
+     "marked": 352,
+     "pending": 0,
      "late_marks": 50,
-     "unavailable": 0,
-     "oldest_pending_days": 14
+     "unavailable": 1,
+     "oldest_pending_days": null
     },
     "real_strat_ret_5d": {
-     "due": 660,
-     "marked": 659,
+     "due": 700,
+     "marked": 699,
      "pending": 0,
      "late_marks": 50,
      "unavailable": 1,
      "oldest_pending_days": null
     },
     "real_strat_ret_20d": {
-     "due": 313,
-     "marked": 312,
-     "pending": 1,
+     "due": 353,
+     "marked": 352,
+     "pending": 0,
      "late_marks": 50,
-     "unavailable": 0,
-     "oldest_pending_days": 14
+     "unavailable": 1,
+     "oldest_pending_days": null
     }
    }
   },
@@ -269,15 +269,15 @@
     }
    },
    "candidates": {
-    "SIGNAL": 1030,
-    "CONTRACT_SELECTED": 664,
-    "ENTRY_OBSERVED": 664,
-    "OUTCOME_FINAL": 659,
+    "SIGNAL": 1031,
+    "CONTRACT_SELECTED": 665,
+    "ENTRY_OBSERVED": 665,
+    "OUTCOME_FINAL": 661,
     "LATE_MARK": 0,
     "PRICE_BASIS_CHANGED": 2,
     "MARK_UNAVAILABLE": 1,
     "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 366,
-    "EXIT_PENDING": 4
+    "EXIT_PENDING": 3
    },
    "definitions": {
     "LEARNED": "Consume-once-Schlüssel <trade_id>:close:<Ziel> vorhanden (feedback.learn_on_close)",
@@ -978,20 +978,20 @@
     }
    },
    "meta_label": {
-    "generated": "2026-11-03T01:43:24+00:00",
-    "as_of": "2026-11-03",
+    "generated": "2026-11-04T00:04:56+00:00",
+    "as_of": "2026-11-04",
     "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
-    "n_labels": 133,
-    "n_label_dates": 8,
+    "n_labels": 144,
+    "n_label_dates": 9,
     "required": {
      "min_labels": 200,
      "min_dates": 20
     },
-    "n_labels_target_population": 133,
+    "n_labels_target_population": 144,
     "population_shift": {
      "status": "OK",
      "n_target": 235,
-     "n_other": 794,
+     "n_other": 795,
      "n_shifted": 11,
      "shifted": [
       "final_mc_hit_rate",
@@ -1009,7 +1009,7 @@
      "top": [
       {
        "feature": "ml_q10_ret_60",
-       "smd": -1.254,
+       "smd": -1.256,
        "missing_target": 0.119,
        "missing_other": 0.052
       },
@@ -1021,37 +1021,37 @@
       },
       {
        "feature": "ml_exp_ret_60",
-       "smd": 1.011,
+       "smd": 1.013,
        "missing_target": 0.119,
        "missing_other": 0.052
       },
       {
        "feature": "ml_exp_dd_60",
-       "smd": -0.495,
+       "smd": -0.497,
        "missing_target": 0.119,
        "missing_other": 0.052
       },
       {
        "feature": "sentiment_score",
-       "smd": 0.392,
+       "smd": 0.391,
        "missing_target": 0.064,
        "missing_other": 0.025
       },
       {
        "feature": "ml_disagreement_sd",
-       "smd": 0.255,
+       "smd": 0.254,
        "missing_target": 0.119,
        "missing_other": 0.052
       },
       {
        "feature": "sentiment_drift",
-       "smd": 0.195,
+       "smd": 0.194,
        "missing_target": 0.064,
        "missing_other": 0.025
       },
       {
        "feature": "scan_day_ret",
-       "smd": 0.182,
+       "smd": 0.181,
        "missing_target": 0.064,
        "missing_other": 0.025
       }
@@ -1063,15 +1063,19 @@
    },
    "scorecard": {
     "CANDIDATE_5d|ALL": {
-     "n": 1022,
-     "n_signal_days": 19,
+     "n": 1025,
+     "n_signal_days": 20,
      "n_entities": 335,
-     "mean_net": 3.6e-05,
-     "median_net": 0.00185,
-     "hit_rate": 0.5274,
-     "mean_gross": 0.002036,
+     "mean_net": 0.000161,
+     "median_net": 0.002,
+     "hit_rate": 0.5288,
+     "mean_gross": 0.002161,
      "worst": -0.2024,
-     "verdict": "NEED_MORE_DATA"
+     "ci": [
+      -0.005005,
+      0.005538
+     ],
+     "verdict": "INCONCLUSIVE"
     },
     "CANDIDATE_5d|LATE_STAGE": {
      "n": 235,
@@ -1096,48 +1100,52 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|ALL": {
-     "n": 477,
-     "n_signal_days": 8,
-     "n_entities": 252,
-     "mean_net": -0.011018,
-     "median_net": 0.0063,
-     "hit_rate": 0.5199,
-     "mean_gross": -0.009018,
+     "n": 543,
+     "n_signal_days": 9,
+     "n_entities": 266,
+     "mean_net": -0.007679,
+     "median_net": 0.0076,
+     "hit_rate": 0.5285,
+     "mean_gross": -0.005679,
      "worst": -0.3893,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|LATE_STAGE": {
-     "n": 133,
-     "n_signal_days": 8,
-     "n_entities": 92,
-     "mean_net": -0.026401,
-     "median_net": 0.001,
-     "hit_rate": 0.5113,
-     "mean_gross": -0.024401,
+     "n": 144,
+     "n_signal_days": 9,
+     "n_entities": 98,
+     "mean_net": -0.02373,
+     "median_net": 0.0026,
+     "hit_rate": 0.5278,
+     "mean_gross": -0.02173,
      "worst": -0.3684,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|CHAMPION": {
-     "n": 3,
-     "n_signal_days": 2,
-     "n_entities": 2,
-     "mean_net": -0.1111,
-     "median_net": -0.1015,
-     "hit_rate": 0.0,
-     "mean_gross": -0.1091,
+     "n": 4,
+     "n_signal_days": 3,
+     "n_entities": 3,
+     "mean_net": -0.082975,
+     "median_net": -0.07985,
+     "hit_rate": 0.25,
+     "mean_gross": -0.080975,
      "worst": -0.1736,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_5d|ALL": {
-     "n": 656,
-     "n_signal_days": 19,
+     "n": 659,
+     "n_signal_days": 20,
      "n_entities": 287,
-     "mean_net": -0.093777,
-     "median_net": -0.101738,
-     "hit_rate": 0.3155,
-     "mean_gross": -0.092457,
+     "mean_net": -0.092398,
+     "median_net": -0.100531,
+     "hit_rate": 0.3187,
+     "mean_gross": -0.091081,
      "worst": -0.98239,
-     "verdict": "NEED_MORE_DATA"
+     "ci": [
+      -0.127454,
+      -0.05505
+     ],
+     "verdict": "NEGATIVE"
     },
     "CANDIDATE_OPTION_5d|LATE_STAGE": {
      "n": 154,
@@ -1162,24 +1170,24 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|ALL": {
-     "n": 272,
-     "n_signal_days": 8,
-     "n_entities": 173,
-     "mean_net": -0.099599,
-     "median_net": -0.205071,
-     "hit_rate": 0.3787,
-     "mean_gross": -0.098338,
+     "n": 312,
+     "n_signal_days": 9,
+     "n_entities": 191,
+     "mean_net": -0.069067,
+     "median_net": -0.157214,
+     "hit_rate": 0.4071,
+     "mean_gross": -0.067729,
      "worst": -0.9026,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|LATE_STAGE": {
-     "n": 80,
-     "n_signal_days": 8,
-     "n_entities": 59,
-     "mean_net": -0.17986,
-     "median_net": -0.279807,
-     "hit_rate": 0.325,
-     "mean_gross": -0.178846,
+     "n": 86,
+     "n_signal_days": 9,
+     "n_entities": 63,
+     "mean_net": -0.16542,
+     "median_net": -0.219411,
+     "hit_rate": 0.3372,
+     "mean_gross": -0.164367,
      "worst": -0.828995,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1195,15 +1203,19 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_5d|ALL": {
-     "n": 606,
-     "n_signal_days": 19,
-     "n_entities": 279,
-     "mean_net": -0.135268,
-     "median_net": -0.141641,
-     "hit_rate": 0.2838,
-     "mean_gross": -0.133273,
+     "n": 609,
+     "n_signal_days": 20,
+     "n_entities": 280,
+     "mean_net": -0.134885,
+     "median_net": -0.141307,
+     "hit_rate": 0.2841,
+     "mean_gross": -0.132882,
      "worst": -0.98239,
-     "verdict": "NEED_MORE_DATA"
+     "ci": [
+      -0.178233,
+      -0.093374
+     ],
+     "verdict": "NEGATIVE"
     },
     "CANDIDATE_STRATEGY_5d|LATE_STAGE": {
      "n": 138,
@@ -1228,24 +1240,24 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|ALL": {
-     "n": 272,
-     "n_signal_days": 8,
-     "n_entities": 173,
-     "mean_net": -0.147645,
-     "median_net": -0.243452,
-     "hit_rate": 0.3456,
-     "mean_gross": -0.145751,
+     "n": 312,
+     "n_signal_days": 9,
+     "n_entities": 191,
+     "mean_net": -0.113467,
+     "median_net": -0.213477,
+     "hit_rate": 0.375,
+     "mean_gross": -0.111524,
      "worst": -0.9026,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|LATE_STAGE": {
-     "n": 80,
-     "n_signal_days": 8,
-     "n_entities": 59,
-     "mean_net": -0.282658,
-     "median_net": -0.423949,
-     "hit_rate": 0.2375,
-     "mean_gross": -0.280601,
+     "n": 86,
+     "n_signal_days": 9,
+     "n_entities": 63,
+     "mean_net": -0.267694,
+     "median_net": -0.374904,
+     "hit_rate": 0.2558,
+     "mean_gross": -0.265495,
      "worst": -0.897788,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1275,13 +1287,13 @@
   },
   "training": {
    "status": "NEED_MORE_DATA",
-   "n_labels": 133,
-   "n_label_dates": 8,
+   "n_labels": 144,
+   "n_label_dates": 9,
    "required": {
     "min_labels": 200,
     "min_dates": 20
    },
-   "as_of": "2026-11-03",
+   "as_of": "2026-11-04",
    "versions": 0,
    "active": null,
    "hold": null,
@@ -1289,11 +1301,14 @@
    "manifest_violations": []
   },
   "promotion": {
-   "generated": "2026-11-03T01:43:24+00:00",
+   "generated": "2026-11-04T00:04:57+00:00",
    "max_automatic_influence": "ABSTENTION_ONLY",
    "kill_switch_active": false,
-   "safe_mode": false,
-   "safe_mode_reasons": [],
+   "safe_mode": true,
+   "safe_mode_reasons": [
+    "DATA: 2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']",
+    "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19"
+   ],
    "champion_version": "scanner_rules@fa6cc74e0def",
    "by_state": {
     "PROSPECTIVE_CHALLENGER": 22
@@ -1489,20 +1504,20 @@
    "registry_problems": [],
    "decision_ledger_duplicates": 0,
    "trade_outcome_duplicates": 0,
-   "quote_records_30d": 3285,
+   "quote_records_30d": 3634,
    "quote_duplicate_ids": 0,
    "quote_reobserved_ids": 11,
    "quote_non_observed_prices": 0,
    "closed_trade_quarantine": 7,
    "external_archive": {
-    "ok": 34019,
-    "legacy": 7907
+    "ok": 34574,
+    "legacy": 7798
    },
    "issues": []
   },
   "data_health": {
    "nasdaq100_source_check": {
-    "date": "2026-11-03",
+    "date": "2026-11-04",
     "mismatch": 0,
     "only_official": [],
     "only_production": [],
@@ -1511,7 +1526,7 @@
     "production_source": "nasdaq_official"
    },
    "source_health": {
-    "generated": "2026-11-03T16:20:10+00:00",
+    "generated": "2026-11-04T17:45:23+00:00",
     "by_status": {
      "HEALTHY": 42,
      "BROKEN": 2,
@@ -1527,23 +1542,40 @@
    },
    "external_data": {
     "by_status": {
-     "SCHEMA_CHANGED": 2,
-     "PASS": 34,
+     "SCHEMA_CHANGED": 1,
+     "FAIL": 2,
+     "PASS": 33,
      "DEFERRED": 13
     }
    },
    "quote_archive_days": {
-    "2026-11-03": {
-     "n": 172,
+    "2026-11-04": {
+     "n": 304,
      "by_context": {
-      "exit_mark": 23,
-      "candidate_mark": 53,
-      "trade_mark_rth": 3,
-      "candidate_entry": 93
+      "exit_mark": 20,
+      "trade_mark_rth": 6,
+      "candidate_mark_rth": 92,
+      "candidate_mark": 96,
+      "candidate_entry": 89,
+      "candidate_entry_rth": 1
      },
      "by_quality": {
-      "OK": 164,
-      "SUSPECT": 8
+      "OK": 295,
+      "SUSPECT": 9
+     }
+    },
+    "2026-11-03": {
+     "n": 217,
+     "by_context": {
+      "exit_mark": 34,
+      "candidate_mark": 53,
+      "trade_mark_rth": 3,
+      "candidate_entry": 93,
+      "alpha_link_entry": 34
+     },
+     "by_quality": {
+      "OK": 207,
+      "SUSPECT": 10
      }
     },
     "2026-11-02": {
@@ -1654,23 +1686,9 @@
       "OK": 201,
       "SUSPECT": 8
      }
-    },
-    "2026-10-21": {
-     "n": 177,
-     "by_context": {
-      "trade_mark_rth": 8,
-      "candidate_mark_rth": 44,
-      "candidate_mark": 46,
-      "candidate_entry": 44,
-      "exit_mark": 35
-     },
-     "by_quality": {
-      "OK": 175,
-      "SUSPECT": 2
-     }
     }
    },
-   "quote_archive_median_14d": 193.0,
+   "quote_archive_median_14d": 218.0,
    "quote_archive_root_exists": true
   },
   "timing": {
@@ -1706,20 +1724,20 @@
   },
   "learning_eta": {
    "meta_label": {
-    "have": 133,
+    "have": 144,
     "need": 200,
-    "have_dates": 8,
+    "have_dates": 9,
     "need_dates": 20,
-    "pending_maturing": 102,
-    "new_rows_per_day": 3.86,
-    "eta": "2026-11-30",
+    "pending_maturing": 91,
+    "new_rows_per_day": 2.64,
+    "eta": "2026-12-03",
     "basis": "Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T"
    },
    "rl_arming": {
     "have": 13,
     "need": 30,
     "closes_per_day_30d": 0.167,
-    "eta": "2027-02-13",
+    "eta": "2027-02-14",
     "since": "2026-06-11"
    },
    "champion_evidence": {
@@ -1728,20 +1746,20 @@
     "have_days": 6,
     "need_days": 20,
     "evaluable_per_day_30d": 0.167,
-    "eta": "2027-03-21"
+    "eta": "2027-03-22"
    },
    "note": "Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage"
   },
   "workflows": {
    "status": "OK",
    "window_hours": 26,
-   "since": "2026-11-02T14:29:03Z",
-   "runs_total": 36,
+   "since": "2026-11-03T16:06:28Z",
+   "runs_total": 35,
    "failed": [],
    "failed_by_workflow": {},
    "scanner_start": {
-    "started_et": "2026-11-03T11:21-05:00",
-    "run_id": 41673208103,
+    "started_et": "2026-11-04T12:46-05:00",
+    "run_id": 41880231241,
     "late": false,
     "late_after_et": "15:00",
     "trading_day": true
@@ -1750,8 +1768,8 @@
  },
  "row": {
   "schema": "ops-history-v1",
-  "as_of": "2026-11-03",
-  "generated": "2026-11-03T16:29:03+00:00",
+  "as_of": "2026-11-04",
+  "generated": "2026-11-04T18:06:28+00:00",
   "run.scanner.universe": 518,
   "run.scanner.analyzed": 1,
   "run.scanner.champion_candidates": 0,
@@ -1761,7 +1779,7 @@
   "run.scanner.direction_conflict_share": 0.0,
   "workflows.failed_runs": 0,
   "data.nasdaq100_mismatch": 0,
-  "learning.meta_label.have": 133,
+  "learning.meta_label.have": 144,
   "learning.rl_arming.have": 13,
   "learning.champion_evidence.have": 7,
   "run.report_is_today": true,
@@ -1804,15 +1822,15 @@
   "lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE": 0,
   "lifecycle.champion.exactly_once_ok": true,
   "lifecycle.candidates.EXIT_OVERDUE": 0,
-  "lifecycle.candidates.EXIT_PENDING": 4,
-  "lifecycle.candidates.OUTCOME_FINAL": 659,
+  "lifecycle.candidates.EXIT_PENDING": 3,
+  "lifecycle.candidates.OUTCOME_FINAL": 661,
   "forward.champion.n": 7,
   "forward.champion.n_independent_days": 6,
   "forward.champion.mean_net": -0.332222,
   "forward.champion.sum_net": -2.325557,
   "forward.champion.verdict": "NEED_MORE_DATA",
   "training.status": "NEED_MORE_DATA",
-  "training.n_labels": 133,
+  "training.n_labels": 144,
   "promotion.active_influence": 0,
   "promotion.unjustified_influence": 0,
   "promotion.kill_switch_active": false,
@@ -1823,8 +1841,8 @@
   "data.source_health.STALE": 1,
   "data.source_health.UNVALIDATED": 8,
   "data.source_health.n_bad": 5,
-  "data.quote_archive_median_14d": 193.0,
-  "data.quote_archive_today": 172
+  "data.quote_archive_median_14d": 218.0,
+  "data.quote_archive_today": 304
  },
  "deltas": {
   "run.scanner.universe": {
@@ -1839,28 +1857,19 @@
   "run.scanner.analyzed": {
    "value": 1,
    "prev": 1,
-   "d7": 28,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": -27,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "run.scanner.champion_candidates": {
    "value": 0,
    "prev": 0,
-   "d7": 12,
+   "d7": 0,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": -12,
-   "diff_d30": null
-  },
-  "run.scanner.contracts_designed": {
-   "value": null,
-   "prev": null,
-   "d7": 4,
-   "d30": null,
-   "diff_prev": null,
-   "diff_d7": null,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "run.scanner.trades": {
@@ -1874,29 +1883,29 @@
   },
   "run.scanner.direction_conflicts": {
    "value": 0,
-   "prev": 1,
+   "prev": 0,
    "d7": 0,
    "d30": null,
-   "diff_prev": -1,
+   "diff_prev": 0,
    "diff_d7": 0,
    "diff_d30": null
   },
   "run.scanner.direction_conflict_share": {
    "value": 0.0,
-   "prev": 1.0,
+   "prev": 0.0,
    "d7": 0.0,
    "d30": null,
-   "diff_prev": -1.0,
+   "diff_prev": 0.0,
    "diff_d7": 0.0,
    "diff_d30": null
   },
   "workflows.failed_runs": {
    "value": 0,
    "prev": 0,
-   "d7": 0,
+   "d7": 2,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": 0,
+   "diff_d7": -2,
    "diff_d30": null
   },
   "data.nasdaq100_mismatch": {
@@ -1909,12 +1918,12 @@
    "diff_d30": null
   },
   "learning.meta_label.have": {
-   "value": 133,
+   "value": 144,
    "prev": 133,
-   "d7": 66,
+   "d7": 83,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 67,
+   "diff_prev": 11,
+   "diff_d7": 61,
    "diff_d30": null
   },
   "learning.rl_arming.have": {
@@ -2251,21 +2260,21 @@
    "diff_d30": null
   },
   "lifecycle.candidates.EXIT_PENDING": {
-   "value": 4,
-   "prev": 6,
-   "d7": 103,
+   "value": 3,
+   "prev": 4,
+   "d7": 64,
    "d30": null,
-   "diff_prev": -2,
-   "diff_d7": -99,
+   "diff_prev": -1,
+   "diff_d7": -61,
    "diff_d30": null
   },
   "lifecycle.candidates.OUTCOME_FINAL": {
-   "value": 659,
-   "prev": 656,
-   "d7": 552,
+   "value": 661,
+   "prev": 659,
+   "d7": 592,
    "d30": null,
-   "diff_prev": 3,
-   "diff_d7": 107,
+   "diff_prev": 2,
+   "diff_d7": 69,
    "diff_d30": null
   },
   "forward.champion.n": {
@@ -2305,12 +2314,12 @@
    "diff_d30": null
   },
   "training.n_labels": {
-   "value": 133,
+   "value": 144,
    "prev": 133,
-   "d7": 47,
+   "d7": 66,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 86,
+   "diff_prev": 11,
+   "diff_d7": 78,
    "diff_d30": null
   },
   "promotion.active_influence": {
@@ -2352,19 +2361,19 @@
   "data.source_health.DEGRADED": {
    "value": 2,
    "prev": 2,
-   "d7": 2,
+   "d7": null,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": 0,
+   "diff_d7": null,
    "diff_d30": null
   },
   "data.source_health.HEALTHY": {
    "value": 42,
    "prev": 42,
-   "d7": 44,
+   "d7": 46,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": -2,
+   "diff_d7": -4,
    "diff_d30": null
   },
   "data.source_health.STALE": {
@@ -2388,50 +2397,63 @@
   "data.source_health.n_bad": {
    "value": 5,
    "prev": 5,
-   "d7": 3,
+   "d7": 1,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": 2,
+   "diff_d7": 4,
    "diff_d30": null
   },
   "data.quote_archive_median_14d": {
-   "value": 193.0,
-   "prev": 207.5,
-   "d7": 200.0,
+   "value": 218.0,
+   "prev": 193.0,
+   "d7": 220.0,
    "d30": null,
-   "diff_prev": -14.5,
-   "diff_d7": -7.0,
+   "diff_prev": 25.0,
+   "diff_d7": -2.0,
    "diff_d30": null
   },
   "data.quote_archive_today": {
-   "value": 172,
-   "prev": 206,
-   "d7": 257,
+   "value": 304,
+   "prev": 172,
+   "d7": 238,
    "d30": null,
-   "diff_prev": -34,
-   "diff_d7": -85,
+   "diff_prev": 132,
+   "diff_d7": 66,
    "diff_d30": null
   }
  },
  "delta_refs": {
-  "prev": "2026-11-02",
-  "d7": "2026-10-27",
+  "prev": "2026-11-03",
+  "d7": "2026-10-28",
   "d30": null
  },
  "alerts": [
   {
+   "id": "SCANNER_FAILED:scanner",
+   "severity": "WARNING",
+   "component": "Lauf",
+   "cause": "Workflow „scanner“ heute nicht ausgeführt (verpasst): Status MISSED, Ergebnis N/A, letzter Lauf N/A",
+   "since": "2026-11-04",
+   "status": "NEW"
+  },
+  {
    "id": "OUTCOMES_OVERDUE:marks",
    "severity": "WARNING",
    "component": "Quote-Abdeckung",
-   "cause": "Fällige Marks offen: real_opt_ret_20d 1 von 313 offen, ältester 14 Tage; real_strat_ret_20d 1 von 313 offen, ältester 14 Tage (Schwelle > 3 Tage).",
+   "cause": "Nicht mehr aktiv – Bedingung behoben.",
    "since": "2026-10-26",
-   "status": "ONGOING"
+   "status": "RESOLVED"
   }
  ],
  "mail": {
-  "status": "skipped",
-  "reason": "keine neuen/geänderten/behobenen oder kritischen Warnungen",
-  "subject": "[Scanner-Monitor] 2026-11-03: 0 neue Warnung(en)"
+  "status": "sent",
+  "attempts": 1,
+  "error": null,
+  "provider": "gmail_smtp",
+  "recipients": [
+   "p***@gmail.com"
+  ],
+  "subject": "[Scanner-Monitor] 2026-11-04: 1 neue Warnung(en), 1 behoben"
  },
  "history": {
   "appended": true,

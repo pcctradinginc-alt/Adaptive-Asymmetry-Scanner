@@ -1,0 +1,363 @@
+{
+ "date": "2026-11-04",
+ "horizon": 5,
+ "model_available": true,
+ "experiment_id": "4a0f886d1979",
+ "model_id": "98bf4751d91ef46d",
+ "reference_model_id": "519261c95a8a6da7",
+ "verified_labels": 495,
+ "walk_forward": {
+  "n": 0,
+  "dates": 0,
+  "independent_periods": 0,
+  "mean_all": null,
+  "ic_mean": null,
+  "ic_t": null,
+  "n_selected": 0,
+  "selected_dates": 0,
+  "mean_selected": null,
+  "selected_ci95": null,
+  "trades": 0,
+  "abstained": 0,
+  "unevaluable": {},
+  "coverage": null,
+  "mean_selected_unevaluable_as_loss": null,
+  "chosen_forms": {},
+  "by_expression": {},
+  "vs_default": {
+   "n": 0,
+   "dates": 0,
+   "independent_periods": 0,
+   "mean_diff": null,
+   "ci95": null
+  },
+  "representativeness": {
+   "by_sample": {},
+   "by_direction": {},
+   "span_days": 0,
+   "warnings": []
+  },
+  "mean_selected_adverse_entry": null,
+  "segments": {
+   "overall_mean": null,
+   "by": {},
+   "weak": []
+  },
+  "verdict": "NEED_MORE_DATA",
+  "vs_reference": {
+   "candidates": 0,
+   "due_candidates": 0,
+   "coverage": null,
+   "days": 0,
+   "independent_periods": 0,
+   "ci_level": 0.95,
+   "decisions_differ": 0,
+   "excluded": {},
+   "daily_mean": {
+    "learning": null,
+    "reference": null,
+    "trade_all": null,
+    "no_trade": 0.0
+   },
+   "learning_minus_reference": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_trade_all": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_no_trade": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "verdict": "NEED_MORE_DATA",
+   "mode": "retrospective",
+   "reference_cutoff": null
+  }
+ },
+ "forward": {
+  "n": 0,
+  "dates": 0,
+  "independent_periods": 0,
+  "mean_all": null,
+  "ic_mean": null,
+  "ic_t": null,
+  "n_selected": 0,
+  "selected_dates": 0,
+  "mean_selected": null,
+  "selected_ci95": null,
+  "trades": 0,
+  "abstained": 0,
+  "unevaluable": {},
+  "coverage": null,
+  "mean_selected_unevaluable_as_loss": null,
+  "chosen_forms": {},
+  "by_expression": {},
+  "vs_default": {
+   "n": 0,
+   "dates": 0,
+   "independent_periods": 0,
+   "mean_diff": null,
+   "ci95": null
+  },
+  "representativeness": {
+   "by_sample": {},
+   "by_direction": {},
+   "span_days": 0,
+   "warnings": []
+  },
+  "mean_selected_adverse_entry": null,
+  "segments": {
+   "overall_mean": null,
+   "by": {},
+   "weak": []
+  },
+  "verdict": "NEED_MORE_DATA",
+  "experiment_id": "4a0f886d1979",
+  "valid_decisions": 79,
+  "valid_predictions": 186,
+  "pending_decisions": 79,
+  "model_instances": 0,
+  "excluded": {
+   "OTHER_EXPERIMENT": 40
+  },
+  "journal_by_experiment": {
+   "298be00d41bc": 40,
+   "4a0f886d1979": 344
+  },
+  "vs_reference": {
+   "candidates": 0,
+   "due_candidates": 0,
+   "coverage": null,
+   "days": 0,
+   "independent_periods": 0,
+   "ci_level": 0.95,
+   "decisions_differ": 0,
+   "excluded": {},
+   "daily_mean": {
+    "learning": null,
+    "reference": null,
+    "trade_all": null,
+    "no_trade": 0.0
+   },
+   "learning_minus_reference": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_trade_all": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_no_trade": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "verdict": "NEED_MORE_DATA",
+   "mode": "forward",
+   "reference_models": [
+    "519261c95a8a6da7"
+   ]
+  }
+ },
+ "forward_sequential": {
+  "experiment_id": "4a0f886d1979",
+  "horizon": 5,
+  "evaluated_as_of": "2026-11-04",
+  "looks_evaluated": [],
+  "binding": null,
+  "status": "AWAITING_LOOK",
+  "plan_id": "FWD-5d-4a0f886d1979",
+  "plan_sha256": "c3b5ce3b8ffba824d13707bc1dce492ba1980cd540a7602f085b1d4d44ef0089",
+  "start_date": "2026-11-02",
+  "look_cutoffs": [
+   "2026-12-12",
+   "2027-01-21",
+   "2027-03-02"
+  ],
+  "looks": 3,
+  "alpha": 0.05,
+  "look_alpha": [
+   0.0006868948682239306,
+   0.01568777158182444,
+   0.033625333549951675
+  ],
+  "look": 0,
+  "valid_decisions": 79,
+  "next_look": {
+   "look": 1,
+   "cutoff": "2026-12-12",
+   "ready_after": "2026-12-27"
+  }
+ },
+ "release": {
+  "allowed": false,
+  "reasons": [
+   "walk_forward: NEED_MORE_DATA (verlangt VALIDATED)",
+   "walk_forward: Testtage 0 < 20",
+   "walk_forward: Auswahl n=0 < 30",
+   "walk_forward: unabh\u00e4ngige Perioden 0 < 5",
+   "walk_forward: 95-%-KI None nicht \u00fcber 0",
+   "walk_forward: \u00d8 netto der Auswahl nicht > 0",
+   "walk_forward: Abdeckung gepr\u00fcfter Ergebnisse None < 0.8",
+   "walk_forward: Rang-IC t None <= 2.0",
+   "forward: NEED_MORE_DATA (verlangt FORWARD_POSITIVE)",
+   "forward: Testtage 0 < 20",
+   "forward: Auswahl n=0 < 30",
+   "forward: unabh\u00e4ngige Perioden 0 < 5",
+   "forward: 95-%-KI None nicht \u00fcber 0",
+   "forward: \u00d8 netto der Auswahl nicht > 0",
+   "forward: Abdeckung gepr\u00fcfter Ergebnisse None < 0.8",
+   "forward_sequential: AWAITING_LOOK (verlangt CONFIRMED an einem vorab festgelegten Pr\u00fcfzeitpunkt)"
+  ]
+ },
+ "mail_eligible": false,
+ "recommendations": [],
+ "watchlist": [
+  {
+   "date": "2026-11-04",
+   "signal_id": "f3df76a0807f4a88babbd79cadbcb801",
+   "ticker": "PFE",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-04T18:06:27+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "98bf4751d91ef46d",
+   "train_cutoff": "2026-11-04",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "PFE270115C00030000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 1.63,
+   "entry_mid_net": 1.605,
+   "pred_net": 0.101409
+  },
+  {
+   "date": "2026-11-04",
+   "signal_id": "e845cf88888d401f88973d743b2a4217",
+   "ticker": "MO",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-04T18:06:27+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "98bf4751d91ef46d",
+   "train_cutoff": "2026-11-04",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "MO270115C00080000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 2.25,
+   "entry_mid_net": 2.21,
+   "pred_net": 0.07619
+  },
+  {
+   "date": "2026-11-04",
+   "signal_id": "7aca850f292149319208c319abce2cf2",
+   "ticker": "NEE",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-04T18:06:27+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "98bf4751d91ef46d",
+   "train_cutoff": "2026-11-04",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "NEE270115C00087500"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 4.15,
+   "entry_mid_net": 4.1,
+   "pred_net": 0.073468
+  },
+  {
+   "date": "2026-11-04",
+   "signal_id": "db4f7a29079245189c4279337b89023b",
+   "ticker": "SPCX",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-04T18:06:27+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "98bf4751d91ef46d",
+   "train_cutoff": "2026-11-04",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "SPCX270115C00130000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 17.15,
+   "entry_mid_net": 16.9,
+   "pred_net": 0.072256
+  },
+  {
+   "date": "2026-11-04",
+   "signal_id": "ebcb05a6540141e89d48bc218ecbf49d",
+   "ticker": "UNH",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-04T18:06:27+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "98bf4751d91ef46d",
+   "train_cutoff": "2026-11-04",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "UNH270115C00400000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 29.1,
+   "entry_mid_net": 28.75,
+   "pred_net": 0.069069
+  }
+ ],
+ "journaled": 170,
+ "decisions": 40,
+ "variant_runs": {
+  "OLV-17f09b47ea": 40,
+  "OLV-946176e202": 40,
+  "OLV-2d61b8616c": 40
+ },
+ "production_influence": "NONE",
+ "orders_created": 0
+}
