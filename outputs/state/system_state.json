@@ -7,7 +7,7 @@
  ],
  "data_health": {
   "status": "SAFE_MODE",
-  "data_quality": 0.888,
+  "data_quality": 0.896,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
@@ -15,7 +15,7 @@
   "global_reasons": [
    "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
   ],
-  "generated": "2026-11-03T19:46:28+00:00",
+  "generated": "2026-11-04T17:45:23+00:00",
   "counts": {
    "HEALTHY": 42,
    "DEGRADED": 2,
@@ -96,13 +96,13 @@
    },
    "data": {
     "level": "MILD",
-    "data_quality": 0.888
+    "data_quality": 0.896
    }
   },
   "reasons": [
    "FEATURE DRIFT MILD: ['tnx']",
    "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich",
-   "DATA DRIFT MILD: Data Quality 0.888"
+   "DATA DRIFT MILD: Data Quality 0.896"
   ],
   "policy_version": "drift-v1",
   "consequences": {
@@ -112,7 +112,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-03T16:00:45+00:00",
-  "drift_input_age_days": 0.3,
+  "drift_input_age_days": 1.1,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -122,7 +122,7 @@
   "version": "scanner_rules@fa6cc74e0def"
  },
  "promotion_state": {
-  "generated": "2026-11-03T21:10:27+00:00",
+  "generated": "2026-11-04T00:04:57+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -187,15 +187,15 @@
  "inputs": {
   "model_health": "631f21079e0c",
   "meta_learning": "7f4ce3d53158",
-  "data_health": "7f03a77419ed",
-  "promotion": "a020211b3de8",
+  "data_health": "1d770b5220e1",
+  "promotion": "878444ade310",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "238003516e2f"
  },
- "state_version": 92,
- "fingerprint": "a9374626eda3b358",
- "updated_at": "2026-11-04T00:04:57+00:00",
- "code_version": "08ab2afd67ae"
+ "state_version": 93,
+ "fingerprint": "6fd5975e26a102ae",
+ "updated_at": "2026-11-04T17:45:23+00:00",
+ "code_version": "841526e8692c"
 }
