@@ -5,13 +5,13 @@
 | source_id | IMF dataset | Machine transport | Selected research questions |
 |---|---|---|---|
 | imf_fsi | FSIC Financial Soundness Indicators | IMF SDMX 2.1 | Bank capitalization and non-performing loans |
-| imf_weo | World Economic Outlook | IMF DataMapper v1 | Forecast GDP/inflation/unemployment **as retrieved** |
+| imf_weo | World Economic Outlook | IMF DataMapper v2 | Forecast GDP/inflation/unemployment **as retrieved** |
 | imf_mfs | MFS Monetary Aggregates | IMF SDMX 2.1 | Monetary aggregates and credit proxies |
-| imf_gdd | Global Debt Database | IMF DataMapper v1 | Households and corporate/private debt |
-| imf_fiscal_monitor | Fiscal Monitor | IMF DataMapper v1 | Fiscal balance and government gross debt |
+| imf_gdd | Global Debt Database | IMF DataMapper v2 | Households and corporate/private debt |
+| imf_fiscal_monitor | Fiscal Monitor | IMF DataMapper v2 | Fiscal balance and government gross debt |
 | imf_climate | CCI Climate Change Indicators | IMF SDMX 2.1 | Emissions and fossil-fuel subsidy candidates |
 | imf_fas | Financial Access Survey | IMF SDMX 2.1 | ATM/branch access candidates |
-| imf_aipi | AI Preparedness Index | IMF DataMapper v1 | 2023 structural country readiness; not short-horizon predictive alpha |
+| imf_aipi | AI Preparedness Index | IMF DataMapper v2 | 2023 structural country readiness; not short-horizon predictive alpha |
 
 All eight source IDs are registered in `config/external_sources/imf_macro.yaml`
 and use existing `ConnectorResult`, PIT `Observation`, `ExternalArchive`,
