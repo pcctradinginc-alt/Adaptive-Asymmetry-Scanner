@@ -1,4 +1,4 @@
-# Gate- und Optionsökonomie – 2026-11-03
+# Gate- und Optionsökonomie – 2026-11-04
 
 **READ-ONLY SHADOW – keine Handels- oder Gate-Freigabe.**
 
@@ -42,21 +42,21 @@ Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.
 
 | Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |
 |---|---:|---:|---:|---:|---:|---:|
-| prescreen_no | 3920 | 0 | 3893 | 0.5% | 1915 | n/v |
-| economics_first_quote_probe_budget | 1247 | 0 | 350 | n/v | 0 | n/v |
-| sector_momentum_weak | 716 | 1 | 603 | 0.9% | 263 | n/v |
-| earnings_gate | 439 | 43 | 439 | -0.3% | 36 | n/v |
-| mismatch_below_min | 340 | 340 | 339 | 0.2% | 129 | n/v |
-| bearish_disabled | 309 | 309 | 303 | 0.0% | 143 | n/v |
+| prescreen_no | 3920 | 0 | 3897 | 0.5% | 2123 | 2.9% |
+| economics_first_quote_probe_budget | 1247 | 0 | 717 | n/v | 0 | n/v |
+| sector_momentum_weak | 716 | 1 | 643 | 0.7% | 296 | 3.5% |
+| earnings_gate | 439 | 43 | 439 | -0.3% | 60 | 3.5% |
+| mismatch_below_min | 340 | 340 | 340 | 0.3% | 150 | n/v |
+| bearish_disabled | 309 | 309 | 304 | 0.0% | 168 | n/v |
 | time_budget_exceeded | 253 | 0 | 252 | n/v | 252 | n/v |
-| pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 141 | n/v |
-| options_design_roi_or_edge | 164 | 164 | 164 | 0.2% | 112 | n/v |
-| deep_analysis_veto_or_invalid | 161 | 0 | 160 | -0.2% | 68 | n/v |
-| mc_below_threshold | 100 | 100 | 99 | 1.0% | 46 | n/v |
+| pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 147 | 6.9% |
+| options_design_roi_or_edge | 164 | 164 | 164 | 0.2% | 120 | n/v |
+| deep_analysis_veto_or_invalid | 161 | 0 | 160 | -0.2% | 81 | n/v |
+| mc_below_threshold | 100 | 100 | 100 | 1.0% | 53 | n/v |
 | prescreen_bearish_prefilter | 39 | 0 | 37 | n/v | 0 | n/v |
-| impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 17 | n/v |
-| unlabeled_after_options_design | 20 | 20 | 20 | n/v | 17 | n/v |
-| economics_first_earnings_gate | 11 | 0 | 5 | n/v | 0 | n/v |
+| impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 19 | n/v |
+| unlabeled_after_options_design | 20 | 20 | 20 | n/v | 19 | n/v |
+| economics_first_earnings_gate | 11 | 0 | 6 | n/v | 0 | n/v |
 
 *Mittelwerte erst ab 20 Marks an 10 unabhängigen Signaltagen; nicht kausal.
 Richtungsunbekannte Budget-Signale sind keine Long-Call-Prognosen.

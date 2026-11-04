@@ -1,6 +1,6 @@
 {
   "actual_production_roi_gate_changed": false,
-  "as_of": "2026-11-03",
+  "as_of": "2026-11-04",
   "candidate_underlying_by_gate": {
     "by_reject_reason": {
       "bearish_disabled": {
@@ -8,9 +8,9 @@
         "registered": 309,
         "underlying": {
           "20": {
-            "independent_days": 8,
+            "independent_days": 9,
             "mean_stock_return": null,
-            "observed": 143,
+            "observed": 168,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -20,9 +20,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 18,
-            "mean_stock_return": 4.1e-05,
-            "observed": 303,
+            "independent_days": 19,
+            "mean_stock_return": 0.00023,
+            "observed": 304,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -32,9 +32,9 @@
         "registered": 161,
         "underlying": {
           "20": {
-            "independent_days": 7,
+            "independent_days": 8,
             "mean_stock_return": null,
-            "observed": 68,
+            "observed": 81,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -56,10 +56,10 @@
         "registered": 439,
         "underlying": {
           "20": {
-            "independent_days": 9,
-            "mean_stock_return": null,
-            "observed": 36,
-            "status": "NEED_MORE_DATA"
+            "independent_days": 10,
+            "mean_stock_return": 0.03476,
+            "observed": 60,
+            "status": "DESCRIPTIVE_ONLY"
           },
           "45": {
             "independent_days": 0,
@@ -92,9 +92,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 1,
+            "independent_days": 2,
             "mean_stock_return": null,
-            "observed": 5,
+            "observed": 6,
             "status": "NEED_MORE_DATA"
           }
         }
@@ -116,9 +116,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 1,
+            "independent_days": 2,
             "mean_stock_return": null,
-            "observed": 350,
+            "observed": 717,
             "status": "NEED_MORE_DATA"
           }
         }
@@ -128,9 +128,9 @@
         "registered": 36,
         "underlying": {
           "20": {
-            "independent_days": 6,
+            "independent_days": 7,
             "mean_stock_return": null,
-            "observed": 17,
+            "observed": 19,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -176,33 +176,9 @@
         "registered": 100,
         "underlying": {
           "20": {
-            "independent_days": 7,
+            "independent_days": 8,
             "mean_stock_return": null,
-            "observed": 46,
-            "status": "NEED_MORE_DATA"
-          },
-          "45": {
-            "independent_days": 0,
-            "mean_stock_return": null,
-            "observed": 0,
-            "status": "NEED_MORE_DATA"
-          },
-          "5": {
-            "independent_days": 17,
-            "mean_stock_return": 0.009864,
-            "observed": 99,
-            "status": "DESCRIPTIVE_ONLY"
-          }
-        }
-      },
-      "mismatch_below_min": {
-        "direction_known": 340,
-        "registered": 340,
-        "underlying": {
-          "20": {
-            "independent_days": 7,
-            "mean_stock_return": null,
-            "observed": 129,
+            "observed": 53,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -213,8 +189,32 @@
           },
           "5": {
             "independent_days": 18,
-            "mean_stock_return": 0.002466,
-            "observed": 339,
+            "mean_stock_return": 0.01013,
+            "observed": 100,
+            "status": "DESCRIPTIVE_ONLY"
+          }
+        }
+      },
+      "mismatch_below_min": {
+        "direction_known": 340,
+        "registered": 340,
+        "underlying": {
+          "20": {
+            "independent_days": 8,
+            "mean_stock_return": null,
+            "observed": 150,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 19,
+            "mean_stock_return": 0.002577,
+            "observed": 340,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -224,9 +224,9 @@
         "registered": 164,
         "underlying": {
           "20": {
-            "independent_days": 7,
+            "independent_days": 8,
             "mean_stock_return": null,
-            "observed": 112,
+            "observed": 120,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -248,10 +248,10 @@
         "registered": 204,
         "underlying": {
           "20": {
-            "independent_days": 9,
-            "mean_stock_return": null,
-            "observed": 141,
-            "status": "NEED_MORE_DATA"
+            "independent_days": 10,
+            "mean_stock_return": 0.069488,
+            "observed": 147,
+            "status": "DESCRIPTIVE_ONLY"
           },
           "45": {
             "independent_days": 0,
@@ -320,10 +320,10 @@
         "registered": 3920,
         "underlying": {
           "20": {
-            "independent_days": 9,
-            "mean_stock_return": null,
-            "observed": 1915,
-            "status": "NEED_MORE_DATA"
+            "independent_days": 10,
+            "mean_stock_return": 0.028763,
+            "observed": 2123,
+            "status": "DESCRIPTIVE_ONLY"
           },
           "45": {
             "independent_days": 0,
@@ -332,9 +332,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 20,
-            "mean_stock_return": 0.005081,
-            "observed": 3893,
+            "independent_days": 21,
+            "mean_stock_return": 0.005025,
+            "observed": 3897,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -344,9 +344,9 @@
         "registered": 7,
         "underlying": {
           "20": {
-            "independent_days": 2,
+            "independent_days": 3,
             "mean_stock_return": null,
-            "observed": 3,
+            "observed": 4,
             "status": "NEED_MORE_DATA"
           },
           "45": {
@@ -368,10 +368,10 @@
         "registered": 716,
         "underlying": {
           "20": {
-            "independent_days": 9,
-            "mean_stock_return": null,
-            "observed": 263,
-            "status": "NEED_MORE_DATA"
+            "independent_days": 10,
+            "mean_stock_return": 0.034718,
+            "observed": 296,
+            "status": "DESCRIPTIVE_ONLY"
           },
           "45": {
             "independent_days": 0,
@@ -380,9 +380,9 @@
             "status": "NEED_MORE_DATA"
           },
           "5": {
-            "independent_days": 20,
-            "mean_stock_return": 0.008928,
-            "observed": 603,
+            "independent_days": 21,
+            "mean_stock_return": 0.007333,
+            "observed": 643,
             "status": "DESCRIPTIVE_ONLY"
           }
         }
@@ -440,9 +440,9 @@
         "registered": 20,
         "underlying": {
           "20": {
-            "independent_days": 3,
+            "independent_days": 4,
             "mean_stock_return": null,
-            "observed": 17,
+            "observed": 19,
             "status": "NEED_MORE_DATA"
           },
           "45": {
