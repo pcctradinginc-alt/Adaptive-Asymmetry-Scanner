@@ -66,4 +66,7 @@ jobs:
           name: options-capture-${{ github.run_id }}
           retention-days: 14
           if-no-files-found: ignore
-          path: outputs/options_archive/
+          path: |
+            outputs/options_archive/
+            outputs/research/autonomous_alpha/option_link/
+            outputs/research/autonomous_alpha/option_link.json
