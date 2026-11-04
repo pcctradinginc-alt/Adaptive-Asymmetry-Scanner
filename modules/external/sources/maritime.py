@@ -306,7 +306,9 @@ def discover_endpoints(
                 "orgId": item.get("orgId"),
                 "fallback_to_daily_layer": False,
             }
-        except DiscoveryError:
+        except (DiscoveryError, PortWatchUpstreamUnavailable):
+            # Reference service outage must not block a healthy daily layer:
+            # derive verified id/name values from that *same* daily layer.
             daily_ep = endpoints[daily_key]
             endpoints[ref_key] = {
                 "service_url": daily_ep["service_url"],
