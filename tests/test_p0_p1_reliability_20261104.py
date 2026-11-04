@@ -150,3 +150,43 @@ def test_technical_workflow_outcome_not_confused_with_business_evidence():
     completed = ow.summarize_run_outcome(capture, [{"name": "capture", "conclusion": "success"}])
     assert completed["effective_status"] == "TECHNICALLY_SUCCESSFUL"
     assert completed["business_evidence"] == "NOT_EVALUATED"
+
+
+def test_continue_on_error_stage_balance_not_misclassified_as_success():
+    log = ("2026-11-03T16:04:44.421Z   CRITICAL: factory_plan=success " +
+           "alpha_option_forward=success\n" +
+           "2026-11-03T16:04:44.421Z   DEGRADED: alt_evaluate=success " +
+           "commodity_evaluate=failure meta_learning=success\n" +
+           "2026-11-03T16:04:44.428Z ##[warning]Stufe 'commodity_evaluate' ausgefallen\n")
+    assert ow.stage_failure_names(log) == ["commodity_evaluate"]
+    assert ow.stage_failure_names("DEGRADED: commodity_evaluate=success") == []
+    assert ow._repo_from_jobs_url(
+        "https://api.github.com/repos/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/12/jobs"
+    ) == "pcctradinginc-alt/Adaptive-Asymmetry-Scanner"
+
+    class Response:
+        def __init__(self, data=None, text=""):
+            self.data, self.text = data, text
+
+        def json(self):
+            return self.data
+
+        def raise_for_status(self):
+            return None
+
+    class Session:
+        def get(self, url, params=None, timeout=None):
+            if url.endswith("/runs/12/jobs"):
+                return Response({"jobs": [{"name": "ml", "id": 5, "conclusion": "success",
+                                          "steps": [{"name": "Commodity", "conclusion": "success"}]}]})
+            if url.endswith("/jobs/5/logs"):
+                return Response(text=log)
+            raise AssertionError(url)
+
+    outcome = ow.recent_run_outcomes(Session(), [{
+        "name": "Research", "id": 12, "path": ".github/workflows/ml_research.yml",
+        "conclusion": "success", "jobs_url":
+        "https://api.github.com/repos/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/12/jobs",
+    }])
+    assert outcome[0]["effective_status"] == "DEGRADED_STEP_FAILURE"
+    assert outcome[0]["failed_steps"] == [("ml", "commodity_evaluate")]
