@@ -33,6 +33,7 @@ from __future__ import annotations
 from collections import defaultdict
 import difflib
 import json
+import logging
 import os
 import re
 from dataclasses import dataclass
@@ -57,6 +58,7 @@ from modules.external.sources.base import (
 )
 
 FetchFn = Callable[..., Any]
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Konstanten / Konfiguration
