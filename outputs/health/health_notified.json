@@ -1,20 +1,5 @@
 {
- "at": "2026-11-04T17:45:23+00:00",
- "changes": [
-  {
-   "source_id": "imf_portwatch_disruptions",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "usaspending_contracts",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Ingest FAIL: USAspending: 502 für https://api.usaspending.gov/api/v2/search/spending_by_award/; Data-Quality-Befund schwerwiegend"
-  }
- ],
- "mail": "sent"
+ "at": "2026-11-04T20:00:06+00:00",
+ "changes": [],
+ "mail": "no_change"
 }
