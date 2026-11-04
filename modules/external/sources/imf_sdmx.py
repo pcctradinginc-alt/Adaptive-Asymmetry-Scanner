@@ -70,7 +70,12 @@ def _catalog(root: ET.Element, flow: str):
     dflow = next((x for x in root.iter() if _local(x) == "Dataflow" and x.get("id") == flow), None)
     if dflow is None or not str(dflow.get("agencyID", "")).startswith("IMF"):
         raise IMFSDMXError("DATAFLOW_ID_OR_PUBLISHER_MISMATCH")
-    ds = _first(root, "DataStructure")
+    structure_ref = _first(dflow, "Ref")
+    expected_dsd_id = structure_ref.get("id") if structure_ref is not None else None
+    if not expected_dsd_id:
+        raise IMFSDMXError("DATAFLOW_DSD_LINK_MISSING")
+    ds = next((x for x in root.iter() if _local(x) == "DataStructure"
+               and x.get("id") == expected_dsd_id), None)
     if ds is None or not str(ds.get("agencyID", "")).startswith("IMF"):
         raise IMFSDMXError("DATASTRUCTURE_NOT_VERIFIED")
     dl = _first(ds, "DimensionList")
