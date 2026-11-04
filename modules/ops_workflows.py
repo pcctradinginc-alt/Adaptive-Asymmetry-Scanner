@@ -108,7 +108,7 @@ def summarize_run_outcome(run: dict, jobs: list[dict]) -> dict:
 
 def _repo_from_jobs_url(url: str | None) -> str:
     """The REST job-list URL is emitted by GitHub; avoid guessing repository identity."""
-    m = re.search(r"/repos/([^/]+/[^/]+)/actions/runs/\\d+/jobs(?:[?].*)?$", url or "")
+    m = re.search(r"/repos/([^/]+/[^/]+)/actions/runs/\d+/jobs(?:[?].*)?$", url or "")
     if not m:
         raise ValueError("No GitHub repository in jobs_url")
     return m.group(1)
@@ -127,7 +127,7 @@ def stage_failure_names(job_log: str) -> list[str]:
     failed = set()
     for line in (job_log or "").splitlines():
         if "  CRITICAL:" in line or "  DEGRADED:" in line:
-            failed.update(re.findall(r"\\b([a-z][a-z0-9_]+)=failure\\b", line))
+            failed.update(re.findall(r"\b([a-z][a-z0-9_]+)=failure\b", line))
         if "##[warning]Stufe '" in line and "' ausgefallen" in line:
             m = re.search(r"Stufe '([^']+)' ausgefallen", line)
             if m:
