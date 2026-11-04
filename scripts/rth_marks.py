@@ -136,10 +136,6 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
         try:
             from modules.autonomous_alpha import option_link as al
             res["alpha_link"] = al.decide(now=now if fixed_clock else None)
-            # The research report was formerly only refreshed by weekly ML, so a successful
-            # RTH decision appeared as "0 decisions" until the next research run.
-            # Coverage is descriptive; it never approves a trade or invents a fill.
-            res["alpha_link_coverage"] = al.coverage(now=now if fixed_clock else None)
             for sym, earliest in al.due_capture_targets(today=now.astimezone(ms.NY_TZ).date()).items():
                 cand_t[sym] = max(cand_t.get(sym, day0), earliest)
         except Exception as exc:  # noqa: BLE001 – research add-on, never a capture condition
@@ -157,6 +153,17 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
         res.update(targets=len(trade_syms) + len(cand_syms), already_captured=len(done),
                    requested=len(todo_t) + len(todo_c), quotes=len(got),
                    missing=sorted(set(todo_t + todo_c) - set(got)))
+        # First archive the real quotes; then settle matured paper positions using
+        # exclusively existing RTH archive records. Finally refresh evidence coverage.
+        # This reports today's decisions/outcomes instead of the stale weekly snapshot.
+        if res.get("alpha_link", {}).get("status") != "ERROR":
+            try:
+                from modules.autonomous_alpha import option_link as al
+                res["alpha_link_settlement"] = al.settle(now=now if fixed_clock else None)
+                res["alpha_link_coverage"] = al.coverage(now=now if fixed_clock else None)
+            except Exception as exc:  # noqa: BLE001 - reporting cannot lose archived quotes
+                log.warning("alpha option settlement/coverage unavailable: %s", exc)
+                res["alpha_link"] = {"status": "ERROR", "error": f"{type(exc).__name__}: {exc}"[:300]}
         if res.get("alpha_link", {}).get("status") == "ERROR":
             res["capture_status"] = "ALPHA_LINK_ERROR"
         elif res["missing"]:
