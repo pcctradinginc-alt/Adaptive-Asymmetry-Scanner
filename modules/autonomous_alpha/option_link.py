@@ -1123,7 +1123,13 @@ def ex_ante_attribution(row: dict, signals_by_id: dict) -> tuple[str | None, str
 
 # ── coverage report ──────────────────────────────────────────────────────────
 
-def coverage(root: Path = Path("."), *, now: datetime | None = None, persist: bool = True) -> dict:
+def coverage(root: Path = Path("."), *, now: datetime | None = None, persist: bool = True,
+             include_source_stats: bool = True) -> dict:
+    """Paper coverage with optional lightweight capture mode (no pandas/numpy imports).
+
+    Live RTH capture only needs immutable signal, decision and outcome journals.
+    Weekly research retains the full source-generation diagnostics.
+    """
     root = Path(root)
     cfg = config(root)
     now = now or datetime.now(timezone.utc)
@@ -1200,7 +1206,8 @@ def coverage(root: Path = Path("."), *, now: datetime | None = None, persist: bo
                          "pending_decision": h["pending_decision"], "overdue_decision": h["overdue_decision"],
                          "excluded_by_correction": h["excluded_by_correction"], "by_structure": by,
                          "status": "COVERAGE_SUFFICIENT" if evaluable else "NEED_MORE_DATA"}
-    _, stats = _sources(root, cfg, now)
+    stats = (_sources(root, cfg, now)[1] if include_source_stats
+             else {"status": "SKIPPED_CAPTURE_LIGHTWEIGHT"})
     ml_rows, _ = _ml_predictions(root)
     link_start = date.fromisoformat(str(cfg["link_start"]))
     pre = [r for r in ml_rows if (_ts(r.get("created_at")) or now).date() < link_start]
