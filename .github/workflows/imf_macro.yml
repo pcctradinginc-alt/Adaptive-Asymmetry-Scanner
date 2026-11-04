@@ -24,7 +24,9 @@ permissions:
   contents: write
 
 concurrency:
-  group: external-data-write
+  # PR preflight is read-only and must not block the daily production writer.
+  # Main branch ingestion shares the usual archive lock.
+  group: ${{ github.event_name == 'pull_request' && format('imf-macro-preflight-{0}', github.event.pull_request.number) || 'external-data-write' }}
   cancel-in-progress: false
 
 jobs:
