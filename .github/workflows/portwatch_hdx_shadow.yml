@@ -32,7 +32,7 @@ jobs:
           cache: pip
 
       - name: Install read-only HTTP dependency
-        run: python -m pip install 'requests>=2.31,<3'
+        run: python -m pip install requests
 
       - name: Validate HDX mirror resources (shadow; NO primary ingestion)
         id: shadow
@@ -41,7 +41,7 @@ jobs:
 
       - name: Upload shadow report (including failure evidence)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: portwatch-hdx-shadow-${{ github.run_id }}
           path: outputs/external_data/health/portwatch_hdx_shadow.json
