@@ -127,3 +127,20 @@ def test_isolation_still_tests_filter_when_minimal_endpoint_works():
     assert iso["basis"]["result"] == "OK"
     assert iso["where"]["result"] == "FAIL(400)"
     assert iso["outFields"]["result"] == "OK"
+
+
+
+def test_reference_service_outage_falls_back_to_verified_daily_layer(tmp_path):
+    base, _ = make_fake_fetch()
+
+    def fetch(url, params=None, **kwargs):
+        if url == SERVICE_URLS["ports_reference"]:
+            return FakeResponse(_upstream_400("Invalid URL"))
+        return base(url, params=params, **kwargs)
+
+    endpoints = mw.discover_endpoints(http_fetch=fetch,
+                                      cache_path=str(tmp_path / "endpoints.json"), now=NOW)
+    assert endpoints["ports_reference"]["fallback_to_daily_layer"] is True
+    assert endpoints["ports_reference"]["service_url"] == endpoints["ports_daily"]["service_url"]
+    assert endpoints["ports_reference"]["layer_id"] == endpoints["ports_daily"]["layer_id"]
+    # The fallback uses the same verified publisher, not another ArcGIS owner.
