@@ -141,7 +141,7 @@ class SDMXFake:
         self.flow = flow
         self.phrases = phrases or sd.IMFFSIConnector.PHRASES
         self.fail_mode = fail_mode
-        self.body = body or synthetic_data()
+        self.body = synthetic_data() if body is None else body
         self.urls = []
     def __call__(self, url, **kwargs):
         self.urls.append(url)
