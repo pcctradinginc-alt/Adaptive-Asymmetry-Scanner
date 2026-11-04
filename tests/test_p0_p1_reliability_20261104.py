@@ -209,3 +209,18 @@ def test_capture_coverage_does_not_import_pandas_dependent_research(monkeypatch,
     assert out["status"] == "NEED_MORE_DATA"
     assert out["source_stats"]["status"] == "SKIPPED_CAPTURE_LIGHTWEIGHT"
     assert out["n_decisions"] == 0
+
+
+
+def test_missing_alpha_link_configuration_does_not_fake_capture_error(monkeypatch, tmp_path):
+    from modules import roi_learning_shadow as rls
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(ms, "us_market_session", lambda t: "regular")
+    monkeypatch.setattr(cl, "due_mark_symbols", lambda d: [])
+    monkeypatch.setattr(cl, "pending_entry_targets", lambda d: {})
+    monkeypatch.setattr(rls, "due_capture_targets", lambda **kw: {})
+    monkeypatch.setattr(rth_marks, "_satisfied", lambda *a, **kw: set())
+    res = rth_marks.run(NOW, tmp_path / "no-history.json", capture_only=True)
+    assert res["alpha_link"]["status"] == "NOT_CONFIGURED"
+    assert "alpha_link_settlement" not in res
+    assert res["capture_status"] == "NO_TARGETS"
