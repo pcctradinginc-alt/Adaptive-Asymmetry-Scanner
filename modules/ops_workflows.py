@@ -66,6 +66,68 @@ def _get(session, url: str, params: dict | None = None):
     return resp
 
 
+# Recent green Actions runs are not evidence of execution: the scanner may have
+# skipped its scan job, and optional research stages may have failed. Keep these
+# outcomes separate from the existing hard-failure digest.
+OUTCOME_WORKFLOWS = frozenset({
+    ".github/workflows/scanner.yml", ".github/workflows/ml_research.yml",
+    ".github/workflows/options_capture.yml", ".github/workflows/source_health.yml",
+    ".github/workflows/feedback.yml", ".github/workflows/improvement_notify.yml",
+})
+MAX_RECENT_OUTCOMES = 6
+
+
+def summarize_run_outcome(run: dict, jobs: list[dict]) -> dict:
+    """Technical run status only; never asserts that trades, labels or quotes exist."""
+    conclusion = str(run.get("conclusion") or "unknown")
+    step_failures = [(j.get("name"), st.get("name")) for j in jobs
+                     for st in (j.get("steps") or []) if st.get("conclusion") in FAILED]
+    skipped_jobs = [str(j.get("name")) for j in jobs if j.get("conclusion") == "skipped"]
+    if conclusion in FAILED:
+        status = "FAILED"
+    elif conclusion == "cancelled":
+        status = "CANCELLED"
+    elif not jobs:
+        status = "UNVERIFIED"
+    elif run.get("path") == SCANNER_FILE and any(j.get("name") == SCAN_JOB and
+                                                 j.get("conclusion") == "skipped" for j in jobs):
+        status = "SKIPPED_SCAN"
+    elif step_failures:
+        status = "DEGRADED_STEP_FAILURE"
+    elif all(j.get("conclusion") == "skipped" for j in jobs):
+        status = "SKIPPED_ALL_JOBS"
+    elif conclusion == "success":
+        status = "TECHNICALLY_SUCCESSFUL"
+    else:
+        status = "UNVERIFIED"
+    return {"workflow": run.get("name"), "run_id": run.get("id"), "url": run.get("html_url"),
+            "conclusion": conclusion, "effective_status": status,
+            "skipped_jobs": skipped_jobs, "failed_steps": step_failures,
+            "business_evidence": "NOT_EVALUATED"}
+
+
+def recent_run_outcomes(session, runs: list[dict]) -> list[dict]:
+    """One recent run per core workflow; individual job API failures do not mask other runs."""
+    latest = {}
+    for r in sorted(runs, key=lambda x: str(x.get("created_at") or ""), reverse=True):
+        path = r.get("path")
+        if path in OUTCOME_WORKFLOWS and path not in latest:
+            latest[path] = r
+        if len(latest) >= MAX_RECENT_OUTCOMES:
+            break
+    out = []
+    for r in latest.values():
+        try:
+            jobs = (_get(session, r["jobs_url"]).json().get("jobs") or []) if r.get("jobs_url") else []
+            out.append(summarize_run_outcome(r, jobs))
+        except Exception as exc:  # noqa: BLE001 - missing job metadata must be visible, not silently green
+            out.append({"workflow": r.get("name"), "run_id": r.get("id"),
+                        "url": r.get("html_url"), "conclusion": r.get("conclusion"),
+                        "effective_status": "UNVERIFIED", "error": type(exc).__name__,
+                        "business_evidence": "NOT_EVALUATED"})
+    return out
+
+
 def collect(now: datetime | None = None, env: dict | None = None, session=None) -> dict:
     """-> {status, window_hours, runs_total, failed[...], failed_by_workflow{}, scanner_start{...}}; wirft nie."""
     now = now or datetime.now(timezone.utc)
@@ -110,7 +172,8 @@ def collect(now: datetime | None = None, env: dict | None = None, session=None) 
                            "error_lines": lines[-MAX_LINES:]})
         return {"status": "OK", "window_hours": hours, "since": since, "runs_total": len(runs), "failed": failed,
                 "failed_by_workflow": dict(Counter(f["workflow"] for f in failed)),
-                "scanner_start": _scanner_start(session, runs, now)}
+                "scanner_start": _scanner_start(session, runs, now),
+                "recent_outcomes": recent_run_outcomes(session, runs)}
     except Exception as e:  # noqa: BLE001 – Monitoring darf nie scheitern
         return {"status": "UNAVAILABLE", "reason": f"GitHub-API: {type(e).__name__}: {str(e)[:160]}"}
 
