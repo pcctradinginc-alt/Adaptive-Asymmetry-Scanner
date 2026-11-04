@@ -29,7 +29,7 @@
       },
       "deep_analysis_veto_or_invalid": {
         "direction_known": 0,
-        "registered": 161,
+        "registered": 162,
         "underlying": {
           "20": {
             "independent_days": 8,
@@ -77,7 +77,7 @@
       },
       "economics_first_earnings_gate": {
         "direction_known": 0,
-        "registered": 11,
+        "registered": 12,
         "underlying": {
           "20": {
             "independent_days": 0,
@@ -99,9 +99,33 @@
           }
         }
       },
+      "economics_first_excessive_quote_friction": {
+        "direction_known": 0,
+        "registered": 2,
+        "underlying": {
+          "20": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "45": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "5": {
+            "independent_days": 0,
+            "mean_stock_return": null,
+            "observed": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        }
+      },
       "economics_first_quote_probe_budget": {
         "direction_known": 0,
-        "registered": 1247,
+        "registered": 1617,
         "underlying": {
           "20": {
             "independent_days": 0,
@@ -196,8 +220,8 @@
         }
       },
       "mismatch_below_min": {
-        "direction_known": 340,
-        "registered": 340,
+        "direction_known": 341,
+        "registered": 341,
         "underlying": {
           "20": {
             "independent_days": 8,
@@ -317,7 +341,7 @@
       },
       "prescreen_no": {
         "direction_known": 0,
-        "registered": 3920,
+        "registered": 3923,
         "underlying": {
           "20": {
             "independent_days": 10,
@@ -365,7 +389,7 @@
       },
       "sector_momentum_weak": {
         "direction_known": 1,
-        "registered": 716,
+        "registered": 760,
         "underlying": {
           "20": {
             "independent_days": 10,
@@ -487,13 +511,28 @@
     "direction_mixed_or_unknown": true,
     "interpretation": "Direction unknown for early deferrals, so their stock returns are not comparable to long-call option outcomes. No causal inference.",
     "lookback_days": 100,
-    "signals_read": 7990,
+    "signals_read": 8412,
     "stocks_are_not_option_returns": true,
     "unreadable_rows": 0
   },
   "economics_first_acquisition": {
     "budget_not_probed_is_unprofitable": false,
     "days": [
+      {
+        "budget_not_probed": 370,
+        "date": "2026-11-04",
+        "earnings_rejected": 1,
+        "haiku_audit_inputs": 2,
+        "haiku_inputs": 5,
+        "mismatch_rejected": 1,
+        "mode": "active",
+        "quick_mc_survivors": 0,
+        "quote_probes": 8,
+        "roi_approved": 0,
+        "sector_survivors": 378,
+        "sonnet_analyzed": 1,
+        "trades": 0
+      },
       {
         "budget_not_probed": 132,
         "date": "2026-11-03",
@@ -574,16 +613,16 @@
     "options_outcomes_for_unprobed_candidates": "UNKNOWN",
     "status": "OBSERVED_DESCRIPTIVE_ONLY",
     "totals": {
-      "budget_not_probed": 1247,
-      "earnings_rejected": 11,
-      "haiku_audit_inputs": 7,
-      "haiku_inputs": 29,
-      "mismatch_rejected": 2,
+      "budget_not_probed": 1617,
+      "earnings_rejected": 12,
+      "haiku_audit_inputs": 9,
+      "haiku_inputs": 34,
+      "mismatch_rejected": 3,
       "quick_mc_survivors": 0,
-      "quote_probes": 40,
+      "quote_probes": 48,
       "roi_approved": 0,
-      "sector_survivors": 1287,
-      "sonnet_analyzed": 8,
+      "sector_survivors": 1665,
+      "sonnet_analyzed": 9,
       "trades": 0
     }
   },
