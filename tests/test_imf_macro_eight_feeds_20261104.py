@@ -224,3 +224,29 @@ def test_imf_indicator_series_are_not_a_historical_release_vintage():
     older = [o for o in x.observations if o.observation_time.year == 2023]
     assert older
     assert not available_as_of(older, datetime(2025, 12, 31, tzinfo=timezone.utc))
+
+
+
+def test_sdmx_country_codelist_can_be_verified_through_official_concept_scheme():
+    """IMF.STA production DSD: COUNTRY is a ConceptIdentity, no local Enum."""
+    raw = synthetic_structure("FSIC", *sd.IMFFSIConnector.PHRASES[:2])
+    raw = raw.replace(
+        b'<str:Dimension id="COUNTRY"><str:LocalRepresentation><str:Enumeration><Ref id="COUNTRIES"/></str:Enumeration></str:LocalRepresentation></str:Dimension>',
+        b'<str:Dimension id="COUNTRY"><str:ConceptIdentity><Ref maintainableParentID="CS_MASTER_DATA" maintainableParentVersion="1.0.0" agencyID="IMF" id="COUNTRY"/></str:ConceptIdentity></str:Dimension>')
+    raw = raw.replace(
+        b'</str:DataStructures>',
+        b'</str:DataStructures><str:Concepts><str:ConceptScheme id="CS_MASTER_DATA" agencyID="IMF" version="1.0.0"><str:Concept id="COUNTRY"><str:CoreRepresentation><str:Enumeration><Ref id="COUNTRIES"/></str:Enumeration></str:CoreRepresentation></str:Concept></str:ConceptScheme></str:Concepts>')
+    root = sd._xml(response(raw), limit=sd.MAX_METADATA_BYTES)
+    dims, codelists, details = sd._catalog(root, "FSIC")
+    assert ("COUNTRY", "COUNTRIES") in dims
+    assert codelists["COUNTRIES"]["USA"] == "United States"
+    key, selected = sd._select(dims, codelists, "FSIC", sd.IMFFSIConnector.PHRASES)
+    assert selected["countries"] == ["USA", "DEU"]
+
+
+def test_sdmx_orphan_concept_identity_never_guess_codelist():
+    raw = synthetic_structure("FSIC", *sd.IMFFSIConnector.PHRASES[:2]).replace(
+        b'<str:Dimension id="COUNTRY"><str:LocalRepresentation><str:Enumeration><Ref id="COUNTRIES"/></str:Enumeration></str:LocalRepresentation></str:Dimension>',
+        b'<str:Dimension id="COUNTRY"><str:ConceptIdentity><Ref maintainableParentID="MISSING" maintainableParentVersion="1.0.0" agencyID="IMF" id="COUNTRY"/></str:ConceptIdentity></str:Dimension>')
+    with pytest.raises(sd.IMFSDMXError, match="CONCEPT_SCHEME_NOT_RESOLVED"):
+        sd._catalog(sd._xml(response(raw), limit=sd.MAX_METADATA_BYTES), "FSIC")
