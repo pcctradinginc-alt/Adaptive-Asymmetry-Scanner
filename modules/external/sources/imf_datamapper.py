@@ -137,8 +137,11 @@ class _IMFDataMapperConnector(Connector):
             for code in self.INDICATORS:
                 result = self._fetch(f"{BASE}/{code}", timeout=40, retries=2)
                 raw.append(_raw(sid, self.DATASET, result))
-                observations.extend(parse_indicator(result, code, self.DATASET,
-                                                    cfg, result.retrieved_at))
+                selected = parse_indicator(result, code, self.DATASET,
+                                           cfg, result.retrieved_at)
+                if not selected:
+                    raise IMFDataMapperError(f"NO_VALID_OBSERVATIONS_FOR_INDICATOR:{code}")
+                observations.extend(selected)
             if not observations:
                 raise IMFDataMapperError("NO_VERIFIED_OBSERVATIONS")
             latest = max(x.observation_time for x in observations)
