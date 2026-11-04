@@ -32,6 +32,7 @@ sources:
     enabled: true
     criticality: low
     research_only: true
+    run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "FSIC"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
@@ -63,6 +64,7 @@ sources:
     enabled: true
     criticality: low
     research_only: true
+    run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "WEO"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
@@ -94,6 +96,7 @@ sources:
     enabled: true
     criticality: low
     research_only: true
+    run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "MFS_MA"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
@@ -125,6 +128,7 @@ sources:
     enabled: true
     criticality: low
     research_only: true
+    run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "GDD"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
@@ -156,6 +160,7 @@ sources:
     enabled: true
     criticality: low
     research_only: true
+    run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "FM"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
@@ -187,6 +192,7 @@ sources:
     enabled: true
     criticality: low
     research_only: true
+    run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "CCI"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
@@ -218,6 +224,7 @@ sources:
     enabled: true
     criticality: low
     research_only: true
+    run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "FAS"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
@@ -249,6 +256,7 @@ sources:
     enabled: true
     criticality: low
     research_only: true
+    run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "AIPI"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
