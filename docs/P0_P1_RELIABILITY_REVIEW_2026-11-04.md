@@ -19,7 +19,7 @@ Scope: surgical remediation for five previously identified P0/P1 defects. No liv
 
 ## P1 — Alpha-to-Options attribution / report freshness
 - Previously registered RTH paper decisions existed in `outputs/options_archive/alpha_link/decisions/2026-11.jsonl` (46 entries, 29 `TRADE` and 17 `ABSTAIN` at inspection), while `outputs/research/autonomous_alpha/option_link.json` showed 0, because it preceded the capture.
-- After `option_link.decide()`, capture refreshes `option_link.coverage()` and commits the report alongside quote/decision journals.
+- After `option_link.decide()`, capture records observed RTH quotes, runs `option_link.settle()` for already matured paper exits using only archived RTH quotes, then refreshes `option_link.coverage()`. It commits paper-outcome journals and the report alongside quote/decision journals.
 - Paper decisions remain paper. Validated end-of-horizon outcomes, an immutable ex-ante signal link, and economic performance must still be established prospectively; no P&L claims from currently pending exits.
 
 ## P1 — GitHub Actions truthfulness
@@ -41,7 +41,7 @@ python -m pytest -q -p no:cacheprovider
 1. Review changes for preservation of PIT/as-of, idempotence, data provenance, no live execution, no auto-promotion.
 2. Run regression + full CI on the proposed head SHA. Do not call green Actions proof of business outcome.
 3. Verify fresh external PortWatch responses (metadata + one representative read-only query), owner/item IDs, unchanged schema invariants, and two recovery passes; record results.
-4. Check that a real NYSE in-window capture commits `capture_status` and new/unchanged `option_link.json` counts; verify missing quotes remain marked missing, never inferred.
+4. Check that a real NYSE in-window capture commits `capture_status`, alpha-linked decisions/outcomes, and updated `option_link.json` counts; verify missing quotes remain marked missing, never inferred. Confirm only mature exits are settled.
 5. Match immutable signal IDs in signals/decisions/outcomes, distinct signal dates and 20-trading-day maturity. Do not attribute paper marks to broker executions.
 6. Inspect latest `recent_outcomes` for a skipped scanner and (if applicable) a degraded ML step. All required stages must execute before release.
 7. Clearly report any unresolved external, time-dependent, or statistical validation as OPEN — do not auto-merge additional changes or lift Safe Mode.
