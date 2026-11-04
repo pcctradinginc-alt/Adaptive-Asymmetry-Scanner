@@ -1,0 +1,61 @@
+name: PortWatch HDX Shadow (OCHA mirror, no fallback)
+
+# Independent, read-only provenance/freshness check. This never feeds the
+# production source registry, model features or risk gates.
+on:
+  schedule:
+    - cron: '45 19 * * 3'  # Wednesday 19:45 UTC, after OCHA's usual Wednesday publish
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: portwatch-hdx-shadow-write
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install read-only HTTP dependency
+        run: python -m pip install 'requests>=2.31,<3'
+
+      - name: Validate HDX mirror resources (shadow; NO primary ingestion)
+        id: shadow
+        continue-on-error: true
+        run: python scripts/portwatch_hdx_shadow.py --all
+
+      - name: Upload shadow report (including failure evidence)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: portwatch-hdx-shadow-${{ github.run_id }}
+          path: outputs/external_data/health/portwatch_hdx_shadow.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Archive shadow-only status to main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: portwatch HDX shadow status $(date -u +%Y-%m-%d)" outputs/external_data/health/portwatch_hdx_shadow.json
+
+      - name: Fail check on stale, empty or unverified HDX data
+        if: steps.shadow.outcome != 'success'
+        run: |
+          echo "::error::HDX shadow failed validation (no primary-source recovery and no Safe Mode override)"
+          exit 1
