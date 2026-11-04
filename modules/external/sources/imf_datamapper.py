@@ -16,7 +16,7 @@ from modules.external import http
 from modules.external.pit import AvailabilityPrecision, Observation
 from modules.external.sources.base import Connector, ConnectorResult, RawRecord, SourceStatus
 
-BASE = "https://www.imf.org/external/datamapper/api/v1"
+BASE = "https://www.imf.org/external/datamapper/api/v2"
 COUNTRIES = ("USA", "DEU", "CHN", "JPN", "GBR", "FRA")
 MAX_RESPONSE = 3_000_000
 MIN_YEAR = 2015
@@ -97,7 +97,7 @@ def parse_indicator(result, code: str, dataset: str, cfg: dict,
                 forecast_issue_time=retrieved if is_future_projection else None,
                 forecast_valid_time=valid if is_future_projection else None,
                 attrs={"indicator_code": code, "country": country,
-                       "transport": "IMF_DataMapper_v1", "dataset": dataset,
+                       "transport": "IMF_DataMapper_v2", "dataset": dataset,
                        "projection": is_future_projection, "historical_pit_verified": False},
             ))
     if len(obs) > 500:
@@ -153,7 +153,7 @@ class _IMFDataMapperConnector(Connector):
                     f"{self.DATASET}: {len(observations)} research-only PIT snapshots; "
                     f"{len(countries)} validated countries; original IMF releases NOT reconstructed"),
                 discovered_ids={"flow": self.DATASET, "indicators": list(self.INDICATORS),
-                                "countries": countries, "transport": "IMF_DataMapper_v1",
+                                "countries": countries, "transport": "IMF_DataMapper_v2",
                                 "historical_pit_verified": False},
             )
         except (http.FetchError, IMFDataMapperError, ValueError, TypeError, KeyError) as e:
