@@ -156,7 +156,7 @@ def run(now: datetime | None = None, history_path: Path = HISTORY, *, capture_on
         # First archive the real quotes; then settle matured paper positions using
         # exclusively existing RTH archive records. Finally refresh evidence coverage.
         # This reports today's decisions/outcomes instead of the stale weekly snapshot.
-        if res.get("alpha_link", {}).get("status") != "ERROR":
+        if res.get("alpha_link", {}).get("status") not in {"ERROR", "NOT_CONFIGURED", "DISABLED"}:
             try:
                 from modules.autonomous_alpha import option_link as al
                 # A supplied clock is used by simulation/tests: never persist research
