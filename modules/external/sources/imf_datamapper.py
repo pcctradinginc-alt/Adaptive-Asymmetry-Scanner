@@ -98,7 +98,7 @@ def parse_indicator(result, code: str, dataset: str, cfg: dict,
                 forecast_valid_time=valid if is_future_projection else None,
                 attrs={"indicator_code": code, "country": country,
                        "transport": "IMF_DataMapper_v1", "dataset": dataset,
-                       "projection": is_future_projection, "historical_pit_verified": False}),
+                       "projection": is_future_projection, "historical_pit_verified": False},
             ))
     if len(obs) > 500:
         raise IMFDataMapperError("OBSERVATION_LIMIT")
