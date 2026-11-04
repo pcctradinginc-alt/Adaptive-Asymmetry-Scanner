@@ -1,0 +1,254 @@
+# Eight IMF statistical research sources, deliberately separate from PortWatch.
+# All code paths are prospective PIT snapshots: NO reconstructed historic vintages.
+# Official IMF Data terms: https://www.imf.org/en/about/copyright-and-terms
+# IMF statistical data may be reused with attribution; potential commercial
+# use requires contacting copyright@imf.org. No LLM training, no bulk crawl.
+# Study-only: not registered as option-learner/model production features.
+sources:
+  - source_id: imf_fsi
+    display_name: "IMF – Financial Soundness Indicators (FSIC)"
+    family: imf_macro
+    authority: "International Monetary Fund (IMF)"
+    official_homepage: "https://data.imf.org"
+    machine_endpoint: "https://api.imf.org/external/sdmx/2.1/data/FSIC"
+    access_method: "IMF SDMX-ML 2.1, DSD-verified bounded series"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
+    license_status: OK
+    usage_restriction: "Private, noncommercial statistical research only; no commercial downstream use without IMF clearance; NO LLM training"
+    commercial_use_status_if_known: "Contact copyright@imf.org for permission"
+    attribution: "Source: International Monetary Fund, Financial Soundness Indicators (FSIC), https://data.imf.org; research transformations disclosed"
+    frequency: quarterly
+    expected_update_cadence: "P3M"
+    max_staleness_days: 220
+    min_refetch_days: 14
+    max_fetch_seconds: 160
+    max_new_normalized_bytes_per_run: 2500000
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    research_only: true
+    production_promotion_allowed: false
+    dataflow: "FSIC"
+    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
+
+  - source_id: imf_weo
+    display_name: "IMF – World Economic Outlook (WEO)"
+    family: imf_macro
+    authority: "International Monetary Fund (IMF)"
+    official_homepage: "https://data.imf.org"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1"
+    access_method: "IMF DataMapper JSON API v1, curated indicators"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
+    license_status: OK
+    usage_restriction: "Private, noncommercial statistical research only; no commercial downstream use without IMF clearance; NO LLM training"
+    commercial_use_status_if_known: "Contact copyright@imf.org for permission"
+    attribution: "Source: International Monetary Fund, World Economic Outlook (WEO), https://data.imf.org; research transformations disclosed"
+    frequency: annual
+    expected_update_cadence: "P6M"
+    max_staleness_days: 750
+    min_refetch_days: 25
+    max_fetch_seconds: 160
+    max_new_normalized_bytes_per_run: 2500000
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    research_only: true
+    production_promotion_allowed: false
+    dataflow: "WEO"
+    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
+
+  - source_id: imf_mfs
+    display_name: "IMF – Monetary and Financial Statistics (MFS Monetary Aggregates)"
+    family: imf_macro
+    authority: "International Monetary Fund (IMF)"
+    official_homepage: "https://data.imf.org"
+    machine_endpoint: "https://api.imf.org/external/sdmx/2.1/data/MFS_MA"
+    access_method: "IMF SDMX-ML 2.1, DSD-verified bounded series"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
+    license_status: OK
+    usage_restriction: "Private, noncommercial statistical research only; no commercial downstream use without IMF clearance; NO LLM training"
+    commercial_use_status_if_known: "Contact copyright@imf.org for permission"
+    attribution: "Source: International Monetary Fund, Monetary and Financial Statistics (MFS Monetary Aggregates), https://data.imf.org; research transformations disclosed"
+    frequency: monthly
+    expected_update_cadence: "P1M"
+    max_staleness_days: 190
+    min_refetch_days: 14
+    max_fetch_seconds: 160
+    max_new_normalized_bytes_per_run: 2500000
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    research_only: true
+    production_promotion_allowed: false
+    dataflow: "MFS_MA"
+    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
+
+  - source_id: imf_gdd
+    display_name: "IMF – Global Debt Database (GDD)"
+    family: imf_macro
+    authority: "International Monetary Fund (IMF)"
+    official_homepage: "https://data.imf.org"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1"
+    access_method: "IMF DataMapper JSON API v1, curated indicators"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
+    license_status: OK
+    usage_restriction: "Private, noncommercial statistical research only; no commercial downstream use without IMF clearance; NO LLM training"
+    commercial_use_status_if_known: "Contact copyright@imf.org for permission"
+    attribution: "Source: International Monetary Fund, Global Debt Database (GDD), https://data.imf.org; research transformations disclosed"
+    frequency: annual
+    expected_update_cadence: "P1Y"
+    max_staleness_days: 1150
+    min_refetch_days: 50
+    max_fetch_seconds: 160
+    max_new_normalized_bytes_per_run: 2500000
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    research_only: true
+    production_promotion_allowed: false
+    dataflow: "GDD"
+    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
+
+  - source_id: imf_fiscal_monitor
+    display_name: "IMF – Fiscal Monitor (FM)"
+    family: imf_macro
+    authority: "International Monetary Fund (IMF)"
+    official_homepage: "https://data.imf.org"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1"
+    access_method: "IMF DataMapper JSON API v1, curated indicators"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
+    license_status: OK
+    usage_restriction: "Private, noncommercial statistical research only; no commercial downstream use without IMF clearance; NO LLM training"
+    commercial_use_status_if_known: "Contact copyright@imf.org for permission"
+    attribution: "Source: International Monetary Fund, Fiscal Monitor (FM), https://data.imf.org; research transformations disclosed"
+    frequency: annual
+    expected_update_cadence: "P6M"
+    max_staleness_days: 750
+    min_refetch_days: 25
+    max_fetch_seconds: 160
+    max_new_normalized_bytes_per_run: 2500000
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    research_only: true
+    production_promotion_allowed: false
+    dataflow: "FM"
+    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
+
+  - source_id: imf_climate
+    display_name: "IMF – Macroeconomic Climate Indicators (CCI)"
+    family: imf_macro
+    authority: "International Monetary Fund (IMF)"
+    official_homepage: "https://data.imf.org"
+    machine_endpoint: "https://api.imf.org/external/sdmx/2.1/data/CCI"
+    access_method: "IMF SDMX-ML 2.1, DSD-verified bounded series"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
+    license_status: OK
+    usage_restriction: "Private, noncommercial statistical research only; no commercial downstream use without IMF clearance; NO LLM training"
+    commercial_use_status_if_known: "Contact copyright@imf.org for permission"
+    attribution: "Source: International Monetary Fund, Macroeconomic Climate Indicators (CCI), https://data.imf.org; research transformations disclosed"
+    frequency: annual
+    expected_update_cadence: "P1Y"
+    max_staleness_days: 1150
+    min_refetch_days: 45
+    max_fetch_seconds: 160
+    max_new_normalized_bytes_per_run: 2500000
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    research_only: true
+    production_promotion_allowed: false
+    dataflow: "CCI"
+    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
+
+  - source_id: imf_fas
+    display_name: "IMF – Financial Access Survey (FAS)"
+    family: imf_macro
+    authority: "International Monetary Fund (IMF)"
+    official_homepage: "https://data.imf.org"
+    machine_endpoint: "https://api.imf.org/external/sdmx/2.1/data/FAS"
+    access_method: "IMF SDMX-ML 2.1, DSD-verified bounded series"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
+    license_status: OK
+    usage_restriction: "Private, noncommercial statistical research only; no commercial downstream use without IMF clearance; NO LLM training"
+    commercial_use_status_if_known: "Contact copyright@imf.org for permission"
+    attribution: "Source: International Monetary Fund, Financial Access Survey (FAS), https://data.imf.org; research transformations disclosed"
+    frequency: annual
+    expected_update_cadence: "P1Y"
+    max_staleness_days: 1150
+    min_refetch_days: 45
+    max_fetch_seconds: 160
+    max_new_normalized_bytes_per_run: 2500000
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    research_only: true
+    production_promotion_allowed: false
+    dataflow: "FAS"
+    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
+
+  - source_id: imf_aipi
+    display_name: "IMF – AI Preparedness Index (AIPI)"
+    family: imf_macro
+    authority: "International Monetary Fund (IMF)"
+    official_homepage: "https://data.imf.org"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1"
+    access_method: "IMF DataMapper JSON API v1, curated indicators"
+    requires_auth: false
+    auth_env_variable: ""
+    license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
+    license_status: OK
+    usage_restriction: "Private, noncommercial statistical research only; no commercial downstream use without IMF clearance; NO LLM training"
+    commercial_use_status_if_known: "Contact copyright@imf.org for permission"
+    attribution: "Source: International Monetary Fund, AI Preparedness Index (AIPI), https://data.imf.org; research transformations disclosed"
+    frequency: annual
+    expected_update_cadence: "P1Y"
+    max_staleness_days: 2200
+    min_refetch_days: 90
+    max_fetch_seconds: 160
+    max_new_normalized_bytes_per_run: 2500000
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: low
+    research_only: true
+    production_promotion_allowed: false
+    dataflow: "AIPI"
+    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
