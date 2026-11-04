@@ -86,7 +86,8 @@ def parse_indicator(result, code: str, dataset: str, cfg: dict,
             if not math.isfinite(n):
                 raise IMFDataMapperError("NON_FINITE_VALUE")
             valid = datetime(year, 1, 1, tzinfo=timezone.utc)
-            is_future_projection = (dataset == "WEO" and year > retrieved.year)
+            issue_year = int(cfg.get("_projection_years", {}).get(code, retrieved.year + 1))
+            is_future_projection = (dataset == "WEO" and year >= issue_year)
             obs.append(Observation(
                 source_id=cfg["source_id"], dataset=dataset, series_id=f"{dataset}:{code}",
                 entity_id=country, metric=f"imf_{dataset.lower()}_{code.lower()}",
@@ -133,7 +134,17 @@ class _IMFDataMapperConnector(Connector):
                 if not m.get("label") or not m.get("unit"):
                     raise IMFDataMapperError(f"CATALOG_UNIT_OR_LABEL_MISSING:{code}")
                 units[code] = str(m["unit"])
-            cfg = {**self.cfg, "source_id": sid, "_validated_units": units}
+            # WEO v2 labels the first forecast/projection period explicitly.
+            # The edition, not the current calendar year, defines forecasts.
+            projection_years = {}
+            if self.DATASET == "WEO":
+                for code in self.INDICATORS:
+                    v = metadata[code].get("projection-year")
+                    if not isinstance(v, int) or isinstance(v, bool) or not (2000 <= v <= now.year + 3):
+                        raise IMFDataMapperError(f"WEO_PROJECTION_YEAR_MISSING:{code}")
+                    projection_years[code] = v
+            cfg = {**self.cfg, "source_id": sid, "_validated_units": units,
+                   "_projection_years": projection_years}
             for code in self.INDICATORS:
                 result = self._fetch(f"{BASE}/{code}", timeout=40, retries=2)
                 raw.append(_raw(sid, self.DATASET, result))
