@@ -23,7 +23,7 @@ Scope: surgical remediation for five previously identified P0/P1 defects. No liv
 - Paper decisions remain paper. Validated end-of-horizon outcomes, an immutable ex-ante signal link, and economic performance must still be established prospectively; no P&L claims from currently pending exits.
 
 ## P1 — GitHub Actions truthfulness
-- `modules.ops_workflows` now adds a `recent_outcomes` breakdown for core workflows:
+- `modules.ops_workflows` now adds a `recent_outcomes` breakdown for core workflows, including the actual CI stage-balance lines from ML/feedback logs because GitHub marks `continue-on-error` stages green:
   - `SKIPPED_SCAN` for green guard-only runs with skipped scan job
   - `DEGRADED_STEP_FAILURE` for any failed step hidden inside an otherwise successful workflow/job
   - `TECHNICALLY_SUCCESSFUL` for actual successful steps (but NOT a trade/quote/alpha guarantee)
