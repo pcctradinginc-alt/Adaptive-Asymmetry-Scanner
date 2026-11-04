@@ -667,12 +667,24 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
         st_ = w.get("scanner_start") or {}
         fr = [[f.get("workflow"), f.get("created_at"), f.get("conclusion"), ", ".join(f.get("failed_steps") or []) or NA,
                " / ".join(f.get("error_lines") or []) or NA] for f in w.get("failed") or []]
+        # PR #157 / Review 2026-11-04: GitHub-"success" verdeckt übersprungene Scan-Jobs und continue-on-error-
+        # Ausfälle. Der jüngste Lauf je Kern-Workflow wird deshalb mit effektivem Status gezeigt, sobald er nicht
+        # TECHNICALLY_SUCCESSFUL ist (sonst stünde hier nur "Keine fehlgeschlagenen Läufe").
+        ro = [o for o in (w.get("recent_outcomes") or []) if o.get("effective_status") != "TECHNICALLY_SUCCESSFUL"]
+        ro_rows = [[o.get("workflow"), o.get("effective_status"), o.get("conclusion"),
+                    ", ".join("/".join(str(x) for x in s) if isinstance(s, (list, tuple)) else str(s)
+                              for s in (o.get("failed_steps") or [])) or NA,
+                    ", ".join(o.get("skipped_jobs") or []) or NA] for o in ro]
         return [("kv", [("Zeitraum", f"seit {_f(w.get('since'))} ({_f(w.get('window_hours'))} h)"),
                         ("Läufe / fehlgeschlagen", f"{_f(w.get('runs_total'))} / {len(w.get('failed') or [])}"),
                         ("Scanner-Start heute (New York)", f"{_f(st_.get('started_et'))}"
                          + (" – SPÄT" if st_.get("late") else ""))])] + \
             ([("table", ["Workflow", "erstellt", "Ergebnis", "fehlgeschlagene Schritte", "letzte Fehlerzeilen"], fr)]
-             if fr else [("p", "Keine fehlgeschlagenen Läufe.")])
+             if fr else [("p", "Keine fehlgeschlagenen Läufe.")]) + \
+            ([("p", ("Grün, aber nicht vollständig ausgeführt (jüngster Lauf je Kern-Workflow; technischer Status, "
+                     "kein Nachweis von Trades, Quotes oder Alpha):")),
+              ("table", ["Workflow", "effektiver Status", "GitHub-Ergebnis", "ausgefallene Stufen",
+                         "übersprungene Jobs"], ro_rows)] if ro_rows else [])
 
     builders = {"run": run_blocks, "quote_coverage": quote_blocks, "lifecycle": lifecycle_blocks,
                 "forward": forward_blocks, "training": training_blocks, "promotion": promotion_blocks,

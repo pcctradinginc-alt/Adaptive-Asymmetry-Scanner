@@ -66,6 +66,113 @@ def _get(session, url: str, params: dict | None = None):
     return resp
 
 
+# Recent green Actions runs are not evidence of execution: the scanner may have
+# skipped its scan job, and optional research stages may have failed. Keep these
+# outcomes separate from the existing hard-failure digest.
+OUTCOME_WORKFLOWS = frozenset({
+    ".github/workflows/scanner.yml", ".github/workflows/ml_research.yml",
+    ".github/workflows/options_capture.yml", ".github/workflows/source_health.yml",
+    ".github/workflows/feedback.yml", ".github/workflows/improvement_notify.yml",
+})
+MAX_RECENT_OUTCOMES = 6
+
+
+def summarize_run_outcome(run: dict, jobs: list[dict]) -> dict:
+    """Technical run status only; never asserts that trades, labels or quotes exist."""
+    conclusion = str(run.get("conclusion") or "unknown")
+    step_failures = [(j.get("name"), st.get("name")) for j in jobs
+                     for st in (j.get("steps") or []) if st.get("conclusion") in FAILED]
+    skipped_jobs = [str(j.get("name")) for j in jobs if j.get("conclusion") == "skipped"]
+    if conclusion in FAILED:
+        status = "FAILED"
+    elif conclusion == "cancelled":
+        status = "CANCELLED"
+    elif not jobs:
+        status = "UNVERIFIED"
+    elif run.get("path") == SCANNER_FILE and any(j.get("name") == SCAN_JOB and
+                                                 j.get("conclusion") == "skipped" for j in jobs):
+        status = "SKIPPED_SCAN"
+    elif step_failures:
+        status = "DEGRADED_STEP_FAILURE"
+    elif all(j.get("conclusion") == "skipped" for j in jobs):
+        status = "SKIPPED_ALL_JOBS"
+    elif conclusion == "success":
+        status = "TECHNICALLY_SUCCESSFUL"
+    else:
+        status = "UNVERIFIED"
+    return {"workflow": run.get("name"), "run_id": run.get("id"), "url": run.get("html_url"),
+            "conclusion": conclusion, "effective_status": status,
+            "skipped_jobs": skipped_jobs, "failed_steps": step_failures,
+            "business_evidence": "NOT_EVALUATED"}
+
+
+def _repo_from_jobs_url(url: str | None) -> str:
+    """The REST job-list URL is emitted by GitHub; avoid guessing repository identity."""
+    m = re.search(r"/repos/([^/]+/[^/]+)/actions/runs/\d+/jobs(?:[?].*)?$", url or "")
+    if not m:
+        raise ValueError("No GitHub repository in jobs_url")
+    return m.group(1)
+
+
+STAGE_LEDGER_PATHS = frozenset({".github/workflows/ml_research.yml", ".github/workflows/feedback.yml"})
+
+
+def stage_failure_names(job_log: str) -> list[str]:
+    """Extract machine-reported failures from the CI stage-balance, not generic log errors.
+
+    GitHub marks `continue-on-error` steps as successful in the job API, although the
+    stage-balance contains `commodity_evaluate=failure` or a matching warning.
+    Only the authoritative CRITICAL/DEGRADED balance is interpreted as a failure.
+    """
+    failed = set()
+    for line in (job_log or "").splitlines():
+        if "  CRITICAL:" in line or "  DEGRADED:" in line:
+            failed.update(re.findall(r"\b([a-z][a-z0-9_]+)=failure\b", line))
+        if "##[warning]Stufe '" in line and "' ausgefallen" in line:
+            m = re.search(r"Stufe '([^']+)' ausgefallen", line)
+            if m:
+                failed.add(m.group(1))
+    return sorted(failed)
+
+
+def recent_run_outcomes(session, runs: list[dict]) -> list[dict]:
+    """One recent run per core workflow; individual job API failures do not mask other runs."""
+    latest = {}
+    for r in sorted(runs, key=lambda x: str(x.get("created_at") or ""), reverse=True):
+        path = r.get("path")
+        if path in OUTCOME_WORKFLOWS and path not in latest:
+            latest[path] = r
+        if len(latest) >= MAX_RECENT_OUTCOMES:
+            break
+    out = []
+    for r in latest.values():
+        try:
+            jobs = (_get(session, r["jobs_url"]).json().get("jobs") or []) if r.get("jobs_url") else []
+            record = summarize_run_outcome(r, jobs)
+            # These jobs run `continue-on-error` stages: REST reports "success"
+            # even when `ci_stage_check.sh` identified a failed substage.
+            if r.get("path") in STAGE_LEDGER_PATHS and record["effective_status"] == "TECHNICALLY_SUCCESSFUL":
+                try:
+                    primary = next(j for j in jobs if j.get("name") in {"ml", "feedback"})
+                    report = _get(session, f"{API}/repos/{_repo_from_jobs_url(r.get('jobs_url'))}/actions/jobs/{primary['id']}/logs").text
+                    failures = stage_failure_names(report)
+                    if failures:
+                        record["effective_status"] = "DEGRADED_STEP_FAILURE"
+                        record["failed_steps"] += [(primary["name"], name) for name in failures]
+                    record["stage_balance"] = "FAILURE" if failures else "NO_FAILURE_REPORTED"
+                except Exception as exc:  # noqa: BLE001
+                    record["effective_status"] = "UNVERIFIED"
+                    record["stage_balance"] = "UNAVAILABLE"
+                    record["stage_error"] = type(exc).__name__
+            out.append(record)
+        except Exception as exc:  # noqa: BLE001 - missing job metadata must be visible, not silently green
+            out.append({"workflow": r.get("name"), "run_id": r.get("id"),
+                        "url": r.get("html_url"), "conclusion": r.get("conclusion"),
+                        "effective_status": "UNVERIFIED", "error": type(exc).__name__,
+                        "business_evidence": "NOT_EVALUATED"})
+    return out
+
+
 def collect(now: datetime | None = None, env: dict | None = None, session=None) -> dict:
     """-> {status, window_hours, runs_total, failed[...], failed_by_workflow{}, scanner_start{...}}; wirft nie."""
     now = now or datetime.now(timezone.utc)
@@ -110,7 +217,8 @@ def collect(now: datetime | None = None, env: dict | None = None, session=None) 
                            "error_lines": lines[-MAX_LINES:]})
         return {"status": "OK", "window_hours": hours, "since": since, "runs_total": len(runs), "failed": failed,
                 "failed_by_workflow": dict(Counter(f["workflow"] for f in failed)),
-                "scanner_start": _scanner_start(session, runs, now)}
+                "scanner_start": _scanner_start(session, runs, now),
+                "recent_outcomes": recent_run_outcomes(session, runs)}
     except Exception as e:  # noqa: BLE001 – Monitoring darf nie scheitern
         return {"status": "UNAVAILABLE", "reason": f"GitHub-API: {type(e).__name__}: {str(e)[:160]}"}
 

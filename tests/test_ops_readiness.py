@@ -244,7 +244,14 @@ def test_capture_workflow_is_isolated_and_append_only():
     runs = " ".join(s.get("run", "") for s in _steps("options_capture.yml"))
     assert "rth_marks.py --capture-only" in runs and "pipeline.py" not in runs and "feedback.py" not in runs
     pushes = [s["run"] for s in _steps("options_capture.yml") if "ci_push.sh" in s.get("run", "")]
-    assert len(pushes) == 1 and pushes[0].rstrip().endswith("outputs/options_archive/")
+    # Capture also persists the paper-only alpha-link journal and derived coverage.
+    # It must never write production history, candidate ledgers, model outputs or config.
+    assert len(pushes) == 1
+    assert ("outputs/options_archive/ outputs/research/autonomous_alpha/option_link/ "
+            "outputs/research/autonomous_alpha/option_link.json") in pushes[0]
+    assert not any(path in pushes[0] for path in (
+        "outputs/history.json", "outputs/candidate_ledger/",
+        "outputs/models/", "outputs/state/", "config/"))
 
 
 @pytest.mark.parametrize("path", ["outputs/options_archive/quotes/2026-10-12.jsonl",

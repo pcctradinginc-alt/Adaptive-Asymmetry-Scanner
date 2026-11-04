@@ -33,6 +33,7 @@ from __future__ import annotations
 from collections import defaultdict
 import difflib
 import json
+import logging
 import os
 import re
 from dataclasses import dataclass
@@ -57,6 +58,7 @@ from modules.external.sources.base import (
 )
 
 FetchFn = Callable[..., Any]
+log = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------
 # Konstanten / Konfiguration
@@ -1066,9 +1068,58 @@ class _PortWatchConnectorBase(Connector):
         self._cache_path = cache_path
         self._universe_path = port_universe_path
 
-    def _discover(self) -> dict:
+    def _discover(self, *, force_refresh: bool = False) -> dict:
         override = (self.cfg or {}).get("machine_endpoint_override")
-        return discover_endpoints(http_fetch=self._fetch, cache_path=self._cache_path, config_override=override)
+        return discover_endpoints(http_fetch=self._fetch, cache_path=self._cache_path,
+                                  config_override=override, force_refresh=force_refresh)
+
+    def _refresh_if_moved(self, key: str, prior: dict | None, error: Exception) -> bool:
+        """Refresh a potentially retired ArcGIS endpoint once, but never fabricate a healthy result.
+
+        A stale discovery cache is not evidence that an IMF service still exists. Only retry
+        if verified ArcGIS item discovery resolves to a DIFFERENT layer URL or ID. A failed
+        refresh or unchanged endpoint retains the original error and the downstream safe mode.
+        """
+        if not prior:
+            return False
+        message = str(error).lower()
+        if "invalid url" not in message and "layer-metadaten ohne 'fields'" not in message:
+            return False
+        # Provenienz (Review 2026-11-04): Die Daily-Layer werden OHNE Owner-Einschränkung gesucht und bei
+        # Mehrdeutigkeit gewinnt der zuletzt geänderte Treffer. Gerade wenn der IMF-Layer ausfällt, kann die
+        # Suche eine fremde Kopie liefern. Ein Ersatz zählt nur beim bisher verifizierten Herausgeber
+        # (owner/orgId aus dem Cache). Andernfalls wird der Cache unverändert wiederhergestellt, weil
+        # discover_endpoints ihn sonst für alle Folge-Läufe mit dem fremden Endpoint überschreiben würde.
+        prior_owner, prior_org = prior.get("owner"), prior.get("orgId")
+        try:
+            with open(self._cache_path, "rb") as fh:
+                cache_before = fh.read()
+        except OSError:
+            cache_before = None
+        try:
+            fresh = self._discover(force_refresh=True).get(key) or {}
+        except (DiscoveryError, FetchError, SchemaError, ValueError, KeyError) as exc:
+            log.warning("PortWatch %s: endpoint rediscovery failed (%s); keeping original failure",
+                        key, type(exc).__name__)
+            return False
+        old_id = (str(prior.get("service_url", "")).rstrip("/"), prior.get("layer_id"))
+        new_id = (str(fresh.get("service_url", "")).rstrip("/"), fresh.get("layer_id"))
+        if not fresh.get("service_url") or old_id == new_id:
+            log.warning("PortWatch %s: rediscovery returned same endpoint; source remains unhealthy", key)
+            return False
+        same_publisher = bool(prior_owner or prior_org) and (
+            (not prior_owner or fresh.get("owner") == prior_owner)
+            and (not prior_org or fresh.get("orgId") == prior_org))
+        if not same_publisher:
+            if cache_before is not None:
+                with open(self._cache_path, "wb") as fh:
+                    fh.write(cache_before)
+            log.warning("PortWatch %s: rediscovered endpoint not from verified publisher "
+                        "(owner %r/%r -> %r/%r); cache restored, source remains unhealthy",
+                        key, prior_owner, prior_org, fresh.get("owner"), fresh.get("orgId"))
+            return False
+        log.warning("PortWatch %s: ArcGIS endpoint changed; retrying once with new discovered layer", key)
+        return True
 
     def _raw_record(self, url: str, where: str, retrieved_at: datetime) -> RawRecord:
         return RawRecord(
@@ -1084,7 +1135,8 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
     dataset = "daily_ports"
     parser_version = "1"
 
-    def fetch(self, now: datetime, backfill: bool = False) -> ConnectorResult:
+    def fetch(self, now: datetime, backfill: bool = False, *, _refreshed: bool = False) -> ConnectorResult:
+        ep = None
         try:
             endpoints = self._discover()
             ep = endpoints["ports_daily"]
@@ -1234,11 +1286,15 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 },
             )
         except SchemaError as e:
+            if not _refreshed and self._refresh_if_moved("ports_daily", ep, e):
+                return self.fetch(now, backfill=backfill, _refreshed=True)
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
                                     message=str(e), discovered_ids={"diagnostics": e.diagnostics})
         except DiscoveryError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, message=str(e))
         except FetchError as e:
+            if not _refreshed and self._refresh_if_moved("ports_daily", ep, e):
+                return self.fetch(now, backfill=backfill, _refreshed=True)
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, message=str(e))
 
 
@@ -1247,7 +1303,8 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
     dataset = "daily_chokepoints"
     parser_version = "1"
 
-    def fetch(self, now: datetime, backfill: bool = False) -> ConnectorResult:
+    def fetch(self, now: datetime, backfill: bool = False, *, _refreshed: bool = False) -> ConnectorResult:
+        ep = None
         try:
             endpoints = self._discover()
             ep = endpoints["chokepoints_daily"]
@@ -1330,11 +1387,15 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                 },
             )
         except SchemaError as e:
+            if not _refreshed and self._refresh_if_moved("chokepoints_daily", ep, e):
+                return self.fetch(now, backfill=backfill, _refreshed=True)
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.SCHEMA_CHANGED,
                                     message=str(e), discovered_ids={"diagnostics": e.diagnostics})
         except DiscoveryError as e:
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, message=str(e))
         except FetchError as e:
+            if not _refreshed and self._refresh_if_moved("chokepoints_daily", ep, e):
+                return self.fetch(now, backfill=backfill, _refreshed=True)
             return ConnectorResult(source_id=self.source_id, status=SourceStatus.FAIL, message=str(e))
 
 

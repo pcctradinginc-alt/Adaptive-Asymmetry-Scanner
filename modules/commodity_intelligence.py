@@ -861,8 +861,6 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
 
 
 # ── Inkrementeller Wert: BASE vs. BASE+COMMODITY (Research, keine Produktionswirkung) ──
@@ -1150,3 +1148,7 @@ def decision_features(ticker: str | None, snap: dict | None, ticker_known: bool 
     out["commodity_data_version"] = (snap or {}).get("commodity_data_version")
     out["commodity_mapping_version"] = mapping_status().get("version") if snap else None
     return out
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
