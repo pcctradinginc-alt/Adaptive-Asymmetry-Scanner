@@ -115,13 +115,16 @@ def test_capture_refreshes_alpha_coverage_after_decisions(monkeypatch, tmp_path)
     monkeypatch.setattr(rls, "due_capture_targets", lambda **kw: {})
     monkeypatch.setattr(al, "decide", lambda **kw: calls.append("decide") or
                         {"status": "OK", "n_new_decisions": 2})
+    monkeypatch.setattr(al, "settle", lambda **kw: calls.append("settle") or
+                        {"status": "OK", "n_new_outcomes": 0})
     monkeypatch.setattr(al, "coverage", lambda **kw: calls.append("coverage") or
                         {"status": "NEED_MORE_DATA", "n_decisions": 2})
     monkeypatch.setattr(al, "due_capture_targets", lambda **kw: {})
     monkeypatch.setattr(rth_marks, "_satisfied", lambda *args, **kw: set())
     res = rth_marks.run(NOW, tmp_path / "no-history.json", capture_only=True)
     assert res["window"] == "IN_WINDOW"
-    assert calls == ["decide", "coverage"]
+    assert calls == ["decide", "settle", "coverage"]
+    assert res["alpha_link_settlement"]["n_new_outcomes"] == 0
     assert res["alpha_link_coverage"]["n_decisions"] == 2
     assert res["capture_status"] == "NO_TARGETS"
 
