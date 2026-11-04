@@ -1463,7 +1463,14 @@ def test_options_capture_eigene_concurrency_gruppe_und_nur_archiv_push():
     assert doc["concurrency"]["cancel-in-progress"] is False
     schritte = _alle_schritte(doc)
     pushes = [s for s in schritte if "ci_push.sh" in s.get("run", "")]
-    assert len(pushes) == 1 and _push_pfade(pushes[0]) == ["outputs/options_archive/"]
+    assert len(pushes) == 1
+    # Capture may also persist research-only linked option outcomes and coverage.
+    # Never stage production state, history, candidate ledger or models.
+    assert _push_pfade(pushes[0]) == [
+        "outputs/options_archive/",
+        "outputs/research/autonomous_alpha/option_link/",
+        "outputs/research/autonomous_alpha/option_link.json",
+    ]
     assert doc["permissions"] == {"contents": "write"}
 
 
