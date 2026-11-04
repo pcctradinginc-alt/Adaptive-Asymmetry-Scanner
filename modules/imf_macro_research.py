@@ -49,7 +49,8 @@ def summarize(now: datetime | None = None, *, registry=None, archive=None) -> di
             continue
         valid = [o for o in observations if o.value is not None and
                  isinstance(o.value, (float, int)) and math.isfinite(o.value)
-                 and o.available_at <= now and o.retrieved_at <= now]
+                 and o.available_at <= now and o.retrieved_at <= now
+                 and getattr(o, "quality_status", "") == "OK"]
         statuses = (h.get("status"), h.get("staleness"))
         countries = sorted({x.entity_id for x in valid})
         ready = (h.get("status") in ("PASS", "WARN")
@@ -64,19 +65,28 @@ def summarize(now: datetime | None = None, *, registry=None, archive=None) -> di
         candidates = []
         if ready:
             for (metric, country, series), rows in sorted(by_series.items()):
-                rows.sort(key=lambda o: o.observation_time)
+                rows.sort(key=lambda o: (o.observation_time, o.available_at))
                 last = rows[-1]
-                if last.value is None:
-                    continue
                 feature = {"source_id": sid, "metric": metric, "country": country,
                            "series_id": series, "as_of": now.isoformat(),
                            "observation_time": last.observation_time.isoformat(),
                            "available_at": last.available_at.isoformat(),
                            "value": last.value, "unit": last.unit,
                            "not_historical_pit_backfill": True}
-                if len(rows) >= 2 and rows[-2].observation_time < last.observation_time:
-                    feature["previous_period_delta"] = last.value - rows[-2].value
-                    feature["previous_period"] = rows[-2].observation_time.isoformat()
+                prev_period = [o for o in rows if o.observation_time < last.observation_time]
+                if prev_period:
+                    p = max(prev_period, key=lambda o: (o.observation_time, o.available_at))
+                    feature["previous_period_delta"] = last.value - p.value
+                    feature["previous_period"] = p.observation_time.isoformat()
+                # A forecast revision compares the *same* forecast target year
+                # across distinct first-seen vintages; NEVER call it a period
+                # change. Only later prospective retrievals can establish one.
+                older_version = [o for o in rows if o.observation_time == last.observation_time
+                                 and o.available_at < last.available_at]
+                if sid == "imf_weo" and older_version:
+                    prior = max(older_version, key=lambda o: o.available_at)
+                    feature["as_observed_forecast_revision"] = last.value - prior.value
+                    feature["previous_vintage_available_at"] = prior.available_at.isoformat()
                 if len(candidates) < MAX_CANDIDATES:
                     candidates.append(feature)
         result["sources"][sid] = {
