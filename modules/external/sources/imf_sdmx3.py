@@ -16,10 +16,12 @@ references=all, and bounded data queries from a GitHub-hosted runner):
 
 PIT contract: the "current" dataflow is stamped available_at = retrieval time
 (conservative, prospective only). Official IMF *vintage* dataflows
-(e.g. WEO_2025_OCT_VINTAGE) are frozen editions; they are stamped with the
-first day of the month after the edition month (always later than the real
-publication date), which gives genuine, conservative historical vintages for
-revision research without reconstructing anything.
+(e.g. WEO_2025_OCT_VINTAGE) are frozen editions. They are released as
+historical data ONLY with an availability date backed by official registry
+metadata: max(edition date annotation, lastUpdatedAt annotation), rounded up
+to the next UTC midnight. Without that metadata the vintage is not ingested at
+all (reported in discovered_ids). The edition month in the flow name is never
+used as an availability date.
 
 Research only: no model input, no scoring, no production promotion.
 """
@@ -28,7 +30,7 @@ from __future__ import annotations
 import math
 import re
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from modules.external import http
 from modules.external.pit import AvailabilityPrecision, Observation
@@ -42,7 +44,7 @@ MAX_CATALOG_BYTES = 4_000_000
 MAX_SERIES = 250
 MAX_OBSERVATIONS = 6_000
 MAX_VINTAGES = 4
-PARSER_VERSION = "imf_sdmx3_json2_v2"
+PARSER_VERSION = "imf_sdmx3_json2_v3"
 
 MAJOR = ("USA", "DEU", "JPN", "GBR", "FRA", "CHN")
 _MONTHS = {m: i for i, m in enumerate(
@@ -187,17 +189,49 @@ def parse_period(value) -> datetime:
     raise SDMX3Error(f"UNSUPPORTED_TIME_PERIOD:{raw[:20]}")
 
 
-def vintage_available_at(flow_id: str, prefix: str) -> datetime | None:
-    """WEO_2025_OCT_VINTAGE -> 2025-11-01T00:00Z (conservative: after the edition month)."""
+def vintage_month(flow_id: str, prefix: str) -> tuple[int, int] | None:
+    """WEO_2025_OCT_VINTAGE -> (2025, 10). Name pattern only; NOT an availability date."""
     m = re.fullmatch(rf"{re.escape(prefix)}_(\d{{4}})_([A-Z]+)_VINTAGE", flow_id)
     if not m or m[2][:3] not in _MONTHS:
         return None
-    year, month = int(m[1]), _MONTHS[m[2][:3]]
-    return datetime(year + (month == 12), month % 12 + 1, 1, tzinfo=timezone.utc)
+    return int(m[1]), _MONTHS[m[2][:3]]
+
+
+def _parse_utc(text: str | None) -> datetime | None:
+    if not text:
+        return None
+    try:
+        d = datetime.fromisoformat(text.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return d.astimezone(timezone.utc) if d.tzinfo else None
+
+
+def _next_midnight(d: datetime) -> datetime:
+    return datetime(d.year, d.month, d.day, tzinfo=timezone.utc) + timedelta(days=1)
+
+
+def verified_vintage_availability(edition_date: datetime | None,
+                                  last_updated: datetime | None) -> datetime | None:
+    """Earliest time the vintage's CURRENT content is provably public.
+
+    The IMF registry annotates each vintage dataflow with its edition date
+    (VINTAGE / REF_PERIOD) and the time the dataflow was last modified
+    (lastUpdatedAt). A frozen edition can still be touched after publication,
+    so the edition date alone does not prove that today's content was public
+    then. Only max(edition date, lastUpdatedAt), rounded up to the next UTC
+    midnight, is backed by official metadata. Without lastUpdatedAt -> None
+    (no historical release; the vintage is treated as first seen at retrieval).
+    """
+    if last_updated is None:
+        return None
+    anchor = max(d for d in (edition_date, last_updated) if d is not None)
+    return _next_midnight(anchor)
 
 
 def parse_data(response, *, source_id: str, spec: dict, dataset: str,
-               available_at: datetime, vintage: str | None = None) -> list[Observation]:
+               available_at: datetime, vintage: str | None = None,
+               availability: dict | None = None) -> list[Observation]:
     data = _json(response)
     if len(data["structures"]) != 1 or len(data["dataSets"]) != 1:
         raise SDMX3Error("UNSUPPORTED_MULTIPLE_STRUCTURES_OR_DATASETS")
@@ -290,7 +324,11 @@ def parse_data(response, *, source_id: str, spec: dict, dataset: str,
                        "indicator": indicator, "dimensions": codes,
                        "transport": "IMF_SDMX3_JSON2", "edition": vintage or "current",
                        "is_projection": projection,
-                       "historical_pit_verified": vintage is not None,
+                       # RETRIEVAL_TIME: first seen by us (prospective, always safe).
+                       # IMF_LAST_UPDATED_AT: historical release backed by official
+                       # registry metadata (see verified_vintage_availability).
+                       **(availability or {"availability_basis": "RETRIEVAL_TIME"}),
+                       "strict_backtest_eligible": True,
                        "research_only": True},
             ))
             if len(obs) > MAX_OBSERVATIONS:
@@ -298,8 +336,18 @@ def parse_data(response, *, source_id: str, spec: dict, dataset: str,
     return obs
 
 
-def discover_vintages(catalog_response, agency: str, prefix: str, now: datetime) -> list[tuple[str, datetime]]:
-    """Official frozen editions of a dataflow from the IMF dataflow catalogue."""
+def _annotations(flow) -> dict[str, str]:
+    out = {}
+    for ann in flow.iter():
+        if ann.tag.rsplit("}", 1)[-1] != "Annotation" or not ann.get("id"):
+            continue
+        parts = {c.tag.rsplit("}", 1)[-1]: (c.text or "").strip() for c in ann}
+        out[ann.get("id")] = parts.get("AnnotationValue") or parts.get("AnnotationTitle") or ""
+    return out
+
+
+def discover_vintages(catalog_response, agency: str, prefix: str, now: datetime) -> list[dict]:
+    """Official frozen editions of a dataflow plus their registry metadata."""
     if not 0 < catalog_response.bytes <= MAX_CATALOG_BYTES:
         raise SDMX3Error("CATALOG_EMPTY_OR_OVERSIZED")
     head = catalog_response.content[:4096].upper()
@@ -313,10 +361,19 @@ def discover_vintages(catalog_response, agency: str, prefix: str, now: datetime)
     for e in root.iter():
         if e.tag.rsplit("}", 1)[-1] != "Dataflow" or e.get("agencyID") != agency:
             continue
-        when = vintage_available_at(e.get("id") or "", prefix)
-        if when is not None and when <= now and when.year >= now.year - 3:
-            found[e.get("id")] = when
-    return sorted(found.items(), key=lambda kv: kv[1])[-MAX_VINTAGES:]
+        ym = vintage_month(e.get("id") or "", prefix)
+        if ym is None or ym[0] < now.year - 3 or ym > (now.year, now.month):
+            continue
+        ann = _annotations(e)
+        m = re.search(r"(\d{4}-\d{2}-\d{2})", ann.get("VINTAGE", "") + " " + ann.get("REF_PERIOD", ""))
+        edition = _parse_utc(m[1] + "T00:00:00+00:00") if m else None
+        last_updated = _parse_utc(ann.get("lastUpdatedAt"))
+        if last_updated is not None and last_updated > now:
+            last_updated = None  # inconsistent metadata is never trusted
+        found[e.get("id")] = {"flow_id": e.get("id"), "month": ym, "edition_date": edition,
+                              "last_updated": last_updated,
+                              "vintage_label": ann.get("VINTAGE", "")[:60]}
+    return sorted(found.values(), key=lambda v: v["month"])[-MAX_VINTAGES:]
 
 
 class IMFSDMX3Connector(Connector):
@@ -353,18 +410,33 @@ class IMFSDMX3Connector(Connector):
             return ConnectorResult(source_id=sid, status=status, raw=raw,
                                    message=f"IMF SDMX3 {spec['flow']}: {type(exc).__name__}: {exc}")
 
-        notes, vintages = [], []
+        notes, vintages, unverified = [], [], []
         if spec.get("vintage_prefix"):
             # Additive only: an unavailable vintage never discards current data.
             try:
                 cat = self._fetch(f"{BASE}/structure/dataflow",
                                   headers={"Accept": STRUCTURE_ACCEPT}, retries=2, timeout=90)
                 raw.append(_record(sid, "dataflow_catalog", cat))
-                for flow_id, when in discover_vintages(cat, spec["agency"], spec["vintage_prefix"], now):
+                for v in discover_vintages(cat, spec["agency"], spec["vintage_prefix"], now):
+                    flow_id = v["flow_id"]
+                    released = verified_vintage_availability(v["edition_date"], v["last_updated"])
+                    if released is None or released > now:
+                        # No metadata-backed release date -> not released for
+                        # history. It is not stamped "now" either: two values for
+                        # the same identity at the same instant would conflict
+                        # with the current edition.
+                        unverified.append(flow_id)
+                        continue
                     vres = self._data(spec, flow_id, now)
                     raw.append(_record(sid, flow_id, vres))
+                    meta = {"availability_basis": "IMF_LAST_UPDATED_AT",
+                            "official_edition_date": v["edition_date"].date().isoformat()
+                            if v["edition_date"] else None,
+                            "imf_last_updated_at": v["last_updated"].isoformat(),
+                            "vintage_label": v["vintage_label"]}
                     vobs = parse_data(vres, source_id=sid, spec=spec, dataset=flow_id,
-                                      available_at=min(when, vres.retrieved_at), vintage=flow_id)
+                                      available_at=min(released, vres.retrieved_at),
+                                      vintage=flow_id, availability=meta)
                     obs.extend(vobs)
                     vintages.append(flow_id)
             except (http.FetchError, SDMX3Error, ValueError, TypeError, KeyError) as exc:
@@ -380,7 +452,9 @@ class IMFSDMX3Connector(Connector):
                      + (f"; {'; '.join(notes)}" if notes else "")),
             discovered_ids={"agency": spec["agency"], "flow": spec["flow"],
                             "key": build_key(spec), "countries": countries,
-                            "vintages": vintages, "research_only": True},
+                            "vintages": vintages,
+                            "vintages_without_verified_release": unverified,
+                            "research_only": True},
         )
 
 

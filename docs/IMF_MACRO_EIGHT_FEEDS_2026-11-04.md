@@ -30,10 +30,21 @@ Root causes of the original failures (all eight feeds red):
 
 - **Current editions** are stamped `available_at = retrieved_at` (prospective PIT).
 - **Official IMF vintage dataflows** (frozen editions such as
-  `WEO_2025_OCT_VINTAGE`) are stamped with the first day of the month after
-  the edition month, which is always later than the real publication date.
-  These are genuine historical vintages and give real revision history
-  (`as_observed_revision` / `as_observed_forecast_revision`) from day one.
+  `WEO_2025_OCT_VINTAGE`) are released for history ONLY with an availability
+  date backed by official IMF registry metadata (revised 2026-11-05 after review):
+  `available_at = next UTC midnight after max(VINTAGE edition-date annotation,
+  lastUpdatedAt annotation)`. A frozen edition can be modified after its
+  publication (e.g. WEO Oct-2025: edition 2025-10-14, lastUpdatedAt
+  2026-03-30 -> released for backtests from 2026-03-31). Without lastUpdatedAt
+  the vintage is not ingested. The edition month in the flow name is never
+  used as an availability date. Each row records `availability_basis`,
+  `official_edition_date`, `imf_last_updated_at`.
+- **Strict backtest gate** (`modules/imf_macro_research.strict_backtest_eligible`):
+  vintage rows count only with `availability_basis = IMF_LAST_UPDATED_AT`.
+  Rows from the first ingest on 2026-11-05 (edition-month heuristic, first
+  day of the following month) carry no basis and stay excluded; the archive
+  itself is append-only and unchanged. `status.json` reports
+  `excluded_unverified_vintage_rows` and `verified_historical_vintage_rows`.
 - WEO/FM values for the current and future years are forecasts:
   `forecast_issue_time = available_at`, `forecast_valid_time = period`.
 - Every series key is checked against the requested codes; dimension order
