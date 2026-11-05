@@ -27,6 +27,15 @@ CASES = {
     "CCI-structure": ("/structure/dataflow/IMF.STA/CCI/+", {"references": "all"}),
     "GDD-structure": ("/structure/dataflow/IMF.STA/GDD/+", {"references": "all"}),
     "AIPI-structure": ("/structure/dataflow/IMF.STA/AIPI/+", {"references": "all"}),
+    "WEO-structure-no-ref": ("/structure/dataflow/IMF.RES/WEO/+", {}),
+    "WEO-structure-refs-dsd": ("/structure/dataflow/IMF.RES/WEO/+", {"references": "datastructure"}),
+    "WEO-structure-no-plus": ("/structure/dataflow/IMF.RES/WEO", {"references": "all"}),
+    "WEO-structure-list": ("/structure/dataflow", {}),
+    "FSI-2_1-metadata": ("/structure/dataflow/IMF.STA/FSI/+", {"references": "datastructure"}),
+    "FSI-data-wildcard": ("/data/dataflow/IMF.STA/FSI/+/DE.*._T.Q",
+                 {"startPeriod": "2025", "endPeriod": "2026", "format": "jsondata"}),
+    "MFS-data-guess-safebounded": ("/data/dataflow/IMF.STA/MFS_MA/+/DE.*.M",
+                 {"startPeriod": "2026", "endPeriod": "2026", "format": "jsondata"}),
 }
 
 
@@ -53,10 +62,40 @@ def main():
                         keys = list(root)[:12] if isinstance(root, dict) else []
                     except (ValueError, UnicodeDecodeError):
                         pass
+                info = {}
+                if content[:1] == b"{" and len(content) < 256000:
+                    try:
+                        root = json.loads(content)
+                        if r.status_code >= 400:
+                            info["error_code"] = str(root.get("code", ""))[:50]
+                            info["error_message"] = str(root.get("message", ""))[:170]
+                            info["dev_message"] = str(root.get("devMessage", ""))[:170]
+                        elif r.status_code == 200:
+                            d = root.get("data") or {}
+                            info["data_keys"] = list(d)[:12]
+                            structures = d.get("structures") or []
+                            if isinstance(structures, list) and structures:
+                                st = structures[0]
+                                info["structure_keys"] = list(st)[:15]
+                                dim = st.get("dimensions") or {}
+                                info["dimensions"] = {
+                                    k: [{"id": x.get("id"), "n_codes": len(x.get("values") or []),
+                                         "first_codes": [v.get("id") for v in (x.get("values") or [])[:4]]}
+                                        for x in (vals if isinstance(vals, list) else [])[:10]]
+                                    for k, vals in dim.items()
+                                } if isinstance(dim, dict) else {}
+                            datasets = d.get("dataSets") or []
+                            if isinstance(datasets, list) and datasets:
+                                ds = datasets[0]
+                                info["dataset_keys"] = list(ds)[:15]
+                                info["series_count"] = len(ds.get("series") or {})
+                                info["first_series_key"] = next(iter(ds.get("series") or {}), "")
+                    except (ValueError, TypeError, AttributeError):
+                        info["decode"] = "unsupported response structure"
                 print(json.dumps({"name": name, "http": r.status_code,
                                   "type": r.headers.get("Content-Type", "")[:110],
                                   "content_length": length, "sample_bytes": received,
-                                  "json_top_keys": keys}, sort_keys=True), flush=True)
+                                  "json_top_keys": keys, **info}, sort_keys=True), flush=True)
         except requests.RequestException as exc:
             print(json.dumps({"name": name, "error_type": type(exc).__name__}), flush=True)
     return 0
