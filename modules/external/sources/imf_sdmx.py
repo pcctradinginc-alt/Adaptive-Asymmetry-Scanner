@@ -141,20 +141,54 @@ def _catalog(root: ET.Element, flow: str):
 
 
 def _select(dimensions, lists, flow: str, phrases: tuple[str, ...]):
-    vals = {}
-    selected = {}
+    """Resolve a bounded query exclusively from the publisher's codelists.
+
+    Some IMF datasets call the indicator dimension something other than
+    INDICATOR.  An unfamiliar dimension is accepted as the indicator axis
+    only if exactly one dimension's *official* codelist contains an
+    unambiguous approved label.  No positional or code-name guessing.
+    """
+    indicator_names = {"INDICATOR", "INDICATOR_ID", "SERIES",
+                       "INDICATOR_CODE", "SERIES_ID", "ITEM"}
+    country_names = {"COUNTRY", "REF_AREA", "GEO", "GEOGRAPHY"}
+    freq_names = {"FREQUENCY", "FREQ"}
+
+    def approved(codes):
+        found = []
+        for phrase in phrases:
+            matches = [code for code, label in codes.items()
+                       if phrase.casefold() in label.casefold()]
+            if len(matches) == 1:
+                found.append(matches[0])
+        return list(dict.fromkeys(found))[:3]
+
+    # Identify a nonstandard indicator dimension only from positive,
+    # uniquely attributable metadata evidence.  Multiple candidates
+    # are an ambiguous schema and must fail closed.
+    candidates = [(dim, approved(lists.get(list_id) or {}))
+                  for dim, list_id in dimensions
+                  if dim not in country_names | freq_names]
+    identified = [(dim, matches) for dim, matches in candidates if matches]
+    if len(identified) != 1:
+        raise IMFSDMXError(
+            f"INDICATOR_AXIS_NOT_UNAMBIGUOUS:flow={flow}:"
+            f"candidates={[(d, len(m)) for d, m in identified]!r}"
+        )
+    indicator_dim, indicator_codes = identified[0]
+    vals, selected = {}, {}
     found_country = False
-    found_indicator = False
     unrecognized = 0
     for dim, list_id in dimensions:
         codes = lists.get(list_id) or {}
         if not codes:
-            raise IMFSDMXError(f"MISSING_OFFICIAL_CODELIST:{dim} ref={list_id!r} available={sorted(lists)[:12]!r}")
-        if dim in ("COUNTRY", "REF_AREA", "GEO", "GEOGRAPHY"):
+            raise IMFSDMXError(
+                f"MISSING_OFFICIAL_CODELIST:{dim}:ref={list_id!r}"
+            )
+        if dim in country_names:
             country = []
             for aliases, labels in zip(COUNTRY_CODES, COUNTRY_LABELS):
                 matches = [c for c in aliases if c in codes and any(
-                    lab in codes[c].lower() for lab in labels)]
+                    label in codes[c].casefold() for label in labels)]
                 if matches:
                     country.append(matches[0])
             if len(country) < 2:
@@ -162,30 +196,12 @@ def _select(dimensions, lists, flow: str, phrases: tuple[str, ...]):
             vals[dim] = "+".join(country)
             selected["countries"] = country
             found_country = True
-        elif dim in ("INDICATOR", "INDICATOR_ID", "SERIES", "INDICATOR_CODE", "SERIES_ID", "ITEM"):
-            cand = []
-            for phrase in phrases:
-                matched = sorted([code for code, label in codes.items() if phrase.lower() in label.lower()])
-                if len(matched) == 1:
-                    cand.append(matched[0])
-            cand = list(dict.fromkeys(cand))[:3]
-            if not cand:
-                # Report only bounded, official codelist evidence.  This is a
-                # schema/indicator mapping problem, not an upstream outage.
-                # Never guess a code from a partial text match.
-                sample = sorted((str(code), str(label)[:90])
-                                for code, label in codes.items())[:12]
-                raise IMFSDMXError(
-                    f"NO_UNAMBIGUOUS_APPROVED_INDICATORS:"
-                    f"flow={flow}:dimension={dim}:codelist={list_id}:"
-                    f"total_codes={len(codes)}:sample={sample!r}"
-                )
-            vals[dim] = "+".join(cand)
-            selected["indicator_codes"] = cand
-            selected["indicator_labels"] = {c: codes[c] for c in cand}
+        elif dim == indicator_dim:
+            vals[dim] = "+".join(indicator_codes)
+            selected["indicator_codes"] = indicator_codes
+            selected["indicator_labels"] = {c: codes[c] for c in indicator_codes}
             selected["indicator_dimension"] = dim
-            found_indicator = True
-        elif dim in ("FREQUENCY", "FREQ"):
+        elif dim in freq_names:
             choices = (("Q", "A") if flow == "FSIC" else ("A", "Q", "M"))
             freq = next((f for f in choices if f in codes), None)
             if not freq:
@@ -194,10 +210,8 @@ def _select(dimensions, lists, flow: str, phrases: tuple[str, ...]):
             selected["frequency"] = freq
         else:
             unrecognized += 1
-            # Wildcard on at most two dimensions. This plus two countries,
-            # three indicators and lastNObservations=4 bounds the query.
             vals[dim] = ""
-    if not (found_country and found_indicator) or unrecognized > 2:
+    if not found_country or unrecognized > 2:
         raise IMFSDMXError("UNSUPPORTED_DATAFLOW_DIMENSIONS")
     key = ".".join(vals[d] for d, _ in dimensions)
     return key, selected
