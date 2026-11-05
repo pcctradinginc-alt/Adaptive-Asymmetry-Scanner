@@ -110,6 +110,9 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         source_id = source_cfg["source_id"]
         if families is not None and source_cfg.get("family") not in families:
             continue
+        # Dedicated weekly IMF feeds do not burden the normal daily ingestion.
+        if families is None and source_cfg.get("run_only_by_family"):
+            continue
 
         h = SourceHealth.from_dict(health.get(source_id, {"source_id": source_id}))
         h.source_id = source_id
@@ -360,6 +363,9 @@ def preflight(now: datetime | None = None, families: list[str] | None = None,
     for source_cfg in registry.iter_sources():
         source_id = source_cfg["source_id"]
         if families is not None and source_cfg.get("family") not in families:
+            continue
+        # Dedicated weekly IMF feeds do not burden the normal daily ingestion.
+        if families is None and source_cfg.get("run_only_by_family"):
             continue
         fetchable, reason = gate_source(source_cfg)
         # Lizenz-Review betrifft nur die ARCHIVIERUNG. Ein lesender Live-Check
