@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-04",
+  "as_of": "2026-11-05",
   "decisions_by_class": {
     "ABSTAIN": 17,
     "TRADE": 29
@@ -18,7 +18,7 @@
     "n_real_trades": 4,
     "note": "The trade outcomes are scanner paper trades valued from archived bid/ask quotes, without broker fills: they are never EXECUTED evidence. EXECUTED needs a documented broker execution AND an ex-ante alpha_signal_id (neither exists today; trading path unchanged)."
   },
-  "generated_at": "2026-11-04T20:47:34+00:00",
+  "generated_at": "2026-11-05T17:37:20+00:00",
   "hypotheses": {
     "CONTROL-UNIVERSE-RANDOM": {
       "by_structure": {
