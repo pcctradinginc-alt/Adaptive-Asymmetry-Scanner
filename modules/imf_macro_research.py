@@ -23,6 +23,15 @@ MAX_CANDIDATES = 100
 MAX_SOURCE_OBS = 40_000
 
 
+def strict_backtest_eligible(o) -> bool:
+    attrs = o.attrs or {}
+    if attrs.get("edition", "current") == "current":
+        return True
+    return (attrs.get("strict_backtest_eligible") is True
+            and attrs.get("availability_basis") == "IMF_LAST_UPDATED_AT"
+            and o.available_at <= o.retrieved_at)
+
+
 def summarize(now: datetime | None = None, *, registry=None, archive=None) -> dict:
     now = ensure_utc(now) or utc_now()
     registry = registry or SourceRegistry()
@@ -47,7 +56,13 @@ def summarize(now: datetime | None = None, *, registry=None, archive=None) -> di
             continue
         h = health.get(sid) or {}
         try:
-            history = archive.load(sid)
+            loaded = archive.load(sid)
+            # Strict backtest gate: a historical IMF vintage counts only with an
+            # availability date backed by official registry metadata. Legacy
+            # rows (first ingest 2026-11-05, edition-month heuristic) and any
+            # row without a recorded availability basis are excluded.
+            history = [o for o in loaded if strict_backtest_eligible(o)]
+            excluded = len(loaded) - len(history)
             observations = available_as_of(history, now)
         except (OSError, ValueError) as e:
             result["sources"][sid] = {"ready": False, "status": "ARCHIVE_ERROR",
@@ -118,6 +133,9 @@ def summarize(now: datetime | None = None, *, registry=None, archive=None) -> di
             "latest_observation": max((o.observation_time.isoformat() for o in valid), default=None),
             "last_success": h.get("last_success"),
             "ready": ready, "research_only": True,
+            "excluded_unverified_vintage_rows": excluded,
+            "verified_historical_vintage_rows": sum(
+                1 for o in history if (o.attrs or {}).get("availability_basis") == "IMF_LAST_UPDATED_AT"),
         }
         result["candidate_features"].extend(candidates)
     result["ready_count"] = sum(bool(result["sources"][s].get("ready")) for s in expected)

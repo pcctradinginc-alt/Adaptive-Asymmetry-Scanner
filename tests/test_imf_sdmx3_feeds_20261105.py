@@ -60,15 +60,30 @@ def full_message(sid, times=None, value="1.5"):
     return message(spec, series, times)
 
 
-CATALOG = (b'<?xml version="1.0"?><message:Structure xmlns:message="m" xmlns:s="s"><message:Structures>'
-           b'<s:Dataflows>'
-           b'<s:Dataflow id="WEO" agencyID="IMF.RES" version="9.0.0"/>'
-           b'<s:Dataflow id="WEO_2025_OCT_VINTAGE" agencyID="IMF.RES" version="1.0.0"/>'
-           b'<s:Dataflow id="WEO_2026_APR_VINTAGE" agencyID="IMF.RES" version="1.0.0"/>'
-           b'<s:Dataflow id="WEO_2026_DEC_VINTAGE" agencyID="IMF.RES" version="1.0.0"/>'
-           b'<s:Dataflow id="WEO_2019_APR_VINTAGE" agencyID="IMF.RES" version="1.0.0"/>'
-           b'<s:Dataflow id="WEO_2025_OCT_VINTAGE" agencyID="IMF.OTHER" version="1.0.0"/>'
-           b'</s:Dataflows></message:Structures></message:Structure>')
+def _flow(fid, agency="IMF.RES", vintage=None, updated=None):
+    ann = b""
+    if vintage:
+        ann += (b'<c:Annotation id="VINTAGE"><c:AnnotationTitle>Vintage for ' + vintage.encode()
+                + b'</c:AnnotationTitle></c:Annotation>')
+    if updated:
+        ann += b'<c:Annotation id="lastUpdatedAt"><c:AnnotationValue>' + updated.encode() + b'</c:AnnotationValue></c:Annotation>'
+    return (b'<s:Dataflow id="' + fid.encode() + b'" agencyID="' + agency.encode() + b'" version="1.0.0">'
+            + (b"<c:Annotations>" + ann + b"</c:Annotations>" if ann else b"") + b"</s:Dataflow>")
+
+
+CATALOG = (b'<?xml version="1.0"?><message:Structure xmlns:message="m" xmlns:s="s" xmlns:c="c">'
+           b'<message:Structures><s:Dataflows>'
+           + _flow("WEO", updated="2025-10-08T18:00:33.590181Z")
+           # Edition 2025-10-14, but modified 2026-03-30 -> only provable from 2026-03-31.
+           + _flow("WEO_2025_OCT_VINTAGE", vintage="2025-10-14", updated="2026-03-30T18:36:09.484648Z")
+           # No lastUpdatedAt -> no verifiable release -> first seen at retrieval.
+           + _flow("WEO_2026_APR_VINTAGE", vintage="2026-04-14")
+           # Modified before its edition date -> edition date governs (next midnight).
+           + _flow("WEO_2026_JUL_VINTAGE", vintage="2026-07-20", updated="2026-07-01T10:00:00Z")
+           + _flow("WEO_2026_DEC_VINTAGE", vintage="2026-12-14", updated="2026-10-01T00:00:00Z")
+           + _flow("WEO_2019_APR_VINTAGE", vintage="2019-04-09", updated="2019-04-01T00:00:00Z")
+           + _flow("WEO_2025_OCT_VINTAGE", agency="IMF.OTHER", vintage="2025-10-14", updated="2025-10-01T00:00:00Z")
+           + b'</s:Dataflows></message:Structures></message:Structure>')
 
 
 class Fake:
@@ -124,28 +139,57 @@ def test_unknown_period_format_fails_closed():
         m.parse_period("2026-W12")
 
 
-def test_official_vintages_become_conservative_historical_revisions():
+def test_vintages_released_only_with_official_metadata_backed_date():
     r = m.CONNECTORS["imf_weo"]({}, fetch_fn=Fake("imf_weo")).fetch(NOW)
     assert r.status == SourceStatus.PASS
-    assert r.discovered_ids["vintages"] == ["WEO_2025_OCT_VINTAGE", "WEO_2026_APR_VINTAGE"]
-    by_edition = {o.attrs["edition"]: o.available_at for o in r.observations}
-    assert by_edition["WEO_2025_OCT_VINTAGE"] == datetime(2025, 11, 1, tzinfo=timezone.utc)
-    assert by_edition["WEO_2026_APR_VINTAGE"] == datetime(2026, 5, 1, tzinfo=timezone.utc)
-    # Same target (series/country/period) across editions -> revision history.
-    one = [o for o in r.observations if o.entity_id == "USA" and o.attrs["indicator"] == "LUR"
-           and o.observation_time.year == 2024]
-    assert len({o.identity_key() for o in one}) == 1 and len(one) == 3
-    asof = available_as_of(r.observations, datetime(2026, 1, 15, tzinfo=timezone.utc))
-    assert asof and all(o.attrs["edition"] == "WEO_2025_OCT_VINTAGE" for o in asof)
-    assert not available_as_of(r.observations, datetime(2025, 10, 31, tzinfo=timezone.utc))
+    assert r.discovered_ids["vintages"] == ["WEO_2025_OCT_VINTAGE", "WEO_2026_JUL_VINTAGE"]
+    assert r.discovered_ids["vintages_without_verified_release"] == ["WEO_2026_APR_VINTAGE"]
+    by = {o.attrs["edition"]: o for o in r.observations}
+    oct_ = by["WEO_2025_OCT_VINTAGE"]
+    assert oct_.available_at == datetime(2026, 3, 31, tzinfo=timezone.utc)  # NOT 2025-11-01 / 2025-10-14
+    assert oct_.attrs["availability_basis"] == "IMF_LAST_UPDATED_AT"
+    assert oct_.attrs["official_edition_date"] == "2025-10-14"
+    assert by["WEO_2026_JUL_VINTAGE"].available_at == datetime(2026, 7, 21, tzinfo=timezone.utc)
+    assert "WEO_2026_APR_VINTAGE" not in by  # unverifiable release -> not ingested
+    assert by["current"].attrs["availability_basis"] == "RETRIEVAL_TIME"
+    # Nothing from a vintage is visible before its metadata-backed date.
+    assert not [o for o in available_as_of(r.observations, datetime(2026, 3, 30, 23, tzinfo=timezone.utc))]
+    asof = available_as_of(r.observations, datetime(2026, 5, 1, tzinfo=timezone.utc))
+    assert asof and {o.attrs["edition"] for o in asof} == {"WEO_2025_OCT_VINTAGE"}
     assert all(o.available_at <= o.retrieved_at for o in r.observations)
+    assert all(o.attrs["strict_backtest_eligible"] for o in r.observations)
 
 
-def test_vintage_month_mapping():
-    assert m.vintage_available_at("FM_2025_DEC_VINTAGE", "FM") == datetime(2026, 1, 1, tzinfo=timezone.utc)
-    assert m.vintage_available_at("MFS_MA_2026_JUNE_VINTAGE", "MFS_MA") == datetime(2026, 7, 1, tzinfo=timezone.utc)
-    assert m.vintage_available_at("WEO_FOO_VINTAGE", "WEO") is None
-    assert m.vintage_available_at("WEOX_2025_OCT_VINTAGE", "WEO") is None
+def test_verified_availability_rule():
+    d = lambda *a: datetime(*a, tzinfo=timezone.utc)
+    assert m.verified_vintage_availability(d(2025, 10, 14), d(2026, 3, 30, 18)) == d(2026, 3, 31)
+    assert m.verified_vintage_availability(d(2026, 7, 20), d(2026, 7, 1)) == d(2026, 7, 21)
+    assert m.verified_vintage_availability(None, d(2026, 2, 9, 21)) == d(2026, 2, 10)
+    assert m.verified_vintage_availability(d(2025, 10, 14), None) is None
+    assert m.vintage_month("MFS_MA_2026_JUNE_VINTAGE", "MFS_MA") == (2026, 6)
+    assert m.vintage_month("WEO_FOO_VINTAGE", "WEO") is None
+    assert m.vintage_month("WEOX_2025_OCT_VINTAGE", "WEO") is None
+
+
+def test_future_dated_last_updated_is_not_trusted():
+    cat = CATALOG.replace(b"2026-03-30T18:36:09.484648Z", b"2027-01-01T00:00:00Z")
+    vs = m.discover_vintages(res(cat, ctype=m.STRUCTURE_ACCEPT), "IMF.RES", "WEO", NOW)
+    oct_ = next(v for v in vs if v["flow_id"] == "WEO_2025_OCT_VINTAGE")
+    assert oct_["last_updated"] is None
+
+
+def test_research_gate_excludes_legacy_heuristic_vintage_rows(tmp_path):
+    from modules import imf_macro_research as research
+    r = m.CONNECTORS["imf_weo"]({}, fetch_fn=Fake("imf_weo")).fetch(NOW)
+    legacy = next(o for o in r.observations if o.attrs["edition"] == "WEO_2025_OCT_VINTAGE")
+    import dataclasses
+    old_attrs = {k: v for k, v in legacy.attrs.items()
+                 if k not in ("availability_basis", "strict_backtest_eligible")}
+    old = dataclasses.replace(legacy, attrs=old_attrs, available_at=datetime(2025, 11, 1, tzinfo=timezone.utc))
+    assert not research.strict_backtest_eligible(old)
+    assert research.strict_backtest_eligible(legacy)
+    cur = next(o for o in r.observations if o.attrs["edition"] == "current")
+    assert research.strict_backtest_eligible(dataclasses.replace(cur, attrs={"edition": "current"}))
 
 
 def test_vintage_failure_keeps_current_data_but_warns():
