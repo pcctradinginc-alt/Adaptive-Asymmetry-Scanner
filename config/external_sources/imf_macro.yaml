@@ -1,4 +1,4 @@
-# Eight IMF statistical research sources, deliberately separate from PortWatch.
+# Eight IMF statistical research sources (seven active; AIPI disabled, see notes), deliberately separate from PortWatch.
 # All code paths are prospective PIT snapshots: NO reconstructed historic vintages.
 # Official IMF Data terms: https://www.imf.org/en/about/copyright-and-terms
 # IMF statistical data may be reused with attribution; potential commercial
@@ -11,7 +11,7 @@ sources:
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
     machine_endpoint: "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/FSIC/+"
-    access_method: "IMF SDMX3 JSON2, verified FSIC metadata and bounded NPL"
+    access_method: "IMF SDMX 3.0 JSON 2.0.0, verified agency/flow/DSD order/codes (modules/external/sources/imf_sdmx3.py)"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
@@ -21,7 +21,7 @@ sources:
     attribution: "Source: International Monetary Fund, Financial Soundness Indicators (FSIC), https://data.imf.org; research transformations disclosed"
     frequency: quarterly
     expected_update_cadence: "P3M"
-    max_staleness_days: 220
+    max_staleness_days: 320   # FSIC: national reporting lag up to ~3 quarters
     min_refetch_days: 14
     max_fetch_seconds: 160
     max_new_normalized_bytes_per_run: 2500000
@@ -43,8 +43,8 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://api.imf.org/external/sdmx/3.0"
-    access_method: "IMF SDMX 3.0 JSON2 dataflow-specific, verified response dimensions"
+    machine_endpoint: "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.RES/WEO/+"
+    access_method: "IMF SDMX 3.0 JSON 2.0.0, verified agency/flow/DSD order/codes (modules/external/sources/imf_sdmx3.py)"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
@@ -76,8 +76,8 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://api.imf.org/external/sdmx/2.1/data/MFS_MA"
-    access_method: "IMF SDMX-ML 2.1, DSD-verified bounded series"
+    machine_endpoint: "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/MFS_MA/+"
+    access_method: "IMF SDMX 3.0 JSON 2.0.0, verified agency/flow/DSD order/codes (modules/external/sources/imf_sdmx3.py)"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
@@ -87,7 +87,7 @@ sources:
     attribution: "Source: International Monetary Fund, Monetary and Financial Statistics (MFS Monetary Aggregates), https://data.imf.org; research transformations disclosed"
     frequency: monthly
     expected_update_cadence: "P1M"
-    max_staleness_days: 190
+    max_staleness_days: 300   # MFS_MA: IMF publication lag several months
     min_refetch_days: 14
     max_fetch_seconds: 160
     max_new_normalized_bytes_per_run: 2500000
@@ -101,6 +101,7 @@ sources:
     run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "MFS_MA"
+    agency: "IMF.STA"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
 
   - source_id: imf_gdd
@@ -108,8 +109,8 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://www.imf.org/external/datamapper/api/v2"
-    access_method: "IMF DataMapper JSON API v1, curated indicators"
+    machine_endpoint: "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.FAD/GDD/+"
+    access_method: "IMF SDMX 3.0 JSON 2.0.0, verified agency/flow/DSD order/codes (modules/external/sources/imf_sdmx3.py)"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
@@ -133,6 +134,7 @@ sources:
     run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "GDD"
+    agency: "IMF.FAD"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
 
   - source_id: imf_fiscal_monitor
@@ -140,8 +142,8 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://api.imf.org/external/sdmx/3.0"
-    access_method: "IMF SDMX 3.0 JSON2 dataflow-specific, verified response dimensions"
+    machine_endpoint: "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.FAD/FM/+"
+    access_method: "IMF SDMX 3.0 JSON 2.0.0, verified agency/flow/DSD order/codes (modules/external/sources/imf_sdmx3.py)"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
@@ -173,8 +175,8 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://api.imf.org/external/sdmx/2.1/data/CCI"
-    access_method: "IMF SDMX-ML 2.1, DSD-verified bounded series"
+    machine_endpoint: "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/CCI/+"
+    access_method: "IMF SDMX 3.0 JSON 2.0.0, verified agency/flow/DSD order/codes (modules/external/sources/imf_sdmx3.py)"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
@@ -198,6 +200,7 @@ sources:
     run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "CCI"
+    agency: "IMF.STA"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
 
   - source_id: imf_fas
@@ -205,8 +208,8 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://api.imf.org/external/sdmx/2.1/data/FAS"
-    access_method: "IMF SDMX-ML 2.1, DSD-verified bounded series"
+    machine_endpoint: "https://api.imf.org/external/sdmx/3.0/data/dataflow/IMF.STA/FAS/+"
+    access_method: "IMF SDMX 3.0 JSON 2.0.0, verified agency/flow/DSD order/codes (modules/external/sources/imf_sdmx3.py)"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
@@ -230,6 +233,7 @@ sources:
     run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "FAS"
+    agency: "IMF.STA"
     notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
 
   - source_id: imf_aipi
@@ -237,8 +241,8 @@ sources:
     family: imf_macro
     authority: "International Monetary Fund (IMF)"
     official_homepage: "https://data.imf.org"
-    machine_endpoint: "https://www.imf.org/external/datamapper/api/v2"
-    access_method: "IMF DataMapper JSON API v1, curated indicators"
+    machine_endpoint: "https://www.imf.org/external/datamapper/api/v1/AI_PI"
+    access_method: "IMF DataMapper only (not published on the IMF SDMX 3.0 API)"
     requires_auth: false
     auth_env_variable: ""
     license_reference: "IMF statistical Data usage: https://www.imf.org/en/about/copyright-and-terms"
@@ -256,10 +260,10 @@ sources:
     supports_vintages: false
     supports_release_time: false
     pit_quality: CONSERVATIVE_DATE
-    enabled: true
+    enabled: false
     criticality: low
     research_only: true
     run_only_by_family: true
     production_promotion_allowed: false
     dataflow: "AIPI"
-    notes: "Do not backdate availability to observation_time; official history is NOT point-in-time verified. Treat missing schema or invalid field mapping as SCHEMA_CHANGED."
+    notes: "DISABLED 2026-11-05: AIPI is not a dataflow on api.imf.org SDMX 3.0 (verified against the full IMF dataflow catalogue); the only machine route, the IMF DataMapper, answers 403 Access Denied (Akamai) to GitHub runners on v1/v2. Never bypassed. Re-enable only when IMF publishes AIPI on SDMX or DataMapper admits automated research clients."

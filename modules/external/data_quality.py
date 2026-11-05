@@ -111,7 +111,10 @@ def assess(observations: list, source_cfg: dict | None, now: datetime,
         details["future_example"] = future[0].observation_time.isoformat()
 
     if cfg.get("frequency") in ("monthly", "quarterly", "annual"):
+        # Explicit forecasts (issue/valid time set) are legitimately known
+        # before their period; only *observations* may not precede it.
         early = [o for o in obs if o.available_at is not None
+                 and o.forecast_valid_time is None
                  and ensure_utc(o.available_at) < ensure_utc(o.observation_time)]
         if early:
             issues.append("AVAILABLE_BEFORE_PERIOD")

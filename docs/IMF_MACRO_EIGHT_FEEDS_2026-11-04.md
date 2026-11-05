@@ -1,49 +1,47 @@
-# Eight IMF statistical feeds — research integration, not a production alpha release
+# IMF statistical feeds (7 active, AIPI disabled) — research integration, not a production alpha release
 
-## Coverage and responsibility
+## Coverage and responsibility (revised 2026-11-05)
 
-| source_id | IMF dataset | Machine transport | Selected research questions |
+All active feeds use ONE reader, `modules/external/sources/imf_sdmx3.py`, against
+the official IMF SDMX 3.0 API. Agency, dataflow, DSD dimension order and every
+code were verified live from a GitHub runner on 2026-11-05.
+
+| source_id | IMF dataflow | Key (COUNTRY x ...) | Content |
 |---|---|---|---|
-| imf_fsi | FSIC Financial Soundness Indicators | IMF SDMX 2.1 | Bank capitalization and non-performing loans |
-| imf_weo | World Economic Outlook | IMF DataMapper v2 | Forecast GDP/inflation/unemployment **as retrieved** |
-| imf_mfs | MFS Monetary Aggregates | IMF SDMX 2.1 | Monetary aggregates and credit proxies |
-| imf_gdd | Global Debt Database | IMF DataMapper v2 | Households and corporate/private debt |
-| imf_fiscal_monitor | Fiscal Monitor | IMF DataMapper v2 | Fiscal balance and government gross debt |
-| imf_climate | CCI Climate Change Indicators | IMF SDMX 2.1 | Emissions and fossil-fuel subsidy candidates |
-| imf_fas | Financial Access Survey | IMF SDMX 2.1 | ATM/branch access candidates |
-| imf_aipi | AI Preparedness Index | IMF DataMapper v2 | 2023 structural country readiness; not short-horizon predictive alpha |
+| imf_weo | IMF.RES/WEO (+ official `WEO_*_VINTAGE` editions) | NGDP_RPCH, PCPIPCH, LUR, GGXWDG_NGDP, BCA_NGDPD, A | GDP growth, inflation, unemployment, debt, current account incl. projections |
+| imf_fiscal_monitor | IMF.FAD/FM (+ `FM_*_VINTAGE`) | GNLB/GPB/G63G_S13_POGDP_PT, A | Fiscal balance, primary balance, gross debt |
+| imf_gdd | IMF.FAD/GDD | FL_PS/FL_S14/FL_S11/FL_S13_POGDP_PT, A | Private, household, corporate, government debt |
+| imf_fsi | IMF.STA/FSIC | S12CFSI x AQ12/FSI688/AQ14/ROE_CFSI_PT, Q | NPL ratio, capital ratio, provisioning, ROE of deposit takers |
+| imf_mfs | IMF.STA/MFS_MA (+ `MFS_MA_*_VINTAGE`) | BM_MAI x XDC/USD, M | Broad money (non-euro countries; euro members do not report it nationally) |
+| imf_climate | IMF.STA/CCI | AMGST_dC, NDT_NUM, A | Temperature anomaly, climate-related disasters |
+| imf_fas | IMF.STA/FAS | FA26, FA18, OUTL_A, OUTD_L x PHTADLT_NUM/POGDP, A | Bank branches/ATMs per 100k adults, loans/deposits % GDP |
+| imf_aipi | – | – | **Disabled**: not on SDMX 3.0; DataMapper returns 403 (Akamai) to CI. Never bypassed. |
 
-All eight source IDs are registered in `config/external_sources/imf_macro.yaml`
-and use existing `ConnectorResult`, PIT `Observation`, `ExternalArchive`,
-normalization, source-health, provenance and DQ infrastructure.
+Countries: USA, DEU, JPN, GBR, FRA, CHN (MFS: USA, JPN, GBR, CHN, CAN, AUS, CHE, IND).
 
-Official IMF API documentation:
-https://data.imf.org/en/Resource-Pages/IMF-API
-https://www.imf.org/external/datamapper/api/
+Root causes of the original failures (all eight feeds red):
+- WEO/FM: `Accept: ...json;version=2.0` (missing patch level) -> HTTP 500; `2.0.0` works.
+- FSIC: invented code `NPLR_PT`, ISO-2 country `DE` -> 500. Real: `USA.S12CFSI.AQ12_CFSI_PT.Q`.
+- MFS/CCI/FAS: SDMX 2.1 path with label-guessing found no indicator axis.
+- GDD/AIPI: DataMapper is Akamai-blocked (403) for GitHub runners.
+- `c[TIME_PERIOD]` filters are ignored/empty on this API; startPeriod/endPeriod are used.
 
 ## Strict data handling
 
-- **Do not backfill release timestamps.** Every historical year/quarter
-  retrieved today has `available_at = retrieved_at` and conservative
-  availability precision. WEO future-year projections are stamped with
-  `forecast_issue_time=retrieved_at` and the explicit future valid date.
-  This archive becomes useful for prospective learning; older historical
-  values are **NOT** valid 2015-2025 model inputs.
-- DataMapper indicator metadata must affirm the expected dataset and unit.
-  Missing entire selected indicators, malformed JSON, data without numbers,
-  non-finite values, unexpected country/time schema and oversized returns fail.
-  Only approved ISO3 countries are accepted for observed values.
-- SDMX must be from an IMF publisher, DSD from IMF, with country, indicator and
-  frequency keys discovered from official referenced *codelists*. Indicator
-  matching requires an **unambiguous** official label. No guessed code,
-  auto-mapping to another metric, unspecified unlimited wildcard scan, or
-  ingestion of error HTML/JSON as successful XML.
-- Data scope is tiny and bounded (a handful of countries, two or three
-  matched indicators, max four observations per SDMX series). It is **not**
-  a complete copy of each IMF database or a bulk-download.
-- Unknown official SDMX dataflow schema or absent selected indicator means
-  **SCHEMA_CHANGED**, not a made-up value. Upstream failures are **FAIL**
-  and are visible to the source-health dashboard.
+- **Current editions** are stamped `available_at = retrieved_at` (prospective PIT).
+- **Official IMF vintage dataflows** (frozen editions such as
+  `WEO_2025_OCT_VINTAGE`) are stamped with the first day of the month after
+  the edition month, which is always later than the real publication date.
+  These are genuine historical vintages and give real revision history
+  (`as_observed_revision` / `as_observed_forecast_revision`) from day one.
+- WEO/FM values for the current and future years are forecasts:
+  `forecast_issue_time = available_at`, `forecast_valid_time = period`.
+- Every series key is checked against the requested codes; dimension order
+  must equal the verified DSD; non-numeric/non-finite values, unknown time
+  formats, duplicate identities, HTML or empty bodies -> SCHEMA_CHANGED with
+  zero partial observations. A missing requested indicator -> SCHEMA_CHANGED.
+  HTTP/network errors -> FAIL. Official missing values are skipped, never 0.
+- A failing vintage lookup never discards current data (status WARN).
 - Statistical source rights: <https://www.imf.org/en/about/copyright-and-terms>.
   Credit IMF and indicate transformations. Noncommercial research only
   without additional permission; contact copyright@imf.org about commercial
@@ -53,7 +51,7 @@ https://www.imf.org/external/datamapper/api/
 ## Runtime isolation
 
 The ordinary `external_data.yml` daily job excludes `run_only_by_family`
-sources. This prevents 8 potentially slow IMF SDMX jobs from blocking or
+sources. This prevents the IMF SDMX jobs from blocking or
 starving PortWatch and all other existing feeds.
 
 `.github/workflows/imf_macro.yml` performs:
@@ -65,7 +63,7 @@ starving PortWatch and all other existing feeds.
    concurrency group as the daily ingestion, followed by
    `python -m modules.imf_macro_research`. Commit archive/health/readiness
    evidence using `scripts/ci_push.sh` (which prevents feature branch pushes).
-3. Job fails after evidence persistence unless **all 8** research sources
+3. Job fails after evidence persistence unless **all enabled** research sources
    are ready with valid data. An upstream IMF outage is not disguised as a
    green run. Check GitHub Actions logs and the generated diagnostics.
 
@@ -89,7 +87,7 @@ feature promotion and absolutely no relaxation of Safe Mode or risk limits.
 ## Local checks
 
 ```bash
-python -m pytest -q tests/test_imf_macro_eight_feeds_20261104.py
+python -m pytest -q tests/test_imf_sdmx3_feeds_20261105.py
 python -m modules.external.orchestrator preflight --family imf_macro
 python -m modules.external.orchestrator ingest --family imf_macro --dry-run
 python -m modules.imf_macro_research

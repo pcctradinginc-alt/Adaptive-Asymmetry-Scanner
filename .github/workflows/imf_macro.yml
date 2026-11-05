@@ -1,4 +1,4 @@
-name: IMF Macro Eight Feeds (research PIT)
+name: IMF Macro Feeds (research PIT)
 
 # Shared write lock with external_data.yml: one archive writer at a time.
 on:
@@ -8,8 +8,8 @@ on:
       - 'modules/imf_macro_research.py'
       - 'config/external_sources/imf_macro.yaml'
       - '.github/workflows/imf_macro.yml'
-      - 'tests/test_imf_macro_eight_feeds_20261104.py'
-      - 'tests/test_imf_sdmx3_20261105.py'
+      - 'modules/external/data_quality.py'
+      - 'tests/test_imf_sdmx3_feeds_20261105.py'
   push:
     branches: [main]
     paths:
@@ -49,23 +49,27 @@ jobs:
       - name: Install repository dependencies
         run: python -m pip install -r requirements.txt pytest
 
-      - name: One-time official FSIC/GDD codelist research (read-only, capped)
-        if: github.event_name == 'pull_request'
-        run: python scripts/imf_sdmx3_diagnose.py
-
       - name: Offline IMF data/PIT acceptance tests
-        run: python -m pytest -q tests/test_imf_macro_eight_feeds_20261104.py tests/test_imf_sdmx3_20261105.py
+        run: python -m pytest -q -p no:cacheprovider tests/test_imf_sdmx3_feeds_20261105.py
 
-      - name: Live IMF SDMX/DataMapper preflight (no writes on PR)
+      - name: Live IMF SDMX 3.0 preflight (no writes on PR)
         if: github.event_name == 'pull_request'
         run: |
           mkdir -p outputs/health
           python -m modules.external.orchestrator preflight --family imf_macro --json outputs/health/imf_macro_preflight.json
 
-      - name: Enforce eight real preflight successes
+      - name: Enforce real preflight success for every enabled IMF feed
         if: github.event_name == 'pull_request'
         run: |
-          python -c 'import json,sys; p=json.load(open("outputs/health/imf_macro_preflight.json")); print([(x["source_id"], x["status"]) for x in p]); sys.exit(0 if len(p)==8 and all(x["status"] in ("PASS","WARN") and x.get("n_observations",0)>0 for x in p) else 1)'
+          python - <<'PY'
+          import json, sys
+          rows = json.load(open("outputs/health/imf_macro_preflight.json"))
+          active = [r for r in rows if r["status"] != "disabled"]
+          for r in rows:
+              print(r["source_id"], r["status"], r.get("n_observations"), (r.get("message") or "")[:200])
+          ok = len(active) >= 7 and all(r["status"] in ("PASS", "WARN") and r.get("n_observations", 0) > 0 for r in active)
+          sys.exit(0 if ok else 1)
+          PY
 
       - name: Weekly IMF bounded ingestion into research-only archive
         if: github.event_name != 'pull_request'
@@ -84,9 +88,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          bash scripts/ci_push.sh "chore: IMF eight macro PIT research $(date -u +%Y-%m-%d)" outputs/external_data/ outputs/health/imf_macro_ingest.json outputs/research/imf_macro/status.json
+          bash scripts/ci_push.sh "chore: IMF macro PIT research $(date -u +%Y-%m-%d)" outputs/external_data/ outputs/health/imf_macro_ingest.json outputs/research/imf_macro/status.json
 
-      - name: Validate eight sources actually ready (not a simulated pass)
+      - name: Validate all enabled IMF sources actually ready (not a simulated pass)
         if: github.event_name != 'pull_request'
         run: python -m modules.imf_macro_research --assert-ready --output outputs/research/imf_macro/status.json
 
