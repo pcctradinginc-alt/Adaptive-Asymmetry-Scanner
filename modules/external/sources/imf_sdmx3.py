@@ -119,12 +119,13 @@ SPECS: dict[str, dict] = {
         "agency": "IMF.STA", "flow": "FAS",
         "dimensions": ("COUNTRY", "INDICATOR", "SECTOR", "COUNTERPARTY_SECTOR", "SEX",
                        "TYPE_OF_TRANSFORMATION", "FREQUENCY"),
-        "key": {"COUNTRY": MAJOR, "INDICATOR": ("FA26", "FA18", "OUTL_A", "OUTD_L"),
+        # Live-verified 2026-11-05: OUTL_A/OUTD_L are not published per adult
+        # or in % of GDP for these countries, so only the access indicators.
+        "key": {"COUNTRY": MAJOR, "INDICATOR": ("FA26", "FA18"),
                 "SECTOR": None, "COUNTERPARTY_SECTOR": None, "SEX": None,
-                "TYPE_OF_TRANSFORMATION": ("PHTADLT_NUM", "POGDP"),
+                "TYPE_OF_TRANSFORMATION": ("PHTADLT_NUM",),
                 "FREQUENCY": ("A",)},
-        "units": {"FA26": "per_100k_adults_or_pct_gdp", "FA18": "per_100k_adults_or_pct_gdp",
-                  "OUTL_A": "per_100k_adults_or_pct_gdp", "OUTD_L": "per_100k_adults_or_pct_gdp"},
+        "units": {"FA26": "per_100k_adults", "FA18": "per_100k_adults"},
         "unit_dimension": "TYPE_OF_TRANSFORMATION",
         "years_back": 8, "years_forward": 0,
     },

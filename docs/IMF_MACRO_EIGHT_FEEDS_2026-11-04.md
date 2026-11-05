@@ -14,7 +14,7 @@ code were verified live from a GitHub runner on 2026-11-05.
 | imf_fsi | IMF.STA/FSIC | S12CFSI x AQ12/FSI688/AQ14/ROE_CFSI_PT, Q | NPL ratio, capital ratio, provisioning, ROE of deposit takers |
 | imf_mfs | IMF.STA/MFS_MA (+ `MFS_MA_*_VINTAGE`) | BM_MAI x XDC/USD, M | Broad money (non-euro countries; euro members do not report it nationally) |
 | imf_climate | IMF.STA/CCI | AMGST_dC, NDT_NUM, A | Temperature anomaly, climate-related disasters |
-| imf_fas | IMF.STA/FAS | FA26, FA18, OUTL_A, OUTD_L x PHTADLT_NUM/POGDP, A | Bank branches/ATMs per 100k adults, loans/deposits % GDP |
+| imf_fas | IMF.STA/FAS | FA26, FA18 x PHTADLT_NUM, A | Commercial bank branches and ATMs per 100k adults |
 | imf_aipi | – | – | **Disabled**: not on SDMX 3.0; DataMapper returns 403 (Akamai) to CI. Never bypassed. |
 
 Countries: USA, DEU, JPN, GBR, FRA, CHN (MFS: USA, JPN, GBR, CHN, CAN, AUS, CHE, IND).
