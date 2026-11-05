@@ -116,6 +116,12 @@ class _IMFDataMapperConnector(Connector):
         self._fetch = fetch_fn or http.fetch
 
     def fetch(self, now: datetime) -> ConnectorResult:
+        # The IMF DataMapper API is blocked (403) by the publisher for CI.
+        # WEO/FM have verified official IMF SDMX3 data endpoints; use them
+        # for production fetches only. Existing injected tests remain isolated.
+        if self.source_id in ("imf_weo", "imf_fiscal_monitor") and self._fetch is http.fetch:
+            from modules.external.sources.imf_sdmx3 import fetch_research
+            return fetch_research(self.source_id, now)
         sid, raw, observations = self.source_id, [], []
         try:
             if now.tzinfo is None:
