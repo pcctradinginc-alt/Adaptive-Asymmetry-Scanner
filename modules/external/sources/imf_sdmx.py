@@ -97,7 +97,10 @@ def _catalog(root: ET.Element, flow: str):
             # dimension -> concept scheme/version -> concept -> enumeration.
             identity = _first(e, "ConceptIdentity")
             identity_ref = _first(identity, "Ref") if identity is not None else None
-            if identity_ref is None or identity_ref.get("id") != e.get("id"):
+            # A DSD dimension's concept can use a different official ID
+            # (e.g. COUNTRY / REF_AREA). Verify the *referenced* concept
+            # and its publisher/version; never require conceptID == dimensionID.
+            if identity_ref is None or not identity_ref.get("id"):
                 raise IMFSDMXError(f"DIMENSION_CONCEPT_IDENTITY_MISSING:{e.get('id')}")
             parent_id = identity_ref.get("maintainableParentID")
             parent_version = identity_ref.get("maintainableParentVersion")
