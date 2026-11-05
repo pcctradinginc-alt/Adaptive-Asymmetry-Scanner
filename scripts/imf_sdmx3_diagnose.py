@@ -37,10 +37,16 @@ CASES = {
     "MFS-data-guess-safebounded": ("/data/dataflow/IMF.STA/MFS_MA/+/DE.*.M",
                  {"startPeriod": "2026", "endPeriod": "2026", "format": "jsondata"}),
     "FSIC-3-structure": ("/structure/dataflow/IMF.STA/FSIC/+", {"references":"datastructure"}),
+    "FM-structure-small": ("/structure/dataflow/IMF.FAD/FM/+", {"references":"datastructure"}),
+    "MFS-structure-small": ("/structure/dataflow/IMF.STA/MFS_MA/+", {"references":"datastructure"}),
+    "FAS-structure-small": ("/structure/dataflow/IMF.STA/FAS/+", {"references":"datastructure"}),
+    "CCI-structure-small": ("/structure/dataflow/IMF.STA/CCI/+", {"references":"datastructure"}),
     "FSI-global-structure": ("/structure/dataflow/IMF/FSI/+", {"references":"datastructure"}),
     "GDD-fad-structure": ("/structure/dataflow/IMF.FAD/FAD_GDD/+", {"references":"datastructure"}),
     "GDD-fad-short-structure": ("/structure/dataflow/IMF.FAD/GDD/+", {"references":"datastructure"}),
     "AIPI-res-structure": ("/structure/dataflow/IMF.RES/AIPI/+", {"references":"datastructure"}),
+    "AIPI-fad-structure": ("/structure/dataflow/IMF.FAD/AIPI/+", {"references":"datastructure"}),
+    "AIPI-sta-structure": ("/structure/dataflow/IMF.STA/AIPI/+", {"references":"datastructure"}),
     "FSI-legacy-id": ("/legacy/dataflow/all/FSI/latest", {"references": "all"}),
     "FSIC-legacy-id": ("/legacy/dataflow/all/FSIC/latest", {"references": "all"}),
     "GDD-legacy-id": ("/legacy/dataflow/all/FAD_GDD/latest", {"references": "all"}),
@@ -90,6 +96,25 @@ def main():
                             key=lambda x: (str(x["agency"]), str(x["id"])))[:20]
                         info["dsds"] = sorted([x.get("id") for x in node.iter()
                             if x.tag.rsplit("}", 1)[-1] == "DataStructure"])[:15]
+                        info["dimensions"] = []
+                        for dsd in node.iter():
+                            if dsd.tag.rsplit("}", 1)[-1] != "DataStructure":
+                                continue
+                            for dl in dsd.iter():
+                                if dl.tag.rsplit("}", 1)[-1] != "DimensionList":
+                                    continue
+                                for dim in dl:
+                                    dimid = dim.get("id")
+                                    if not dimid:
+                                        continue
+                                    refs = [{"kind": n.tag.rsplit("}",1)[-1],
+                                             "id": n.get("id"), "agency": n.get("agencyID"),
+                                             "parent": n.get("maintainableParentID")}
+                                            for n in dim.iter() if n.tag.rsplit("}",1)[-1] == "Ref"][:3]
+                                    info["dimensions"].append({"id": dimid, "position": dim.get("position"),
+                                                               "refs": refs})
+                                break
+                            break
                     except ET.ParseError:
                         info["xml_status"] = "valid XML prefix but response was truncated"
                 if content[:1] == b"{" and len(content) < 256000:
