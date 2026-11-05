@@ -10,14 +10,11 @@
     "n_new_decisions": 0,
     "n_trade": 0
   },
-  "targets": 49,
-  "already_captured": 0,
-  "requested": 49,
-  "quotes": 47,
-  "missing": [
-    "KVUE270115C00020000",
-    "KVUE270319C00020000"
-  ],
+  "targets": 3,
+  "already_captured": 3,
+  "requested": 0,
+  "quotes": 0,
+  "missing": [],
   "alpha_link_settlement": {
     "status": "OK",
     "n_new_outcomes": 0,
@@ -27,7 +24,7 @@
   "alpha_link_coverage": {
     "schema": "alpha-option-link-coverage-v1",
     "as_of": "2026-11-05",
-    "generated_at": "2026-11-05T17:37:20+00:00",
+    "generated_at": "2026-11-05T18:42:01+00:00",
     "link_version": "alpha-option-link-v1",
     "link_start": "2026-11-02",
     "rule_version": "alpha-option-rule-v1",
@@ -472,6 +469,6 @@
     "llm_calls": 0,
     "economic_result": "NOT_EVALUATED_IN_PHASE_A"
   },
-  "capture_status": "PARTIAL_MISSING_QUOTES",
-  "observed_at": "2026-11-05T17:37:20.989733+00:00"
+  "capture_status": "ALREADY_CAPTURED",
+  "observed_at": "2026-11-05T18:42:01.704650+00:00"
 }
