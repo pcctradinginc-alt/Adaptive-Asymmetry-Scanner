@@ -24,7 +24,9 @@ def result(payload, *, url="https://api.imf.org/external/sdmx/3.0/data/dataflow/
 
 def sample(country="DEU", indicator="NGDP_RPCH", freq="A", *,
            years=("2025", "2026", "2027"), values=(2.1, 1.8, 2.4),
-           key="0:0:0"):
+           key=None, sector=None):
+    if key is None:
+        key = "0:0:0:0" if sector is not None else "0:0:0"
     return {
         "meta": {"id": "provider-test"},
         "data": {
@@ -32,6 +34,8 @@ def sample(country="DEU", indicator="NGDP_RPCH", freq="A", *,
                 "dimensions": {
                     "series": [
                         {"id": "COUNTRY", "values": [{"id": country, "name": country}]},
+                        *([{"id": "SECTOR", "values": [{"id": sector}]}]
+                          if sector is not None else []),
                         {"id": "INDICATOR", "values": [{"id": indicator}]},
                         {"id": "FREQUENCY", "values": [{"id": freq}]},
                     ],
@@ -108,14 +112,19 @@ def test_well_scoped_weo_and_fm_all_countries_and_indicators():
     for source_id, spec in FLOW_SPECS.items():
         def fake(url, **kw):
             segments = url.rsplit("/", 1)[-1].split(".")
-            country, indicator, freq = segments
+            if spec.get("sector"):
+                country, sector, indicator, freq = segments
+                assert sector == spec["sector"]
+            else:
+                country, indicator, freq = segments
             assert country in spec["countries"]
             assert indicator in spec["indicators"]
             assert freq == spec["frequency"]
             assert kw["params"]["format"] == "jsondata"
             assert "startPeriod" in kw["params"] and "endPeriod" in kw["params"]
             return result(sample(country=country, indicator=indicator,
-                                 years=("2025", "2026"), values=(1.0, 2.0)), url=url)
+                                 years=("2025", "2026"), values=(1.0, 2.0),
+                                 sector=spec.get("sector")), url=url)
         x = fetch_research(source_id, NOW, fetch_fn=fake)
         assert x.status is SourceStatus.PASS, x.message
         assert len(x.observations) == len(spec["indicators"]) * len(spec["countries"]) * 2
