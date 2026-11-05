@@ -275,6 +275,12 @@ class _IMFSDMXConnector(Connector):
         self._fetch = fetch_fn or http.fetch
 
     def fetch(self, now: datetime) -> ConnectorResult:
+        # SDMX 2.1 FSIC metadata is 204 on the publisher's retired gateway.
+        # On the 3.0 gateway, IMF.STA/FSIC and its verified 4-dimension DSD
+        # exist. Mocks keep exercising the independent legacy parser.
+        if self.source_id == "imf_fsi" and self._fetch is http.fetch:
+            from modules.external.sources.imf_sdmx3 import fetch_research
+            return fetch_research(self.source_id, now)
         sid, raw = self.source_id, []
         try:
             if now.tzinfo is None:
