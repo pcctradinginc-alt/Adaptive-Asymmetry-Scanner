@@ -41,6 +41,10 @@ CASES = {
     "GDD-fad-structure": ("/structure/dataflow/IMF.FAD/FAD_GDD/+", {"references":"datastructure"}),
     "GDD-fad-short-structure": ("/structure/dataflow/IMF.FAD/GDD/+", {"references":"datastructure"}),
     "AIPI-res-structure": ("/structure/dataflow/IMF.RES/AIPI/+", {"references":"datastructure"}),
+    "FSI-legacy-id": ("/legacy/dataflow/all/FSI/latest", {"references": "all"}),
+    "FSIC-legacy-id": ("/legacy/dataflow/all/FSIC/latest", {"references": "all"}),
+    "GDD-legacy-id": ("/legacy/dataflow/all/FAD_GDD/latest", {"references": "all"}),
+
 
 }
 
@@ -48,9 +52,13 @@ CASES = {
 def main():
     for name, (path, params) in CASES.items():
         assert path.startswith("/") and urlsplit(ROOT).hostname == "api.imf.org"
-        url = ROOT + path
+        legacy = path.startswith("/legacy/")
+        url = ("https://api.imf.org/external/sdmx/2.1" + path[len("/legacy"):]
+               if legacy else ROOT + path)
         try:
             accept = ("application/vnd.sdmx.structure+xml;version=2.1"
+                      if legacy else
+                      "application/vnd.sdmx.structure+xml;version=3.0.0"
                       if path.startswith("/structure/") else
                       "application/vnd.sdmx.data+json;version=2.0")
             with requests.get(url, params=params,
