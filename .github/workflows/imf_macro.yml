@@ -9,6 +9,7 @@ on:
       - 'config/external_sources/imf_macro.yaml'
       - '.github/workflows/imf_macro.yml'
       - 'tests/test_imf_macro_eight_feeds_20261104.py'
+      - 'tests/test_imf_sdmx3_20261105.py'
   push:
     branches: [main]
     paths:
@@ -53,7 +54,7 @@ jobs:
         run: python scripts/imf_sdmx3_diagnose.py
 
       - name: Offline IMF data/PIT acceptance tests
-        run: python -m pytest -q tests/test_imf_macro_eight_feeds_20261104.py
+        run: python -m pytest -q tests/test_imf_macro_eight_feeds_20261104.py tests/test_imf_sdmx3_20261105.py
 
       - name: Live IMF SDMX/DataMapper preflight (no writes on PR)
         if: github.event_name == 'pull_request'
