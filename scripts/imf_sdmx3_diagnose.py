@@ -46,6 +46,12 @@ CASES = {
     "GDD-fad-short-structure": ("/structure/dataflow/IMF.FAD/GDD/+", {"references":"datastructure"}),
     "AIPI-res-structure": ("/structure/dataflow/IMF.RES/AIPI/+", {"references":"datastructure"}),
     "AIPI-fad-structure": ("/structure/dataflow/IMF.FAD/AIPI/+", {"references":"datastructure"}),
+    "FSIC-verified-key": ("/data/dataflow/IMF.STA/FSIC/+/DE._T.NPLR_PT.Q",
+                        {"startPeriod":"2020","endPeriod":"2026","format":"jsondata"}),
+    "GDD-deu-annual-2024": ("/data/dataflow/IMF.FAD/GDD/+/DEU.*.A",
+                          {"startPeriod":"2024","endPeriod":"2024","format":"jsondata"}),
+    "FM-deu-2019to2026": ("/data/dataflow/IMF.FAD/FM/+/DEU.GGXWDG_NGDP.A",
+                        {"startPeriod":"2019","endPeriod":"2026","format":"jsondata"}),
     "AIPI-sta-structure": ("/structure/dataflow/IMF.STA/AIPI/+", {"references":"datastructure"}),
     "FSI-legacy-id": ("/legacy/dataflow/all/FSI/latest", {"references": "all"}),
     "FSIC-legacy-id": ("/legacy/dataflow/all/FSIC/latest", {"references": "all"}),
@@ -56,7 +62,10 @@ CASES = {
 
 
 def main():
+    # No metadata flood: run exactly three bounded, concrete tests.
     for name, (path, params) in CASES.items():
+        if name not in ("FSIC-verified-key","GDD-deu-annual-2024","FM-deu-2019to2026"):
+            continue
         assert path.startswith("/") and urlsplit(ROOT).hostname == "api.imf.org"
         legacy = path.startswith("/legacy/")
         url = ("https://api.imf.org/external/sdmx/2.1" + path[len("/legacy"):]
