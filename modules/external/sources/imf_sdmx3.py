@@ -30,6 +30,13 @@ FLOW_SPECS = {
                        "GGXONLB_NGDP": "percent_of_gdp"},
         "countries": ("DEU", "USA"), "frequency": "A",
     },
+    "imf_fsi": {
+        "agency": "IMF.STA", "flow": "FSIC",
+        "indicators": {"NPLR_PT": "percent"},
+        "countries": ("DE", "US"), "frequency": "Q",
+        "dimensions": ("COUNTRY", "SECTOR", "INDICATOR", "FREQUENCY"),
+        "sector": "_T",
+    },
 }
 
 
@@ -94,8 +101,9 @@ def parse_data(response, *, source_id: str, country: str,
     dim = structure.get("dimensions") or {}
     series_dims = dim.get("series")
     time_dims = dim.get("observation")
+    expected_dimensions = list(spec.get("dimensions") or ("COUNTRY", "INDICATOR", "FREQUENCY"))
     if (not isinstance(series_dims, list)
-            or [d.get("id") for d in series_dims] != ["COUNTRY", "INDICATOR", "FREQUENCY"]
+            or [d.get("id") for d in series_dims] != expected_dimensions
             or not isinstance(time_dims, list) or len(time_dims) != 1
             or time_dims[0].get("id") != "TIME_PERIOD"):
         raise SDMX3Error("SDMX3_DIMENSION_ORDER_OR_SCHEMA_CHANGED")
@@ -112,7 +120,7 @@ def parse_data(response, *, source_id: str, country: str,
     used = set()
     for skey, item in rows.items():
         indexes = skey.split(":")
-        if len(indexes) != 3 or not all(i.isdecimal() for i in indexes):
+        if len(indexes) != len(expected_dimensions) or not all(i.isdecimal() for i in indexes):
             raise SDMX3Error("SDMX3_INVALID_SERIES_KEY")
         keys = []
         for d, idx in zip(series_dims, indexes):
@@ -123,7 +131,10 @@ def parse_data(response, *, source_id: str, country: str,
             if not isinstance(code, dict) or not isinstance(code.get("id"), str):
                 raise SDMX3Error("SERIES_CODE_NOT_VERIFIABLE")
             keys.append(code["id"])
-        if keys != [country, indicator, spec["frequency"]]:
+        desired = {"COUNTRY": country, "INDICATOR": indicator, "FREQUENCY": spec["frequency"]}
+        if "SECTOR" in expected_dimensions:
+            desired["SECTOR"] = spec["sector"]
+        if keys != [desired[k] for k in expected_dimensions]:
             raise SDMX3Error("UNREQUESTED_COUNTRY_INDICATOR_OR_FREQUENCY")
         if not isinstance(item, dict) or not isinstance(item.get("observations"), dict):
             raise SDMX3Error("MISSING_SDMX3_OBSERVATIONS")
@@ -185,7 +196,10 @@ def fetch_research(source_id, now, *, fetch_fn=None):
             raise SDMX3Error("NAIVE_NOW")
         for code in spec["indicators"]:
             for country in spec["countries"]:
-                key = f'{country}.{code}.{spec["frequency"]}'
+                dimension_values = {"COUNTRY": country, "INDICATOR": code,
+                                    "FREQUENCY": spec["frequency"], "SECTOR": spec.get("sector")}
+                dims = spec.get("dimensions") or ("COUNTRY", "INDICATOR", "FREQUENCY")
+                key = ".".join(dimension_values[d] for d in dims)
                 res = fetch(
                     f'{BASE}/data/dataflow/{spec["agency"]}/{spec["flow"]}/+/{key}',
                     params={"startPeriod": str(max(2015, now.year - 5)),
