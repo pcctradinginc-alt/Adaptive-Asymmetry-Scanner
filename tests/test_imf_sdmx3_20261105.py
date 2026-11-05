@@ -122,7 +122,7 @@ def test_well_scoped_weo_and_fm_all_countries_and_indicators():
             assert freq == spec["frequency"]
             assert kw["params"]["format"] == "jsondata"
             assert "startPeriod" in kw["params"] and "endPeriod" in kw["params"]
-            return result(sample(country=country, indicator=indicator,
+            return result(sample(country=country, indicator=indicator, freq=freq,
                                  years=("2025", "2026"), values=(1.0, 2.0),
                                  sector=spec.get("sector")), url=url)
         x = fetch_research(source_id, NOW, fetch_fn=fake)
