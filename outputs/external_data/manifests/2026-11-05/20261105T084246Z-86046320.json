@@ -1,0 +1,127 @@
+{
+  "run_id": "20261105T084246Z-86046320",
+  "generated_at": "2026-11-05T08:42:46+00:00",
+  "git_sha": "da6100da65626fb6fba16eab32be45e6632da50a",
+  "config_hash": "fa6cc74e0def",
+  "entries": [
+    {
+      "source_id": "imf_fsi",
+      "dataset": "FSIC",
+      "fingerprint": "64340a67774fd387",
+      "retrieved_at": "2026-11-05T08:42:46+00:00",
+      "content_hash": "e54ddf5a52dc7a786ab83489d6459bcbbd287dffc29a592db4858f4a0f733bca",
+      "content_type": "application/vnd.sdmx.data+json;version=2.0.0",
+      "bytes": 63825,
+      "bytes_written": 0,
+      "parser_version": "imf_sdmx3_json2_v3",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 337,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "imf_weo",
+      "dataset": "WEO",
+      "fingerprint": "c50691060a18bf07",
+      "retrieved_at": "2026-11-05T08:42:46+00:00",
+      "content_hash": "1723afd44b2557e522c211cb27a2822b37bd40032fcd52c75cafc7f9ce8dee1f",
+      "content_type": "application/vnd.sdmx.data+json;version=2.0.0",
+      "bytes": 591638,
+      "bytes_written": 944379,
+      "parser_version": "imf_sdmx3_json2_v3",
+      "feature_version": null,
+      "counts": {
+        "new": 510,
+        "duplicate": 201,
+        "revision": 249
+      }
+    },
+    {
+      "source_id": "imf_mfs",
+      "dataset": "MFS_MA",
+      "fingerprint": "ec2eb0ef5cefe5ee",
+      "retrieved_at": "2026-11-05T08:42:46+00:00",
+      "content_hash": "aae736645cd37b6d9066dec933f94640026aaaa15e631d3587845e1797b8a282",
+      "content_type": "application/vnd.sdmx.data+json;version=2.0.0",
+      "bytes": 663426,
+      "bytes_written": 50340,
+      "parser_version": "imf_sdmx3_json2_v3",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 281,
+        "revision": 39
+      }
+    },
+    {
+      "source_id": "imf_gdd",
+      "dataset": "GDD",
+      "fingerprint": "d0770663559d4cc4",
+      "retrieved_at": "2026-11-05T08:42:46+00:00",
+      "content_hash": "e786d038faca6ef4f68952ac2d4a480bbfb4d12935b430bd1b3191aaeb5ab755",
+      "content_type": "application/vnd.sdmx.data+json;version=2.0.0",
+      "bytes": 40913,
+      "bytes_written": 0,
+      "parser_version": "imf_sdmx3_json2_v3",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 189,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "imf_fiscal_monitor",
+      "dataset": "FM",
+      "fingerprint": "0ed13465cadc6085",
+      "retrieved_at": "2026-11-05T08:42:46+00:00",
+      "content_hash": "e531ab4da00ef2cbd3e5c6f6f730b31673598d011125afc013815356947200c0",
+      "content_type": "application/vnd.sdmx.data+json;version=2.0.0",
+      "bytes": 560098,
+      "bytes_written": 363509,
+      "parser_version": "imf_sdmx3_json2_v3",
+      "feature_version": null,
+      "counts": {
+        "new": 198,
+        "duplicate": 91,
+        "revision": 89
+      }
+    },
+    {
+      "source_id": "imf_climate",
+      "dataset": "CCI",
+      "fingerprint": "ec278cdaf6f3166e",
+      "retrieved_at": "2026-11-05T08:42:46+00:00",
+      "content_hash": "dc406a6df98042439d7107138bb27ec20b7229e99ee8d5b381f23c62937dd869",
+      "content_type": "application/vnd.sdmx.data+json;version=2.0.0",
+      "bytes": 12442,
+      "bytes_written": 0,
+      "parser_version": "imf_sdmx3_json2_v3",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 109,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "imf_fas",
+      "dataset": "FAS",
+      "fingerprint": "9e2f85fee9f2cdc4",
+      "retrieved_at": "2026-11-05T08:42:46+00:00",
+      "content_hash": "3aaccc39f59b71c1f9fa74d5134407dcf95affde7dc4ff9e7fec4b1b49224a98",
+      "content_type": "application/vnd.sdmx.data+json;version=2.0.0",
+      "bytes": 10106,
+      "bytes_written": 0,
+      "parser_version": "imf_sdmx3_json2_v3",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 79,
+        "revision": 0
+      }
+    }
+  ]
+}

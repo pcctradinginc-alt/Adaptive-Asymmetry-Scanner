@@ -1,7 +1,7 @@
 {
-  "measured_at": "2026-11-05T07:10:08+00:00",
+  "measured_at": "2026-11-05T08:43:22+00:00",
   "total_bytes_per_day": 130044929.0,
-  "one_off_backfill_bytes": 1169627241,
+  "one_off_backfill_bytes": 1172927917,
   "projections_bytes": {
     "30d": 3901347870.0,
     "1y": 47466399085.0,
@@ -10,7 +10,7 @@
   "warn_mb_1y": 200.0,
   "flagged": true,
   "backend": "git",
-  "bytes_in_git": 178434586,
+  "bytes_in_git": 179794367,
   "bytes_offloaded": 0,
   "per_source": {
     "bea_release_calendar": {
@@ -184,42 +184,42 @@
     "imf_climate": {
       "retrieval_days": 1,
       "rows": 109,
-      "one_off_backfill_bytes": 133157,
+      "one_off_backfill_bytes": 145599,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "imf_fas": {
       "retrieval_days": 1,
       "rows": 79,
-      "one_off_backfill_bytes": 103316,
+      "one_off_backfill_bytes": 113422,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "imf_fiscal_monitor": {
       "retrieval_days": 1,
-      "rows": 377,
-      "one_off_backfill_bytes": 986803,
+      "rows": 664,
+      "one_off_backfill_bytes": 1910410,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "imf_fsi": {
       "retrieval_days": 1,
       "rows": 337,
-      "one_off_backfill_bytes": 435179,
+      "one_off_backfill_bytes": 499004,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "imf_gdd": {
       "retrieval_days": 1,
       "rows": 189,
-      "one_off_backfill_bytes": 243238,
+      "one_off_backfill_bytes": 284151,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
     "imf_mfs": {
       "retrieval_days": 1,
-      "rows": 128,
-      "one_off_backfill_bytes": 803137,
+      "rows": 167,
+      "one_off_backfill_bytes": 1516903,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },
@@ -246,8 +246,8 @@
     },
     "imf_weo": {
       "retrieval_days": 1,
-      "rows": 910,
-      "one_off_backfill_bytes": 1578904,
+      "rows": 1669,
+      "one_off_backfill_bytes": 3114921,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
     },

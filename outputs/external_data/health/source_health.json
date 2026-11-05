@@ -1708,8 +1708,8 @@
   },
   "imf_fsi": {
     "source_id": "imf_fsi",
-    "last_attempt": "2026-11-05T07:09:50+00:00",
-    "last_success": "2026-11-05T07:09:50+00:00",
+    "last_attempt": "2026-11-05T08:42:46+00:00",
+    "last_success": "2026-11-05T08:42:46+00:00",
     "status": "PASS",
     "latest_observation": "2026-04-01T00:00:00+00:00",
     "latest_release": null,
@@ -1719,9 +1719,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 0,
+    "duplicate_count": 337,
     "rows_ingested": 337,
-    "bytes_downloaded": 63825,
+    "bytes_downloaded": 127650,
     "consecutive_failures": 0,
     "message": "FSIC: 337 IMF SDMX3 research observations, 6 countries, 0 official vintages",
     "criticality": "low",
@@ -1743,12 +1743,12 @@
       "details": {},
       "severe": false
     },
-    "parser_version": "imf_sdmx3_json2_v2"
+    "parser_version": "imf_sdmx3_json2_v3"
   },
   "imf_weo": {
     "source_id": "imf_weo",
-    "last_attempt": "2026-11-05T07:09:50+00:00",
-    "last_success": "2026-11-05T07:09:50+00:00",
+    "last_attempt": "2026-11-05T08:42:46+00:00",
+    "last_success": "2026-11-05T08:42:46+00:00",
     "status": "PASS",
     "latest_observation": "2031-01-01T00:00:00+00:00",
     "latest_release": null,
@@ -1757,10 +1757,10 @@
     "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
-    "revision_count": 220,
-    "duplicate_count": 50,
-    "rows_ingested": 910,
-    "bytes_downloaded": 591638,
+    "revision_count": 469,
+    "duplicate_count": 251,
+    "rows_ingested": 1669,
+    "bytes_downloaded": 1183276,
     "consecutive_failures": 0,
     "message": "WEO: 960 IMF SDMX3 research observations, 6 countries, 2 official vintages",
     "criticality": "low",
@@ -1782,12 +1782,12 @@
       "details": {},
       "severe": false
     },
-    "parser_version": "imf_sdmx3_json2_v2"
+    "parser_version": "imf_sdmx3_json2_v3"
   },
   "imf_mfs": {
     "source_id": "imf_mfs",
-    "last_attempt": "2026-11-05T07:09:50+00:00",
-    "last_success": "2026-11-05T07:09:50+00:00",
+    "last_attempt": "2026-11-05T08:42:46+00:00",
+    "last_success": "2026-11-05T08:42:46+00:00",
     "status": "PASS",
     "latest_observation": "2026-03-01T00:00:00+00:00",
     "latest_release": null,
@@ -1796,10 +1796,10 @@
     "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
-    "revision_count": 39,
-    "duplicate_count": 192,
-    "rows_ingested": 128,
-    "bytes_downloaded": 663426,
+    "revision_count": 78,
+    "duplicate_count": 473,
+    "rows_ingested": 167,
+    "bytes_downloaded": 1326852,
     "consecutive_failures": 0,
     "message": "MFS_MA: 320 IMF SDMX3 research observations, 3 countries, 4 official vintages",
     "criticality": "low",
@@ -1821,12 +1821,12 @@
       "details": {},
       "severe": false
     },
-    "parser_version": "imf_sdmx3_json2_v2"
+    "parser_version": "imf_sdmx3_json2_v3"
   },
   "imf_gdd": {
     "source_id": "imf_gdd",
-    "last_attempt": "2026-11-05T07:09:50+00:00",
-    "last_success": "2026-11-05T07:09:50+00:00",
+    "last_attempt": "2026-11-05T08:42:46+00:00",
+    "last_success": "2026-11-05T08:42:46+00:00",
     "status": "PASS",
     "latest_observation": "2024-01-01T00:00:00+00:00",
     "latest_release": null,
@@ -1836,9 +1836,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 0,
+    "duplicate_count": 189,
     "rows_ingested": 189,
-    "bytes_downloaded": 40913,
+    "bytes_downloaded": 81826,
     "consecutive_failures": 0,
     "message": "GDD: 189 IMF SDMX3 research observations, 6 countries, 0 official vintages",
     "criticality": "low",
@@ -1860,12 +1860,12 @@
       "details": {},
       "severe": false
     },
-    "parser_version": "imf_sdmx3_json2_v2"
+    "parser_version": "imf_sdmx3_json2_v3"
   },
   "imf_fiscal_monitor": {
     "source_id": "imf_fiscal_monitor",
-    "last_attempt": "2026-11-05T07:09:50+00:00",
-    "last_success": "2026-11-05T07:09:50+00:00",
+    "last_attempt": "2026-11-05T08:42:46+00:00",
+    "last_success": "2026-11-05T08:42:46+00:00",
     "status": "PASS",
     "latest_observation": "2031-01-01T00:00:00+00:00",
     "latest_release": null,
@@ -1874,10 +1874,10 @@
     "staleness": "FRESH",
     "missingness": 0.0,
     "parse_failures": 0,
-    "revision_count": 71,
-    "duplicate_count": 1,
-    "rows_ingested": 377,
-    "bytes_downloaded": 560098,
+    "revision_count": 160,
+    "duplicate_count": 92,
+    "rows_ingested": 664,
+    "bytes_downloaded": 1120196,
     "consecutive_failures": 0,
     "message": "FM: 378 IMF SDMX3 research observations, 6 countries, 1 official vintages",
     "criticality": "low",
@@ -1899,12 +1899,12 @@
       "details": {},
       "severe": false
     },
-    "parser_version": "imf_sdmx3_json2_v2"
+    "parser_version": "imf_sdmx3_json2_v3"
   },
   "imf_climate": {
     "source_id": "imf_climate",
-    "last_attempt": "2026-11-05T07:09:50+00:00",
-    "last_success": "2026-11-05T07:09:50+00:00",
+    "last_attempt": "2026-11-05T08:42:46+00:00",
+    "last_success": "2026-11-05T08:42:46+00:00",
     "status": "PASS",
     "latest_observation": "2025-01-01T00:00:00+00:00",
     "latest_release": null,
@@ -1914,9 +1914,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 0,
+    "duplicate_count": 109,
     "rows_ingested": 109,
-    "bytes_downloaded": 12442,
+    "bytes_downloaded": 24884,
     "consecutive_failures": 0,
     "message": "CCI: 109 IMF SDMX3 research observations, 6 countries, 0 official vintages",
     "criticality": "low",
@@ -1938,12 +1938,12 @@
       "details": {},
       "severe": false
     },
-    "parser_version": "imf_sdmx3_json2_v2"
+    "parser_version": "imf_sdmx3_json2_v3"
   },
   "imf_fas": {
     "source_id": "imf_fas",
-    "last_attempt": "2026-11-05T07:09:50+00:00",
-    "last_success": "2026-11-05T07:09:50+00:00",
+    "last_attempt": "2026-11-05T08:42:46+00:00",
+    "last_success": "2026-11-05T08:42:46+00:00",
     "status": "PASS",
     "latest_observation": "2025-01-01T00:00:00+00:00",
     "latest_release": null,
@@ -1953,9 +1953,9 @@
     "missingness": 0.0,
     "parse_failures": 0,
     "revision_count": 0,
-    "duplicate_count": 0,
+    "duplicate_count": 79,
     "rows_ingested": 79,
-    "bytes_downloaded": 10106,
+    "bytes_downloaded": 20212,
     "consecutive_failures": 0,
     "message": "FAS: 79 IMF SDMX3 research observations, 6 countries, 0 official vintages",
     "criticality": "low",
@@ -1977,11 +1977,11 @@
       "details": {},
       "severe": false
     },
-    "parser_version": "imf_sdmx3_json2_v2"
+    "parser_version": "imf_sdmx3_json2_v3"
   },
   "imf_aipi": {
     "source_id": "imf_aipi",
-    "last_attempt": "2026-11-05T07:09:50+00:00",
+    "last_attempt": "2026-11-05T08:42:46+00:00",
     "last_success": null,
     "status": "DEFERRED",
     "latest_observation": null,
