@@ -50,6 +50,8 @@ CASES = {
                         {"startPeriod":"2020","endPeriod":"2026","format":"jsondata"}),
     "GDD-deu-annual-2024": ("/data/dataflow/IMF.FAD/GDD/+/DEU.*.A",
                           {"startPeriod":"2024","endPeriod":"2024","format":"jsondata"}),
+    "GDD-codelists-all": ("/structure/dataflow/IMF.FAD/GDD/+", {"references": "all"}),
+    "FSIC-codelists-all": ("/structure/dataflow/IMF.STA/FSIC/+", {"references": "all"}),
     "FM-deu-2019to2026": ("/data/dataflow/IMF.FAD/FM/+/DEU.GGXWDG_NGDP.A",
                         {"startPeriod":"2019","endPeriod":"2026","format":"jsondata"}),
     "AIPI-sta-structure": ("/structure/dataflow/IMF.STA/AIPI/+", {"references":"datastructure"}),
@@ -64,7 +66,7 @@ CASES = {
 def main():
     # No metadata flood: run exactly three bounded, concrete tests.
     for name, (path, params) in CASES.items():
-        if name not in ("FSIC-verified-key","GDD-deu-annual-2024","FM-deu-2019to2026"):
+        if name not in ("GDD-codelists-all", "FSIC-codelists-all"):
             continue
         assert path.startswith("/") and urlsplit(ROOT).hostname == "api.imf.org"
         legacy = path.startswith("/legacy/")
@@ -81,9 +83,10 @@ def main():
                               timeout=(5, 16), stream=True) as r:
                 length = int(r.headers.get("Content-Length") or 0)
                 chunks, received = [], 0
+                cap = 4_000_000 if name.endswith("codelists-all") else 256000
                 for chunk in r.iter_content(32768):
                     received += len(chunk)
-                    if received > 256000:
+                    if received > cap:
                         break
                     chunks.append(chunk)
                 content = b"".join(chunks)
@@ -95,7 +98,7 @@ def main():
                     except (ValueError, UnicodeDecodeError):
                         pass
                 info = {}
-                if content.lstrip().startswith(b"<"):
+                if content.lstrip().startswith(b"<") and received <= cap:
                     import xml.etree.ElementTree as ET
                     try:
                         node = ET.fromstring(content)
@@ -105,6 +108,30 @@ def main():
                             key=lambda x: (str(x["agency"]), str(x["id"])))[:20]
                         info["dsds"] = sorted([x.get("id") for x in node.iter()
                             if x.tag.rsplit("}", 1)[-1] == "DataStructure"])[:15]
+                        if name.endswith("codelists-all"):
+                            matching = {}
+                            for cl in node.iter():
+                                if cl.tag.rsplit("}", 1)[-1] != "Codelist":
+                                    continue
+                                label_map = {}
+                                for code in cl:
+                                    if code.tag.rsplit("}", 1)[-1] != "Code":
+                                        continue
+                                    label = " ".join((e.text or "") for e in code.iter()
+                                        if e.tag.rsplit("}", 1)[-1] == "Name")[:150]
+                                    label_map[code.get("id")] = label
+                                if not label_map:
+                                    continue
+                                if len(label_map) < 100 or any(t in cl.get("id","").lower()
+                                    for t in ("gdd", "fsi", "indicator")):
+                                    matching[cl.get("id")] = [
+                                        {"code": c, "label": lab}
+                                        for c,lab in label_map.items()
+                                        if any(t in (c + " " + lab).lower()
+                                            for t in ("private debt", "household debt",
+                                                      "nonfinancial corp", "nonperforming",
+                                                      "regulatory capital", "debt to gdp"))][:30]
+                            info["indicator_matches"] = matching
                         info["dimensions"] = []
                         for dsd in node.iter():
                             if dsd.tag.rsplit("}", 1)[-1] != "DataStructure":
