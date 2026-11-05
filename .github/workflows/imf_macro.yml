@@ -49,10 +49,6 @@ jobs:
       - name: Install repository dependencies
         run: python -m pip install -r requirements.txt pytest
 
-      - name: Diagnose official IMF SDMX 3.0 routes (read-only; sanitized)
-        if: github.event_name == 'pull_request'
-        run: python scripts/imf_sdmx3_diagnose.py
-
       - name: Offline IMF data/PIT acceptance tests
         run: python -m pytest -q tests/test_imf_macro_eight_feeds_20261104.py tests/test_imf_sdmx3_20261105.py
 
