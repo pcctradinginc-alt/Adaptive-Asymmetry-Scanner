@@ -50,7 +50,7 @@ def main():
         assert path.startswith("/") and urlsplit(ROOT).hostname == "api.imf.org"
         url = ROOT + path
         try:
-            accept = ("application/vnd.sdmx.structure+json;version=1.0"
+            accept = ("application/vnd.sdmx.structure+xml;version=2.1"
                       if path.startswith("/structure/") else
                       "application/vnd.sdmx.data+json;version=2.0")
             with requests.get(url, params=params,
@@ -72,6 +72,18 @@ def main():
                     except (ValueError, UnicodeDecodeError):
                         pass
                 info = {}
+                if content.lstrip().startswith(b"<"):
+                    import xml.etree.ElementTree as ET
+                    try:
+                        node = ET.fromstring(content)
+                        info["xml_root"] = node.tag.rsplit("}", 1)[-1]
+                        info["dataflows"] = sorted([{"id": x.get("id"), "agency": x.get("agencyID")}
+                            for x in node.iter() if x.tag.rsplit("}", 1)[-1] == "Dataflow"],
+                            key=lambda x: (str(x["agency"]), str(x["id"])))[:20]
+                        info["dsds"] = sorted([x.get("id") for x in node.iter()
+                            if x.tag.rsplit("}", 1)[-1] == "DataStructure"])[:15]
+                    except ET.ParseError:
+                        info["xml_status"] = "valid XML prefix but response was truncated"
                 if content[:1] == b"{" and len(content) < 256000:
                     try:
                         root = json.loads(content)
