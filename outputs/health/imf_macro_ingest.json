@@ -1,0 +1,107 @@
+{
+  "run_id": "20261105T070950Z-cff9e7b7",
+  "now": "2026-11-05T07:09:50+00:00",
+  "sources": {
+    "imf_fsi": {
+      "status": "PASS",
+      "counts": {
+        "new": 337,
+        "duplicate": 0,
+        "revision": 0
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
+    },
+    "imf_weo": {
+      "status": "PASS",
+      "counts": {
+        "new": 690,
+        "duplicate": 50,
+        "revision": 220
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
+    },
+    "imf_mfs": {
+      "status": "PASS",
+      "counts": {
+        "new": 89,
+        "duplicate": 192,
+        "revision": 39
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
+    },
+    "imf_gdd": {
+      "status": "PASS",
+      "counts": {
+        "new": 189,
+        "duplicate": 0,
+        "revision": 0
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
+    },
+    "imf_fiscal_monitor": {
+      "status": "PASS",
+      "counts": {
+        "new": 306,
+        "duplicate": 1,
+        "revision": 71
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
+    },
+    "imf_climate": {
+      "status": "PASS",
+      "counts": {
+        "new": 109,
+        "duplicate": 0,
+        "revision": 0
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
+    },
+    "imf_fas": {
+      "status": "PASS",
+      "counts": {
+        "new": 79,
+        "duplicate": 0,
+        "revision": 0
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
+    },
+    "imf_aipi": {
+      "status": "DEFERRED",
+      "reason": "disabled"
+    }
+  },
+  "offload": {
+    "enabled": false,
+    "backend": "git",
+    "uploaded": 0,
+    "offloaded": 0
+  },
+  "compaction": {
+    "enabled": true,
+    "files": 1,
+    "bytes_before": 4831068,
+    "bytes_after": 140904,
+    "failures": 0
+  },
+  "alerts": [
+    {
+      "source_id": "imf_portwatch_ports",
+      "type": "SCHEMA_CHANGED",
+      "message": "Layer-Metadaten ohne 'fields': https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0"
+    }
+  ]
+}
