@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-04T21:23:58+00:00",
+ "generated": "2026-11-05T00:29:46+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "b6f8552eeb24",
+ "code_version": "d5ea3e479e94",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -749,9 +749,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 97,
+      "n": 111,
       "fired_expectancy": null,
-      "non_fired_expectancy": -0.00623
+      "non_fired_expectancy": 0.00019
      },
      "60": {
       "n": 0,
@@ -858,9 +858,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 90,
-      "fired_expectancy": -0.07831,
-      "non_fired_expectancy": 0.0178
+      "n": 102,
+      "fired_expectancy": -0.06269,
+      "non_fired_expectancy": 0.02273
      },
      "60": {
       "n": 0,
@@ -967,9 +967,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 97,
-      "fired_expectancy": 0.03537,
-      "non_fired_expectancy": -0.01155
+      "n": 111,
+      "fired_expectancy": 0.03621,
+      "non_fired_expectancy": -0.00417
      },
      "60": {
       "n": 0,
@@ -1076,9 +1076,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 90,
-      "fired_expectancy": -0.09131,
-      "non_fired_expectancy": 0.03101
+      "n": 102,
+      "fired_expectancy": -0.09761,
+      "non_fired_expectancy": 0.04055
      },
      "60": {
       "n": 0,
@@ -1185,9 +1185,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 97,
+      "n": 111,
       "fired_expectancy": null,
-      "non_fired_expectancy": -0.00623
+      "non_fired_expectancy": 0.00019
      },
      "60": {
       "n": 0,
@@ -2486,5 +2486,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "2dd1994e7d7c03dee372477dcddd564f2829c3e65227d5803d63ffd178276395"
+ "state_hash": "84ab312581de1ff8491548371048e1c66986d88a72cfff8f69794c9e7a38432c"
 }
