@@ -6,17 +6,16 @@ ROOT = "https://api.imf.org/external/sdmx/3.0"
 UA = {"User-Agent": "AdaptiveAsymmetryScanner/1.0 (research; official-data-only)"}
 XS = "application/vnd.sdmx.structure+xml;version=3.0.0"
 JD = "application/vnd.sdmx.data+json;version=2.0.0"
-KW = re.compile(r"(FSI|WEO|^FM$|FISCAL|GDD|DEBT|MFS|MONETARY|FAS|FINANCIAL ACCESS|CCI|CLIMATE|AIPI|ARTIFICIAL|PREPARED)", re.I)
 
 
 def loc(e):
     return e.tag.rsplit("}", 1)[-1]
 
 
-def get(path, params=None, accept=JD, cap=6_000_000, timeout=60):
+def get(url, params=None, accept=JD, cap=12_000_000, timeout=90):
     try:
-        with requests.get(ROOT + path, params=params, headers={**UA, "Accept": accept},
-                          timeout=(10, timeout), stream=True) as r:
+        with requests.get(url if url.startswith("http") else ROOT + url, params=params,
+                          headers={**UA, "Accept": accept}, timeout=(10, timeout), stream=True) as r:
             buf, n = [], 0
             for ch in r.iter_content(65536):
                 n += len(ch)
@@ -28,113 +27,118 @@ def get(path, params=None, accept=JD, cap=6_000_000, timeout=60):
         return 0, "", None, type(e).__name__
 
 
-def name_of(e):
+def p(*a):
+    print(*a, flush=True)
+
+
+def ename(e):
     for c in e:
         if loc(c) == "Name":
             return (c.text or "").strip()
     return ""
 
 
-def p(*a):
-    print(*a, flush=True)
+FLOWS = {
+    "FSIC": ("IMF.STA", ["SECTOR", "INDICATOR", "FREQUENCY"], r"CFSI|NPL|AQ1|FSI688"),
+    "FAS": ("IMF.STA", ["INDICATOR", "SECTOR", "COUNTERPARTY_SECTOR", "TYPE_OF_TRANSFORMATION"], r""),
+    "CCI": ("IMF.STA", ["INDICATOR", "GEOGRAPHIC_MARINE_ZONES_AND_CLIMATIC_CLASSIFICATIONS"], r""),
+    "MFS_MA": ("IMF.STA", ["INDICATOR", "UNIT"], r""),
+    "GDD": ("IMF.FAD", ["INDICATOR"], r""),
+    "FM": ("IMF.FAD", ["INDICATOR"], r""),
+    "WEO": ("IMF.RES", ["INDICATOR"], r"^(NGDP_RPCH|PCPIPCH|LUR|GGXWDG_NGDP|BCA_NGDPD|GGXCNL_NGDP)$"),
+}
 
 
-def flows():
-    st, ct, body, u = get("/structure/dataflow", accept=XS, cap=20_000_000, timeout=120)
-    p("DATAFLOW_LIST", st, ct, len(body or b""), u)
-    out = []
-    if body:
-        root = ET.fromstring(body)
-        for e in root.iter():
-            if loc(e) == "Dataflow" and e.get("id"):
-                nm = name_of(e)
-                if KW.search(e.get("id")) or KW.search(nm):
-                    out.append((e.get("agencyID"), e.get("id"), e.get("version"), nm))
-    for f in out:
-        p("FLOW", json.dumps(f))
+def codelists(agency, fid, dims_wanted, used):
+    st, ct, body, u = get(f"/structure/dataflow/{agency}/{fid}/+", {"references": "all"}, accept=XS)
+    p("STRUCT", fid, st, len(body or b""), u)
+    if st != 200 or not body:
+        return
+    root = ET.fromstring(body)
+    cls, concepts = {}, {}
+    for e in root.iter():
+        if loc(e) == "Codelist":
+            cls[e.get("id")] = {c.get("id"): ename(c) for c in e if loc(c) == "Code"}
+        if loc(e) == "Concept":
+            enum = next((x.text for x in e.iter() if loc(x) == "Enumeration"), None)
+            concepts[e.get("id")] = enum
+    for d in root.iter():
+        if loc(d) != "Dimension" or d.get("id") not in dims_wanted:
+            continue
+        enum = next((x.text for x in d.iter() if loc(x) == "Enumeration"), None)
+        if not enum:
+            ci = next((x.text for x in d.iter() if loc(x) == "ConceptIdentity"), "") or ""
+            enum = concepts.get(ci.rsplit(").", 1)[-1]) if ci else None
+        clid = re.search(r"Codelist=[^:]+:([^()]+)\(", enum or "")
+        clid = clid.group(1) if clid else None
+        codes = cls.get(clid, {})
+        p("DIM", fid, d.get("id"), "codelist", clid, "n", len(codes))
+        sel = used.get(d.get("id"))
+        for c, n in codes.items():
+            if sel is not None and c not in sel:
+                continue
+            p("   ", c, "|", n[:110])
+
+
+def used_codes(agency, fid, key):
+    st, ct, body, u = get(f"/data/dataflow/{agency}/{fid}/+/{key}", {"c[TIME_PERIOD]": "ge:2022"})
+    out = {}
+    if st == 200 and body:
+        d = json.loads(body)["data"]
+        for x in d["structures"][0]["dimensions"]["series"]:
+            out[x["id"]] = {v["id"] for v in x.get("values") or []}
+    p("USED", fid, st, {k: len(v) for k, v in out.items()})
     return out
 
 
-def dsd(agency, fid):
-    st, ct, body, u = get(f"/structure/dataflow/{agency}/{fid}/+", {"references": "datastructure"}, accept=XS)
-    dims = []
-    if st == 200 and body:
-        root = ET.fromstring(body)
-        for d in root.iter():
-            if loc(d) == "DimensionList":
-                dims = [x.get("id") for x in d if x.get("id") and loc(x) in ("Dimension",)]
-                break
-    p("DSD", agency, fid, st, dims)
-    return dims
-
-
-def data(label, path, params, accept=JD, show_codes=0):
-    st, ct, body, u = get(path, params, accept=accept)
-    info = {"label": label, "http": st, "ct": ct[:60], "bytes": len(body or b""), "url": str(u)[:220]}
+def data(label, path, params=None, accept=JD):
+    st, ct, body, u = get(path, params, accept=accept, cap=3_000_000)
+    info = {"label": label, "http": st, "bytes": len(body or b""), "url": str(u)[:200]}
     if body and body[:1] == b"{":
-        try:
-            j = json.loads(body)
-        except ValueError:
-            j = {}
+        j = json.loads(body)
         if st >= 400:
-            info["err"] = json.dumps(j)[:300]
+            info["err"] = json.dumps(j)[:250]
         else:
             d = j.get("data") or {}
             ds = (d.get("dataSets") or [{}])[0]
-            info["n_series"] = len(ds.get("series") or {})
-            sts = d.get("structures") or [{}]
-            dims = (sts[0].get("dimensions") or {})
-            info["series_dims"] = [(x.get("id"), len(x.get("values") or [])) for x in dims.get("series") or []]
-            info["obs_dims"] = [(x.get("id"), [v.get("id") or v.get("value") for v in (x.get("values") or [])][-6:]) for x in dims.get("observation") or []]
-            sk = next(iter(ds.get("series") or {}), None)
-            if sk:
-                info["first_series"] = sk
-                info["first_obs"] = list((ds["series"][sk].get("observations") or {}).items())[-2:]
-            p("DATA", json.dumps(info, default=str)[:1500])
-            if show_codes:
-                for x in dims.get("series") or []:
-                    vals = x.get("values") or []
-                    if len(vals) > 1:
-                        p("  CODES", x.get("id"), len(vals))
-                        for v in vals[:show_codes]:
-                            nm = v.get("name") or v.get("names") or ""
-                            if isinstance(nm, dict):
-                                nm = nm.get("en") or ""
-                            p("   ", v.get("id"), "|", str(nm)[:90])
-            return st
+            ser = ds.get("series") or {}
+            info["n_series"] = len(ser)
+            dims = (d.get("structures") or [{}])[0].get("dimensions") or {}
+            info["series"] = {k: len(v.get("observations") or {}) for k, v in list(ser.items())[:8]}
+            info["sdims"] = [(x["id"], [v["id"] for v in x.get("values") or []][:8]) for x in dims.get("series") or []]
+            info["times"] = [v.get("id") or v.get("value") for v in (dims.get("observation") or [{}])[0].get("values") or []][-8:]
     elif body:
-        info["head"] = body[:300].decode("utf-8", "replace")
-    p("DATA", json.dumps(info, default=str)[:1500])
-    return st
+        info["head"] = body[:200].decode("utf-8", "replace")
+    p("DATA", json.dumps(info, default=str)[:1400])
 
 
 def main():
-    fl = flows()
-    # 1) WEO variants for the 500 issue
-    base = "/data/dataflow/IMF.RES/WEO/+/USA.NGDP_RPCH.A"
-    data("weo-plain", base, None)
-    data("weo-ctime", base, {"c[TIME_PERIOD]": "ge:2020"})
-    data("weo-start", base, {"startPeriod": "2020"})
-    data("weo-format", base, {"format": "jsondata"})
-    data("weo-accept-xml", base, None, accept="application/vnd.sdmx.data+xml;version=3.0.0")
-    data("weo-accept-any", base, None, accept="*/*")
-    data("weo-tilde", "/data/dataflow/IMF.RES/WEO/~/USA.NGDP_RPCH.A", None)
-    data("weo-star", "/data/dataflow/IMF.RES/WEO/*/USA.NGDP_RPCH.A", None)
-    data("weo-lastn", base, {"lastNObservations": "3"})
-    seen = set()
-    for ag, fid, ver, nm in fl:
-        if (ag, fid) in seen:
-            continue
-        seen.add((ag, fid))
-        dims = dsd(ag, fid)
-        if not dims:
-            continue
-        for cty in ("USA", "DEU", "US"):
-            key = ".".join(cty if d in ("COUNTRY", "REF_AREA", "JURISDICTION") else "*" for d in dims)
-            st = data(f"{fid}-{cty}-wild", f"/data/dataflow/{ag}/{fid}/+/{key}",
-                      {"c[TIME_PERIOD]": "ge:2022"}, show_codes=120)
-            if st == 200:
-                break
+    for c in ("DEU", "USA", "JPN", "CHN", "GBR", "FRA"):
+        data(f"weo-{c}", f"/data/dataflow/IMF.RES/WEO/+/{c}.NGDP_RPCH.A", {"startPeriod": "2021", "endPeriod": "2031"})
+    data("weo-deu-ctime", "/data/dataflow/IMF.RES/WEO/+/DEU.NGDP_RPCH.A", {"c[TIME_PERIOD]": "ge:2021+le:2031"})
+    data("weo-multi", "/data/dataflow/IMF.RES/WEO/+/USA+DEU+JPN.NGDP_RPCH+PCPIPCH+LUR.A", {"c[TIME_PERIOD]": "ge:2021"})
+    data("weo-vintage", "/data/dataflow/IMF.RES/WEO_2025_OCT_VINTAGE/+/USA+DEU.NGDP_RPCH.A", {"c[TIME_PERIOD]": "ge:2023"})
+    data("fm-multi", "/data/dataflow/IMF.FAD/FM/+/USA+DEU+JPN.GNLB_S13_POGDP_PT+GPB_S13_POGDP_PT+G63G_S13_POGDP_PT.A", {"c[TIME_PERIOD]": "ge:2021"})
+    data("gdd-multi", "/data/dataflow/IMF.FAD/GDD/+/USA+DEU+JPN.FL_PS_POGDP_PT+FL_S14_POGDP_PT+FL_S11_POGDP_PT.A", {"c[TIME_PERIOD]": "ge:2015"})
+    data("fsic-usa-q", "/data/dataflow/IMF.STA/FSIC/+/USA+DEU+JPN.*.AQ12_CFSI_PT+FSI688_CFSI_PT.Q", {"c[TIME_PERIOD]": "ge:2023"})
+    data("mfs-ma", "/data/dataflow/IMF.STA/MFS_MA/+/USA+DEU+JPN.BM_MAI.*.M", {"c[TIME_PERIOD]": "ge:2025-01"})
+    data("mfs-ma-deu", "/data/dataflow/IMF.STA/MFS_MA/+/DEU.*.*.*", {"c[TIME_PERIOD]": "ge:2025"})
+    data("cci-deu", "/data/dataflow/IMF.STA/CCI/+/DEU+USA.AMGST_dC.*.A", {"c[TIME_PERIOD]": "ge:2015"})
+    data("fas-deu", "/data/dataflow/IMF.STA/FAS/+/DEU.*.*.*.*.*.*", {"c[TIME_PERIOD]": "ge:2020"})
+    # AIPI routes (expected blocked or absent; recorded, not bypassed)
+    for u in ("https://www.imf.org/external/datamapper/api/v1/AI_PI",
+              "https://www.imf.org/external/datamapper/api/v2/AI_PI",
+              "https://api.imf.org/external/datamapper/api/v1/AI_PI",
+              "https://www.imf.org/external/datamapper/AI_PI@AIPI/ADVEC/EME/LIC"):
+        st, ct, body, uu = get(u, accept="application/json", cap=2_000_000)
+        p("AIPI", u, st, ct[:50], len(body or b""), (body or b"")[:120])
+    for fid, (ag, dims, filt) in FLOWS.items():
+        key = {"FSIC": "USA+DEU.*.*.*", "FAS": "USA+DEU.*.*.*.*.*.*", "CCI": "USA+DEU.*.*.*",
+               "MFS_MA": "USA+DEU.*.*.*"}.get(fid, "USA+DEU.*.*")
+        used = used_codes(ag, fid, key)
+        if filt:
+            used = {k: ({c for c in v if re.search(filt, c)} if k == "INDICATOR" else v) for k, v in used.items()}
+        codelists(ag, fid, dims, used)
     return 0
 
 
