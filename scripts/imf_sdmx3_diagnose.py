@@ -36,6 +36,12 @@ CASES = {
                  {"startPeriod": "2025", "endPeriod": "2026", "format": "jsondata"}),
     "MFS-data-guess-safebounded": ("/data/dataflow/IMF.STA/MFS_MA/+/DE.*.M",
                  {"startPeriod": "2026", "endPeriod": "2026", "format": "jsondata"}),
+    "FSIC-3-structure": ("/structure/dataflow/IMF.STA/FSIC/+", {"references":"datastructure"}),
+    "FSI-global-structure": ("/structure/dataflow/IMF/FSI/+", {"references":"datastructure"}),
+    "GDD-fad-structure": ("/structure/dataflow/IMF.FAD/FAD_GDD/+", {"references":"datastructure"}),
+    "GDD-fad-short-structure": ("/structure/dataflow/IMF.FAD/GDD/+", {"references":"datastructure"}),
+    "AIPI-res-structure": ("/structure/dataflow/IMF.RES/AIPI/+", {"references":"datastructure"}),
+
 }
 
 
@@ -44,8 +50,11 @@ def main():
         assert path.startswith("/") and urlsplit(ROOT).hostname == "api.imf.org"
         url = ROOT + path
         try:
+            accept = ("application/vnd.sdmx.structure+json;version=1.0"
+                      if path.startswith("/structure/") else
+                      "application/vnd.sdmx.data+json;version=2.0")
             with requests.get(url, params=params,
-                              headers={"Accept": "application/vnd.sdmx.structure+json;version=2.0,application/vnd.sdmx.data+json;version=2.0,*/*"},
+                              headers={"Accept": accept},
                               timeout=(5, 16), stream=True) as r:
                 length = int(r.headers.get("Content-Length") or 0)
                 chunks, received = [], 0
