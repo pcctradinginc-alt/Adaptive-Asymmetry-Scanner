@@ -170,7 +170,16 @@ def _select(dimensions, lists, flow: str, phrases: tuple[str, ...]):
                     cand.append(matched[0])
             cand = list(dict.fromkeys(cand))[:3]
             if not cand:
-                raise IMFSDMXError("NO_UNAMBIGUOUS_APPROVED_INDICATORS")
+                # Report only bounded, official codelist evidence.  This is a
+                # schema/indicator mapping problem, not an upstream outage.
+                # Never guess a code from a partial text match.
+                sample = sorted((str(code), str(label)[:90])
+                                for code, label in codes.items())[:12]
+                raise IMFSDMXError(
+                    f"NO_UNAMBIGUOUS_APPROVED_INDICATORS:"
+                    f"flow={flow}:dimension={dim}:codelist={list_id}:"
+                    f"total_codes={len(codes)}:sample={sample!r}"
+                )
             vals[dim] = "+".join(cand)
             selected["indicator_codes"] = cand
             selected["indicator_labels"] = {c: codes[c] for c in cand}
