@@ -430,7 +430,14 @@ def book_proposals(trade_proposals: list[dict], history: dict, today: str, trade
     """Paper-Trades buchen (bestehende Policy: Trade-Gate + 30-Tage-Ticker-Cooldown) und den
     Buchungsstatus je Vorschlag setzen (Maintenance 2026-10-09: Reports zeigen, ob tatsächlich gebucht
     wurde – ein bereits offener Ticker erscheint nicht mehr wie ein neuer, unabhängiger Trade)."""
-    _cutoff = (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%d")
+    # Cooldown relativ zum Laufdatum `today` (Produktion: today = utcnow-Datum, also unverändert), nicht zur Wanduhr:
+    # sonst hing das Ergebnis vom Ausführungszeitpunkt ab (Audit 2026-11-06: Buchung 06.10., Lauf 07.10. galt ab
+    # dem 06.11. nicht mehr als offen -> Duplikat; Regressionstest test_maintenance_2026_10_09 seitdem rot).
+    try:
+        _ref = datetime.strptime(str(today)[:10], "%Y-%m-%d")
+    except ValueError:
+        _ref = datetime.utcnow()
+    _cutoff = (_ref - timedelta(days=30)).strftime("%Y-%m-%d")
     cooled_tickers = {
         t["ticker"] for t in history["active_trades"]
         if t.get("entry_date", "") >= _cutoff
