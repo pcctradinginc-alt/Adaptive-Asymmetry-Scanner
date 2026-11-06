@@ -108,6 +108,13 @@ voraus. Dafür ist keine neue Quelle nötig, nur realisierte Vola je Zeile.
 - Kontrollgruppe: Terzile innerhalb desselben Tages.
 - Test: gepaart, netto nach Spread.
 - Am besten belegt in der Literatur; ein Hinweis im Census liegt vor (IC −0,13 bei 20 T, n_eff ≈ 1).
+- **Explorativer Vorabtest (06.11., NEED_MORE_DATA):**
+  - Realisierte Vola aus den Einstiegskursen des Ledgers, nur Tage vor dem Signal, mindestens 8 Tagesrenditen.
+  - Basis: 298 Census-Optionen an 10 Signaltagen (14.–30.10.), ausführbare 5-T-Rendite.
+  - Rang-IC von IV/RV: −0,046 (positiv an 40 % der Tage).
+  - Unteres minus oberes IV/RV-Terzil: +1,3 pp (t = 0,26).
+  - Die Richtung entspricht der Hypothese, die Größe ist nicht von 0 unterscheidbar. Die RV-Schätzung ist verrauscht.
+    Belastbar wird der Test erst mit der RV-Erfassung je Zeile (G1) und mehr unabhängigen Perioden.
 
 **D5 – Wasserstraßen-Engpass.** Niedrige Pegel an Mississippi und Ohio erhöhen die Kosten Barge-abhängiger Agrar- und
 Chemieunternehmen und werden verzögert eingepreist.
