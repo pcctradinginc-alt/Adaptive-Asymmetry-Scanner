@@ -882,6 +882,10 @@ def _build_real_strategy(
                 "rv_score":      iv_rank_components.get("rv_score"),
                 "term_score":    iv_rank_components.get("term_score"),
                 "n_term_points": iv_rank_components.get("n_term_points"),
+                # Audit 2026-11-06 (Hypothese D4, Varianzrisikoprämie): Niveau der realisierten 21-T-Vola aus den
+                # Schlusskursen bis zum Signal (point-in-time), damit IV/RV je Kontrakt prospektiv messbar ist.
+                # Reine Erfassung: weder Strategiewahl noch Lernmodell lesen den Wert.
+                "rv_21_level":   iv_rank_components.get("rv_21_level"),
             }
         if strategy_match is not None:
             row["strategy_match"] = strategy_match

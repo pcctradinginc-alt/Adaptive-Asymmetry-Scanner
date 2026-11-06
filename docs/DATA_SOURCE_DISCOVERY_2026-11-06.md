@@ -148,6 +148,9 @@ Vorbereitet ist Folgendes: Katalogeinträge mit Aufnahmeprüfung (`access`, `lic
 ## G Nächste Schritte
 
 1. D4: realisierte Vola je Census-Zeile erfassen. Das kostet keine neue Quelle und hat den höchsten erwarteten Nutzen.
+   **Umgesetzt in diesem PR:** `iv_rank_components.rv_21_level`, das Niveau der realisierten 21-T-Vola bis zum Signal.
+   Damit ist IV/RV = `real_option.iv / rv_21_level` je Census-Kontrakt ab dem Merge prospektiv messbar. Reine
+   Erfassung: Strategiewahl, IV-Rank und Lernmodell sind unverändert.
 2. Lizenz und Zugang von Wikipedia-Pageviews durch einen Menschen prüfen lassen, danach Pilot D1 mit historischem
    Panel-Test.
 3. Die PortWatch-Kontingent-Fixes beobachten. Nach dem Merge sollte die Zahl der Abrufe pro Lauf bei einem 429 sinken.

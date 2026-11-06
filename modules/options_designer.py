@@ -191,6 +191,7 @@ def compute_iv_rank_components(closes: list, term_points: list) -> dict:
     """
     rv_score = 50.0
     rv_measured = False
+    rv_21_level = None            # Niveau der realisierten 21-T-Vola (annualisiert) – nur Erfassung, kein Einfluss
     try:
         clean = [float(c) for c in (closes or []) if c is not None]
         if len(clean) >= 60:
@@ -199,6 +200,7 @@ def compute_iv_rank_components(closes: list, term_points: list) -> dict:
             roll_rv = rets.rolling(21).std().dropna() * (252 ** 0.5)
             if len(roll_rv) >= 20:
                 rv_current = float(roll_rv.iloc[-1])
+                rv_21_level = round(rv_current, 4) if math.isfinite(rv_current) and rv_current > 0 else None
                 rv_min     = float(roll_rv.quantile(0.05))
                 rv_max     = float(roll_rv.quantile(0.95))
                 if rv_max > rv_min:
@@ -225,6 +227,7 @@ def compute_iv_rank_components(closes: list, term_points: list) -> dict:
     combined = round(rv_score * 0.80 + term_score * 0.20, 1)
     return {
         "rv_measured":   rv_measured,
+        "rv_21_level":   rv_21_level,
         "rv_score":      round(rv_score, 1),
         "term_score":    round(term_score, 1),
         "n_term_points": n_term_points,

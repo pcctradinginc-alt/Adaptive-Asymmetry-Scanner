@@ -197,3 +197,19 @@ def test_get_iv_rank_returns_rv_score_only_when_current_price_zero(monkeypatch):
     expected_rv_only = compute_iv_rank_components(closes, [])["rv_score"]
     assert got == pytest.approx(expected_rv_only)
     assert calls == []  # Term-Structure wird bei current<=0 gar nicht erst abgefragt
+
+
+def test_iv_rank_components_record_rv_level_without_changing_the_rank():
+    """Audit 2026-11-06 (D4): das Niveau der realisierten 21-T-Vola wird miterfasst (IV/RV je Kontrakt prospektiv
+    messbar); combined/rv_score bleiben die bisherige Formel."""
+    import math as _m
+
+    import numpy as _np
+    rng = _np.random.default_rng(7)
+    closes = list(100 * _np.cumprod(1 + rng.normal(0, 0.02, 260)))
+    parts = compute_iv_rank_components(closes, [(30, 0.40), (120, 0.35)])
+    rets = _np.diff(closes) / _np.array(closes[:-1])
+    expected = float(_np.std(rets[-21:], ddof=1) * _m.sqrt(252))
+    assert parts["rv_21_level"] == pytest.approx(expected, abs=1e-3)
+    assert abs(parts["combined"] - (parts["rv_score"] * 0.80 + parts["term_score"] * 0.20)) <= 0.1   # gerundete Teile
+    assert compute_iv_rank_components([100.0] * 30, [])["rv_21_level"] is None
