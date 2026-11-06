@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-05",
+  "as_of": "2026-11-06",
   "decisions_by_class": {
     "ABSTAIN": 17,
     "TRADE": 29
@@ -7,18 +7,18 @@
   "economic_result": "NOT_EVALUATED_IN_PHASE_A",
   "executed": {
     "attribution": {
-      "NO_EX_ANTE_SIGNAL_ID": 4
+      "NO_EX_ANTE_SIGNAL_ID": 5
     },
     "broker_execution_checks": {
-      "NO_BROKER_EXECUTION_RECORD": 4
+      "NO_BROKER_EXECUTION_RECORD": 5
     },
     "n_attributed_ex_ante": 0,
     "n_documented_broker_executions": 0,
     "n_executed_evidence": 0,
-    "n_real_trades": 4,
+    "n_real_trades": 5,
     "note": "The trade outcomes are scanner paper trades valued from archived bid/ask quotes, without broker fills: they are never EXECUTED evidence. EXECUTED needs a documented broker execution AND an ex-ante alpha_signal_id (neither exists today; trading path unchanged)."
   },
-  "generated_at": "2026-11-05T20:16:25+00:00",
+  "generated_at": "2026-11-06T16:55:18+00:00",
   "hypotheses": {
     "CONTROL-UNIVERSE-RANDOM": {
       "by_structure": {
