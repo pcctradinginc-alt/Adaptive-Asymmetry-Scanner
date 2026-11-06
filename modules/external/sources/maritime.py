@@ -204,12 +204,18 @@ def _search_arcgis_item(
 def _resolve_layer(service_url: str, http_fetch: FetchFn) -> dict:
     """Fragt den FeatureServer selbst (f=json) ab, um herauszufinden, welcher
     Layer-Index die eigentlichen Daten trägt (meist 0, aber nie annehmen)."""
+    _check_rate_limit_breaker(service_url)
     res = http_fetch(service_url, params={"f": "json"})
     data = res.json()
     if not isinstance(data, dict):
         raise DiscoveryError(f"ArcGIS-FeatureServer-Root nicht JSON-Objekt: {service_url}")
     if isinstance(data.get("error"), dict):
         err = data["error"]
+        if arcgis_rate_limited(err):
+            _note_rate_limit(service_url, err)
+            raise PortWatchUpstreamUnavailable(
+                f"UPSTREAM_RATE_LIMITED service={service_url} arcgis_code={err.get('code')} "
+                f"reason={str(err.get('message') or '')[:160]}")
         raise PortWatchUpstreamUnavailable(
             f"UPSTREAM_UNAVAILABLE service={service_url} arcgis_code={err.get('code')} "
             f"reason={str(err.get('message') or '')[:160]}")
@@ -363,10 +369,16 @@ def _write_endpoint_cache(cache_path: str, endpoints: dict, now: datetime) -> No
 
 def fetch_layer_metadata(service_url: str, layer_id: int, http_fetch: FetchFn) -> dict:
     url = f"{service_url}/{layer_id}"
+    _check_rate_limit_breaker(url)
     res = http_fetch(url, params={"f": "json"})
     meta = res.json()
     if isinstance(meta, dict) and isinstance(meta.get("error"), dict):
         err = meta["error"]
+        if arcgis_rate_limited(err):
+            _note_rate_limit(url, err)
+            raise PortWatchUpstreamUnavailable(
+                f"UPSTREAM_RATE_LIMITED service={url} arcgis_code={err.get('code')} "
+                f"reason={str(err.get('message') or '')[:160]}")
         # ArcGIS returns HTTP 200 even when the JSON payload is a 400 error.
         # The provider's inaccessible layer must never become SCHEMA_CHANGED.
         raise PortWatchUpstreamUnavailable(
@@ -537,6 +549,44 @@ def build_where_clause(start: date, end: date, date_field: str = "date",
     )
 
 
+# ArcGIS meldet Kontingent-/Rate-Limits im JSON-Körper bei HTTP 200 ({"error": {"code": 429, "message": "Unable to
+# perform query. Too many requests.", "details": ["API calls quota exceeded ..."]}}) – http.fetch sieht dann keinen
+# 429-Status und kein Retry-After. Live 2026-11-06: nach jedem 429 liefen bis zu 5 Isolations-Probes je Layer (alle
+# wieder 429) und die übrigen PortWatch-Layer fragten dasselbe erschöpfte Kontingent erneut ab. Kreisunterbrecher je
+# Host für den laufenden Prozess: danach kein weiterer Abruf, der Fehler bleibt sichtbar (nie veraltete Daten).
+_RATE_LIMITED_HOSTS: dict[str, str] = {}
+
+
+def _host(url: str) -> str:
+    from urllib.parse import urlparse
+    return urlparse(url).netloc.lower()
+
+
+def arcgis_rate_limited(err) -> bool:
+    if not isinstance(err, dict):
+        return False
+    text = " ".join([str(err.get("message") or "")] + [str(d) for d in (err.get("details") or [])]).lower()
+    return err.get("code") == 429 or "too many requests" in text or "quota exceeded" in text
+
+
+def _note_rate_limit(url: str, err: dict) -> str:
+    host = _host(url)
+    _RATE_LIMITED_HOSTS.setdefault(host, str(err.get("message") or "")[:160])
+    return host
+
+
+def _check_rate_limit_breaker(url: str) -> None:
+    host = _host(url)
+    if host in _RATE_LIMITED_HOSTS:
+        raise PortWatchUpstreamUnavailable(
+            f"UPSTREAM_RATE_LIMITED host={host}: Kontingent in diesem Lauf bereits erschöpft "
+            f"({_RATE_LIMITED_HOSTS[host]}) – kein weiterer Abruf (Kreisunterbrecher), kein Rückgriff auf alte Daten")
+
+
+def reset_rate_limit_breaker() -> None:
+    _RATE_LIMITED_HOSTS.clear()
+
+
 class ArcGISQueryError(FetchError):
     """ArcGIS hat die Query mit einem Fehlerobjekt beantwortet (HTTP 200, {"error": ...}).
     `isolation` = Ergebnis der minimalen Probe-Abfragen (siehe isolate_query_error) oder None."""
@@ -644,6 +694,7 @@ def query_features(
     offset = 0
     all_features: list[dict] = []
     paging = supports_pagination is not False
+    _check_rate_limit_breaker(query_url)
     for _ in range(MAX_PAGES_SAFETY):
         params = {
             "where": where,
@@ -656,6 +707,13 @@ def query_features(
             params["orderByFields"] = order_by
         res = http_fetch(query_url, params=params)
         data = res.json()
+        if isinstance(data, dict) and "error" in data and arcgis_rate_limited(data["error"]):
+            # Rate-Limit/Kontingent: Isolations-Probes könnten nichts eingrenzen (alle 429) und verbrauchten nur
+            # weiteres Kontingent -> keine Probe, Kreisunterbrecher für den restlichen Lauf.
+            _note_rate_limit(query_url, data["error"])
+            raise ArcGISQueryError(
+                f"[UPSTREAM_RATE_LIMITED] ArcGIS-Query-Fehler: {data['error']} (keine Isolations-Probe; weitere "
+                f"Abrufe dieses Hosts in diesem Lauf unterbleiben; service_url={service_url}/{layer_id})")
         if isinstance(data, dict) and "error" in data:
             isolation = (isolate_query_error(service_url, layer_id, http_fetch, where=where, out_fields=out,
                                              order_by=order_by, offset=offset, base_field=isolation_field,

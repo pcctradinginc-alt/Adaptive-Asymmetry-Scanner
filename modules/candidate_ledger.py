@@ -76,6 +76,7 @@ HORIZONS = (5, 20, 45, 120)
 RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
 
 # ── P0-A/B/P2 Defaults (Observability, siehe Docstring oben) ─────────────────
+_ZERO_BID_EXIT_MAX_ASK = 0.25     # = option_quotes.ZERO_BID_EXIT_MAX_ASK (Long-Exit einer wertlosen Option)
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
 RESEARCH_DIRECTION           = "BULLISH"  # Research-Stichprobe ohne LLM-Richtung: einzige Richtung der Produktion
                                           # (Bearish deaktiviert) -> Long Call bzw. replizierte Call-Strategie
@@ -1908,7 +1909,7 @@ def _mark_quotes(symbols: list[str]) -> tuple[str, dict]:
     if market_snapshot.us_market_session(now) == "regular" \
             and oq.mark_window(now) not in ("BEFORE_WINDOW", "AFTER_WINDOW"):
         return "live", market_snapshot.fetch_option_quotes(symbols)
-    return "archive", oq.rth_quote_history(symbols, now, lookback_days=MARK_ARCHIVE_LOOKBACK_DAYS)
+    return "archive", oq.rth_quote_history(symbols, now, lookback_days=MARK_ARCHIVE_LOOKBACK_DAYS, long_exit=True)
 
 
 def _short_leg_history(symbols: list[str]) -> dict:
@@ -2049,6 +2050,8 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime, key: str = "re
                 exit_bid, exit_mid = q.get("bid"), q.get("mid")
                 if exit_bid in (None,) or exit_mid in (None,):
                     continue
+                if mode == "live" and exit_bid == 0 and (q.get("ask") or 0) > _ZERO_BID_EXIT_MAX_ASK:
+                    continue      # gleiche Regel wie im Archiv: Bid 0 bei großem Ask = fehlende Geldseite, Mark offen
 
             outcomes = row.setdefault("outcomes", {})
             outcomes[f"{prefix}_ret_{h}d"]       = round(exit_bid / entry_ask - 1.0, 4)

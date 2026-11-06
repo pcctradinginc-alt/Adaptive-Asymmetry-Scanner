@@ -55,7 +55,7 @@ def eligible(row, as_of):
 def quote_index(records):
     """Archived option quotes by record_id (first observation wins, as in option_quotes.by_ids)
     and usable RTH quotes by OCC symbol."""
-    by_id, by_symbol, by_symbol_short = {}, {}, {}
+    by_id, by_symbol, by_symbol_short, by_symbol_long_exit = {}, {}, {}, {}
     for r in sorted((r for r in records or [] if isinstance(r, dict)),
                     key=lambda r: str(r.get("retrieved_at") or "")):
         if r.get("record_id"):
@@ -64,7 +64,10 @@ def quote_index(records):
             by_symbol.setdefault(r.get("occ_symbol"), []).append(r)
         if oq.usable_rth_exit_quote(r, "short"):      # Spread-Short-Leg: Rückkauf zum Ask, Bid 0 zulässig
             by_symbol_short.setdefault(r.get("occ_symbol"), []).append(r)
-    return {"by_id": by_id, "by_symbol": by_symbol, "by_symbol_short": by_symbol_short}
+        if oq.usable_rth_exit_quote(r, "long"):       # Long-Exit: auch wertlos (Bid 0, kleines Ask)
+            by_symbol_long_exit.setdefault(r.get("occ_symbol"), []).append(r)
+    return {"by_id": by_id, "by_symbol": by_symbol, "by_symbol_short": by_symbol_short,
+            "by_symbol_long_exit": by_symbol_long_exit}
 
 
 def _same(a, b, tol=PRICE_TOL):
@@ -128,7 +131,7 @@ def provenance(row, index, horizon=HORIZON):
         return "MARK_DATE_MISSING"
     if rs.get("expiry") and mark_day > str(rs["expiry"]):
         return "SETTLEMENT_NOT_QUOTE"
-    longs = [r for r in by_symbol.get(symbols[0], []) if oq.quote_day(r) == mark_day]
+    longs = [r for r in index.get("by_symbol_long_exit", by_symbol).get(symbols[0], []) if oq.quote_day(r) == mark_day]
     by_short = index.get("by_symbol_short", by_symbol)
     shorts = ([r for r in by_short.get(symbols[1], []) if oq.quote_day(r) == mark_day]
               if len(symbols) == 2 else [None])
