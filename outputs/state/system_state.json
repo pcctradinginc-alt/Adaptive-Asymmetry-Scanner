@@ -7,7 +7,7 @@
  ],
  "data_health": {
   "status": "SAFE_MODE",
-  "data_quality": 0.896,
+  "data_quality": 0.888,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
@@ -15,10 +15,10 @@
   "global_reasons": [
    "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
   ],
-  "generated": "2026-11-05T20:15:22+00:00",
+  "generated": "2026-11-06T15:58:55+00:00",
   "counts": {
-   "HEALTHY": 50,
-   "DEGRADED": 1,
+   "HEALTHY": 49,
+   "DEGRADED": 2,
    "STALE": 1,
    "BROKEN": 2,
    "UNVALIDATED": 9
@@ -96,13 +96,13 @@
    },
    "data": {
     "level": "MILD",
-    "data_quality": 0.896
+    "data_quality": 0.888
    }
   },
   "reasons": [
    "FEATURE DRIFT MILD: ['tnx']",
    "MODEL DRIFT MILD: 0.167 der Modelle verschlechtern sich",
-   "DATA DRIFT MILD: Data Quality 0.896"
+   "DATA DRIFT MILD: Data Quality 0.888"
   ],
   "policy_version": "drift-v1",
   "consequences": {
@@ -112,7 +112,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-03T16:00:45+00:00",
-  "drift_input_age_days": 2.4,
+  "drift_input_age_days": 3.0,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -122,7 +122,7 @@
   "version": "scanner_rules@fa6cc74e0def"
  },
  "promotion_state": {
-  "generated": "2026-11-05T21:31:06+00:00",
+  "generated": "2026-11-06T00:29:47+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -187,15 +187,15 @@
  "inputs": {
   "model_health": "631f21079e0c",
   "meta_learning": "7f4ce3d53158",
-  "data_health": "d263f49df03a",
-  "promotion": "710891c6e01c",
+  "data_health": "f70a5754d06a",
+  "promotion": "29163c53f650",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "238003516e2f"
  },
- "state_version": 98,
- "fingerprint": "24219ec95f3bf798",
- "updated_at": "2026-11-06T00:29:47+00:00",
- "code_version": "f042580cd860"
+ "state_version": 99,
+ "fingerprint": "3e09da2712c3bb36",
+ "updated_at": "2026-11-06T15:58:55+00:00",
+ "code_version": "ef97e2ea7669"
 }

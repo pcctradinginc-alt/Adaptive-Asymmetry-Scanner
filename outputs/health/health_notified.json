@@ -1,5 +1,13 @@
 {
- "at": "2026-11-05T20:15:22+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-11-06T15:58:55+00:00",
+ "changes": [
+  {
+   "source_id": "imf_portwatch_disruptions",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: [Isolation basis=FAIL(429) outFields=FAIL(429) paging=FAIL(429)] ArcGIS-Query-Fehler: {'code': 429, 'message': 'Unable to perform query. Too many requests.', 'details': ['API calls quota exceeded (641"
+  }
+ ],
+ "mail": "sent"
 }
