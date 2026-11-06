@@ -15,7 +15,7 @@
   "global_reasons": [
    "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
   ],
-  "generated": "2026-11-06T15:58:55+00:00",
+  "generated": "2026-11-06T19:40:19+00:00",
   "counts": {
    "HEALTHY": 49,
    "DEGRADED": 2,
@@ -112,7 +112,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-03T16:00:45+00:00",
-  "drift_input_age_days": 3.0,
+  "drift_input_age_days": 3.2,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -187,15 +187,15 @@
  "inputs": {
   "model_health": "631f21079e0c",
   "meta_learning": "7f4ce3d53158",
-  "data_health": "f70a5754d06a",
+  "data_health": "8ef9a6f506ab",
   "promotion": "29163c53f650",
   "model_registry": "a0c0ce90b949",
   "champion_config": "fa6cc74e0def",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "238003516e2f"
  },
- "state_version": 99,
- "fingerprint": "3e09da2712c3bb36",
- "updated_at": "2026-11-06T15:58:55+00:00",
- "code_version": "ef97e2ea7669"
+ "state_version": 100,
+ "fingerprint": "1dfa0ff367577efb",
+ "updated_at": "2026-11-06T19:40:19+00:00",
+ "code_version": "496692c09b48"
 }
