@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-05T21:31:06+00:00",
+ "generated": "2026-11-06T00:29:47+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "84135133a543",
+ "code_version": "f042580cd860",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -252,7 +252,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Technology",
+    "dominant_sector_fired": "Financial Services",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -749,9 +749,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 111,
+      "n": 118,
       "fired_expectancy": null,
-      "non_fired_expectancy": 0.00019
+      "non_fired_expectancy": -0.00209
      },
      "60": {
       "n": 0,
@@ -858,9 +858,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 102,
-      "fired_expectancy": -0.06269,
-      "non_fired_expectancy": 0.02273
+      "n": 108,
+      "fired_expectancy": -0.06753,
+      "non_fired_expectancy": 0.02162
      },
      "60": {
       "n": 0,
@@ -967,9 +967,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 111,
+      "n": 118,
       "fired_expectancy": 0.03621,
-      "non_fired_expectancy": -0.00417
+      "non_fired_expectancy": -0.00642
      },
      "60": {
       "n": 0,
@@ -1076,9 +1076,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 102,
-      "fired_expectancy": -0.09761,
-      "non_fired_expectancy": 0.04055
+      "n": 108,
+      "fired_expectancy": -0.10402,
+      "non_fired_expectancy": 0.04023
      },
      "60": {
       "n": 0,
@@ -1185,9 +1185,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 111,
+      "n": 118,
       "fired_expectancy": null,
-      "non_fired_expectancy": 0.00019
+      "non_fired_expectancy": -0.00209
      },
      "60": {
       "n": 0,
@@ -2486,5 +2486,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "09fd6351195713dac0385627fc171d032c8084c51e97b45cbef2aea9e58b80ed"
+ "state_hash": "d12f2388b8a9922d5a45771a5d42897f535f2fa87d587546fa4ce1987385a2bb"
 }

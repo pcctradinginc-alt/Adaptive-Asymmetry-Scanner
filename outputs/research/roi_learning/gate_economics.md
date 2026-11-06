@@ -1,4 +1,4 @@
-# Gate- und Optionsökonomie – 2026-11-05
+# Gate- und Optionsökonomie – 2026-11-06
 
 **READ-ONLY SHADOW – keine Handels- oder Gate-Freigabe.**
 
@@ -44,19 +44,19 @@ Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.
 
 | Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |
 |---|---:|---:|---:|---:|---:|---:|
-| prescreen_no | 3925 | 0 | 3901 | 0.5% | 2333 | 2.9% |
+| prescreen_no | 3925 | 0 | 3901 | 0.5% | 2549 | 2.6% |
 | economics_first_quote_probe_budget | 1975 | 0 | 1000 | n/v | 0 | n/v |
-| sector_momentum_weak | 809 | 1 | 677 | 0.8% | 324 | 3.6% |
-| earnings_gate | 439 | 43 | 439 | -0.3% | 99 | 3.7% |
-| mismatch_below_min | 342 | 342 | 340 | 0.3% | 173 | n/v |
-| bearish_disabled | 311 | 311 | 306 | -0.0% | 203 | -0.6% |
+| sector_momentum_weak | 809 | 1 | 677 | 0.8% | 352 | 3.5% |
+| earnings_gate | 439 | 43 | 439 | -0.3% | 117 | 2.8% |
+| mismatch_below_min | 342 | 342 | 340 | 0.3% | 215 | -0.2% |
+| bearish_disabled | 311 | 311 | 306 | -0.0% | 226 | -0.4% |
 | time_budget_exceeded | 253 | 0 | 252 | n/v | 252 | n/v |
-| pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 157 | 6.9% |
-| options_design_roi_or_edge | 164 | 164 | 164 | 0.2% | 125 | n/v |
-| deep_analysis_veto_or_invalid | 162 | 0 | 160 | -0.2% | 91 | n/v |
-| mc_below_threshold | 100 | 100 | 100 | 1.0% | 61 | n/v |
+| pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 164 | 7.0% |
+| options_design_roi_or_edge | 164 | 164 | 164 | 0.2% | 127 | -1.7% |
+| deep_analysis_veto_or_invalid | 162 | 0 | 160 | -0.2% | 102 | -1.4% |
+| mc_below_threshold | 100 | 100 | 100 | 1.0% | 64 | 5.3% |
 | prescreen_bearish_prefilter | 39 | 0 | 39 | n/v | 0 | n/v |
-| impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 21 | n/v |
+| impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 23 | n/v |
 | unlabeled_after_options_design | 20 | 20 | 20 | n/v | 19 | n/v |
 | economics_first_earnings_gate | 14 | 0 | 6 | n/v | 0 | n/v |
 

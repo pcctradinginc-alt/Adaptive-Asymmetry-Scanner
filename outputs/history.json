@@ -10,8 +10,8 @@
         "avg_return": 0.022745
       },
       "low": {
-        "count": 18,
-        "avg_return": 0.400568
+        "count": 19,
+        "avg_return": 0.377018
       }
     },
     "mismatch": {
@@ -20,8 +20,8 @@
         "avg_return": 0.095156
       },
       "weak": {
-        "count": 38,
-        "avg_return": 0.166241
+        "count": 39,
+        "avg_return": 0.160776
       },
       "strong": {
         "count": 4,
@@ -30,8 +30,8 @@
     },
     "eps_drift": {
       "noise": {
-        "count": 118,
-        "avg_return": 0.095205
+        "count": 119,
+        "avg_return": 0.094011
       },
       "massive": {
         "count": 2,
@@ -44,95 +44,6 @@
     }
   },
   "active_trades": [
-    {
-      "ticker": "AAPL",
-      "entry_date": "2026-09-22",
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 1.649,
-        "z_score": 0.47,
-        "sigma_30d": 0.0125,
-        "price_move_48h": 0.0059,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6184
-      },
-      "strategy": "LONG_CALL",
-      "entry_debit": 35.2,
-      "entry_quote": {
-        "bid": 33.8,
-        "ask": 35.2,
-        "mid": 34.5,
-        "spread_pct": 0.0398,
-        "assumed_fill": "ask"
-      },
-      "catalyst_type": "EARNINGS",
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 330.0,
-        "bid": 33.8,
-        "ask": 35.2,
-        "open_interest": 8990,
-        "implied_vol": 0.2656,
-        "spread_ratio": 0.0398,
-        "dte": 177,
-        "delta": 0.6572,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 341.41,
-        "target_price": 368.72,
-        "hit_rate": 0.7362,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0173,
-        "alpha": 0.00294
-      },
-      "deep_analysis": {
-        "red_team": {
-          "argument_1": "AAPL ist mit einer Marktkapitalisierung von $5 Billionen und einem KGV deutlich \u00fcber dem Marktdurchschnitt extrem hoch bewertet. Der $20.000-Mac positioniert Apple in einem Nischenmarkt mit sehr geringen Volumina, was fundamentalen Einfluss auf Umsatz und EPS minimal h\u00e4lt. Die Premiumpositionierung ist kein neues Narrativ \u2013 Apple verfolgt diese Strategie seit Jahren, und der Markt hat sie l\u00e4ngst eingepreist.",
-          "argument_2": "Das Dealer-Gamma-Signal zeigt Call-OI-Dominanz (18.551 vs. 2.761 Puts ATM), was bei einer positiven Bewegung d\u00e4mpfend wirken kann: Dealer sind bereits long Gamma und verkaufen Rallyes aktiv. Dies bedeutet, dass der Weg nach oben mechanisch gebremst wird und kurzfristige Upside-Trades gegen strukturellen Hedging-Druck laufen \u2013 ein erhebliches Hindernis f\u00fcr taktische Long-Positionen.",
-          "argument_3": "Das Insider-Cluster-Signal von 8 K\u00e4ufern in 14 Tagen klingt bullish, bei einem Mega-Cap wie AAPL ist dies jedoch oft wenig aussagekr\u00e4ftig: RSU-K\u00e4ufe, planm\u00e4\u00dfige 10b5-1-Programme und Token-K\u00e4ufe aus steuerlichen Gr\u00fcnden dominieren. Zudem warnt ein Analyst explizit vor einem S&P-Dip von 7000, was einen makro\u00f6konomischen Gegenwind signalisiert, der bei einem hoch bewerteten Tech-Titel \u00fcberproportional wirkt.",
-          "red_team_verdict": "PASSIERT"
-        },
-        "stats_check": {
-          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate nicht interpretierbar \u2013 es liegt schlicht keine Simulation vor. Die fehlende MC-Validierung erh\u00f6ht die Modell-Unsicherheit. Bei AAPL mit historischer 30-Tage-Volatilit\u00e4t von ca. 20-25% w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Aufw\u00e4rtstrend im Bereich 45-60% zu erwarten \u2013 das Fehlen der Simulation ist ein Datenl\u00fccken-Risiko.",
-          "concern_level": "medium"
-        },
-        "impact": 4,
-        "surprise": 3,
-        "direction": "BULLISH",
-        "bear_case_severity": 6,
-        "time_to_materialization": "2-3 Monate",
-        "catalyst_confidence": 5,
-        "asymmetry_reasoning": "Der $20.000-Mac und die AI-Off-Meter-Positionierung signalisieren Margenstabilit\u00e4t, die der Markt noch nicht vollst\u00e4ndig in die Earnings-Erwartungen eingebaut hat. Insider-Cluster-K\u00e4ufe bei einem Mega-Cap liefern ein schwaches, aber nicht triviales Best\u00e4tigungssignal f\u00fcr Insiderzuversicht vor dem n\u00e4chsten Earnings-Katalysator. Der Markt fokussiert sich auf Makro-Unsicherheit und \u00fcbersieht die strukturelle Margenst\u00e4rke durch AI-Monetarisierung.",
-        "catalyst": "Q4 2026 Earnings-Bericht mit Margin-Surprise durch AI-Premium-Positionierung und $20k-Mac-Segment",
-        "bear_case": "Dealer-Gamma-Druck d\u00e4mpft Rallyes mechanisch, und bei einer Bewertung von $5 Billionen sind positive Signale bereits nahezu vollst\u00e4ndig eingepreist \u2013 der Markt braucht echte EPS-\u00dcberraschungen, nicht nur Positionierungs-Narrative.",
-        "macro_assessment": "Das neutrale Makro-Umfeld (flache Kurve, Fed Funds bei 3.63%) ist f\u00fcr AAPL weder R\u00fccken- noch Gegenwind. Der VIX-Contango (12.2 \u2192 17.7 \u00fcber 3M) deutet auf steigende erwartete Volatilit\u00e4t hin, was Long-Optionen verteuert und den Zeitwertzerfall beschleunigt. Eine Spread-Strategie (Bull Call Spread) ist nakten Long-Calls vorzuziehen.",
-        "data_confidence": "medium",
-        "macro_regime": "neutral",
-        "macro_context": {
-          "yield_curve": 0.2,
-          "regime": "neutral"
-        },
-        "mc_hit_rate": 0.0,
-        "is_mega_cap": true,
-        "market_cap": 4982601940992,
-        "direction_conflict": false
-      },
-      "tve": {
-        "roi_per_day_pct": 0.6878,
-        "annualized_roi": 4.1667,
-        "dte": 177
-      },
-      "outcome": null,
-      "peak_return": 0.1094,
-      "last_price": 344.17,
-      "current_return": -0.0469
-    },
     {
       "ticker": "ABBV",
       "entry_date": "2026-10-14",
@@ -376,7 +287,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-05T21:30:55+00:00",
+        "evaluated_at": "2026-11-06T00:28:12+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -652,7 +563,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-05T21:30:55+00:00",
+        "evaluated_at": "2026-11-06T00:28:12+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -10922,6 +10833,126 @@
         "sides": 2,
         "multiplier": 100,
         "cost_return": 0.000571,
+        "note": "Bid/Ask-Kreuzung bereits im Brutto-Outcome (Entry Ask, Exit Bid); keine OCC-/B\u00f6rsengeb\u00fchren"
+      }
+    },
+    {
+      "ticker": "AAPL",
+      "entry_date": "2026-09-22",
+      "features": {
+        "impact": 4,
+        "surprise": 3,
+        "mismatch": 1.649,
+        "z_score": 0.47,
+        "sigma_30d": 0.0125,
+        "price_move_48h": 0.0059,
+        "eps_drift": 0.0,
+        "bin_impact": "low",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.6184
+      },
+      "strategy": "LONG_CALL",
+      "entry_debit": 35.2,
+      "entry_quote": {
+        "bid": 33.8,
+        "ask": 35.2,
+        "mid": 34.5,
+        "spread_pct": 0.0398,
+        "assumed_fill": "ask"
+      },
+      "catalyst_type": "EARNINGS",
+      "option": {
+        "expiry": "2027-03-19",
+        "strike": 330.0,
+        "bid": 33.8,
+        "ask": 35.2,
+        "open_interest": 8990,
+        "implied_vol": 0.2656,
+        "spread_ratio": 0.0398,
+        "dte": 177,
+        "delta": 0.6572,
+        "data_source": "tradier"
+      },
+      "simulation": {
+        "current_price": 341.41,
+        "target_price": 368.72,
+        "hit_rate": 0.7362,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0173,
+        "alpha": 0.00294
+      },
+      "deep_analysis": {
+        "red_team": {
+          "argument_1": "AAPL ist mit einer Marktkapitalisierung von $5 Billionen und einem KGV deutlich \u00fcber dem Marktdurchschnitt extrem hoch bewertet. Der $20.000-Mac positioniert Apple in einem Nischenmarkt mit sehr geringen Volumina, was fundamentalen Einfluss auf Umsatz und EPS minimal h\u00e4lt. Die Premiumpositionierung ist kein neues Narrativ \u2013 Apple verfolgt diese Strategie seit Jahren, und der Markt hat sie l\u00e4ngst eingepreist.",
+          "argument_2": "Das Dealer-Gamma-Signal zeigt Call-OI-Dominanz (18.551 vs. 2.761 Puts ATM), was bei einer positiven Bewegung d\u00e4mpfend wirken kann: Dealer sind bereits long Gamma und verkaufen Rallyes aktiv. Dies bedeutet, dass der Weg nach oben mechanisch gebremst wird und kurzfristige Upside-Trades gegen strukturellen Hedging-Druck laufen \u2013 ein erhebliches Hindernis f\u00fcr taktische Long-Positionen.",
+          "argument_3": "Das Insider-Cluster-Signal von 8 K\u00e4ufern in 14 Tagen klingt bullish, bei einem Mega-Cap wie AAPL ist dies jedoch oft wenig aussagekr\u00e4ftig: RSU-K\u00e4ufe, planm\u00e4\u00dfige 10b5-1-Programme und Token-K\u00e4ufe aus steuerlichen Gr\u00fcnden dominieren. Zudem warnt ein Analyst explizit vor einem S&P-Dip von 7000, was einen makro\u00f6konomischen Gegenwind signalisiert, der bei einem hoch bewerteten Tech-Titel \u00fcberproportional wirkt.",
+          "red_team_verdict": "PASSIERT"
+        },
+        "stats_check": {
+          "mc_assessment": "Kein Quick MC wurde durchgef\u00fchrt (0 Pfade), daher ist die 0%-Hit-Rate nicht interpretierbar \u2013 es liegt schlicht keine Simulation vor. Die fehlende MC-Validierung erh\u00f6ht die Modell-Unsicherheit. Bei AAPL mit historischer 30-Tage-Volatilit\u00e4t von ca. 20-25% w\u00e4re eine realistische Hit-Rate f\u00fcr einen moderaten Aufw\u00e4rtstrend im Bereich 45-60% zu erwarten \u2013 das Fehlen der Simulation ist ein Datenl\u00fccken-Risiko.",
+          "concern_level": "medium"
+        },
+        "impact": 4,
+        "surprise": 3,
+        "direction": "BULLISH",
+        "bear_case_severity": 6,
+        "time_to_materialization": "2-3 Monate",
+        "catalyst_confidence": 5,
+        "asymmetry_reasoning": "Der $20.000-Mac und die AI-Off-Meter-Positionierung signalisieren Margenstabilit\u00e4t, die der Markt noch nicht vollst\u00e4ndig in die Earnings-Erwartungen eingebaut hat. Insider-Cluster-K\u00e4ufe bei einem Mega-Cap liefern ein schwaches, aber nicht triviales Best\u00e4tigungssignal f\u00fcr Insiderzuversicht vor dem n\u00e4chsten Earnings-Katalysator. Der Markt fokussiert sich auf Makro-Unsicherheit und \u00fcbersieht die strukturelle Margenst\u00e4rke durch AI-Monetarisierung.",
+        "catalyst": "Q4 2026 Earnings-Bericht mit Margin-Surprise durch AI-Premium-Positionierung und $20k-Mac-Segment",
+        "bear_case": "Dealer-Gamma-Druck d\u00e4mpft Rallyes mechanisch, und bei einer Bewertung von $5 Billionen sind positive Signale bereits nahezu vollst\u00e4ndig eingepreist \u2013 der Markt braucht echte EPS-\u00dcberraschungen, nicht nur Positionierungs-Narrative.",
+        "macro_assessment": "Das neutrale Makro-Umfeld (flache Kurve, Fed Funds bei 3.63%) ist f\u00fcr AAPL weder R\u00fccken- noch Gegenwind. Der VIX-Contango (12.2 \u2192 17.7 \u00fcber 3M) deutet auf steigende erwartete Volatilit\u00e4t hin, was Long-Optionen verteuert und den Zeitwertzerfall beschleunigt. Eine Spread-Strategie (Bull Call Spread) ist nakten Long-Calls vorzuziehen.",
+        "data_confidence": "medium",
+        "macro_regime": "neutral",
+        "macro_context": {
+          "yield_curve": 0.2,
+          "regime": "neutral"
+        },
+        "mc_hit_rate": 0.0,
+        "is_mega_cap": true,
+        "market_cap": 4982601940992,
+        "direction_conflict": false
+      },
+      "tve": {
+        "roi_per_day_pct": 0.6878,
+        "annualized_roi": 4.1667,
+        "dte": 177
+      },
+      "outcome": -0.0469,
+      "peak_return": 0.1094,
+      "last_price": 344.17,
+      "current_return": -0.0469,
+      "outcome_reliable": true,
+      "close_date": "2026-11-06",
+      "close_price": 344.17,
+      "close_reason": "max_holding_period",
+      "outcome_method": "option_quote",
+      "outcome_price_type": "OBSERVED_QUOTE",
+      "outcome_evaluation": {
+        "version": "trade-eval-v1",
+        "status": "OK",
+        "reasons": [],
+        "flags": [
+          "ENTRY_QUOTE_NOT_ARCHIVED",
+          "EXIT_OUTSIDE_RTH"
+        ],
+        "entry_session": "UNKNOWN",
+        "exit_session": "POST",
+        "legs": 1,
+        "reproducible": false,
+        "rth_executable": false,
+        "tier": "OBSERVED"
+      },
+      "outcome_net": -0.047244,
+      "cost_model": {
+        "version": "cost-v1-commission-per-contract-side",
+        "commission_per_contract_side": 0.65,
+        "legs": 1,
+        "sides": 2,
+        "multiplier": 100,
+        "cost_return": 0.000369,
         "note": "Bid/Ask-Kreuzung bereits im Brutto-Outcome (Entry Ask, Exit Bid); keine OCC-/B\u00f6rsengeb\u00fchren"
       }
     }
@@ -85396,219 +85427,6 @@
   },
   "shadow_trades": [
     {
-      "ticker": "AAPL",
-      "entry_date": "2026-09-22",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 341.41,
-        "target_price": 368.72,
-        "hit_rate": 0.7362,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0173,
-        "alpha": 0.00294
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 1.649,
-        "z_score": 0.47,
-        "sigma_30d": 0.0125,
-        "price_move_48h": 0.0059,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6184
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "ANET",
-      "entry_date": "2026-09-22",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 203.79,
-        "target_price": 229.19,
-        "hit_rate": 0.7428,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0372,
-        "alpha": 0.00431
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 0.015,
-        "z_score": 0.997,
-        "sigma_30d": 0.0296,
-        "price_move_48h": 0.0295,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6996
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 5,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "CRWD",
-      "entry_date": "2026-09-22",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 249.59,
-        "target_price": 283.52,
-        "hit_rate": 0.554,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0405,
-        "alpha": 0.00035
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.591,
-        "z_score": 0.282,
-        "sigma_30d": 0.0527,
-        "price_move_48h": 0.0149,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5556
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null
-    },
-    {
-      "ticker": "CRWD",
-      "entry_date": "2026-09-22",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "EARNINGS",
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 46.3,
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 245.0,
-        "bid": 45.25,
-        "ask": 46.3,
-        "open_interest": 1538,
-        "implied_vol": 0.5898,
-        "spread_ratio": 0.0227,
-        "dte": 177,
-        "delta": 0.6163,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 270.0,
-          "bid": 35.2,
-          "ask": 36.3
-        },
-        "net_debit": 11.1
-      },
-      "simulation": {
-        "current_price": 249.59,
-        "target_price": 283.52,
-        "hit_rate": 0.554,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0405,
-        "alpha": 0.00035
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.591,
-        "z_score": 0.282,
-        "sigma_30d": 0.0527,
-        "price_move_48h": 0.0149,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5556
-      },
-      "roi_net": 0.6246,
-      "roi_hurdle": 0.07,
-      "roi_gap": 0.5546,
-      "vix": 14.29,
-      "mc_hit_rate": 0.5556,
-      "outcome": null
-    },
-    {
-      "ticker": "ANET",
-      "entry_date": "2026-09-22",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "EARNINGS",
-      "strategy": "LONG_CALL",
-      "entry_debit": 30.3,
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 210.0,
-        "bid": 29.4,
-        "ask": 30.3,
-        "open_interest": 1267,
-        "implied_vol": 0.5353,
-        "spread_ratio": 0.0297,
-        "dte": 177,
-        "delta": 0.5731,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 203.79,
-        "target_price": 229.19,
-        "hit_rate": 0.7428,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0372,
-        "alpha": 0.00431
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 0.015,
-        "z_score": 0.997,
-        "sigma_30d": 0.0296,
-        "price_move_48h": 0.0295,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6996
-      },
-      "roi_net": 0.2464,
-      "roi_hurdle": 0.07,
-      "roi_gap": 0.1764,
-      "vix": 14.29,
-      "mc_hit_rate": 0.6996,
-      "outcome": null
-    },
-    {
       "ticker": "APH",
       "entry_date": "2026-09-23",
       "reject_reason": "final_mc_survivor",
@@ -146779,43 +146597,49 @@
       "created": "2026-09-28",
       "mfe": 0.1094,
       "mae": -0.3168,
-      "closed": false,
+      "closed": true,
       "variants": {
         "tp50_sl45": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.0469,
+          "closed": true,
           "peak": 0.1094,
-          "close_date": null
+          "close_date": "2026-11-06",
+          "close_reason": "time_exit"
         },
         "no_tp": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.0469,
+          "closed": true,
           "peak": 0.1094,
-          "close_date": null
+          "close_date": "2026-11-06",
+          "close_reason": "time_exit"
         },
         "trail35": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.0469,
+          "closed": true,
           "peak": 0.1094,
-          "close_date": null
+          "close_date": "2026-11-06",
+          "close_reason": "time_exit"
         },
         "trail50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.0469,
+          "closed": true,
           "peak": 0.1094,
-          "close_date": null
+          "close_date": "2026-11-06",
+          "close_reason": "time_exit"
         },
         "partial50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.0469,
+          "closed": true,
           "peak": 0.1094,
-          "close_date": null
+          "close_date": "2026-11-06",
+          "close_reason": "time_exit"
         },
         "time_only": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.0469,
+          "closed": true,
           "peak": 0.1094,
-          "close_date": null
+          "close_date": "2026-11-06",
+          "close_reason": "time_exit"
         }
       }
     },
@@ -147755,7 +147579,11 @@
     "shadow:7a4b4aa429030aed:45d:feature_stats_external": "2026-11-02",
     "shadow:42cd9bcaafbbc975:45d:feature_stats_external": "2026-11-02",
     "shadow:4cbda897c7b1197a:45d:feature_stats_external": "2026-11-05",
-    "shadow:78a4dd9d22e6bf26:45d:feature_stats_external": "2026-11-05"
+    "shadow:78a4dd9d22e6bf26:45d:feature_stats_external": "2026-11-05",
+    "Tac6ac91d210fe4c3:close:feature_stats": "2026-11-06",
+    "Tac6ac91d210fe4c3:close:feature_stats_external": "2026-11-06",
+    "shadow:6216a9421c101b2f:45d:feature_stats_external": "2026-11-06",
+    "shadow:a78a99eeee2c10fd:45d:feature_stats_external": "2026-11-06"
   },
   "processed_outcomes_meta": {
     "duplicate_skips": 0,
