@@ -280,3 +280,21 @@ Datenbasis: echte Census-Kontrakte, Einstieg zum Ask, Ausstieg zum Bid.
   (Ask − Bid) / Ask bei Einstieg.
 - **Power:** Streuung des Tages-IC (5 T) im Median 0,106. Benötigte unabhängige Perioden
   ≈ ((1,96 + 0,84)·0,106 / IC)².
+
+## 8 Audit-Matrix (Auftrag „Kritisches Systemaudit“, 2026-11-06)
+
+| ID | Prio | Befund | Beleg | Status | Alpha-Relevanz | Änderung | Abnahmetest |
+|---|---|---|---|---|---|---|---|
+| A1 | P0 | Dürre-Streak auf 10 Reports gedeckelt; Killer ohne Durchsatzbezug | live 13 statt „10“ Tage, `roi_ok` 8× statt `mismatch_ok` 6× | FIXED (#163) | Fehldiagnose lenkt Forschung auf das falsche Gate | `engine_monitor` Durchsatz/Poisson | `test_engine_monitor` (3 neu) |
+| A2 | P0 | `ret_1d` aus dem Schluss des Einstiegstags (Fr/Vorfeiertag) | 1.776/8.381, Streuung 0,7 % statt 3,2 % | FIXED (#163, neue Zeilen; alte gefiltert) | verfälscht 1-T-IC | `_label_close`, `one_day_label_is_same_session` | `test_label_horizon_integrity` (10) |
+| A3 | P0 | Cooldown nach Wanduhr statt Laufdatum | Test seit 06.11. auf `main` rot | FIXED (#163; Cherry-Pick in #164/#165) | Reproduzierbarkeit des Buchungspfads | `book_proposals` | bestehender Test |
+| A4 | P0 | Long-Exit-Marks aus dem Archiv verlangen Bid > 0; der Live-Pfad akzeptiert Bid 0 | `usable_rth_quote`/`rth_quote_history` vs. `_fill_real_option_marks` live | VERIFIED_DEFECT (latent), OPEN | strukturelle Zensierung wertloser Optionen; gemessen 0 von 1.053 fälligen Marks betroffen (einziger Abbruch CTVA-Kontraktanpassung), 5 von 3.989 Archiv-Quotes mit Bid 0; Abdeckungsgate ≥ 80 % begrenzt den Bias | Vorschlag: Bid 0 bei Ask > 0 als Exit zum Bid zulassen (wie Short-Legs, #152); Protokolländerung → Freigabe | – |
+| A5 | P1 | `news_novelty` als Objekt, im Lernmodell 0 % Abdeckung | IMP-4a0d2d31 | FIXED als Variante (#164, Freigabe), Basis unverändert | Merkmal nur scheinbar in der Spezifikation | Allowlist `news_novelty_field` | `test_option_learner_novelty_variant` (19) |
+| A6 | P1 | Ungeprüfte Hypothesen per Text-Jaccard gesperrt und als REJECTED gezählt | 33 Fälle, verschiedene Signale | FIXED (#165, CODEOWNERS) | falsches negatives Forschungswissen, verdrängt neue Ideen | Duplikate nach Signalwerten; `NOT_TESTED` | `test_research_lab` (+2) |
+| A7 | P1 | „IV-Rank“ ohne IV-Niveau (80 % RV-Perzentil) | `compute_iv_rank_components` | VERIFIED_DEFECT, OPEN (Strategiewahl → Freigabe) | Strukturwahl ignoriert die Varianzrisikoprämie | Vorschlag: RV-Niveau und Kontrakt-IV je Zeile erfassen, IV/RV als Variante | – |
+| A8 | P1 | Wochenend-Versatz Option-Mark vs. Underlying-Label | 233/699 (5 T) | OPEN (Labeldefinition) | verzerrt Zerlegung Option gegen Underlying | Vorschlag: `ret_{h}d_at_mark` | – |
+| A9 | P1 | Census-Optionen vor 28.10. nur für LLM-analysierte Kandidaten | `option_sample`, Stufen | DATA_GAP | Selektionsbias in 20-T-Labels bis Mitte Okt. | seit 30.10. Hash-Zufallsstichprobe mit protokollierter Auswahlwahrscheinlichkeit (`snapshot_eligible_n`, `snapshot_budget`) – fair, kein Handlungsbedarf | – |
+| A10 | P1 | Lernmodell-Prognosen außerhalb der Stichprobe | `predictions.jsonl` × Ledger | NEED_MORE_DATA | 40 reife 5-T-Prognosen eines einzigen Tages (30.10.): Rang-IC 0,51; TRADE n=7 Ø +15,6 % gegen ABSTAIN Ø −6,2 % – eine unabhängige Beobachtung, keine Evidenz | – | – |
+| A11 | P1 | Budget von economics_first: 1–3 LLM-Analysen pro Tag | Daily-Reports ab 28.10. | OPEN (Owner) | Produktionskette erzeugt ≈ 0,4 Trades pro Monat → keine Forward-Evidenz | Entscheidung: Budget oder Census als Bewertungsbasis | – |
+| A12 | P1 | ML-Scores im Census negativ, LLM-Urteile ohne Informationsgehalt | Abschnitt 2 | NEED_MORE_DATA / REJECTED_SO_FAR (`ml_research`) | kein Alpha belegt | – | – |
+| A13 | P2 | Ablehnungsgründe nur als Freitext, keine Klassen (widerlegt / zu wenig Power / Kosten / Defekt) | 126 REJECTED-Einträge, 0 mit Klassenfeld; häufigste Gründe „t < 2“ (85), „bei Stresskosten nicht positiv“ (73), „instabil über Hälften“ (68) | OPEN | „zu wenig Power“ und „widerlegt“ sind im Gedächtnis gleich gewichtet | Vorschlag: Klassifizierung beim Schreiben (CODEOWNERS) | – |
