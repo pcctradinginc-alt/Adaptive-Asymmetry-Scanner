@@ -1,10 +1,10 @@
 {
- "date": "2026-10-30",
+ "date": "2026-11-06",
  "status": "COMPLETE",
  "sec": {
-  "tickers_total": 10430,
-  "wanted": 777,
-  "mapped": 626,
+  "tickers_total": 10409,
+  "wanted": 778,
+  "mapped": 627,
   "unmapped": [
    "ABMD",
    "ACE",
@@ -159,27 +159,33 @@
    "YHOO"
   ],
   "changes": {
-   "opened": 0,
-   "replaced": 4,
-   "unchanged": 1248,
-   "closed": 0
+   "opened": 4,
+   "replaced": 0,
+   "unchanged": 1250,
+   "closed": 2
   }
  },
  "gleif": {
-  "attempted": 0,
+  "attempted": 65,
   "HIGH": 0,
   "MEDIUM": 0,
-  "LOW": 0,
+  "LOW": 65,
   "with_parent": 0,
-  "cooling_down": 136,
-  "low_reasons": {},
+  "cooling_down": 73,
+  "low_reasons": {
+   "mehrdeutig (3 Treffer)": 9,
+   "kein exakter Treffer": 37,
+   "mehrdeutig (2 Treffer)": 17,
+   "mehrdeutig (4 Treffer)": 1,
+   "mehrdeutig (5 Treffer)": 1
+  },
   "remaining": 0
  },
  "errors": [],
  "gleif_children": {
   "fetched": 60,
-  "children": 195,
-  "opened": 195,
+  "children": 532,
+  "opened": 532,
   "linked_entities": 491
  }
 }
