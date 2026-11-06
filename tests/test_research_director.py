@@ -174,3 +174,19 @@ def test_run_options_registers_only_free_allowlisted_variants_once(tmp_path):
     again = rd.run_options(tmp_path, now)
     assert again["registered_variants"] == []
     assert "model:untested_alternatives:5d" not in {g["gap_id"] for g in again["gaps"]}
+
+
+def test_onboarding_checks_license_and_access_explicitly():
+    """Audit 2026-11-06: fehlende Lizenz galt als 'ok', Zugang wurde nie geprüft. Neue Katalog-Kandidaten sind bis
+    zur menschlichen Lizenzprüfung und einem erfolgreichen read-only-Abruf nicht verfügbar."""
+    base = {"id": "x", "provider": "P", "pit": "publication_date", "history_from": 2010, "status": "candidate"}
+    assert rd.onboarding_checklist(base)["license"] == "missing"
+    assert rd.onboarding_checklist({**base, "license": "frei: REVIEW_REQUIRED"})["license"] == "review_required"
+    assert rd.onboarding_checklist({**base, "license": "CC0"})["access"] == "pending"
+    assert rd.onboarding_checklist({**base, "license": "CC0", "access_verified": True})["access"] == "ok"
+    import yaml
+    cat = yaml.safe_load(open("config/data_catalog.yaml", encoding="utf-8"))["sources"]
+    new = {s["id"]: s for s in cat if s.get("access_verified") is False}
+    assert {"wikipedia_pageviews", "openfda_enforcement", "federal_register_documents"} <= set(new)
+    al = {a["source"]: a for a in rd.active_learning({}, [], list(new.values()))}
+    assert all(not a["available"] and set(a["blocked_by"]) == {"license", "access"} for a in al.values())
