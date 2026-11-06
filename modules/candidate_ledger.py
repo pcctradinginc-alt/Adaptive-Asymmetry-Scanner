@@ -74,6 +74,9 @@ HORIZONS = (5, 20, 45, 120)
 # ohnehin geladenen Kurshistorie, keine zusätzlichen API-Calls. Options-Marks
 # (real_opt/real_strat) bleiben bei HORIZONS (Tradier-Budget).
 RETURN_HORIZONS = (1, 5, 20, 45, 60, 120)
+# Schlusstag des ret_1d-Labels (ab 2026-11-06). Fehlt er, stammt das Label aus der alten Regel; bei Einstieg vor einem
+# Nicht-Handelstag misst es dann nur den Rest der Einstiegssitzung (siehe _label_close, one_day_label_is_same_session).
+ONE_DAY_CLOSE_KEY = "ret_1d_close_date"
 
 # ── P0-A/B/P2 Defaults (Observability, siehe Docstring oben) ─────────────────
 DEFAULT_MAX_OPTION_SNAPSHOTS = 40   # API-Call-Budget für echte Options-Snapshots/Lauf
@@ -1816,10 +1819,12 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
             if (today_dt - entry_dt).days <= h:
                 continue
             target_dt = entry_dt + timedelta(days=h)
-            price = _price_on_or_before(hist, target_dt)
+            price, close_day = _label_close(hist, entry_dt, target_dt, today_dt, next_session=h == 1)
             if price is None:
                 continue
             outcomes[key] = round(_direction_adjusted_return(entry_price, price, direction), 4)
+            if h == 1:
+                outcomes[ONE_DAY_CLOSE_KEY] = close_day
             filled_any = True
             opt_key = f"opt_ret_{h}d"
             if opt_key not in outcomes and hypo:
@@ -1836,6 +1841,8 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
             )
             if latest_horizon is not None:
                 end_dt = entry_dt + timedelta(days=latest_horizon)
+                if latest_horizon == 1 and _parse_date(outcomes.get(ONE_DAY_CLOSE_KEY) or "") is not None:
+                    end_dt = max(end_dt, _parse_date(outcomes[ONE_DAY_CLOSE_KEY]))   # derselbe Schluss wie ret_1d
                 window = _prices_between(hist, entry_dt, end_dt)
                 if window:
                     rets = [_direction_adjusted_return(entry_price, p, direction) for p in window]
@@ -1880,17 +1887,23 @@ def _check_price_basis(row: dict, hist, entry_dt: datetime, entry_price: float,
         key = f"ret_{h}d"
         if key not in outcomes:
             continue
-        p_h = _price_on_or_before(hist, entry_dt + timedelta(days=h))
+        if h == 1 and outcomes.get(ONE_DAY_CLOSE_KEY):          # derselbe Schluss wie beim Füllen
+            p_h, _ = _label_close(hist, entry_dt, entry_dt + timedelta(days=h), today_dt, next_session=True)
+        else:
+            p_h = _price_on_or_before(hist, entry_dt + timedelta(days=h))
         same_basis = None if p_h is None else _direction_adjusted_return(ref, p_h, row.get("direction"))
         if same_basis is None or abs(outcomes[key] - same_basis) > PRICE_BASIS_TOL:
             invalid.update({k_: outcomes.pop(k_) for k_ in (key, f"opt_ret_{h}d") if k_ in outcomes})
+            if h == 1 and ONE_DAY_CLOSE_KEY in outcomes:
+                invalid[ONE_DAY_CLOSE_KEY] = outcomes.pop(ONE_DAY_CLOSE_KEY)
     if invalid:
         invalid.update({k_: outcomes.pop(k_) for k_ in ("mfe", "mae") if k_ in outcomes})   # derselbe Pfad
         row.setdefault("outcomes_invalidated", {"reason": "PRICE_BASIS_CHANGED"}).update(invalid)
     outcomes["price_basis"] = {"status": "CHANGED", "factor": round(k, 4), "entry_price": round(entry_price, 4),
                                "history_close_entry_day": round(float(ref), 4),
                                "checked_at": today_dt.strftime("%Y-%m-%d"),
-                               "invalidated": sorted(k_ for k_ in invalid if k_.startswith("ret_"))}
+                               "invalidated": sorted(k_ for k_ in invalid
+                                                     if k_.startswith("ret_") and k_ != ONE_DAY_CLOSE_KEY)}
     log.warning(f"candidate_ledger: {row.get('ticker')} {row.get('date')}: Preisbasis geändert (Historie/Entry "
                 f"{k:.3f}) -> keine weiteren Horizonte, ungültig: {outcomes['price_basis']['invalidated'] or '—'}")
     return True, True
@@ -2316,6 +2329,51 @@ def _price_on_or_before(hist, target_dt: datetime):
                 best_dt = ts_naive
                 best = price
     return float(best) if best is not None else None
+
+
+def one_day_label_is_same_session(row: dict) -> bool:
+    """True, wenn ret_1d nach der alten Regel (vor 2026-11-06) aus dem Schluss des Einstiegstags stammt: Einstieg vor
+    einem Nicht-Handelstag (Freitag, Vortag eines Feiertags) und kein ONE_DAY_CLOSE_KEY. Solche Labels messen nur den
+    Rest der Einstiegssitzung und gehören nicht in eine 1-Tages-Auswertung. Historische Zeilen bleiben unverändert;
+    Leser filtern mit dieser Funktion."""
+    oc = row.get("outcomes") or {}
+    if oc.get("ret_1d") is None or oc.get(ONE_DAY_CLOSE_KEY):
+        return False
+    entry_dt = _row_entry_dt(row)
+    if entry_dt is None:
+        return False
+    nxt = (entry_dt + timedelta(days=1)).date()
+    try:
+        from modules.market_snapshot import is_trading_day
+        return not is_trading_day(nxt)
+    except Exception:  # noqa: BLE001 – Kalender nicht verfügbar: nur Wochenende erkennen
+        return nxt.weekday() >= 5
+
+
+def _label_close(hist, entry_dt: datetime, target_dt: datetime, today_dt: datetime,
+                 next_session: bool = False) -> tuple[float | None, str | None]:
+    """Schlusskurs für ein Horizont-Label -> (Preis, Datum 'YYYY-MM-DD').
+
+    Regel wie bisher: letzter Schluss <= Zieltag (Kalendertage). Mit next_session (nur ret_1d): Läge dieser Schluss
+    am Einstiegstag selbst oder davor (Freitag + 1 Tag = Samstag, Vortag eines Feiertags), misst das Label nur den
+    Rest der Einstiegssitzung ohne Nacht (Live 2026-11-06: 1.776 von 8.381 ret_1d-Labels, Streuung 0,7 % statt
+    3,2 %). Dann gilt der erste Schluss NACH dem Einstiegstag, sobald dessen Sitzung abgeschlossen ist (Tag < heute;
+    sonst später erneut versuchen). Ohne Schluss <= Zieltag (Historie zu kurz) nie ein späterer Ersatz."""
+    best_dt, best, nxt_dt, nxt = None, None, None, None
+    entry_day = entry_dt.date()
+    for ts, price in hist:
+        ts_naive = ts.replace(tzinfo=None) if getattr(ts, "tzinfo", None) else ts
+        if ts_naive <= target_dt and (best_dt is None or ts_naive > best_dt):
+            best_dt, best = ts_naive, price
+        if ts_naive.date() > entry_day and (nxt_dt is None or ts_naive < nxt_dt):
+            nxt_dt, nxt = ts_naive, price
+    if best_dt is None:
+        return None, None
+    if best_dt.date() > entry_day or not next_session:
+        return float(best), best_dt.date().isoformat()
+    if nxt_dt is None or nxt_dt.date() >= today_dt.date():
+        return None, None
+    return float(nxt), nxt_dt.date().isoformat()
 
 
 def _prices_between(hist, start_dt: datetime, end_dt: datetime):
