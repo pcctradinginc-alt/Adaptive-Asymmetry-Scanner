@@ -19,6 +19,10 @@ approved_methods:
                      news_novelty]
     positioning: [short_pct_float, options_skew_25d, options_skew_ratio, dealer_oi_ratio]
     volatility_pricing: [c_iv, c_iv_rank, c_rv_score, c_term_score]
+  # news_novelty liegt im Ledger als Objekt vor (news-novelty-v1); die Basis verwirft es (0 % Abdeckung, IMP-4a0d2d31).
+  # Variante: die Zahl novelty_max (neueste Schlagzeile gegen die Ticker-Historie, zum Scan-Zeitpunkt berechnet)
+  # ersetzt das leere Merkmal. Ein Wert = ein Test-Slot; novelty_mean bewusst nicht freigegeben (Mehrfachtests).
+  news_novelty_field: [novelty_max]
 
 test_budget:                       # dauerhaftes Fehlerbudget ALLER Varianten-Tests (Bonferroni-Slots)
   total_alpha: 0.05                # familienweise Fehlerrate über alle jemals registrierten Varianten und Prüfungen

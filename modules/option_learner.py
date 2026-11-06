@@ -95,6 +95,7 @@ LEDGER_FEATURES = (
     "options_skew_25d", "options_skew_ratio", "dealer_oi_ratio", "ml_exp_ret_60", "ml_q10_ret_60",
     "ml_q90_ret_60", "ml_exp_dd_60", "ml_p_gt10_60", "ml_disagreement_sd", "ml_hgb_xs20_v1", "ml_enet_xs20_v1",
 )
+NOVELTY_FIELDS = ("novelty_max", "novelty_mean")   # Zahlen im news_novelty-Objekt (news-novelty-v1)
 CONTRACT_FEATURES = ("c_entry_spread", "c_is_spread", "c_is_call", "c_iv", "c_dte", "c_moneyness", "c_delta",
                      "c_log_oi", "c_iv_rank", "c_rv_score", "c_term_score")
 # (Ledger-Schlüssel, Outcome-Präfix, Name) – real_strategy heißt nach Struktur "single" oder "spread"
@@ -126,6 +127,9 @@ def experiment(params: dict | None = None) -> dict:
         spec["training"]["alpha"] = float(p["alpha"])
     if p.get("min_pred"):
         spec["selection"]["min_pred"] = float(p["min_pred"])
+    if p.get("news_novelty_field"):
+        # Variante: news_novelty als Zahl aus dem gespeicherten Objekt (Basis: Objekt -> verworfen, unverändert)
+        spec["features"]["news_novelty_field"] = str(p["news_novelty_field"])
     return spec
 
 
@@ -153,6 +157,9 @@ def validate_overrides(overrides: dict, cfg: dict) -> dict:
         known = set(LEDGER_FEATURES) | set(CONTRACT_FEATURES)
         if value not in allowed or not set(allowed[value]) <= known:
             raise ValueError(f"Merkmalsgruppe {value!r} nicht freigegeben oder unbekannt")
+    elif method == "news_novelty_field":
+        if value not in allowed or value not in NOVELTY_FIELDS:
+            raise ValueError(f"news_novelty-Feld {value!r} nicht freigegeben oder unbekannt")
     elif float(value) not in [float(v) for v in allowed]:
         raise ValueError(f"Wert {value!r} für {method} nicht freigegeben")
     return {method: value}
@@ -163,6 +170,8 @@ def variant_params(overrides: dict, cfg: dict) -> dict:
     ((method, value),) = validate_overrides(overrides, cfg).items()
     if method == "drop_feature_group":
         return {"drop": sorted(cfg["approved_methods"][method][value])}
+    if method == "news_novelty_field":
+        return {"news_novelty_field": str(value)}
     return {"alpha": float(value)} if method == "ridge_alpha" else {"min_pred": float(value)}
 
 
@@ -227,10 +236,41 @@ def contract_features(row: dict) -> dict:
     return {k: v for k, v in out.items() if v is not None}
 
 
+def novelty_value(raw, field: str) -> float | None:
+    """Zahl aus dem gespeicherten news_novelty-Objekt (modules/news_novelty.py, zum Scan-Zeitpunkt aus den Schlagzeilen
+    des Tages gegen die eigene Ticker-Historie berechnet, also point-in-time). Nur bei novelty_status 'ok' und einem
+    endlichen Wert in [0, 1]; sonst fehlt das Merkmal (nie 0 als Ersatz)."""
+    if field not in NOVELTY_FIELDS or not isinstance(raw, dict) or raw.get("novelty_status") != "ok":
+        return None
+    v = _num(raw.get(field))
+    return v if v is not None and 0.0 <= v <= 1.0 else None
+
+
+def novelty_feature(field: str) -> str:
+    return f"news_novelty__{field}"
+
+
 def features(row: dict) -> dict:
-    f = {k: _num((row.get("features") or {}).get(k)) for k in LEDGER_FEATURES}
+    feats = row.get("features") or {}
+    f = {k: _num(feats.get(k)) for k in LEDGER_FEATURES}
+    # Zusätzliche Schlüssel nur für Varianten mit news_novelty_field; die Basis liest ausschließlich LEDGER_FEATURES
+    # und CONTRACT_FEATURES (Basis-Experimentversion und -Prognosen unverändert).
+    f.update({novelty_feature(fld): novelty_value(feats.get("news_novelty"), fld) for fld in NOVELTY_FIELDS})
     f.update(contract_features(row))
     return {k: v for k, v in f.items() if v is not None}
+
+
+def feature_names(params: dict | None = None) -> list[str]:
+    """Merkmalsnamen einer Version: Basis = LEDGER_FEATURES + CONTRACT_FEATURES ohne `drop`; mit news_novelty_field
+    ersetzt die Zahl aus dem Objekt das (in der Basis stets leere) Merkmal news_novelty."""
+    p = params or {}
+    drop, fld = set(p.get("drop") or ()), p.get("news_novelty_field")
+    names = []
+    for n in (*LEDGER_FEATURES, *CONTRACT_FEATURES):
+        if n in drop:
+            continue
+        names.append(novelty_feature(fld) if fld and n == "news_novelty" else n)
+    return names
 
 
 def net_label(row: dict, horizon: int) -> float | None:
@@ -416,9 +456,8 @@ def fit(train: list[dict], params: dict | None = None) -> Model | None:
     if len(train) < MIN_TRAIN_ROWS:
         return None
     p = params or {}
-    drop, alpha = set(p.get("drop") or ()), float(p.get("alpha") or RIDGE_ALPHA)
-    names = [n for n in (*LEDGER_FEATURES, *CONTRACT_FEATURES)
-             if n not in drop and sum(n in d["x"] for d in train) >= MIN_FEATURE_COVERAGE * len(train)]
+    alpha = float(p.get("alpha") or RIDGE_ALPHA)
+    names = [n for n in feature_names(p) if sum(n in d["x"] for d in train) >= MIN_FEATURE_COVERAGE * len(train)]
     if not names:
         return None
     med = [float(np.median([d["x"][n] for d in train if n in d["x"]])) for n in names]
@@ -1687,6 +1726,15 @@ def feature_coverage(data: list[dict]) -> dict:
             for f in (*LEDGER_FEATURES, *CONTRACT_FEATURES)}
 
 
+def variant_feature_coverage(data: list[dict]) -> dict:
+    """Abdeckung der nur für Varianten erzeugten Merkmale (news_novelty als Zahl). Eine Variante, deren Merkmal unter
+    MIN_FEATURE_COVERAGE liegt, verwirft es wie die Basis und wäre mit ihr identisch (verbrauchter Test-Slot ohne
+    Erkenntnis) – Grundlage dafür, sie erst ab ausreichender Abdeckung vorzuschlagen."""
+    n = len(data)
+    return {novelty_feature(f): round(sum(novelty_feature(f) in d["x"] for d in data) / n, 4) if n else 0.0
+            for f in NOVELTY_FIELDS}
+
+
 def manifest(data: list[dict], as_of: date) -> dict:
     """Welche geprüften Labels in das Modell zum Stichtag flossen (Hash über Signal, Kontrakt, Mark-Tag)."""
     ids = _label_ids(data)
@@ -1823,7 +1871,8 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "provenance_counts": dict(sorted(counts.items())),
               "ledger_rows_7d": len(recent),
               "option_snapshots_7d": sum(1 for r in recent if isinstance(r.get("real_option"), dict)),
-              "manifest": manifest(data, as_of), "feature_coverage": feature_coverage(data), "walk_forward": wf,
+              "manifest": manifest(data, as_of), "feature_coverage": feature_coverage(data),
+              "variant_feature_coverage": variant_feature_coverage(data), "walk_forward": wf,
               "baselines": _baselines(wf.get("vs_reference") or {}),
               "by_gate": by_gate(data),
               "forward": forward(journal, cands, horizon, instances, as_of),
