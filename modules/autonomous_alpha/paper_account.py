@@ -41,8 +41,10 @@ def policy(root: Path = Path(".")) -> dict:
     sources = cfg.get("approved_quote_sources")
     if not isinstance(sources, list) or any(not isinstance(v, str) for v in sources):
         raise ValueError("approved account-free quote sources must be an explicit list")
-    if any("tradier" in source.lower() or not source.strip() for source in sources):
-        raise ValueError("broker-required Tradier data cannot activate the paper account")
+    if any(not source.strip() for source in sources):
+        raise ValueError("quote source name must be non-empty")
+    if cfg.get("market_data_only") is not True:
+        raise ValueError("paper account must use read-only market data")
     if cfg.get("strategy_preference") != list(al.STRUCTURES):
         raise ValueError("paper strategy selection must remain ex-ante")
     if not 1000 <= float(cfg.get("starting_cash_usd", 0)) <= 1_000_000:
@@ -190,7 +192,7 @@ def _entry_archived(root: Path, d: dict) -> bool:
     from modules import option_quotes as oq
     approved = set(policy(root)["approved_quote_sources"])
     if not approved:
-        return False  # no broker-free data source has been approved yet
+        return False  # no explicitly approved market data source
     legs = d.get("legs") or []
     if len(legs) not in (1, 2) or not all(x.get("quote_record_id") for x in legs):
         return False
@@ -320,7 +322,7 @@ def _close(root: Path, data: dict, cfg: dict, current: dict) -> int:
         ids = [leg["quote_record_id"] for leg in d["legs"] + o["exit_legs"]]
         approved = set(cfg["approved_quote_sources"])
         if not approved or any(archive.get(rid, {}).get("source") not in approved for rid in ids):
-            continue  # broker-required or unapproved quotes cannot close the account
+            continue  # unapproved quotes cannot close the account
         if oe._verify(d, o, archive):
             continue
         rule = al.config(root)["rule"]
