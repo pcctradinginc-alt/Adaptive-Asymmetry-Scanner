@@ -10,11 +10,12 @@ from . import registry as reg
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Experiment registry and research cycle")
     ap.add_argument("command", choices=["run", "ingest", "explore", "option-forward", "factor-forward", "option-link",
-                                        "option-link-correct", "reflect", "status", "leaderboard", "verify"])
+                                        "option-link-correct", "paper-account", "reflect", "status", "leaderboard", "verify"])
     ap.add_argument("--root", type=Path, default=Path("."))
     ap.add_argument("--panel-cache", type=Path)
     ap.add_argument("--timeout", type=int, default=3600)
     ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--paper-mode", choices=["capture", "weekly"], default="weekly")
     ap.add_argument("--limit", type=int, default=15)
     # option-link-correct (human use only): versioned, never deletes or re-labels
     ap.add_argument("--kind", choices=["signals", "decisions", "outcomes"])
@@ -51,6 +52,11 @@ def main(argv=None):
                 result["validation"] = {"status": val["status"], "n_plans": val["n_plans"],
                                         "new_plans": val["new_plans"],
                                         "classification_counts": val["classification_counts"]}
+            code = 0
+        elif args.command == "paper-account":
+            from .paper_account import sync
+            result = sync(root, capture=(args.paper_mode == "capture"),
+                          persist_report=(args.paper_mode == "weekly"))
             code = 0
         elif args.command == "option-link-correct":
             from .option_link import record_correction
