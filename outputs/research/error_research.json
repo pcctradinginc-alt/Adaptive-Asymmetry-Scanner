@@ -1,0 +1,255 @@
+{
+ "generated": "2026-11-07T17:36:31+00:00",
+ "as_of": "2026-11-07",
+ "protocol": "error-research-v2",
+ "protocol_sha256": "4050314a5ab5cbf95be67c734cf193a9e6ea7840af4aaa9c947cc127c4d64591",
+ "seen_until": "2026-11-06",
+ "window_method": "alternierende Haltefenster mit Purging (v2)",
+ "code_sha": "adde21f92fc2",
+ "forecast_provenance": {
+  "TOO_FEW_MODELS": 386,
+  "VERIFIED": 8590
+ },
+ "horizons": {
+  "5": {
+   "verified_errors": 7342,
+   "dates": 21,
+   "mean_abs_error": 0.3403,
+   "ensemble_ic": {
+    "n_periods": 2,
+    "mean": 0.03012,
+    "t": 0.191,
+    "p_one_sided": 0.43981442821266936,
+    "p_two_sided": 0.8796288564253387
+   },
+   "ensemble_ic_blocks": [
+    {
+     "start": "2026-09-28",
+     "end": "2026-10-04",
+     "n_dates": 4,
+     "n_purged": 0,
+     "mean_ic": 0.187544,
+     "dates": [
+      "2026-09-29",
+      "2026-09-30",
+      "2026-10-01",
+      "2026-10-02"
+     ]
+    },
+    {
+     "start": "2026-10-12",
+     "end": "2026-10-18",
+     "n_dates": 3,
+     "n_purged": 0,
+     "mean_ic": -0.127295,
+     "dates": [
+      "2026-10-14",
+      "2026-10-15",
+      "2026-10-16"
+     ]
+    }
+   ],
+   "patterns": {
+    "status": "DATA_GAP",
+    "windows": 2,
+    "reason": "2 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 1 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind"
+   },
+   "candidates": [],
+   "unexplained_segments": []
+  },
+  "20": {
+   "verified_errors": 2963,
+   "dates": 8,
+   "mean_abs_error": 0.3937,
+   "ensemble_ic": {
+    "n_periods": 0,
+    "mean": null,
+    "t": null,
+    "p_one_sided": null,
+    "p_two_sided": null
+   },
+   "ensemble_ic_blocks": [],
+   "patterns": {
+    "status": "DATA_GAP",
+    "windows": 0,
+    "reason": "0 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 0 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind"
+   },
+   "candidates": [],
+   "unexplained_segments": []
+  }
+ },
+ "hypotheses": [
+  {
+   "id": "ERR-d6695229",
+   "key": "sentiment_score|5|1",
+   "registered_at": "2026-11-07",
+   "spec": {
+    "H0": "mittlerer Residual-IC des Signals <= 0",
+    "H_alt": "mittlerer Residual-IC des Signals > 0",
+    "baseline": "Ensemble-Prognose (Residuum nach Rang-OLS je Stichtag); Kontrolle Größe",
+    "direction": 1,
+    "discovery": {
+     "control_size_t": 2.327,
+     "end": "2026-10-18",
+     "periods": 3,
+     "residual_ic": 0.03634,
+     "start": "2026-09-29",
+     "t": 3.039
+    },
+    "exposure": "sentiment_score",
+    "failure_condition": "Walk-Forward: Mittel <= 0 ab 2 Fenstern; Forward: einseitig p >= 0.05 oder nicht BH-signifikant (q=0.05) auf den ersten 4 Fenstern",
+    "family": "error:sentiment",
+    "feature": "sentiment_score",
+    "forward": {
+     "alpha": 0.05,
+     "fdr_q": 0.05,
+     "max_days": 150,
+     "min_periods": 4,
+     "start_after": "2026-11-07"
+    },
+    "horizon": 5,
+    "idea_source": "forecast_error",
+    "kind": "ledger",
+    "mechanism": "Stimmung wird verzögert eingepreist (begrenzte Aufmerksamkeit), das Ensemble sieht sie nicht.",
+    "metric": "Rang-IC Signal ~ Residuum je Stichtag, gemittelt je unabhängigem Haltefenster",
+    "parts": [
+     "sentiment_score"
+    ],
+    "population": "Candidate-Ledger-Zeilen mit geprüfter Ensemble-Prognose (>= 3 ML-Ränge) und fälligem 5-Tage-Ergebnis",
+    "protocol": "error-research-v1",
+    "protocol_sha256": "ef2914e42f346c7a51f9122051faa4425bc409d665755a14f868e7095f8030f2",
+    "signal": "sentiment_score",
+    "sources": [
+     "candidate_ledger"
+    ]
+   },
+   "spec_hash": "0b87a198410b6131679b6e121b143cf6ea5f12cf9b9d708974522b8128600318",
+   "walk_forward": {
+    "blocks": [
+     {
+      "end": "2026-11-01",
+      "mean_ic": -0.020506,
+      "n_dates": 5,
+      "start": "2026-10-26"
+     }
+    ],
+    "mean": -0.02051,
+    "n_periods": 1,
+    "p_one_sided": null,
+    "p_two_sided": null,
+    "reason": "nur 1 unabhängige Validierungsfenster (< 2) nach Embargo – kein Urteil",
+    "status": "INCONCLUSIVE_WF",
+    "t": null,
+    "window_end": "2026-11-07",
+    "window_start": "2026-10-26"
+   },
+   "priority": {
+    "acquisition_cost": 1.0,
+    "base_priority": 1.817,
+    "data_quality": 1.0,
+    "eig": 1.0,
+    "key": "sentiment_score|5|1",
+    "memory_hit": null,
+    "memory_prior": {
+     "evidence": [],
+     "factor": 1.0,
+     "posterior_success": 0.2,
+     "prospective": 0,
+     "rejected": 0,
+     "success": 0,
+     "tested": 0
+    },
+    "novelty": 1.0,
+    "priority": 1.817,
+    "reliability": 0.5,
+    "research_cost": 1.0,
+    "value": 3.634
+   },
+   "forward_plan": {
+    "slot": 1,
+    "slot_alpha": 0.0020833333333333333,
+    "looks": [
+     4
+    ],
+    "look_alpha": [
+     0.0020833333333333333
+    ],
+    "max_days": 150,
+    "assigned_at": "2026-11-07"
+   },
+   "audits": [],
+   "status": "PENDING_FORWARD",
+   "reason": "0 unabhängige Forward-Fenster fertig; nächste Prüfung 1/1 bei 4 Fenstern",
+   "forward": {
+    "start_after": "2026-11-07",
+    "complete_periods": 0,
+    "looks": []
+   },
+   "option_check": {
+    "status": "NOT_REACHED",
+    "reason": "Aktienhypothese (noch) nicht erfolgreich"
+   },
+   "next_decision": "0 unabhängige Forward-Fenster fertig; nächste Prüfung 1/1 bei 4 Fenstern"
+  }
+ ],
+ "data_gaps": [
+  {
+   "gap_id": "error:periods:5d",
+   "kind": "independent_periods",
+   "horizon": 5,
+   "finding": "2 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 1 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind",
+   "severity": 1.0,
+   "dimensions": [],
+   "sources": [],
+   "decision": "warten: Fenster entstehen nur mit der Zeit"
+  },
+  {
+   "gap_id": "error:periods:20d",
+   "kind": "independent_periods",
+   "horizon": 20,
+   "finding": "0 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 0 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind",
+   "severity": 1.0,
+   "dimensions": [],
+   "sources": [],
+   "decision": "warten: Fenster entstehen nur mit der Zeit"
+  }
+ ],
+ "decisions": [],
+ "production_influence": "NONE",
+ "data_acquisition": [],
+ "forward_budget": {
+  "total_alpha": 0.05,
+  "max_tests": 24,
+  "slot_alpha": 0.0020833333333333333,
+  "used": 1,
+  "remaining": 23,
+  "method": "Bonferroni-Slots über die Testfamilie aller Registrierungen (wie option_learner.test_budget): Slot-Alpha = total_alpha / max_tests, bei der ersten Auswertung eingefroren; Teil-Alphas je Prüfzeitpunkt nach O'Brien-Fleming (option_learner.alpha_spending), Union-Bound -> familienweise Fehlerrate <= total_alpha auch bei abhängigen Tests; Entscheidungen unwiderruflich",
+  "frozen_at": "2026-11-07"
+ },
+ "health": {
+  "status": "OK",
+  "problems": []
+ },
+ "summary": {
+  "verified_forecast_rows": 8590,
+  "patterns_recurring": 0,
+  "patterns_explained_by_known_factor": 0,
+  "registered_total": 1,
+  "registered_this_run": 0,
+  "status_counts": {
+   "PENDING_FORWARD": 1,
+   "REJECTED_WF": 0,
+   "FORWARD_CONFIRMED": 0,
+   "FORWARD_REJECTED": 0,
+   "FORWARD_NOT_CONFIRMED": 0,
+   "INCONCLUSIVE": 0,
+   "NO_BUDGET": 0,
+   "INVALID_MODIFIED": 0
+  },
+  "frozen_looks": 0,
+  "audits": 0,
+  "data_gaps": 2,
+  "skipped_by_memory": 0,
+  "health": "OK"
+ }
+}

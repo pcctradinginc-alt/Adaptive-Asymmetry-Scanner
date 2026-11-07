@@ -34,7 +34,7 @@ import hashlib
 import json
 import logging
 import math
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from itertools import combinations
 from pathlib import Path
 
@@ -50,6 +50,7 @@ log = logging.getLogger(__name__)
 HYP_CONFIG = Path("config/hypotheses.yaml")
 DIRECTOR_PATH = Path("outputs/research/director_hypotheses.json")   # vom Research Director erzeugt (maschinell)
 SIMILARITY_BLOCK = 0.6            # Jaccard der Wort-Tokens (Titel+Aussage) zu einer verworfenen Hypothese
+ADAPTIVE_SOURCES = ("autonomous_explorer", "director")   # adaptive Auswahl: kontaminierter Locked bestätigt nie
 CANONICAL = rm_status.HYPOTHESIS_CANONICAL       # eine Zuordnung für Labor und alle Leser (research_memory)
 DB_PATH = ml.OUT_DIR / "hypothesis_db.json"
 from modules.alt_data.registry import ALT_FEATURES as _ALT  # noqa: E402
@@ -154,6 +155,122 @@ def benjamini_hochberg(pvals: dict[str, float], q: float) -> set[str]:
         if p <= q * i / m:
             k_max = i
     return {k for k, _ in items[:k_max]}
+
+
+# ── Ledger-Prüfkette: Hypothesen aus Forward-Prognosefehlern (research_director.error_research) ──────────────
+# Gleiche Prüflogik wie oben (feste Richtung, unabhängige Perioden, Mehrfachtest-Kontrolle), aber auf den prospektiv
+# erfassten Candidate-Ledger-Zeilen statt auf dem historischen Panel. Eine Beobachtung ist der Rang-IC eines Stichtags;
+# Stichtage innerhalb eines Haltefensters überlappen (gleiche Marktbewegung) und werden zu EINEM Wert gemittelt.
+#
+# Unabhängigkeit (Protokoll v2): Die h-Tage-Rendite eines Signals vom letzten Tag eines Fensters reicht bis zu h
+# Handelstage in das NÄCHSTE Fenster – benachbarte Fenster teilen also Renditezeiträume (bei 5 T fast die ganze
+# Folgewoche, bei 20 T den Großteil der nächsten vier Wochen) und sind nicht unabhängig. Deshalb wird nur jedes
+# ZWEITE Fenster genutzt (das dazwischen ist Purge/Embargo), und ein Stichtag zählt nur, wenn sein Label vor dem
+# Beginn des nächsten genutzten Fensters feststeht (Purging). Genutzte Fenster haben disjunkte Renditezeiträume.
+
+WINDOW_METHOD = "alternierende Haltefenster mit Purging (v2)"
+LABEL_GRACE_DAYS = 3        # Feiertage (numpy kennt keine Börsenfeiertage) und Füll-Verzögerung des Ledgers
+
+
+def hold_days(horizon: int) -> int:
+    """Haltefenster in Kalendertagen für h Handelstage (5 -> 7, 20 -> 28)."""
+    return math.ceil(int(horizon) * 7 / 5)
+
+
+def _day(x) -> date:
+    return x if isinstance(x, date) and not isinstance(x, datetime) else datetime.fromisoformat(str(x)[:10]).date()
+
+
+def label_due(day, horizon: int) -> date:
+    """Werktag, an dem das h-Tage-Label eines Signals vom `day` frühestens feststeht."""
+    return np.busday_offset(np.datetime64(_day(day)), int(horizon), roll="forward").astype(object)
+
+
+def _windows(horizon: int, start, as_of, purge: bool = True):
+    """Genutzte, vollständige Fenster (lo, hi, Beginn des nächsten genutzten Fensters). Verankert am Montag der
+    Woche des ersten Werktags >= start; vollständig = Label des letzten Werktags im Fenster plus LABEL_GRACE_DAYS
+    vor `as_of` fällig (eine eingefrorene Prüfung soll nicht auf noch fehlenden Ergebnissen beruhen)."""
+    H, as_of = hold_days(horizon), _day(as_of)
+    fb = np.busday_offset(np.datetime64(_day(start)), 0, roll="forward").astype(object)
+    s = fb - timedelta(days=fb.weekday())
+    step = 2 if purge else 1
+    for k in range(0, 20_000, step):                      # Schutz gegen falsches start/as_of
+        lo, hi = s + timedelta(days=k * H), s + timedelta(days=(k + 1) * H - 1)
+        last = np.busday_offset(np.datetime64(hi), 0, roll="backward").astype(object)
+        if label_due(last, horizon) + timedelta(days=LABEL_GRACE_DAYS) >= as_of:
+            return
+        yield lo, hi, s + timedelta(days=(k + step) * H)
+
+
+def period_blocks(ic_by_date: dict[str, float], horizon: int, start, as_of, purge: bool = True) -> list[dict]:
+    """Unabhängige Beobachtungen: je genutztem, vollständigem Fenster das Mittel der Tages-Werte (Stichtage >= start;
+    mit purge nur jedes zweite Fenster und nur Stichtage, deren Label vor dem nächsten genutzten Fenster feststeht).
+    `dates` nennt die verwendeten Stichtage (Datenstand-Referenz), `n_purged` die ausgeschlossenen."""
+    first = _day(start)
+    out = []
+    for lo, hi, nxt in _windows(horizon, start, as_of, purge):
+        ds = sorted(d for d, v in ic_by_date.items() if v is not None and max(lo, first) <= _day(d) <= hi)
+        keep = [d for d in ds if not purge or label_due(d, horizon) < nxt]
+        if keep:
+            out.append({"start": lo.isoformat(), "end": hi.isoformat(), "n_dates": len(keep),
+                        "n_purged": len(ds) - len(keep), "dates": keep,
+                        "mean_ic": round(float(np.mean([ic_by_date[d] for d in keep])), 6)})
+    return out
+
+
+def block_t(blocks: list[float]) -> dict:
+    """t-Test der Fenstermittel gegen 0 (df = n − 1); p einseitig (> 0) und zweiseitig."""
+    n = len(blocks)
+    m = float(np.mean(blocks)) if n else None
+    if n < 2:
+        return {"n_periods": n, "mean": ml._r(m, 5) if m is not None else None, "t": None,
+                "p_one_sided": None, "p_two_sided": None}
+    sd = float(np.std(blocks, ddof=1))
+    from scipy.stats import t as student_t
+    t = m / (sd / math.sqrt(n)) if sd > 0 else (math.copysign(1e6, m) if m else 0.0)
+    return {"n_periods": n, "mean": ml._r(m, 5), "t": ml._r(t, 3),
+            "p_one_sided": float(student_t.sf(t, n - 1)), "p_two_sided": float(2 * student_t.sf(abs(t), n - 1))}
+
+
+def ledger_walk_forward(ic_by_date: dict[str, float], horizon: int, discovery_end, until, cfg: dict) -> dict:
+    """Walk-Forward-Screen einer eingefrorenen Richtung: Fenster nach `discovery_end` + Embargo bis `until`
+    (Registrierung). Nie eine Bestätigung – nur Falsifikation (Richtung repliziert nicht) oder Weitergabe."""
+    start = _day(discovery_end) + timedelta(days=1 + cfg["embargo_periods"] * hold_days(horizon))
+    blocks = period_blocks({d: v for d, v in ic_by_date.items() if _day(d) <= _day(until)}, horizon, start,
+                           _day(until) + timedelta(days=1))
+    st = block_t([b["mean_ic"] for b in blocks])
+    if st["n_periods"] < cfg["min_periods"]:
+        status, reason = "INCONCLUSIVE_WF", (f"nur {st['n_periods']} unabhängige Validierungsfenster "
+                                             f"(< {cfg['min_periods']}) nach Embargo – kein Urteil")
+    elif st["mean"] <= 0:
+        status, reason = "REJECTED_WF", (f"Richtung repliziert nicht: Residual-IC {st['mean']} <= 0 "
+                                         f"({st['n_periods']} Fenster)")
+    elif st["p_one_sided"] < cfg["screen_alpha"]:
+        status, reason = "PASSED_WF", f"Residual-IC {st['mean']} > 0, einseitig p={st['p_one_sided']:.3f}"
+    else:
+        status, reason = "INCONCLUSIVE_WF", f"Residual-IC {st['mean']} > 0, aber einseitig p={st['p_one_sided']:.3f}"
+    return {"status": status, "reason": reason, "window_start": start.isoformat(), "window_end": str(until)[:10],
+            "window_method": WINDOW_METHOD, "blocks": blocks, **st}
+
+
+def forward_blocks(ic_by_date: dict[str, float], horizon: int, start_after, as_of) -> list[dict]:
+    """Unabhängige Forward-Fenster: nur Stichtage NACH `start_after` (Registrierung bzw. Ende der gesehenen Daten)."""
+    start = _day(start_after) + timedelta(days=1)
+    return period_blocks({d: v for d, v in ic_by_date.items() if _day(d) >= start}, horizon, start, as_of)
+
+
+def look_outcome(blocks: list[dict], periods: int, alpha: float, final: bool) -> dict:
+    """Eine vorab festgelegte Prüfung auf den ERSTEN `periods` Forward-Fenstern (spätere Fenster ändern sie nicht):
+    REJECTED (Mittel <= 0, Falsifikation), CONFIRMED (einseitig p < Teil-Alpha), sonst CONTINUE bzw. an der letzten
+    Prüfung NOT_CONFIRMED. Die Entscheidung friert der Director ein (error_forward_journal.jsonl)."""
+    st = block_t([b["mean_ic"] for b in blocks[:periods]])
+    if st["mean"] is None or st["mean"] <= 0:
+        outcome = "REJECTED"
+    elif st["p_one_sided"] is not None and st["p_one_sided"] < alpha:
+        outcome = "CONFIRMED"
+    else:
+        outcome = "NOT_CONFIRMED" if final else "CONTINUE"
+    return {"look_periods": periods, "alpha": alpha, "outcome": outcome, "blocks": blocks[:periods], **st}
 
 
 def window(panel: pd.DataFrame, start, end, label_end_before) -> pd.DataFrame:
@@ -538,7 +655,11 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
         # Adaptive historical search cannot reuse the contaminated locked
         # interval as an independent confirmation. Keep the historical p-value
         # in the BH family, but REQUIRE future prospective evidence for alpha.
-        if (r.get("source") == "autonomous_explorer"
+        # Fehlergetriebene Forschung 2026-11-07: gilt auch für den Research Director (Ideen aus gemessenen Befunden,
+        # u. a. Forward-Prognosefehlern) – vorher konnte eine Director-Hypothese über den kontaminierten Locked-
+        # Holdout "accepted" (= Erfolg im Research Memory) werden. Die Fabrik behält ihren Weg (Locked -> Robustheit
+        # -> Prospective Challenger mit eigenem Forward-Ledger).
+        if (r.get("source") in ADAPTIVE_SOURCES
                 and str(protocol["periods"].get("locked_status", "")).upper() == "CONTAMINATED"):
             r["status"] = "historical_exploratory_pending_forward"
             r["reasons"] = ["Adaptive historical selection; locked holdout contaminated. "

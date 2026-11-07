@@ -92,7 +92,7 @@ def feature_decay(panel: pd.DataFrame) -> dict:
 
 # ── Research Value Attribution ──────────────────────────────────────────────
 
-def research_value(hyp_db: dict, ml_rep: dict, meta: dict) -> dict:
+def research_value(hyp_db: dict, ml_rep: dict, meta: dict, error_rep: dict | None = None) -> dict:
     tracks: dict = {}
     for hid, r in (hyp_db.get("hypotheses") or {}).items():
         src = r.get("source") or "config"
@@ -115,6 +115,14 @@ def research_value(hyp_db: dict, ml_rep: dict, meta: dict) -> dict:
                            "accepted": sum(1 for m in ml_models.values() if (m.get("decision") or {}).get("verdict") == "promote_recommended"),
                            "oos_contribution": 0.0, "rejected": sum(1 for m in ml_models.values()
                                                                    if (m.get("decision") or {}).get("verdict") == "rejected_so_far")}
+    if error_rep:                 # fehlergetriebene Forschung: nur prospektiv Bestätigtes zählt als angenommen
+        hs = [h for h in error_rep.get("hypotheses") or [] if h.get("status")]
+        tracks["error_research"] = {"experiments": len(hs),
+                                    "accepted": sum(h["status"] == "FORWARD_CONFIRMED" for h in hs),
+                                    "oos_contribution": 0.0,
+                                    "rejected": sum(h["status"] in ("REJECTED_WF", "FORWARD_REJECTED",
+                                                                    "FORWARD_NOT_CONFIRMED", "INVALID_MODIFIED")
+                                                    for h in hs)}
     tracks["meta_learning"] = {"experiments": len((meta or {}).get("approaches") or {}),
                                "accepted": int(((meta or {}).get("decision") or {}).get("verdict") == "PROMOTE"),
                                "oos_contribution": 0.0, "rejected": 0}
@@ -284,6 +292,7 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
         "improvement_mail_status": {mode: (run or {}).get("mail_status") for mode, run in sorted(
             ((inp.get("improvement_tasks") or {}).get("last_runs") or {}).items())},
         "alpha_to_options": alpha_lines(inp.get("alpha_validation") or {}),
+        "error_driven_research": error_research_lines(inp.get("error_research") or {}),
         "feature_decay": decay, "model_decay": model_decay, "research_value": rv, "safe_mode": sm,
     }
 
@@ -307,6 +316,33 @@ def alpha_lines(rep: dict) -> list[str]:
     if learn.get("repeatedly_failing_feature_combinations"):
         lines.append(f"Wiederholt scheiternde Merkmalskombinationen: {learn['repeatedly_failing_feature_combinations']}")
     return lines
+
+
+def error_research_lines(rep: dict) -> list[str]:
+    """Fehlergetriebene Forschung (research_director --errors): gemessene Forward-Fehler, Hypothesen, Lücken."""
+    if not rep:
+        return []
+    out = []
+    for hz, v in sorted((rep.get("horizons") or {}).items(), key=lambda kv: int(kv[0])):
+        e = v.get("ensemble_ic") or {}
+        out.append(f"{hz} T: {v.get('verified_errors')} geprüfte Forward-Fehler an {v.get('dates')} Stichtagen; "
+                   f"Ensemble-IC je unabhängigem Fenster {e.get('mean')} (t={e.get('t')}, {e.get('n_periods')} Fenster); "
+                   f"Muster: {(v.get('patterns') or {}).get('status')}")
+    fb = rep.get("forward_budget") or {}
+    if fb:
+        out.append(f"Testbudget: {fb.get('used')}/{fb.get('max_tests')} Slots belegt, Slot-Alpha "
+                   f"{round(fb.get('slot_alpha') or 0, 5)} (familienweise <= {fb.get('total_alpha')})")
+    for h in rep.get("hypotheses") or []:
+        out.append(f"{h['id']} {h['spec']['signal']} ({h['spec']['horizon']} T): {h.get('status')} – "
+                   f"{h.get('next_decision')}")
+        out += [f"Audit {h['id']}: Daten nach Prüfung {a['look']} geändert, Neubewertung "
+                f"{(a.get('reassessment') or {}).get('outcome')} (Entscheidung bleibt {a.get('frozen_outcome')})"
+                for a in h.get("audits") or []]
+    for p in (rep.get("health") or {}).get("problems") or []:
+        out.append(f"KRITISCH: {p}")
+    segs = [g for g in rep.get("data_gaps") or [] if g.get("kind") == "unexplained_segment"]
+    out += [f"Datenlücke: {g['finding']} -> {', '.join(g.get('dimensions') or [])}" for g in segs]
+    return out
 
 
 def run() -> dict:
@@ -334,6 +370,12 @@ def run() -> dict:
     except (OSError, json.JSONDecodeError) as e:
         log.warning(f"meta_cognition: option_validation.json nicht lesbar ({e})")
         inp["alpha_validation"] = {}
+    try:      # fehlergetriebene Forschung (research_director --errors); nie Safe-Mode-relevant
+        ep = OUT / "error_research.json"
+        inp["error_research"] = json.loads(ep.read_text()) if ep.exists() else {}
+    except (OSError, json.JSONDecodeError) as e:
+        log.warning(f"meta_cognition: error_research.json nicht lesbar ({e})")
+        inp["error_research"] = {}
     hp = Path("outputs/external_data/health/source_health.json")
     try:
         inp["health"] = json.loads(hp.read_text()) if hp.exists() else {}
@@ -347,7 +389,7 @@ def run() -> dict:
             decay = feature_decay(pickle.load(fh))  # noqa: S301 – eigene, im selben Job erzeugte Datei
     model_decay = {m: {"trend": v.get("trend"), "trend_t": v.get("trend_t"), "recent_ic": v.get("recent_ic"),
                        "prior_ic": v.get("prior_ic")} for m, v in ((inp["meta"].get("model_intelligence")) or {}).items()}
-    rv = research_value(inp["hyp"], inp["ml"], inp["meta"])
+    rv = research_value(inp["hyp"], inp["ml"], inp["meta"], inp.get("error_research"))
     fwd = [e.get("actual_return") for e in _memory_outcomes()]
     sm = safe_mode(inp["meta"], inp["world"], inp["health"], [x for x in fwd if x is not None], inp["ml"],
                    corrupt=list(CORRUPT))
@@ -387,7 +429,8 @@ def render_md(st: dict) -> str:
                        ("research_tracks_wasting_resources", "Research-Tracks ohne Ertrag"),
                        ("option_learner_gaps", "Options-Lernmodell: erkannte Lücken (research_director --options)"),
                        ("open_improvement_tasks", "Offene technische Verbesserungsaufgaben (--notify)"),
-                       ("alpha_to_options", "Alpha-to-Options: Prüfpläne und Lernbefunde")):
+                       ("alpha_to_options", "Alpha-to-Options: Prüfpläne und Lernbefunde"),
+                       ("error_driven_research", "Fehlergetriebene Forschung: Forward-Fehler, Hypothesen, Lücken")):
         L += ["", f"## {title}", ""] + ([f"- {x}" for x in st.get(key) or []] or ["- (keine gemessene Aussage)"])
     if st.get("improvement_mail_status"):
         L += ["", "Letzter Versand der Verbesserungsvorschläge: " + ", ".join(

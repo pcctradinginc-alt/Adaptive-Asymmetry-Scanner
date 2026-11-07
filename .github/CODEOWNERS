@@ -68,3 +68,6 @@ config/production_kill_switch.yaml @pcctradinginc-alt
 modules/meta_label.py              @pcctradinginc-alt
 modules/evidence_ledger.py         @pcctradinginc-alt
 modules/evidence_core.py           @pcctradinginc-alt
+# Fehlergetriebene Forschung: Präregistrierung (Suchraum, Schwellen, Budget, gesehene Daten)
+config/error_research_protocol.yaml @pcctradinginc-alt
+tests/test_error_driven_research.py @pcctradinginc-alt
