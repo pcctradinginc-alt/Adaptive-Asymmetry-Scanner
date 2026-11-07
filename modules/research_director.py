@@ -163,21 +163,115 @@ def candidates_from_drift(meta: dict) -> list[dict]:
     return out
 
 
+MEASURED_MIN_CONFIRMATORY = 0.99   # Anteil belastbarer Verfügbarkeitszeitstempel für "timestamp_integrity ok"
+MEASURED_MAX_NULL_SHARE = 0.5      # wie data_quality HIGH_NULL_RATE
+SOURCE_HEALTH = Path("outputs/external_data/health/source_health.json")
+
+
 def onboarding_checklist(src: dict) -> dict:
-    """Aufnahmeprüfung einer Quelle – Status je Schritt aus Katalog-Metadaten;
-    'pending' heißt: muss vor Nutzung gemessen werden (nie automatisch vertraut)."""
+    """Aufnahmeprüfung einer Quelle. Audit 2026-11-07: vorher Status je Schritt allein aus Katalog-Metadaten (z. B.
+    "timestamp_integrity ok", weil pit: vintages im Katalog steht – auch für eine kommerzielle Quelle ohne Zugang).
+    Jetzt: Liegt ein gemessenes Archiv-Profil vor (src["measured"], annotate_catalog), entscheiden die Messwerte;
+    sonst heißen Katalog-Behauptungen "declared_unverified" (nie "ok"). 'pending' = muss vor Nutzung gemessen werden."""
     pit = src.get("pit")
     lic = str(src.get("license") or "").strip()
+    m = src.get("measured") or {}
     # Audit 2026-11-06: fehlende Lizenzangabe galt als "ok"; Zugang wurde nie geprüft. Beides jetzt explizit.
-    return {"provenance": "ok" if src.get("provider") else "missing",
-            "license": "missing" if not lic else "review_required" if "REVIEW_REQUIRED" in lic else "ok",
-            "access": "ok" if src.get("access_verified") is True else "pending",
-            "historical_coverage": "ok" if (src.get("history_from") or 9999) <= 2016 else "insufficient",
-            "timestamp_integrity": "ok" if pit in ("vintages", "filing_timestamp", "publication_date", "daily_close")
-            else "forward_only",
-            "revision_analysis": "ok" if pit == "vintages" else "pending",
-            "missing_data_analysis": "pending", "leakage_audit": "pending",
-            "incremental_oos_test": "done" if src.get("status") == "integrated" else "pending"}
+    out = {"provenance": "ok" if src.get("provider") else "missing",
+           "license": "missing" if not lic else "review_required" if "REVIEW_REQUIRED" in lic else "ok",
+           "access": "ok" if src.get("access_verified") is True else "pending",
+           "historical_coverage": "declared_unverified" if (src.get("history_from") or 9999) <= 2016 else "insufficient",
+           "timestamp_integrity": "declared_unverified"
+           if pit in ("vintages", "filing_timestamp", "publication_date", "daily_close") else "forward_only",
+           "revision_analysis": "declared_unverified" if pit == "vintages" else "pending",
+           "missing_data_analysis": "pending", "leakage_audit": "pending",
+           "incremental_oos_test": "done" if src.get("declared_status", src.get("status")) == "integrated" else "pending"}
+    if m.get("n_rows"):
+        per = (m.get("sources") or {}).values()
+        # Zugang = Health PASS/WARN UND jüngste Beobachtung frisch nach der Registry-Regel der Quelle
+        # (registry.evaluate_staleness: max_staleness_days > Frequenz > Kadenz; Monatsreihen sind nicht "veraltet")
+        access_ok = all(h.get("health_status") in ("PASS", "WARN") and h.get("staleness") != "STALE" for h in per)
+        out.update({
+            "access": "ok" if access_ok else "failing",
+            "historical_coverage": "ok" if int(str(m.get("pit_history_from") or "9999")[:4]) <= 2016 else "insufficient",
+            "timestamp_integrity": "ok" if (m.get("confirmatory_share") or 0) >= MEASURED_MIN_CONFIRMATORY
+            and not m.get("available_before_period") else "failing",
+            "revision_analysis": "measured" if m.get("revision_rate") is not None else "not_observable",
+            "missing_data_analysis": "ok" if (m.get("null_share") or 0) <= MEASURED_MAX_NULL_SHARE else "high_missing"})
+    return out
+
+
+def _accepted(step: str) -> bool:
+    """Für Machbarkeit/Priorität: gemessen ok oder (vorläufig) deklariert – Freigabe zur Nutzung nie ohne Messung."""
+    return step in ("ok", "declared_unverified")
+
+
+def measured_source_quality(ids: list[str], archive=None, health: dict | None = None,
+                            now: datetime | None = None) -> dict | None:
+    """Gemessenes Archiv-Profil (data_quality.archive_profile) über die zugeordneten Registry-Quellen + Health je
+    Quelle. None ohne Zuordnung; {"n_rows": 0, ...} ohne Archivdaten. Nur lesend."""
+    if not ids:
+        return None
+    from modules.external import data_quality as dq
+    from modules.external import registry as xreg
+    from modules.external.archive import ExternalArchive
+    now = now or datetime.now(timezone.utc)
+    archive = archive or ExternalArchive()
+    if health is None:
+        health = _load(SOURCE_HEALTH, {})
+    hs = health.get("sources") if isinstance(health.get("sources"), dict) else health
+    try:
+        cfgs = xreg.load_source_configs()
+    except Exception as e:  # noqa: BLE001 – ohne Registry keine Frische-Regel, Zugang bleibt dann über Health
+        log.warning(f"research_director: Registry nicht lesbar ({e})")
+        cfgs = {}
+    obs, per = [], {}
+    for sid in ids:
+        o = archive.load(sid)
+        obs += o
+        h, c = hs.get(sid) or {}, cfgs.get(sid) or {}
+        latest = max((x.observation_time for x in o), default=None)
+        per[sid] = {"rows": len(o), "health_status": h.get("status"),
+                    "consecutive_failures": h.get("consecutive_failures"),
+                    "latest_observation": latest.date().isoformat() if latest else None,
+                    "staleness": xreg.evaluate_staleness(latest, c.get("expected_update_cadence"), now,
+                                                         c.get("frequency"), c.get("max_staleness_days"))}
+    prof = dq.archive_profile(obs, now)
+    prof["sources"] = per
+    return prof
+
+
+def annotate_catalog(catalog: list[dict], archive=None, health: dict | None = None,
+                     now: datetime | None = None) -> list[dict]:
+    """Katalog-Einträge mit registry_source_ids bekommen ein gemessenes Profil; liegen Archivdaten vor, ist die Quelle
+    abgeleitet "integrated" (declared_status bleibt erhalten). Audit 2026-11-07: wikipedia_pageviews und
+    finra_short_interest standen als "candidate" im Katalog, obwohl wikimedia_pageviews/finra_short_interest im Archiv
+    laufen – der Director schlug sie als neue Datenquelle vor (doppelte Connectoren)."""
+    out = []
+    for src in catalog or []:
+        s = dict(src)
+        ids = list(s.get("registry_source_ids") or [])
+        if ids:
+            s["measured"] = measured_source_quality(ids, archive, health, now)
+            if (s["measured"] or {}).get("n_rows"):
+                s["declared_status"], s["status"] = s.get("status"), "integrated"
+        out.append(s)
+    return out
+
+
+def integrated_quality(catalog: list[dict]) -> list[dict]:
+    """Gemessene Qualität der bereits laufenden Katalog-Quellen; 'issues' = Schritte, die die Messung nicht bestehen."""
+    out = []
+    for s in catalog or []:
+        m = s.get("measured")
+        if not m:
+            continue
+        chk = onboarding_checklist(s)
+        out.append({"source": s.get("id"), "registry_source_ids": s.get("registry_source_ids"),
+                    "declared_status": s.get("declared_status", s.get("status")), "onboarding_checklist": chk,
+                    "measured": m, "issues": [k for k, v in chk.items()
+                                              if v in ("failing", "insufficient", "high_missing", "missing")]})
+    return out
 
 
 def active_learning(world: dict, blind: list[dict], catalog: list[dict]) -> list[dict]:
@@ -197,8 +291,8 @@ def active_learning(world: dict, blind: list[dict], catalog: list[dict]) -> list
         eig = max([dims.get(d, 0.0) for d in src.get("dimension", [])] + [min(1.0, blind_need.get(d, 0) / 3)
                                                                          for d in src.get("dimension", [])])
         chk = onboarding_checklist(src)
-        reliability = 1.0 if chk["timestamp_integrity"] == "ok" else 0.3
-        feasible = chk["historical_coverage"] == "ok" and chk["timestamp_integrity"] == "ok"
+        reliability = 1.0 if _accepted(chk["timestamp_integrity"]) else 0.3
+        feasible = _accepted(chk["historical_coverage"]) and _accepted(chk["timestamp_integrity"])
         usable_now = feasible and chk["license"] == "ok" and chk["access"] == "ok"
         out.append({"source": src["id"], "dimensions": src.get("dimension"), "current_uncertainty": round(eig, 3),
                     "expected_information_gain": round(eig * (1.0 if feasible else 0.2), 3),
@@ -207,6 +301,7 @@ def active_learning(world: dict, blind: list[dict], catalog: list[dict]) -> list
                     "reliability": reliability, "acquisition_cost": src.get("acquisition_cost", 3),
                     "priority": priority(eig, 1.0, 1.0, reliability, src.get("acquisition_cost", 3), 1.0),
                     "onboarding_checklist": chk, "license": src.get("license"),
+                    "unverified": [k for k, v in chk.items() if v == "declared_unverified"],
                     "note": "nicht vertrauenswürdig bis alle Schritte 'ok/done'"})
     return sorted(out, key=lambda x: -x["priority"])
 
@@ -501,7 +596,8 @@ def run_options(root: Path = OPTION_OUT, now: datetime | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
     cfg = ol.variant_config()
     gaps = option_gaps(_option_status(root), list(ol.variant_registry(root).values()))
-    catalog = (yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", []) if CATALOG.exists() else []
+    catalog = annotate_catalog((yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", [])
+                               if CATALOG.exists() else [])
     proposals = option_proposals(gaps, cfg, catalog)
     registered = ol.register_variants(root, proposals, now, cfg)
     rep = {"generated": now.isoformat(timespec="seconds"), "gaps": gaps, "proposals": proposals,
@@ -1713,14 +1809,17 @@ def run() -> dict:
     nextv = _load(OUT / "next_validation.json", {})
     world = _load(OUT / "world_model.json", {})
     hyp_db = _load(OUT / "hypothesis_db.json", {})
-    catalog = (yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", []) if CATALOG.exists() else []
+    catalog = annotate_catalog((yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", [])
+                               if CATALOG.exists() else [])
     rep = plan(meta, nextv, world, hyp_db, catalog)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "research_candidates.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))
     (OUT / "director_hypotheses.json").write_text(json.dumps({"generated": rep["generated"],
                                                              "hypotheses": rep["hypotheses"]}, indent=1, ensure_ascii=False))
     (OUT / "active_learning.json").write_text(json.dumps({"generated": rep["generated"],
-                                                         "data_gaps": rep["active_learning"]}, indent=1, ensure_ascii=False))
+                                                         "data_gaps": rep["active_learning"],
+                                                         "integrated_sources": integrated_quality(catalog)},
+                                                        indent=1, ensure_ascii=False, default=str))
     return rep
 
 
