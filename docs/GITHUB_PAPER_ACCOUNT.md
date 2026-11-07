@@ -33,7 +33,10 @@ certification.
 
 ## Operation
 
-Policy: config/paper_account.yaml, starting cash **$100,000**. Its exposure
+Policy: config/paper_account.yaml, starting cash **$100,000**. The account is
+DISABLED by default and has no approved quote source until a provider with
+account-free market data, suitable quote timestamps, archive provenance and
+permitted automated use has passed explicit human review. Its exposure
 limits apply only to this account, not to production position sizing or
 production RiskGates. Changing a used policy hash requires a separate reviewed
 migration.
@@ -76,6 +79,16 @@ receipt enable investigation). No credentials are stored in Git.
 
 ## Known limitations and release gates
 
+- Hard blocker: the existing Alpha→Options live decision path uses Tradier,
+  whose official API requires an active brokerage account and account token.
+  This is unacceptable as a *necessary* dependency for a strictly broker-free
+  account. The current GitHub-only account therefore cannot automatically
+  start until an approved nonbroker option-quote decision/capture feed is added.
+  Changing provider configuration alone is insufficient if the underlying
+  option_link.decide path still uses Tradier.
+- Cboe explicitly prohibits automated downloading of its free delayed quote
+  table; do not scrape it. Yahoo/yfinance option quote freshness and provenance
+  are not established to the standard needed for verified paper fills.
 - Draft PR: not merged or activated; **no live paper fills** and no
   economic alpha evidence from this feature.
 - The account starts only at its first post-approval capture, and intentionally
