@@ -65,11 +65,18 @@ def test_real_repository_research_evidence_is_read_without_fabrication():
     actual = dq.build(root, now=NOW)
     assert actual["link_signals"] >= 90
     assert actual["link_decisions"] >= 40
-    assert actual["link_settled_outcomes"] == 0
-    assert actual["alpha_option_status"] == "NEED_MORE_DATA"
+    # Repository evidence is expected to grow after genuine RTH capture; a
+    # zero-outcome snapshot must not be a permanent CI constraint.
+    assert isinstance(actual["link_settled_outcomes"], int)
+    assert 0 <= actual["link_settled_outcomes"] <= actual["link_decisions"]
+    assert actual["alpha_option_status"] in ("NEED_MORE_DATA", "EVALUATED",
+                                              "QUALIFIED_FOR_HUMAN_REVIEW")
     assert actual["existing_option_learner"]["20"]["verified_quote_labels"] >= 100
     assert actual["existing_option_learner"]["20"]["entry_not_archived"] > 0
     assert actual["existing_option_learner"]["20"]["independent_periods"] is None
     assert "ENTRY_NOT_ARCHIVED" in actual["active_gap_ids"]
-    assert "NO_PREREGISTERED_ALPHA_OPTION_FORWARD_PLANS" in actual["active_gap_ids"]
+    if actual["alpha_option_forward_plans"] == 0:
+        assert "NO_PREREGISTERED_ALPHA_OPTION_FORWARD_PLANS" in actual["active_gap_ids"]
+    else:
+        assert actual["alpha_option_forward_plans"] > 0
     assert actual["no_reconstructed_quotes"] is True
