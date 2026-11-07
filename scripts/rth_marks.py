@@ -217,6 +217,19 @@ def main(argv=None) -> int:
     except Exception as e:  # noqa: BLE001 – sichtbar rot; im Scanner-Job continue-on-error (nie Scanner-Bedingung)
         print(f"::error::rth_marks fehlgeschlagen: {type(e).__name__}: {e}")
         return 1
+    # Existing capture job has exactly one Python entrypoint and one archive push.
+    # Reuse it for virtual bookings from the just-archived read-only market quotes.
+    # Account errors are reported but must NEVER discard the quote archive.
+    # main() is not called for deterministic run(now=...) unit-test replays.
+    if a.capture_only and not res.get("skipped") and res.get("window") == "IN_WINDOW" \
+            and (res.get("alpha_link") or {}).get("status") != "ERROR":
+        try:
+            from modules.autonomous_alpha import paper_account
+            res["paper_account"] = paper_account.sync(capture=True, persist_report=False)
+        except Exception as exc:  # noqa: BLE001
+            log.exception("virtual paper account failed; quote archive is preserved")
+            res["paper_account"] = {"status": "ERROR", "error": f"{type(exc).__name__}: {exc}"[:300]}
+            print("::warning::Paper account failed, but the quote archive will still be committed")
     print(json.dumps(res, ensure_ascii=False))
     if a.capture_only:
         persist_capture_status(res)
