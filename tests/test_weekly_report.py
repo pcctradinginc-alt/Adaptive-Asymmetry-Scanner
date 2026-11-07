@@ -116,7 +116,7 @@ def test_full_data_all_sections(tmp_path):
                  "EXCESSIVE MODEL DISAGREEMENT", "SAFE MODE", "LOW SAMPLE SIZE"):
         assert code in t
     assert "MODEL DRIFT" not in t                       # nur wenn Daten es zeigen
-    assert "accepted: 1" in t and "inconclusive: 1" in t and "currently testing: 1" in t
+    assert "exploratory (historisch): 1" in t and "inconclusive: 1" in t and "currently testing: 1" in t
 
 
 def test_missing_files_no_crash(tmp_path):
