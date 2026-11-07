@@ -38,6 +38,11 @@ def policy(root: Path = Path(".")) -> dict:
         raise ValueError("paper account must never affect production")
     if cfg.get("comparison_group") != "TREATMENT":
         raise ValueError("paper account may only trade treatment signals")
+    sources = cfg.get("approved_quote_sources")
+    if not isinstance(sources, list) or any(not isinstance(v, str) for v in sources):
+        raise ValueError("approved account-free quote sources must be an explicit list")
+    if any("tradier" in source.lower() or not source.strip() for source in sources):
+        raise ValueError("broker-required Tradier data cannot activate the paper account")
     if cfg.get("strategy_preference") != list(al.STRUCTURES):
         raise ValueError("paper strategy selection must remain ex-ante")
     if not 1000 <= float(cfg.get("starting_cash_usd", 0)) <= 1_000_000:
@@ -183,6 +188,9 @@ def _replay(records: list[dict], cfg: dict) -> dict:
 def _entry_archived(root: Path, d: dict) -> bool:
     """Never book an entry without each exact, usable, archived quote."""
     from modules import option_quotes as oq
+    approved = set(policy(root)["approved_quote_sources"])
+    if not approved:
+        return False  # no broker-free data source has been approved yet
     legs = d.get("legs") or []
     if len(legs) not in (1, 2) or not all(x.get("quote_record_id") for x in legs):
         return False
@@ -193,7 +201,8 @@ def _entry_archived(root: Path, d: dict) -> bool:
                         root=Path(root) / oq.ROOT)
     for leg in legs:
         q = archive.get(leg["quote_record_id"])
-        if (q is None or q.get("occ_symbol") != leg.get("occ_symbol")
+        if (q is None or q.get("source") not in approved
+                or q.get("occ_symbol") != leg.get("occ_symbol")
                 or oq.quote_day(q) != day or not oq.usable_rth_quote(q)):
             return False
         if _utc(q["retrieved_at"]) > _utc(d["decided_at"]):
