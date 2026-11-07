@@ -659,11 +659,18 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
         # u. a. Forward-Prognosefehlern) – vorher konnte eine Director-Hypothese über den kontaminierten Locked-
         # Holdout "accepted" (= Erfolg im Research Memory) werden. Die Fabrik behält ihren Weg (Locked -> Robustheit
         # -> Prospective Challenger mit eigenem Forward-Ledger).
-        if (r.get("source") in ADAPTIVE_SOURCES
-                and str(protocol["periods"].get("locked_status", "")).upper() == "CONTAMINATED"):
+        if str(protocol["periods"].get("locked_status", "")).upper() == "CONTAMINATED":
+            # The holdout has been repeatedly inspected. No hypothesis source
+            # (factory, manual, director, explorer or legacy cached file) can
+            # obtain a new independent validation from those same dates.
+            # Historical BH + stress + walk-forward remain a DISCOVERY SCREEN.
+            # This status is used to register a NEW frozen prospective test,
+            # never to declare alpha confirmed.
             r["status"] = "historical_exploratory_pending_forward"
-            r["reasons"] = ["Adaptive historical selection; locked holdout contaminated. "
-                            "Needs independent prospective validation."]
+            r["lab_screen_passed"] = True
+            r["locked_holdout_status"] = "CONTAMINATED"
+            r["reasons"] = ["Historical screen passed, but locked holdout CONTAMINATED. "
+                            "Independent prospective post-registration evidence required."]
             continue
         if not r.get("locked") and k in hyp_by_id:
             lk = locked_check(panel, hyp_by_id[k])
@@ -679,7 +686,8 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
         r["canonical_status"] = canonical_status(r) if r.get("status") != "prior_result" or not r.get("canonical_status") \
             else r["canonical_status"]
     db["status_counts"] = {c: sum(1 for r in recs.values() if r["canonical_status"] == c)
-                           for c in ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "NOT_TESTED")}
+                           for c in ("EXPLORATORY", "ACCEPTED", "REJECTED", "INCONCLUSIVE",
+                                     "RETEST_LATER", "NOT_TESTED")}
     db["generated"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     db_path.parent.mkdir(parents=True, exist_ok=True)
     db_path.write_text(json.dumps(db, indent=2, ensure_ascii=False, default=str))
