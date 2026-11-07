@@ -36,6 +36,7 @@ import json
 import logging
 import os
 import re
+import time
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Callable, Iterable
@@ -205,8 +206,7 @@ def _resolve_layer(service_url: str, http_fetch: FetchFn) -> dict:
     """Fragt den FeatureServer selbst (f=json) ab, um herauszufinden, welcher
     Layer-Index die eigentlichen Daten trägt (meist 0, aber nie annehmen)."""
     _check_rate_limit_breaker(service_url)
-    res = http_fetch(service_url, params={"f": "json"})
-    data = res.json()
+    data = _arcgis_json(service_url, http_fetch, {"f": "json"})
     if not isinstance(data, dict):
         raise DiscoveryError(f"ArcGIS-FeatureServer-Root nicht JSON-Objekt: {service_url}")
     if isinstance(data.get("error"), dict):
@@ -370,8 +370,7 @@ def _write_endpoint_cache(cache_path: str, endpoints: dict, now: datetime) -> No
 def fetch_layer_metadata(service_url: str, layer_id: int, http_fetch: FetchFn) -> dict:
     url = f"{service_url}/{layer_id}"
     _check_rate_limit_breaker(url)
-    res = http_fetch(url, params={"f": "json"})
-    meta = res.json()
+    meta = _arcgis_json(url, http_fetch, {"f": "json"})
     if isinstance(meta, dict) and isinstance(meta.get("error"), dict):
         err = meta["error"]
         if arcgis_rate_limited(err):
@@ -555,6 +554,7 @@ def build_where_clause(start: date, end: date, date_field: str = "date",
 # wieder 429) und die übrigen PortWatch-Layer fragten dasselbe erschöpfte Kontingent erneut ab. Kreisunterbrecher je
 # Host für den laufenden Prozess: danach kein weiterer Abruf, der Fehler bleibt sichtbar (nie veraltete Daten).
 _RATE_LIMITED_HOSTS: dict[str, str] = {}
+_RATE_LIMIT_WAITED_S: dict[str, float] = {}   # Summe der Rate-Limit-Wartezeiten je Host in diesem Lauf
 
 
 def _host(url: str) -> str:
@@ -585,6 +585,50 @@ def _check_rate_limit_breaker(url: str) -> None:
 
 def reset_rate_limit_breaker() -> None:
     _RATE_LIMITED_HOSTS.clear()
+    _RATE_LIMIT_WAITED_S.clear()
+
+
+# Das Kontingent ist ein MINUTEN-Limit (live 2026-11-06: "quota exceeded (6380 request units)! maximum allowed request
+# units (6000) per Minute. Retry after 60 sec."; unser Anteil je Abfrage ~2-10 Einheiten, der Rest ist fremder
+# Verkehr auf dem öffentlichen Dienst). Deshalb erst die vom Dienst genannte Wartezeit einhalten und begrenzt erneut
+# fragen; erst wenn auch das scheitert, greift der Kreisunterbrecher für den restlichen Lauf.
+RATE_LIMIT_RETRIES = 2              # zusätzliche Versuche je Abfrage nach Rate-Limit
+RATE_LIMIT_DEFAULT_WAIT_S = 60.0    # ohne Angabe des Dienstes
+RATE_LIMIT_MAX_WAIT_S = 65.0        # Obergrenze je Wartezeit (Minutenfenster + Puffer)
+RATE_LIMIT_WAIT_BUDGET_S = 130.0    # Summe aller Wartezeiten je Host und Lauf: bleibt im Abrufbudget der Quelle
+                                    # (max_fetch_seconds 600 für PortWatch, Standard 300) statt SourceTimeout
+_sleep = time.sleep                 # in Tests ersetzbar
+
+
+def rate_limit_wait_seconds(err) -> float:
+    """Wartezeit laut ArcGIS-Fehlertext ("Retry after 60 sec"), begrenzt; sonst RATE_LIMIT_DEFAULT_WAIT_S."""
+    text = " ".join([str((err or {}).get("message") or "")] + [str(d) for d in ((err or {}).get("details") or [])])
+    m = re.search(r"retry after\s+(\d+(?:\.\d+)?)\s*s", text, re.IGNORECASE)
+    wait = float(m.group(1)) if m else RATE_LIMIT_DEFAULT_WAIT_S
+    return max(1.0, min(wait, RATE_LIMIT_MAX_WAIT_S))
+
+
+def _arcgis_json(url: str, http_fetch: FetchFn, params: dict):
+    """Abruf mit Beachtung des ArcGIS-Minutenlimits: Antwortet der Dienst mit Rate-Limit im JSON-Körper, wird die
+    genannte Wartezeit eingehalten und höchstens RATE_LIMIT_RETRIES-mal erneut gefragt (insgesamt höchstens
+    RATE_LIMIT_WAIT_BUDGET_S Wartezeit je Host und Lauf). Gibt die letzte Antwort zurück
+    (bei anhaltendem Rate-Limit das Fehlerobjekt); der Aufrufer meldet den Fehler und setzt den Kreisunterbrecher."""
+    data = http_fetch(url, params=params).json()
+    for attempt in range(RATE_LIMIT_RETRIES):
+        err = data.get("error") if isinstance(data, dict) else None
+        if not (isinstance(err, dict) and arcgis_rate_limited(err)):
+            break
+        host, wait = _host(url), rate_limit_wait_seconds(err)
+        if _RATE_LIMIT_WAITED_S.get(host, 0.0) + wait > RATE_LIMIT_WAIT_BUDGET_S:
+            log.warning("ArcGIS-Rate-Limit (%s): Wartebudget %.0f s in diesem Lauf erschöpft, kein weiterer Versuch",
+                        host, RATE_LIMIT_WAIT_BUDGET_S)
+            break
+        _RATE_LIMIT_WAITED_S[host] = _RATE_LIMIT_WAITED_S.get(host, 0.0) + wait
+        log.warning("ArcGIS-Rate-Limit (%s): warte %.0f s, Versuch %d/%d", host, wait, attempt + 2,
+                    RATE_LIMIT_RETRIES + 1)
+        _sleep(wait)
+        data = http_fetch(url, params=params).json()
+    return data
 
 
 class ArcGISQueryError(FetchError):
@@ -705,15 +749,16 @@ def query_features(
         }
         if order_by:
             params["orderByFields"] = order_by
-        res = http_fetch(query_url, params=params)
-        data = res.json()
+        data = _arcgis_json(query_url, http_fetch, params)
         if isinstance(data, dict) and "error" in data and arcgis_rate_limited(data["error"]):
             # Rate-Limit/Kontingent: Isolations-Probes könnten nichts eingrenzen (alle 429) und verbrauchten nur
             # weiteres Kontingent -> keine Probe, Kreisunterbrecher für den restlichen Lauf.
             _note_rate_limit(query_url, data["error"])
             raise ArcGISQueryError(
-                f"[UPSTREAM_RATE_LIMITED] ArcGIS-Query-Fehler: {data['error']} (keine Isolations-Probe; weitere "
-                f"Abrufe dieses Hosts in diesem Lauf unterbleiben; service_url={service_url}/{layer_id})")
+                f"[UPSTREAM_RATE_LIMITED] ArcGIS-Query-Fehler trotz Wartezeit (höchstens {RATE_LIMIT_RETRIES + 1} Versuche, "
+                f"Wartebudget {RATE_LIMIT_WAIT_BUDGET_S:.0f}s je Host): "
+                f"{data['error']} (keine Isolations-Probe; weitere Abrufe dieses Hosts in diesem Lauf unterbleiben; "
+                f"service_url={service_url}/{layer_id})")
         if isinstance(data, dict) and "error" in data:
             isolation = (isolate_query_error(service_url, layer_id, http_fetch, where=where, out_fields=out,
                                              order_by=order_by, offset=offset, base_field=isolation_field,
