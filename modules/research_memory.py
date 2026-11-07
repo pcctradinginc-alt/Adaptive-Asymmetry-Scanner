@@ -213,7 +213,7 @@ def collect(sources: dict | None = None) -> list[dict]:
         d = r.get("decision") or {}
         b = ((r.get("h20") or {}).get("base_cost") or {})
         out.append(_entry("research", f"SURPRISE-{name}",
-                          {"KEEP": "ACCEPTED", "MODIFY": "INCONCLUSIVE"}.get(d.get("verdict"), "REJECTED"),
+                          {"KEEP": "EXPLORATORY", "MODIFY": "INCONCLUSIVE"}.get(d.get("verdict"), "REJECTED"),
                           {"signal": name, "title": r.get("description"), "family": "surprise_engine",
                            "domain": "earnings_expectations"},
                           source="surprise_engine", evidence={"mean": b.get("mean"), "t": b.get("t_months"),
@@ -233,13 +233,28 @@ def collect(sources: dict | None = None) -> list[dict]:
                                                               "spec_hash": c.get("spec_hash")},
                           reasons=d.get("reasons"), data_kind="prospective_locked_holdout"))
     for hid, r in ((src.get("factory_results") or {}).get("results") or {}).items():
-        out.append(_entry("factory", hid, r.get("status"), r.get("spec") or {}, source="factory",
+        # A registered challenger has NO outcome until its independent
+        # forward ledger is actually evaluated and frozen.
+        st = "PENDING_FORWARD" if r.get("status") == "PROSPECTIVE_CHALLENGER" else (
+            "EXPLORATORY" if r.get("status") in ("ROBUST", "ACCEPTED") else r.get("status"))
+        out.append(_entry("factory", hid, st, r.get("spec") or {}, source="factory",
                           evidence=r.get("tests"), reasons=r.get("reasons"), data_kind=r.get("data_kind")))
     out += commodity_entries(src.get("commodity_evaluation"), src.get("factory_results"))
     out += option_entries(*(src.get(k) for k in ("option_status_20d", "option_status_5d", "option_improvement")))
     out += task_entries(src.get("improvement_tasks"))
     out += alpha_option_entries(src.get("alpha_option_economics"), src.get("alpha_option_validation"))
     out += error_entries(src.get("error_research"))
+    # P1 research feedback uses existing Research Memory; quality gaps are not
+    # hypotheses, training labels, or successful trials.
+    for g in (src.get("alpha_data_quality") or {}).get("data_gaps") or []:
+        out.append(_entry("alpha_data_gap", str(g.get("id")), "DATA_GAP",
+                          {"signal": str(g.get("id")), "domain": "alpha_option_data_quality"},
+                          source="alpha_data_quality",
+                          evidence={"count": g.get("count"),
+                                    "coverage": g.get("coverage_fraction"),
+                                    "first_observed": g.get("first_observed_in_monitoring")},
+                          reasons=[g.get("cause"), g.get("action")],
+                          data_kind="observed_repository_health"))
     return out
 
 
@@ -299,17 +314,6 @@ def error_entries(rep: dict | None) -> list[dict]:
                           reasons=[g.get("decision")],
                           free_sources=[s["source"] if isinstance(s, dict) else s for s in g.get("sources") or []],
                           data_kind="none"))
-    # P1 research feedback uses existing Research Memory; quality gaps are not
-    # hypotheses, training labels, or successful trials.
-    for g in (src.get("alpha_data_quality") or {}).get("data_gaps") or []:
-        out.append(_entry("alpha_data_gap", str(g.get("id")), "DATA_GAP",
-                          {"signal": str(g.get("id")), "domain": "alpha_option_data_quality"},
-                          source="alpha_data_quality",
-                          evidence={"count": g.get("count"),
-                                    "coverage": g.get("coverage_fraction"),
-                                    "first_observed": g.get("first_observed_in_monitoring")},
-                          reasons=[g.get("cause"), g.get("action")],
-                          data_kind="observed_repository_health"))
     return out
 
 
