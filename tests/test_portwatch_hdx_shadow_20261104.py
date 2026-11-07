@@ -157,6 +157,15 @@ def test_redirect_to_untrusted_host_never_follows():
     result = hdx.check_resources(NOW, keys=("chokepoints",), session=session)
     assert result["resources"]["chokepoints"]["error"] == "UNTRUSTED_DOWNLOAD_URL"
     assert len(session.calls) == 3   # resource, package, initial download; no evil request
+    # Audit 2026-11-07: der Bericht nennt den abgelehnten Host (nur Hostname) und die Stelle, nie Pfad/Query/Token
+    assert result["resources"]["chokepoints"]["rejected_host"] == "evil.example"
+    assert result["resources"]["chokepoints"]["rejected_stage"] == "redirect"
+
+
+def test_rejected_host_never_leaks_credentials_or_paths():
+    err = hdx._untrusted("https://user:pw@files.example.org/x.csv?X-Amz-Signature=abc", "resource_url")
+    assert (str(err), err.host, err.stage) == ("UNTRUSTED_DOWNLOAD_URL", "files.example.org", "resource_url")
+    assert hdx._untrusted(None, "request").host is None and hdx._untrusted("file:///etc/passwd", "x").host is None
 
 
 def test_download_size_limit_blocks_even_http_200():
