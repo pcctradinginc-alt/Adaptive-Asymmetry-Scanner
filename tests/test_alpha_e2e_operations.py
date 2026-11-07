@@ -101,8 +101,10 @@ def test_fake_confirmed_plan_without_verified_forward_quotes_fails_closed(config
         "start_date": "2026-11-09", "binding": {"report_id": "FROZEN-SYN"}
     }]})
     checked = audit.run(configured, now=NOW, sync_memory=True)
-    assert checked["n_technical_defects"] == 1
-    assert checked["existing_learning"]["verdicts_reconciled_to_memory"] == 1
+    assert checked["n_technical_defects"] >= 1
+    # Corrupt source validation does NOT get synchronized into Research Memory.
+    assert checked["existing_learning"]["verdicts_reconciled_to_memory"] == 0
+    assert "alpha_option_validation:AOV-FAKE" not in rm.latest(rm.load(configured / rm.MEMORY))
     assert checked["existing_learning"]["forward_confirmed_and_memorized"] == 0
     assert checked["existing_learning"]["alpha_improvement_proven"] is False
     issue = [i for i in checked["issues"] if i["id"] == "FORWARD_CONFIRMATION_PROVENANCE_MISSING"]
@@ -118,6 +120,13 @@ def test_tampered_account_event_prevents_audit_and_never_turns_into_pnl(configur
     (configured / pa.JOURNAL / "PA-INIT.json").write_text('{"sha256":"broken","payload":{}}')
     with pytest.raises(ValueError, match="integrity"):
         audit.build(configured, now=NOW)
+    # The scheduled CLI writes a durable failed report and returns nonzero,
+    # rather than dropping the owner alert or accepting a forged learning label.
+    failed = audit.run(configured, now=NOW)
+    assert failed["status"] == "TECHNICAL_DEFECT"
+    assert failed["n_technical_defects"] == 1
+    assert failed["issues"][0]["id"] == "E2E_PRECHECK_FAILED"
+    assert json.loads((configured / audit.REPORT).read_text())["status"] == "TECHNICAL_DEFECT"
 
 
 def test_capture_outside_window_not_misreported_as_realtime_failure(configured):
