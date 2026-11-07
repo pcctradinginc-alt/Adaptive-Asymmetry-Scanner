@@ -1,34 +1,5 @@
 {
- "at": "2026-11-07T16:30:24+00:00",
- "changes": [
-  {
-   "source_id": "imf_portwatch_disruptions",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "destatis_truck_toll",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Ingest FAIL: GENESIS meldet Status 7000: Für die Teiltabelle mit der Metadatenkombination:\nIndizes aus der Lkw-Mauterhebung (42191)\nLkw-Maut-Fahrleistungsindex (LST015)\nDeutschland insgesamt (DINSG)\nMonate (MONAT); Data-Quality-Befund schwerwiegend"
-  },
-  {
-   "source_id": "bts_open_data_tsi",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Ingest FAIL: SODA-Zeilenabruf fehlgeschlagen (bw6n-ddqk): 503 für https://data.bts.gov/resource/bw6n-ddqk.json; Data-Quality-Befund schwerwiegend"
-  },
-  {
-   "source_id": "*",
-   "type": "safe_mode_off",
-   "from": true,
-   "to": false,
-   "error": ""
-  }
- ],
- "mail": "sent"
+ "at": "2026-11-07T17:51:26+00:00",
+ "changes": [],
+ "mail": "no_change"
 }
