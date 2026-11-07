@@ -59,6 +59,17 @@ jobs:
         run: |
           bash scripts/ci_push.sh "chore: options capture $(date -u +%Y-%m-%dT%H:%M)" outputs/options_archive/ outputs/research/autonomous_alpha/option_link/ outputs/research/autonomous_alpha/option_link.json
 
+      # Research-only virtual account, after quote archive has been committed.
+      # Failure here cannot lose archived market quotes; no broker/API calls.
+      - name: Virtuelles 100k-USD-Konto – neue Signale und verifizierte Exits
+        run: python -m modules.autonomous_alpha paper-account --paper-mode capture
+
+      - name: Paper-Kontobuchungen dauerhaft speichern
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: paper account $(date -u +%Y-%m-%dT%H:%M)" outputs/options_archive/paper_account/
+
       - name: Daten-Sicherung als Artefakt (nur nach Fehler)
         if: failure()
         uses: actions/upload-artifact@v6
