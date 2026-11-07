@@ -112,7 +112,7 @@ def test_priority_uses_direction_posterior_and_novelty():
     h = {"family": "f", "relevance": 1.0, "readiness": {"status": "READY", "data_quality": 1.0, "cost": 1.0}}
     p0 = hf.priority(h, {}, 0.0, proto)
     bad = rm.directions([_mem(f"X{i}", "REJECTED", {"family": "f", "signal": f"rank(vol_20)*{i}"}) for i in range(6)])
-    good = rm.directions([_mem(f"X{i}", "PROSPECTIVE_CHALLENGER", {"family": "f", "signal": f"rank(vol_20)*{i}"})
+    good = rm.directions([_mem(f"X{i}", "FORWARD_VALIDATED", {"family": "f", "signal": f"rank(vol_20)*{i}"})
                           for i in range(3)])
     assert hf.priority(h, bad, 0.0, proto) < p0 < hf.priority(h, good, 0.0, proto)
     assert hf.priority(h, {}, 0.5, proto) == pytest.approx(p0 * 0.5, rel=1e-3)
@@ -188,8 +188,8 @@ def test_evaluate_registers_challenger_only_if_lab_accepted_and_robust(synth, tm
             {"id": "FAC-D", "signal": "rank(vol_60)", "direction": 1, "family": "z", "spec_hash": "h4"}]
     (tmp_path / "h.json").write_text(json.dumps({"hypotheses": hyps}))
     (tmp_path / "db.json").write_text(json.dumps({"hypotheses": {
-        "FAC-A": {"canonical_status": "ACCEPTED"}, "FAC-B": {"canonical_status": "REJECTED", "reasons": ["BH"]},
-        "FAC-C": {"canonical_status": "ACCEPTED"}}}))
+        "FAC-A": {"status": "historical_exploratory_pending_forward", "canonical_status": "EXPLORATORY", "lab_screen_passed": True}, "FAC-B": {"canonical_status": "REJECTED", "reasons": ["BH"]},
+        "FAC-C": {"status": "historical_exploratory_pending_forward", "canonical_status": "EXPLORATORY", "lab_screen_passed": True}}}))
     res = hf.evaluate(p, proto, NOW, db_path=tmp_path / "db.json", hyp_path=tmp_path / "h.json")["results"]
     assert res["FAC-A"]["status"] == "PROSPECTIVE_CHALLENGER"
     assert res["FAC-B"]["status"] == "REJECTED" and res["FAC-B"]["reasons"] == ["BH"]

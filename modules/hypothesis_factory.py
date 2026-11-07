@@ -847,13 +847,19 @@ def evaluate(panel: pd.DataFrame, protocol: dict | None = None, now: datetime | 
                                       "idea_source", "exploratory", "priority", "novelty", "commodity",
                                       "equity_population", "mechanism", "domain_features", "non_pit_mapping",
                                       "anomaly_type")}
-        if lab != "ACCEPTED":
+        # A contaminated historic screen may still *select* a prospectively
+        # registered challenger; it cannot independently CONFIRM one.
+        historical_screen = (rec.get("lab_screen_passed") is True
+                             or rec.get("status") == "accepted")
+        if not (historical_screen and lab == "EXPLORATORY"):
             results[h["id"]] = {"status": "REJECTED" if lab == "REJECTED" else lab, "spec": spec,
                                 "reasons": rec.get("reasons") or [f"Research-Lab: {lab}"],
                                 "data_kind": "historical_walk_forward", **EVIDENCE_CLASS}
             continue
         bt = battery(panel, h, protocol)
         status = "PROSPECTIVE_CHALLENGER" if bt["robust"] else "NOT_ROBUST"
+        # Robustness is a historical *selection* result, not a forward success.
+        # The actual confirmation is made by the frozen forward ledger only.
         results[h["id"]] = {"status": status, "spec": spec, "tests": bt["tests"], "reasons": bt["reasons"],
                             "data_kind": "historical_walk_forward+robustness", **EVIDENCE_CLASS}
         if bt["robust"] and h["id"] not in known:

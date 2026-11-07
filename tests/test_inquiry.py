@@ -57,7 +57,7 @@ def _mem(status, prio, src="cross_domain", fam="f1", ts="2026-10-03T00:00:00+00:
 
 
 def test_learning_curve_and_priority_calibration():
-    ent = [_mem("ACCEPTED", 0.9 - i * 0.01, hid=f"A{i}") for i in range(5)] + \
+    ent = [_mem("FORWARD_VALIDATED", 0.9 - i * 0.01, hid=f"A{i}") for i in range(5)] + \
           [_mem("REJECTED", 0.1 + i * 0.01, hid=f"R{i}") for i in range(6)]
     lc = rm.learning_curve(ent)
     assert lc["by_quarter"]["2026-Q4"] == {"tested": 11, "success_rate": round(5 / 11, 3)}

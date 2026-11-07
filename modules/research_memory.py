@@ -52,6 +52,7 @@ SOURCES = {
     "alpha_option_economics": Path("outputs/research/autonomous_alpha/option_economics.json"),
     "alpha_option_validation": Path("outputs/research/autonomous_alpha/option_validation.json"),
     "error_research": Path("outputs/research/error_research.json"),
+    "alpha_data_quality": Path("outputs/research/autonomous_alpha/data_quality.json"),
 }
 # Fehlergetriebene Forschung (research_director.error_research) -> Memory-Status. PENDING_FORWARD ist weder Erfolg
 # noch abgeschlossener Test; Erfolg nur nach prospektiver Bestätigung (FORWARD_VALIDATED).
@@ -80,7 +81,7 @@ PROSPECTIVE_STATES = ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUC
 # research_director) lasen das GESPEICHERTE Feld canonical_status. In outputs/research/hypothesis_db.json (Stand 03.11.,
 # vor #165) stehen 15 nur per Textähnlichkeit gesperrte, nie getestete Hypothesen noch als REJECTED; research.yml
 # schreibt die Datei erst am 02.12. neu. Bis dahin zählten sie überall als widerlegt.
-HYPOTHESIS_CANONICAL = {"accepted": "ACCEPTED", "rejected": "REJECTED", "rejected_leakage_or_invalid": "REJECTED",
+HYPOTHESIS_CANONICAL = {"accepted": "EXPLORATORY", "historical_exploratory_pending_forward": "EXPLORATORY", "rejected": "REJECTED", "rejected_leakage_or_invalid": "REJECTED",
                         "rejected_locked": "REJECTED", "duplicate": "REJECTED",
                         "blocked_similar_to_rejected": "NOT_TESTED", "invalid_modified": "REJECTED",
                         "not_significant_after_fdr": "INCONCLUSIVE", "passed_pre_fdr": "INCONCLUSIVE",
@@ -94,6 +95,21 @@ def hypothesis_status(rec: dict | None) -> str:
     rec = rec or {}
     if rec.get("status") == "blocked_similar_to_rejected":
         return "NOT_TESTED"
+    # A legacy cached ACCEPTED/ROBUST/VALIDATED is NOT independent proof.
+    # The historical locked interval was reused; pre-existing JSON files may
+    # still carry old canonical labels until the next monthly lab run.
+    if rec.get("status") in ("accepted", "historical_exploratory_pending_forward"):
+        return "EXPLORATORY"
+    # A cached Research-Lab ACCEPTED, even without the original raw status,
+    # is always historical. Forward confirmation belongs to separate frozen
+    # validation journals and must never be inferred from this legacy field.
+    if str(rec.get("canonical_status") or "").upper() == "ACCEPTED":
+        return "EXPLORATORY"
+    historical = rec.get("locked_holdout_status") == "CONTAMINATED" or rec.get("evidence_class") in (
+        "EXPLORATORY_HISTORICAL", "HISTORICAL_RESEARCH", "HISTORICAL_ROBUSTNESS_BATTERY")
+    if historical and str(rec.get("canonical_status") or rec.get("status") or "").upper() in (
+        "ACCEPTED", "ROBUST", "VALIDATED", "CONFIRMED"):
+        return "EXPLORATORY"
     if rec.get("canonical_status"):
         return rec["canonical_status"]
     if rec.get("status") == "prior_result":
@@ -101,9 +117,11 @@ def hypothesis_status(rec: dict | None) -> str:
     return HYPOTHESIS_CANONICAL.get(rec.get("status"), "INCONCLUSIVE")
 
 
-TESTED = ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "ROBUST", "NOT_ROBUST", "PROSPECTIVE_CHALLENGER",
+TESTED = ("EXPLORATORY", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "NOT_ROBUST",
           *PROSPECTIVE_STATES, "DEMOTED", "EXPIRED")
-SUCCESS = ("ACCEPTED", "ROBUST", "PROSPECTIVE_CHALLENGER", *PROSPECTIVE_STATES)
+# Merely registered PENDING_FORWARD is not yet a performed independent test.
+# Research success has one evidence meaning: an independently validated forward result.
+SUCCESS = PROSPECTIVE_STATES
 _NAME = re.compile(r"[a-z_][a-z0-9_]*")
 
 
@@ -163,7 +181,7 @@ def collect(sources: dict | None = None) -> list[dict]:
                                                            "years_positive": wf.get("years_positive_share")},
                           regimes=r.get("regimes"), reasons=r.get("reasons"), data_kind="historical_walk_forward"))
     for sid, r in ((src.get("alt_validation") or {}).get("sources") or {}).items():
-        out.append(_entry("alt_source", sid, {"KEEP": "ACCEPTED", "MODIFY": "INCONCLUSIVE"}.get(r.get("verdict"), "REJECTED"),
+        out.append(_entry("alt_source", sid, {"KEEP": "EXPLORATORY", "MODIFY": "INCONCLUSIVE"}.get(r.get("verdict"), "REJECTED"),
                           {"signal": " ".join(r.get("selected_features") or []), "domain": sid},
                           source="alt_data", evidence={"verdict": r.get("verdict")}, reasons=[r.get("verdict_reason")],
                           data_kind="historical_walk_forward_ablation"))
@@ -175,7 +193,7 @@ def collect(sources: dict | None = None) -> list[dict]:
                           reasons=[p.get("reason")], data_kind="historical_walk_forward"))
     for p in ap.get("proposals") or []:
         wf = p.get("walk_forward") or {}
-        out.append(_entry("abstention", wf.get("rule"), "ACCEPTED", {"signal": wf.get("rule"), "direction": -1,
+        out.append(_entry("abstention", wf.get("rule"), "EXPLORATORY", {"signal": wf.get("rule"), "direction": -1,
                                                                      "domain": "champion_trades"},
                           source="abstention_proposals", evidence=wf, data_kind="historical_walk_forward"))
     for k, h in ((src.get("promotion_state") or {}).get("hypotheses") or {}).items():
@@ -201,7 +219,7 @@ def collect(sources: dict | None = None) -> list[dict]:
         d = r.get("decision") or {}
         b = ((r.get("h20") or {}).get("base_cost") or {})
         out.append(_entry("research", f"SURPRISE-{name}",
-                          {"KEEP": "ACCEPTED", "MODIFY": "INCONCLUSIVE"}.get(d.get("verdict"), "REJECTED"),
+                          {"KEEP": "EXPLORATORY", "MODIFY": "INCONCLUSIVE"}.get(d.get("verdict"), "REJECTED"),
                           {"signal": name, "title": r.get("description"), "family": "surprise_engine",
                            "domain": "earnings_expectations"},
                           source="surprise_engine", evidence={"mean": b.get("mean"), "t": b.get("t_months"),
@@ -221,13 +239,28 @@ def collect(sources: dict | None = None) -> list[dict]:
                                                               "spec_hash": c.get("spec_hash")},
                           reasons=d.get("reasons"), data_kind="prospective_locked_holdout"))
     for hid, r in ((src.get("factory_results") or {}).get("results") or {}).items():
-        out.append(_entry("factory", hid, r.get("status"), r.get("spec") or {}, source="factory",
+        # A registered challenger has NO outcome until its independent
+        # forward ledger is actually evaluated and frozen.
+        st = "PENDING_FORWARD" if r.get("status") == "PROSPECTIVE_CHALLENGER" else (
+            "EXPLORATORY" if r.get("status") in ("ROBUST", "ACCEPTED") else r.get("status"))
+        out.append(_entry("factory", hid, st, r.get("spec") or {}, source="factory",
                           evidence=r.get("tests"), reasons=r.get("reasons"), data_kind=r.get("data_kind")))
     out += commodity_entries(src.get("commodity_evaluation"), src.get("factory_results"))
     out += option_entries(*(src.get(k) for k in ("option_status_20d", "option_status_5d", "option_improvement")))
     out += task_entries(src.get("improvement_tasks"))
     out += alpha_option_entries(src.get("alpha_option_economics"), src.get("alpha_option_validation"))
     out += error_entries(src.get("error_research"))
+    # P1 research feedback uses existing Research Memory; quality gaps are not
+    # hypotheses, training labels, or successful trials.
+    for g in (src.get("alpha_data_quality") or {}).get("data_gaps") or []:
+        out.append(_entry("alpha_data_gap", str(g.get("id")), "DATA_GAP",
+                          {"signal": str(g.get("id")), "domain": "alpha_option_data_quality"},
+                          source="alpha_data_quality",
+                          evidence={"count": g.get("count"),
+                                    "coverage": g.get("coverage_fraction"),
+                                    "first_observed": g.get("first_observed_in_monitoring")},
+                          reasons=[g.get("cause"), g.get("action")],
+                          data_kind="observed_repository_health"))
     return out
 
 
@@ -306,8 +339,8 @@ def alpha_option_entries(econ: dict | None, validation: dict | None) -> list[dic
                               reasons=(e.get("research_decision") or {}).get("reasons"),
                               data_kind="prospective_quote_verified_paper"))
     for p in (validation or {}).get("plans") or []:
-        if p.get("classification") == "QUALIFIED_FOR_HUMAN_REVIEW":
-            status = "ACCEPTED"
+        if p.get("classification") == "QUALIFIED_FOR_HUMAN_REVIEW" and p.get("status") == "CONFIRMED":
+            status = "FORWARD_VALIDATED"
         else:
             status = ALPHA_PLAN_STATUS.get(p.get("status"), "PENDING_FORWARD")
         b = p.get("binding") or {}
@@ -483,7 +516,8 @@ def directions(entries: list[dict], prior: tuple[float, float] = (1.0, 4.0)) -> 
         d["rejected"] += st in ("REJECTED", "NOT_ROBUST", "DEMOTED", "EXPIRED")
     out = {}
     for k, d in agg.items():
-        a, b = a0 + d["success"] + d["prospective"], b0 + d["tested"] - d["success"]
+        # PROSPECTIVE_STATES are already counted in success; do not count twice.
+        a, b = a0 + d["success"], b0 + d["tested"] - d["success"]
         mean = a / (a + b)
         sd = math.sqrt(a * b / ((a + b) ** 2 * (a + b + 1)))
         out[k] = {**d, "posterior_success": round(mean, 4), "posterior_sd": round(sd, 4),

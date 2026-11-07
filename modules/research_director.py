@@ -321,8 +321,18 @@ def active_learning(world: dict, blind: list[dict], catalog: list[dict],
 
 
 def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict], max_new: int = MAX_NEW_PER_RUN,
-         error_gaps: list[dict] | None = None) -> dict:
+         error_gaps: list[dict] | None = None, memory: list[dict] | None = None,
+         data_quality: dict | None = None, forward_budget: dict | None = None) -> dict:
+    from modules import research_memory as rmem
+    from modules.research_lab import SignalError, validate_expr
     tested = hyp_db.get("hypotheses") or {}
+    memory = memory or []
+    data_quality = data_quality or {}
+    forward_budget = forward_budget or {}
+    sparse = set()
+    for h in (data_quality.get("existing_option_learner") or {}).values():
+        sparse.update((h.get("feature_coverage_below_80pct") or {}).keys())
+    max_new = max(0, min(int(max_new), MAX_NEW_PER_RUN))
     blind = nextv.get("blind_spot_clusters") or []
     raw = candidates_from_blind_spots(blind) + candidates_from_regimes(meta, hyp_db) + candidates_from_drift(meta)
     cands = []
@@ -337,15 +347,65 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
         c["research_cost"] = 1.0 if c["kind"] == "testable" else 3.0
         c["priority"] = priority(c["expected_information_gain"], max(c.get("value", 0) * 100, 0.1), c["novelty"],
                                  1 - c["risk_of_overfitting"], 1.0 if c.get("available_data") else 3.0, c["research_cost"])
+        c["status"] = "EXPLORATORY"
+        c["defer_reason"] = None
+        if c["kind"] == "testable":
+            spec = {"signal": c.get("signal"), "direction": c.get("direction"),
+                    "domain": c.get("domain")}
+            hits = rmem.search(spec, memory, threshold=0.85)
+            tested_hits = [(k, st, sim) for k, st, sim in hits if st in rmem.TESTED]
+            c["memory_matches"] = [{"id": k, "status": st, "similarity": sim}
+                                   for k, st, sim in hits[:3]]
+            if tested_hits:  # no re-testing already inspected historical or forward results
+                c["defer_reason"] = "RESEARCH_MEMORY_SIMILAR_PREVIOUSLY_TESTED"
+            elif not c.get("available_data"):
+                c["defer_reason"] = "NEED_MORE_DATA"
+            else:
+                try:
+                    import ast
+                    expr = validate_expr(str(c.get("signal") or ""))
+                    needs = sorted({n.id for n in ast.walk(expr) if isinstance(n, ast.Name)} & sparse)
+                    if needs:
+                        c["defer_reason"] = "NEED_MORE_DATA"
+                        c["missing_features"] = needs
+                except (SignalError, ValueError) as exc:
+                    c["defer_reason"] = "UNSAFE_OR_UNAVAILABLE_PIT_EXPRESSION"
+                    c["validation_error"] = str(exc)[:160]
+            if c["defer_reason"]:
+                c["status"] = "NEED_MORE_DATA" if c["defer_reason"] == "NEED_MORE_DATA" else "DEFERRED"
+                c["priority"] = 0.0
         cands.append(c)
-    cands.sort(key=lambda c: -c["priority"])
-    chosen = [c for c in cands if c["kind"] == "testable" and c["novelty"] > 0.2 and c["research_id"] not in tested][:max_new]
+    cands.sort(key=lambda c: (-c["priority"], c["research_id"]))
+    chosen = [c for c in cands if c["kind"] == "testable" and not c["defer_reason"]
+              and c["novelty"] > 0.2 and c["research_id"] not in tested][:max_new]
     hyps = [{"id": c["research_id"], "title": c["title"], "statement": c["statement"], "signal": c["signal"],
              "direction": c["direction"], "rationale": c["economic_rationale"],
-             "created_at": datetime.now(timezone.utc).date().isoformat()} for c in chosen]
+             "created_at": datetime.now(timezone.utc).date().isoformat(),
+             "research_dossier": {
+                 "observed_relationship": c.get("source_finding"),
+                 "economic_mechanism": c["economic_rationale"],
+                 "data_required": c.get("required_data") or [],
+                 "point_in_time_rule": "Only features known before the decision; no retroactive quote filling",
+                 "expected_direction": c["direction"], "horizon_trading_days": 20,
+                 "option_structures_to_compare": ["LONG_CALL", "BULL_CALL_SPREAD"],
+                 "comparators": ["RANDOM_CONTROL", "FROZEN_ML_BENCHMARK", "NO_TRADE"],
+                 "success_metric": "Net options P&L after bid/ask, commissions, adverse execution",
+                 "falsification": "No forward net advantage, data/quote coverage below 80%, "
+                                  "or insufficient independent periods",
+                 "expected_information_gain": c["expected_information_gain"],
+                 "pre_registration": "Before post-registration prospective outcomes via existing alpha-option validation",
+                 "forward_budget_status": "EXHAUSTED" if forward_budget.get("exhausted") else "AVAILABLE_OR_UNKNOWN",
+                 "promotion": "NEVER_AUTOMATIC",
+             }} for c in chosen]
     return {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "n_candidates": len(cands), "n_selected_for_testing": len(hyps), "max_new_per_run": max_new,
             "candidates": cands, "selected": [c["research_id"] for c in chosen], "hypotheses": hyps,
+            "deferred": [{"id": c["research_id"], "reason": c["defer_reason"]}
+                         for c in cands if c.get("defer_reason")],
+            "memory_entries_considered": len(memory),
+            "alpha_data_quality_as_of": data_quality.get("generated_at"),
+            "option_forward_budget": {"exhausted": forward_budget.get("exhausted"),
+                                      "remaining": forward_budget.get("remaining")},
             "active_learning": active_learning(world, blind, catalog, error_gaps)}
 
 
@@ -2231,7 +2291,8 @@ def memory_prior(families: list[str], latest: dict, prior: tuple = (1.0, 4.0)) -
         n["prospective"] += st in rm.PROSPECTIVE_STATES
         n["rejected"] += st in ("REJECTED", "NOT_ROBUST", "DEMOTED", "EXPIRED")
         used.append(f"{e['hypothesis_id']}:{st}")
-    a, b = prior[0] + n["success"] + n["prospective"], prior[1] + n["tested"] - n["success"]
+    # PROSPECTIVE_STATES are already counted in success; do not count twice.
+    a, b = prior[0] + n["success"], prior[1] + n["tested"] - n["success"]
     post = a / (a + b)
     return {"factor": round(post / base, 3), "posterior_success": round(post, 4), **n, "evidence": sorted(used)[:10]}
 
@@ -2815,7 +2876,13 @@ def run() -> dict:
     catalog = annotate_catalog((yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", [])
                                if CATALOG.exists() else [])
     errors = _load(ERROR_REPORT, {})              # wöchentlich von --errors geschrieben (fehlergetriebene Forschung)
-    rep = plan(meta, nextv, world, hyp_db, catalog, error_gaps=errors.get("data_gaps"))
+    from modules import research_memory as rmem
+    rmem.sync()  # use canonical latest research results and measured data-quality gaps before selecting
+    quality = _load(OUT / "autonomous_alpha" / "data_quality.json", {})
+    option_validation = _load(OUT / "autonomous_alpha" / "option_validation.json", {})
+    rep = plan(meta, nextv, world, hyp_db, catalog, error_gaps=errors.get("data_gaps"),
+               memory=rmem.load(), data_quality=quality,
+               forward_budget=option_validation.get("test_budget"))
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "research_candidates.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))
     (OUT / "director_hypotheses.json").write_text(json.dumps({"generated": rep["generated"],

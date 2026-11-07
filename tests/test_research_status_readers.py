@@ -26,7 +26,7 @@ DB = {"hypotheses": {r["id"]: r for r in (BLOCKED, REJECTED, ACCEPTED)}}
 
 def test_one_status_rule_for_lab_and_readers():
     assert rm.hypothesis_status(BLOCKED) == rl.canonical_status(BLOCKED) == "NOT_TESTED"
-    assert rm.hypothesis_status(REJECTED) == "REJECTED" and rm.hypothesis_status(ACCEPTED) == "ACCEPTED"
+    assert rm.hypothesis_status(REJECTED) == "REJECTED" and rm.hypothesis_status(ACCEPTED) == "EXPLORATORY"
     assert rm.hypothesis_status({"status": "prior_result"}) == "REJECTED"
     assert rm.hypothesis_status({"status": "passed_pending_locked"}) == "RETEST_LATER"
     assert rm.hypothesis_status(None) == "INCONCLUSIVE" and rl.CANONICAL is rm.HYPOTHESIS_CANONICAL
@@ -36,7 +36,7 @@ def test_research_memory_does_not_count_untested_as_rejected(tmp_path):
     p = tmp_path / "hypothesis_db.json"
     p.write_text(json.dumps(DB))
     st = sorted(e["status"] for e in rm.collect({"hypothesis_db": p}))
-    assert st == ["ACCEPTED", "NOT_TESTED", "REJECTED"]
+    assert st == ["EXPLORATORY", "NOT_TESTED", "REJECTED"]
     assert "NOT_TESTED" not in rm.TESTED                              # zählt nicht als geprüft/widerlegt
 
 
@@ -53,4 +53,4 @@ def test_inquiry_and_contract_inventory_use_the_canonical_status(tmp_path, monke
     (tmp_path / "outputs" / "research").mkdir(parents=True)
     (tmp_path / "outputs" / "research" / "hypothesis_db.json").write_text(json.dumps(DB))
     inv = {r["hypothesis_id"]: r["status"] for r in hc.research_inventory()}
-    assert inv == {"H_B": "NOT_TESTED", "H_R": "REJECTED", "H_A": "ACCEPTED"}
+    assert inv == {"H_B": "NOT_TESTED", "H_R": "REJECTED", "H_A": "EXPLORATORY"}

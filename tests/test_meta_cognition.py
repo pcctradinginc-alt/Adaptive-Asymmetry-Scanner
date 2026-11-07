@@ -28,7 +28,8 @@ def test_research_value_efficiency():
                           **{f"C{i}": {"source": "human", "canonical_status": "REJECTED"} for i in range(6)}},
            "discovery": {"n_tested": 117, "n_survivors": 0}}
     rv = mc.research_value(hyp, {}, {})
-    assert rv["literature"]["research_efficiency"] == "HIGH" and rv["human"]["research_efficiency"] == "LOW"
+    assert rv["literature"]["research_efficiency"] == "LOW" and rv["human"]["research_efficiency"] == "LOW"
+    assert rv["literature"]["accepted"] == 0 and rv["literature"]["oos_contribution"] == 0.0  # only historical success
     assert rv["discovery_engine"]["experiments"] == 117
 
 

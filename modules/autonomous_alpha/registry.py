@@ -152,6 +152,17 @@ def _snapshot(kind: str, identifier: str, rec: dict, generated: str | None,
         "promotion_eligible": False,
         "production_impact": False,
     }
+    # Historical source labels are retained for audit, never promoted to an
+    # apparently independent success when the locked interval is contaminated.
+    record["source_status"] = record["status"]
+    if kind in ("research_lab", "factory_battery", "ml_models") and (
+            str(locked_status).upper() == "CONTAMINATED" or
+            rec.get("evidence_class") == "EXPLORATORY_HISTORICAL"):
+        if record["status"] in ("ACCEPTED", "ROBUST", "VALIDATED", "CONFIRMED",
+                                "HISTORICAL_EXPLORATORY_PENDING_FORWARD"):
+            record["status"] = "EXPLORATORY"
+        elif record["status"] == "PROSPECTIVE_CHALLENGER":
+            record["status"] = "PENDING_FORWARD"
     if kind == "factory_plan":
         record["metrics"] = {}
         record["evidence_class"] = "UNTESTED_IDEA"

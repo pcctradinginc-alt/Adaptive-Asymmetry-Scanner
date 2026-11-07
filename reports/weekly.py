@@ -1216,26 +1216,23 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
     hs = _d(hyp.get("hypotheses"))
     b9 = []
     if hs:
-        cnt = {"accepted": 0, "rejected": 0, "inconclusive": 0, "currently testing": 0, "sonstige": 0}
+        from modules.research_memory import hypothesis_status
+        cnt = {"exploratory (historisch)": 0, "forward-confirmed": 0, "rejected": 0,
+               "inconclusive": 0, "currently testing": 0, "sonstige": 0}
         for v in hs.values():
-            s = str(_d(v).get("status", ""))
-            cs = str(_d(v).get("canonical_status", ""))
-            if cs == "RETEST_LATER" or s in ("testing", "running", "in_test", "currently_testing"):
+            raw = _d(v)
+            cs = hypothesis_status(raw)  # stale cached ACCEPTED is not an independent confirmation
+            if cs == "EXPLORATORY":
+                cnt["exploratory (historisch)"] += 1
+            elif cs in ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUCTION", "FULL_PRODUCTION"):
+                cnt["forward-confirmed"] += 1
+            elif cs in ("RETEST_LATER", "PENDING_FORWARD") or raw.get("status") in (
+                    "testing", "running", "in_test", "currently_testing"):
                 cnt["currently testing"] += 1
             elif cs == "INCONCLUSIVE":
                 cnt["inconclusive"] += 1
-            elif cs == "ACCEPTED" or s.startswith("accepted"):
-                cnt["accepted"] += 1
             elif cs == "REJECTED":
                 cnt["rejected"] += 1
-            elif s.startswith("accepted"):
-                cnt["accepted"] += 1
-            elif s.startswith("rejected"):
-                cnt["rejected"] += 1
-            elif s in ("not_significant_after_fdr", "passed_pending_locked"):
-                cnt["inconclusive"] += 1
-            elif s in ("testing", "running", "in_test", "currently_testing"):
-                cnt["currently testing"] += 1
             else:
                 cnt["sonstige"] += 1
         disc = _d(hyp.get("discovery"))
@@ -1245,7 +1242,7 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
         newest = sorted((v for v in hs.values() if _d(v).get("created_at")), key=lambda v: v["created_at"], reverse=True)[:5]
         if newest:
             b9.append(("table", ["Angelegt", "ID", "Titel", "Status"],
-                       [[str(v["created_at"]), str(v.get("id", NA)), str(v.get("title", NA)), str(v.get("status", NA))] for v in newest], []))
+                       [[str(v["created_at"]), str(v.get("id", NA)), str(v.get("title", NA)), hypothesis_status(v)] for v in newest], []))
         fa = _d(data["fail"])
         prim = _d(_d(fa.get("reliable")).get("primary"))
         if prim:
@@ -1328,9 +1325,10 @@ def scoreboard(data: dict) -> dict[str, list[list[str]]]:
     for hid, h in _d(_d(data.get("hyp")).get("hypotheses")).items():
         if hid in seen:
             continue
-        cs = str(_d(h).get("canonical_status") or "")
-        grp = "REJECTED" if cs == "REJECTED" else ("RESEARCH IDEA" if cs in ("ACCEPTED", "INCONCLUSIVE", "RETEST_LATER")
-                                                   else None)
+        from modules.research_memory import hypothesis_status
+        cs = hypothesis_status(_d(h))
+        grp = "REJECTED" if cs == "REJECTED" else (
+            "RESEARCH IDEA" if cs in ("EXPLORATORY", "INCONCLUSIVE", "RETEST_LATER", "PENDING_FORWARD") else None)
         if grp is None:
             continue
         groups[grp].append([hid, str(_d(h).get("title") or "")[:60], f"{cs or _d(h).get('status')} (historisch)",

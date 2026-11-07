@@ -146,7 +146,7 @@ def test_adaptive_hypothesis_cannot_be_accepted_using_contaminated_holdout(tmp_p
                    db_path=tmp_path/"db.json",with_discovery=False)
     row=result["hypotheses"][hyps[0]["id"]]
     assert row["status"]=="historical_exploratory_pending_forward"
-    assert row["canonical_status"]=="INCONCLUSIVE"
+    assert row["canonical_status"]=="EXPLORATORY"
 
 
 def test_existing_registered_proposals_all_remain_in_lab_testing_cohort(tmp_path,monkeypatch):

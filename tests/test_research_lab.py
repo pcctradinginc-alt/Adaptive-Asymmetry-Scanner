@@ -67,7 +67,7 @@ def test_true_hypothesis_accepted_noise_rejected_and_duplicates(tmp_path, panel)
     ])
     db = lab.run(panel, hyp_path=hp, db_path=tmp_path / "db.json", with_discovery=False)
     h = db["hypotheses"]
-    assert h["H-TRUE"]["status"] == "accepted" and h["H-TRUE"]["locked"]["base"]["mean"] > 0
+    assert h["H-TRUE"]["status"] == "historical_exploratory_pending_forward" and h["H-TRUE"]["lab_screen_passed"] is True and not h["H-TRUE"].get("locked")
     assert h["H-DUP"]["status"] == "duplicate" and h["H-DUP"]["duplicate_of"] == "H-TRUE"
     assert h["H-NOISE"]["status"] in ("rejected", "not_significant_after_fdr")
     assert h["H-LEAK"]["status"] == "rejected_leakage_or_invalid"
@@ -143,13 +143,13 @@ def test_similar_to_rejected_is_blocked_and_memory_review_written(tmp_path, pane
     r = db["hypotheses"]["H-NOISE"]
     assert r["memory"]["validation_design"] and "relvol_5_60" in r["memory"]["data_used"]
     assert r["adversarial_review"]["final_decision_by"].startswith("vorab")
-    assert set(db["status_counts"]) == {"ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "NOT_TESTED"}
+    assert set(db["status_counts"]) == {"EXPLORATORY", "ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "NOT_TESTED"}
 
 
 def test_canonical_status_mapping():
     assert lab.canonical_status({"status": "not_significant_after_fdr"}) == "INCONCLUSIVE"
     assert lab.canonical_status({"status": "passed_pending_locked"}) == "RETEST_LATER"
-    assert lab.canonical_status({"status": "accepted"}) == "ACCEPTED"
+    assert lab.canonical_status({"status": "accepted"}) == "EXPLORATORY"
     assert lab.canonical_status({"status": "prior_result", "canonical_status": "INCONCLUSIVE"}) == "INCONCLUSIVE"
 
 

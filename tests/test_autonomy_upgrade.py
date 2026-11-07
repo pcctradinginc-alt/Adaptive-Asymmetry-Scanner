@@ -134,8 +134,8 @@ def test_a4_5_anomaly_hypotheses_pass_through_the_existing_lab_chain(lab_run):
     an = _anomalies(lab_run["plan"])[0]
     rec = lab_run["db"]["hypotheses"][an["id"]]
     assert rec["stages"] == {"leakage": "pass", "duplicate": "pass", "coverage": "pass", "walk_forward": "pass"}
-    assert rec["status"] == "accepted" and rec["family"] == an["family"] and rec["spec_hash"] == an["spec_hash"]
-    assert rec["locked"]["base"]["n_cohorts"] >= rl.MIN_LOCKED_COHORTS
+    assert rec["status"] == "historical_exploratory_pending_forward" and rec["family"] == an["family"] and rec["spec_hash"] == an["spec_hash"]
+    assert rec["lab_screen_passed"] is True and rec["locked_holdout_status"] == "CONTAMINATED" and not rec.get("locked")
 
 
 def test_a4_6_no_confirmation_without_evidence(env, lab_run, tmp_path, monkeypatch):

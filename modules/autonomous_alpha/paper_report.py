@@ -20,6 +20,9 @@ ROOT = Path("outputs/research/paper_account")
 ECONOMICS = Path("outputs/research/autonomous_alpha/option_economics.json")
 VALIDATION = Path("outputs/research/autonomous_alpha/option_validation.json")
 LEARNER = Path("outputs/research/option_learner")
+ALPHA_QUALITY = Path("outputs/research/autonomous_alpha/data_quality.json")
+HYP_DB = Path("outputs/research/hypothesis_db.json")
+FACTORY_PLAN = Path("outputs/research/factory_plan.json")
 
 
 def _json(root: Path, path: Path) -> dict:
@@ -40,7 +43,9 @@ def _pct(v) -> str:
 
 
 def render(account: dict, economics: dict, validation: dict,
-           learner5: dict, learner20: dict, *, week: str) -> str:
+           learner5: dict, learner20: dict, *, week: str,
+           data_quality: dict | None = None, hypothesis_db: dict | None = None,
+           factory_plan: dict | None = None) -> str:
     """Separate observed facts, exploratory hypotheses and confirmation."""
     lines = [f"GITHUB-PAPER-DEPOT – Wochenbericht {week}",
              "Ausschließlich virtuelle Optionsgeschäfte. Keine Brokeranbindung, keine echten Orders.", "",
@@ -108,6 +113,33 @@ def render(account: dict, economics: dict, validation: dict,
               "HYPOTHESE: Forschungsansatz ohne bestätigte Überlegenheit.",
               "BESTÄTIGT: nur mit vorregistriertem, unabhängigen Forward-Test und Fehlerbudget.",
               "Keine Trading-Empfehlung; kein automatischer Produktionswechsel."]
+    quality, db, factory = data_quality or {}, hypothesis_db or {}, factory_plan or {}
+    verdicts = [p.get("status") for p in (validation.get("plans") or [])
+                if isinstance(p, dict)]
+    h5 = (quality.get("existing_option_learner") or {}).get("5") or {}
+    h20 = (quality.get("existing_option_learner") or {}).get("20") or {}
+    gaps = (quality.get("largest_observed_count_gaps") or [])
+    lines += ["", "G. Autonomous Alpha Discovery 2.0 – Status der Evidenz",
+              f"Neue Ideen im letzten Fabrik-Plan (nicht bestätigt): {factory.get('n_ideas', 'unbekannt')}",
+              f"Historisch geprüfte Hypothesen kumulativ: {db.get('n_tested_total', 'unbekannt')}",
+              f"EXPLORATORY: {((db.get('status_counts') or {}).get('EXPLORATORY', 0))} historische Kandidaten",
+              f"PENDING_FORWARD: {sum(v not in ('CONFIRMED', 'FALSIFIED', 'NOT_CONFIRMED') for v in verdicts)} registrierte Optionspläne ohne endgültiges Urteil",
+              f"CONFIRMED (unabhängiger Prospektivtest): {verdicts.count('CONFIRMED')}",
+              f"FALSIFIED: {verdicts.count('FALSIFIED')}",
+              f"NEED_MORE_DATA: {sum(int(v or 0) for v in (quality.get('blocked_hypotheses_by_structure') or {}).values())} Struktur-Hypothesen-Bewertungen",
+              f"5-Tage-Quote-Belege (historische Archivstichprobe): {h5.get('verified_quote_labels', 'unbekannt')}; "
+              f"archiviert {h5.get('archive_sample_verified_fraction', 'unbekannt')}",
+              f"20-Tage-Quote-Belege (historische Archivstichprobe): {h20.get('verified_quote_labels', 'unbekannt')}; "
+              f"archiviert {h20.get('archive_sample_verified_fraction', 'unbekannt')}",
+              "Unabhängige Forward-Fenster: keine belastbare Zahl allein aus historischen Quotentagen ableitbar",
+              "Netto-Alpha nach Optionskosten: erst nach verifizierter, unabhängiger Validierung entscheidbar",
+              "Größtes beobachtetes Datenproblem (Anzahl, nicht Alpha-Nutzen): " +
+              (", ".join(gaps) if gaps else "noch nicht bewertet"),
+              "Nächste Forschungspriorität: zukünftige echte Entry-/Exit-Quotes und "
+              "unabhängige Forward-Fenster sammeln, nur danach neue Hypothesen wirtschaftlich validieren",
+              "Status-Definition: EXPLORATORY (historisch), PENDING_FORWARD (vorgemerkt), "
+              "CONFIRMED/FALSIFIED (prospektiv), NEED_MORE_DATA (noch nicht bewertbar).",
+              "Historische ACCEPTED-/ROBUST-Marker aus dem kontaminierten Locked-Holdout sind KEIN Alpha-Beweis."]
     return "\n".join(lines) + "\n"
 
 
@@ -118,7 +150,10 @@ def generate(root: Path = Path("."), *, now: datetime | None = None) -> tuple[st
     content = render(_json(root, ACCOUNT_REPORT), _json(root, ECONOMICS),
                      _json(root, VALIDATION),
                      _json(root, LEARNER / "status_5d.json"),
-                     _json(root, LEARNER / "status_20d.json"), week=week)
+                     _json(root, LEARNER / "status_20d.json"), week=week,
+                     data_quality=_json(root, ALPHA_QUALITY),
+                     hypothesis_db=_json(root, HYP_DB),
+                     factory_plan=_json(root, FACTORY_PLAN))
     return week, content
 
 
