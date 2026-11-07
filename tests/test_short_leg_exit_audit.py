@@ -34,7 +34,8 @@ def rec(symbol, bid, ask, when=IN_WINDOW, flags=(), status=None):
 # ── usability rule ───────────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("q, long_ok, short_ok", [
-    (rec("S", 0.0, 0.2), False, True),                                   # zero bid: buy back at ask
+    (rec("S", 0.0, 0.2), True, True),                                    # zero bid: buy back at ask / worthless long
+    (rec("S", 0.0, 0.8), False, True),                                   # zero bid, large ask: no long exit
     (rec("S", 0.05, 0.1), True, True),
     (rec("S", 0.0, 0.0), False, False),                                  # no ask: nothing to buy back
     (rec("S", 0.0, 0.2, flags=("STALE",)), False, False),
@@ -42,7 +43,10 @@ def rec(symbol, bid, ask, when=IN_WINDOW, flags=(), status=None):
     (rec("S", 0.0, 0.2, when=datetime(2026, 10, 28, 13, 40, tzinfo=timezone.utc)), False, False),  # before window
 ])
 def test_exit_usability_by_leg_side(q, long_ok, short_ok):
-    assert oq.usable_rth_exit_quote(q, "long") is long_ok == oq.usable_rth_quote(q)
+    # Audit 2026-11-06: Long-Exit akzeptiert zusätzlich eine wertlose Option (Bid 0, Ask <= ZERO_BID_EXIT_MAX_ASK);
+    # Entry-Regel usable_rth_quote unverändert (Bid > 0).
+    assert oq.usable_rth_exit_quote(q, "long") is long_ok
+    assert oq.usable_rth_quote(q) is (long_ok and (q["bid"] or 0) > 0)
     assert oq.usable_rth_exit_quote(q, "short") is short_ok
 
 
@@ -55,6 +59,13 @@ def _archive(tmp_path, *records):
             import json
             fh.write(json.dumps(r) + "\n")
     return root
+
+
+def test_history_long_exit_opt_in_includes_worthless_long_quotes(tmp_path):
+    root = _archive(tmp_path, rec("W", 0.0, 0.05), rec("G", 0.0, 2.0))
+    now = IN_WINDOW + timedelta(hours=2)
+    assert oq.rth_quote_history(["W", "G"], now, root=root) == {}                # Standard (Entry/timing) unverändert
+    assert list(oq.rth_quote_history(["W", "G"], now, root=root, long_exit=True)) == ["W"]
 
 
 def test_history_default_unchanged_short_symbols_opt_in(tmp_path):
@@ -99,8 +110,18 @@ def test_spread_with_zero_bid_short_leg_is_marked_on_due_day(archive_mode):
     assert oc["real_strat_mark_source_20d"] == "archive_rth" and "real_strat_late_20d" not in oc
 
 
-def test_zero_bid_long_leg_still_not_used(archive_mode):
-    archive_mode(rec("L", 0.0, 0.1), rec("S", 0.05, 0.2))                # long leg bid 0: unchanged rule
+def test_worthless_long_leg_is_marked_as_total_loss(archive_mode):
+    """Audit 2026-11-06: Long-Leg Bid 0 / Ask 0,10 ist ein beobachteter Exit (Verkauf zum Bid) -> Totalverlust
+    auf dem Fälligkeitstag statt verschobenem/aufgegebenem Mark (positive Verzerrung)."""
+    archive_mode(rec("L", 0.0, 0.1), rec("S", 0.0, 0.05))
+    row = _spread_row()
+    cl._fill_real_strategy_marks([row], datetime(2026, 10, 28, 23, 0))  # noqa: DTZ001 – ledger API is naive
+    assert row["outcomes"]["real_strat_ret_20d"] == -1.0
+    assert row["outcomes"]["real_strat_mark_date_20d"] == "2026-10-28"
+
+
+def test_zero_bid_long_leg_with_large_ask_is_still_not_used(archive_mode):
+    archive_mode(rec("L", 0.0, 1.5), rec("S", 0.05, 0.2))                # fehlende Geldseite, kein Totalverlust-Beleg
     row = _spread_row()
     cl._fill_real_strategy_marks([row], datetime(2026, 10, 28, 23, 0))  # noqa: DTZ001 – ledger API is naive
     assert "real_strat_ret_20d" not in row["outcomes"]
@@ -130,10 +151,12 @@ def test_provenance_verifies_spread_exit_with_zero_bid_short_leg():
     assert provenance(_prov_row(claimed), quote_index(quotes), 20) == "VERIFIED"
 
 
-def test_provenance_long_leg_zero_bid_rule_unchanged():
+def test_provenance_verifies_worthless_long_exit():
     t = datetime(2026, 11, 3, 17, 0, tzinfo=timezone.utc)
     quotes = _entry_quotes() + [rec("L", 0.0, 0.1, when=t), rec("S", 0.0, 0.05, when=t)]
-    assert provenance(_prov_row(-1.0), quote_index(quotes), 20) == "EXIT_NOT_ARCHIVED"
+    assert provenance(_prov_row(-1.0), quote_index(quotes), 20) == "VERIFIED"
+    big_ask = _entry_quotes() + [rec("L", 0.0, 1.5, when=t), rec("S", 0.0, 0.05, when=t)]
+    assert provenance(_prov_row(-1.0), quote_index(big_ask), 20) == "EXIT_NOT_ARCHIVED"
 
 
 def test_entry_short_leg_still_needs_a_bid():
@@ -155,7 +178,10 @@ def test_alpha_link_exit_and_reverification_accept_zero_bid_short_leg():
     lq, sq = rec("L", 1.0, 1.2), rec("S", 0.0, 0.2)
     day, legs = al._exit_quotes(d, [lq, sq], IN_WINDOW + timedelta(hours=3))
     assert day == "2026-10-28" and [q["occ_symbol"] for q in legs] == ["L", "S"]
-    assert al._exit_quotes({**d, "legs": [d["legs"][0]]}, [rec("L", 0.0, 0.1)], IN_WINDOW + timedelta(hours=3)) is None
+    # Audit 2026-11-06: wertloser Long-Exit (Bid 0, kleines Ask) ist beobachtet; Bid 0 bei großem Ask bleibt offen
+    single = {**d, "legs": [d["legs"][0]]}
+    assert al._exit_quotes(single, [rec("L", 0.0, 0.1)], IN_WINDOW + timedelta(hours=3))[0] == "2026-10-28"
+    assert al._exit_quotes(single, [rec("L", 0.0, 1.5)], IN_WINDOW + timedelta(hours=3)) is None
     t = datetime(2026, 10, 14, 16, 0, tzinfo=timezone.utc)
     e1, e2 = rec("L", 3.9, 4.0, when=t), rec("S", 1.0, 1.1, when=t)
     d["legs"][0]["quote_record_id"], d["legs"][1]["quote_record_id"] = e1["record_id"], e2["record_id"]

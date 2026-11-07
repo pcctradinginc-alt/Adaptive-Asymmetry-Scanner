@@ -167,8 +167,11 @@ def onboarding_checklist(src: dict) -> dict:
     """Aufnahmeprüfung einer Quelle – Status je Schritt aus Katalog-Metadaten;
     'pending' heißt: muss vor Nutzung gemessen werden (nie automatisch vertraut)."""
     pit = src.get("pit")
+    lic = str(src.get("license") or "").strip()
+    # Audit 2026-11-06: fehlende Lizenzangabe galt als "ok"; Zugang wurde nie geprüft. Beides jetzt explizit.
     return {"provenance": "ok" if src.get("provider") else "missing",
-            "license": "review_required" if "REVIEW_REQUIRED" in str(src.get("license")) else "ok",
+            "license": "missing" if not lic else "review_required" if "REVIEW_REQUIRED" in lic else "ok",
+            "access": "ok" if src.get("access_verified") is True else "pending",
             "historical_coverage": "ok" if (src.get("history_from") or 9999) <= 2016 else "insufficient",
             "timestamp_integrity": "ok" if pit in ("vintages", "filing_timestamp", "publication_date", "daily_close")
             else "forward_only",
@@ -196,9 +199,11 @@ def active_learning(world: dict, blind: list[dict], catalog: list[dict]) -> list
         chk = onboarding_checklist(src)
         reliability = 1.0 if chk["timestamp_integrity"] == "ok" else 0.3
         feasible = chk["historical_coverage"] == "ok" and chk["timestamp_integrity"] == "ok"
+        usable_now = feasible and chk["license"] == "ok" and chk["access"] == "ok"
         out.append({"source": src["id"], "dimensions": src.get("dimension"), "current_uncertainty": round(eig, 3),
                     "expected_information_gain": round(eig * (1.0 if feasible else 0.2), 3),
-                    "available": src.get("status") != "candidate" or feasible,
+                    "available": src.get("status") != "candidate" or usable_now,
+                    "blocked_by": [k for k in ("license", "access") if chk[k] != "ok"],
                     "reliability": reliability, "acquisition_cost": src.get("acquisition_cost", 3),
                     "priority": priority(eig, 1.0, 1.0, reliability, src.get("acquisition_cost", 3), 1.0),
                     "onboarding_checklist": chk, "license": src.get("license"),

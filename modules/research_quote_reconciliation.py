@@ -43,7 +43,10 @@ def reconcile(root: Path, as_of: date) -> dict:
         entry = [quotes.get(i) for i in entry_ids]
         exit_ = [quotes.get(i) for i in exit_ids]
         symbols = [leg["occ_symbol"] for leg in cohort["legs"]]
-        if any(q is None or not oq.usable_rth_quote(q) for q in entry + exit_):
+        sides = [str(leg.get("side") or "long") for leg in cohort["legs"]]
+        # Exit je Leg-Seite (option_quotes.usable_rth_exit_quote): Short-Rückkauf zum Ask, wertloser Long-Exit zu Bid 0
+        if any(q is None or not oq.usable_rth_quote(q) for q in entry) or any(
+                q is None or not oq.usable_rth_exit_quote(q, sd) for q, sd in zip(exit_, sides)):
             counts["missing_or_unusable_quotes"] += 1
             continue
         if [q["occ_symbol"] for q in entry] != symbols or [q["occ_symbol"] for q in exit_] != symbols:

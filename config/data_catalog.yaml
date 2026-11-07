@@ -71,3 +71,52 @@ sources:
     history_from: 2026
     acquisition_cost: 1
     status: accumulating
+  # ── Kandidaten aus dem Quellen-Audit 2026-11-06 (docs/DATA_SOURCE_DISCOVERY_2026-11-06.md) ───────────────────
+  # Zugang aus der Entwicklungsumgebung NICHT prüfbar (Proxy), Lizenz/Limits nur aus Sekundärquellen belegt:
+  # access_verified: false und REVIEW_REQUIRED, bis ein Mensch die offiziellen Bedingungen bestätigt und ein
+  # read-only-Abruf aus GitHub Actions erfolgreich war. Keine Integration vorher.
+  - id: wikipedia_pageviews
+    dimension: [attention, event_risk]
+    provider: "Wikimedia Analytics REST API, Pageviews je Artikel (täglich, Agent 'user')"
+    license: "Wikimedia-Daten unter freien Lizenzen; Lizenz der Pageview-Daten und Rate-Limits (seit 2026 neu) prüfen: REVIEW_REQUIRED"
+    pit: publication_date        # Tageswert ab Folgetag; spätere Bot-Bereinigung möglich -> Revisionsprüfung offen
+    history_from: 2015
+    acquisition_cost: 1
+    access_verified: false
+    status: candidate
+  - id: openfda_enforcement
+    dimension: [event_risk, product_quality]
+    provider: "openFDA Enforcement Reports (food/drug/device), report_date, recalling_firm"
+    license: "laut Sekundärquellen gemeinfrei (CC0); offizielle Bedingungen/Limits prüfen: REVIEW_REQUIRED"
+    pit: publication_date        # report_date = Veröffentlichung durch die FDA (wöchentlich)
+    history_from: 2004
+    acquisition_cost: 1
+    access_verified: false
+    status: candidate
+  - id: federal_register_documents
+    dimension: [regulatory, event_risk]
+    provider: "Federal Register API v1 (documents, agencies, publication date)"
+    license: "laut Sekundärquellen gemeinfrei, ohne Schlüssel; offizielle Bedingungen prüfen: REVIEW_REQUIRED"
+    pit: publication_date
+    history_from: 1994
+    acquisition_cost: 1
+    access_verified: false
+    status: candidate
+  - id: usgs_river_stage
+    dimension: [freight_supply_chain, commodities]
+    provider: "USGS Water Services (NWIS) Pegel/Abfluss, z. B. Mississippi/Ohio"
+    license: "US-Behördendaten; Bedingungen prüfen: REVIEW_REQUIRED"
+    pit: forward_archive_only    # vorläufige Werte werden revidiert -> historisch nicht PIT
+    history_from: 1990
+    acquisition_cost: 1
+    access_verified: false
+    status: candidate
+  - id: gdelt_events
+    dimension: [event_risk, attention]
+    provider: "GDELT 2.0 Event/GKG-Dateien (15-Minuten-Takt)"
+    license: "frei mit Quellenangabe laut Projekt; prüfen: REVIEW_REQUIRED"
+    pit: publication_date
+    history_from: 2015
+    acquisition_cost: 3          # große Rohdaten, Deduplizierung, Entity-Mapping
+    access_verified: false
+    status: candidate

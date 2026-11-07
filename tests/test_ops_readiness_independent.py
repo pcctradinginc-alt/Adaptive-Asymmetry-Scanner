@@ -650,13 +650,14 @@ def test_mark_quotes_reicht_das_lookback_an_das_archiv_weiter(monkeypatch):
     jetzt(monkeypatch, "2026-10-14T21:00")
     gesehen = {}
 
-    def fake(symbols, as_of, *, root=None, lookback_days=0):
-        gesehen.update(symbols=list(symbols), as_of=as_of, lookback=lookback_days)
+    def fake(symbols, as_of, *, root=None, lookback_days=0, long_exit=False):
+        gesehen.update(symbols=list(symbols), as_of=as_of, lookback=lookback_days, long_exit=long_exit)
         return {}
     monkeypatch.setattr(oq, "rth_quote_history", fake)
     modus, quotes = cl._mark_quotes([LONG, SHORT])
     assert (modus, quotes) == ("archive", {})
-    assert gesehen == {"symbols": [LONG, SHORT], "as_of": utc("2026-10-14T21:00"), "lookback": cl.MARK_ARCHIVE_LOOKBACK_DAYS}
+    assert gesehen == {"symbols": [LONG, SHORT], "as_of": utc("2026-10-14T21:00"), "lookback": cl.MARK_ARCHIVE_LOOKBACK_DAYS,
+                       "long_exit": True}                       # Exit-Marks: wertlose Long-Optionen zählen
     assert cl.MARK_ARCHIVE_LOOKBACK_DAYS >= 7
 
 
