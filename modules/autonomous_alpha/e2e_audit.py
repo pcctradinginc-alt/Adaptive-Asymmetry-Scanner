@@ -203,6 +203,24 @@ def build(root: Path = Path("."), *, now: datetime | None = None) -> dict:
         issues.append(_issue("ACCOUNT_WEEKLY_REPORT_NOT_OBSERVED", "DEGRADED", "paper_account",
                              "Verified account events exist but no weekly valuation report is committed",
                              "Inspect existing paper-account weekly step"))
+    if valuation:
+        # The public account.json is only a summary, never the source of truth.
+        # Reconcile cash and position counts with the immutable signed events.
+        expected_open = sum(p["status"] == "OPEN" for p in booked.values())
+        expected_closed = len(booked) - expected_open
+        consistent = ((valuation.get("status") == "ACTIVE") == state["activated"])
+        if state["activated"]:
+            consistent = (consistent and valuation.get("status") == "ACTIVE"
+                          and valuation.get("cash_usd") is not None
+                          and abs(float(valuation["cash_usd"]) - float(state["cash"])) <= 0.01
+                          and valuation.get("open_trades") == expected_open
+                          and valuation.get("closed_trades") == expected_closed
+                          and valuation.get("broker_orders") == 0)
+        if not consistent:
+            issues.append(_issue("ACCOUNT_SUMMARY_DIFFERS_FROM_SIGNED_LEDGER",
+                                 "TECHNICAL_DEFECT", "paper_account",
+                                 "Cached cash/position report conflicts with Git-only signed booking receipts",
+                                 "Regenerate the existing account report from verified events only"))
     validation = _json(root, VALIDATION)
     if not validation:
         issues.append(_issue("VALIDATION_NOT_OBSERVED", "NEED_MORE_DATA", "option_validation",
