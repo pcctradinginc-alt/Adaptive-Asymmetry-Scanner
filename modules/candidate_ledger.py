@@ -86,6 +86,15 @@ RESEARCH_DIRECTION           = "BULLISH"  # Research-Stichprobe ohne LLM-Richtun
 # Einzel-Options-Kontrakte im Ledger: (Zeilen-Schlüssel, Outcome-Präfix). real_option_alt = Research-Kontraktvariante
 # (kürzere Laufzeit, engste Geld-Brief-Spanne, market_snapshot.select_liquid_contract), seit 2026-10-30.
 SINGLE_OPTION_SPECS = (("real_option", "real_opt"), ("real_option_alt", "real_alt"))
+# Mehr-Leg-Strukturen (Zeilen-Schlüssel, Outcome-Präfix). real_spread_cf = Shadow-Gegenfaktum (Audit 2026-11-07, A7):
+# derselbe Debit-Spread, den die Produktion bei hohem "IV-Rank" wählen würde, auch für Zeilen, deren Strategie ein
+# Long-Leg ist. Damit liegen für jede Zeile beide Strukturen auf denselben Kontrakten vor und jede Auswahlregel
+# (Produktions-Gate, IV/RV) lässt sich gepaart vergleichen. Reine Erfassung: weder Strategiewahl noch Lernmodell
+# (option_learner.SOURCES) lesen den Block.
+STRATEGY_SPECS = (("real_strategy", "real_strat"), ("real_spread_cf", "real_spread_cf"))
+STRATEGY_KEYS = tuple(k for k, _ in STRATEGY_SPECS)
+SPREAD_COUNTERFACTUAL = True
+_ENTRY_KEYS = ("real_option", "real_option_alt", *STRATEGY_KEYS)
 LATE_MARK_DAYS               = 7    # ab wie vielen verspäteten Tagen real_opt_ret als late_mark markiert wird
 MARK_GIVE_UP_DAYS            = 14   # fälliger Mark so lange nach Fälligkeit ohne zulässige Quote -> Endzustand
                                     # (<prefix>_mark_status_{h}d: NO_QUOTE | NO_SETTLEMENT | NO_ENTRY_QUOTE), nie geschätzt
@@ -761,6 +770,14 @@ def _leg_from_contract(contract: dict, side: str) -> dict:
     }
 
 
+def _iv_rv(iv, rv) -> float | None:
+    try:
+        iv, rv = float(iv), float(rv)
+    except (TypeError, ValueError):
+        return None
+    return round(iv / rv, 4) if math.isfinite(iv) and math.isfinite(rv) and iv > 0 and rv > 0 else None
+
+
 def _strategy_row(strategy, source, legs, iv_rank, effective_gate, expiry) -> dict:
     row = {"strategy": strategy, "strategy_source": source, "legs": legs, "expiry": expiry}
     if iv_rank is not None:
@@ -889,6 +906,10 @@ def _build_real_strategy(
                 # Schlusskursen bis zum Signal (point-in-time), damit IV/RV je Kontrakt prospektiv messbar ist.
                 # Reine Erfassung: weder Strategiewahl noch Lernmodell lesen den Wert.
                 "rv_21_level":   iv_rank_components.get("rv_21_level"),
+                # Audit 2026-11-07 (A7): der "IV-Rank" enthält kein IV-Niveau (Rangkorrelation mit der Kontrakt-IV
+                # 0,04 bei 884 Zeilen). IV/RV21 des Long-Kontrakts zum Signal (beides point-in-time) für den
+                # Shadow-Vergleich der Strukturwahl (scripts/spread_execution_analysis.py). Nur Erfassung.
+                "iv_rv_21":      _iv_rv(long_raw.get("iv"), iv_rank_components.get("rv_21_level")),
             }
         if strategy_match is not None:
             row["strategy_match"] = strategy_match
@@ -908,6 +929,36 @@ def _single_leg_entry(rs: dict) -> dict:
     return rs
 
 
+def _build_spread_counterfactual(e: dict, ticker: str, long_raw: dict | None, real_strategy: dict | None) -> dict | None:
+    """Shadow (A7): Debit-Spread auf demselben Long-Kontrakt mit dem Short-Leg nach der Produktionsregel
+    (market_snapshot.select_spread_short_leg, ein Chain-Abruf), nur wenn real_strategy ein Long-Leg ist (bei einem
+    Spread liegt die Struktur schon vor; bei spread_no_liquidity gab es kein handelbares Short-Leg). Gleiches Schema
+    wie real_strategy (Entry/Marks über STRATEGY_SPECS). Nie ein Fehler nach außen."""
+    try:
+        if not long_raw or not isinstance(real_strategy, dict) or e.get("direction") not in ("BULLISH", "BEARISH"):
+            return None
+        if "SPREAD" in str(real_strategy.get("strategy")) or real_strategy.get("strategy_source") == "spread_no_liquidity":
+            return None
+        bullish = e["direction"] == "BULLISH"
+        short_raw = market_snapshot.select_spread_short_leg(ticker, long_raw.get("expiry"), "call" if bullish else "put",
+                                                            long_raw.get("strike"))
+        if short_raw is None or short_raw.get("bid") in (None, 0):
+            return None
+        long_leg, short_leg = _leg_from_contract(long_raw, "long"), _leg_from_contract(short_raw, "short")
+        row = _strategy_row("BULL_CALL_SPREAD" if bullish else "BEAR_PUT_SPREAD", "counterfactual_shadow",
+                            [long_leg, short_leg], None, None, long_raw.get("expiry"))
+        if long_leg.get("ask") is not None and short_leg.get("bid") is not None:
+            row["net_debit_entry"] = round(long_leg["ask"] - short_leg["bid"], 4)
+            if row["net_debit_entry"] <= 0:
+                row["invalid_reason"] = "non_positive_net_debit"
+        if long_leg.get("mid") is not None and short_leg.get("mid") is not None:
+            row["net_mid_entry"] = round(long_leg["mid"] - short_leg["mid"], 4)
+        return row
+    except Exception as ex:  # noqa: BLE001 - Shadow-Erfassung, nie entscheidungswirksam
+        log.warning(f"candidate_ledger._build_spread_counterfactual Fehler (ignoriert): {ex}")
+        return None
+
+
 def _timing_policy_current() -> str:
     from modules import timing_policy
     return timing_policy.current()
@@ -919,7 +970,7 @@ def _is_v2(row: dict) -> bool:
 
 def _v2_symbols(row: dict, key: str) -> list:
     spec = row.get(key) or {}
-    if key != "real_strategy":
+    if key not in STRATEGY_KEYS:
         return [spec.get("symbol")]
     legs = spec.get("legs") or []
     return [g.get("symbol") for g in sorted(legs, key=lambda g: 0 if g.get("side") == "long" else 1)]
@@ -951,7 +1002,7 @@ def _v2_entry(row: dict, key: str, now: datetime) -> bool:
         return True
     recs = f["records"]
     fill_t = max(sig, tp._ts(f["time"]))
-    if key != "real_strategy":
+    if key not in STRATEGY_KEYS:
         r = recs[0]
         spec.update(bid=r.get("bid"), ask=r.get("ask"), mid=r.get("mid"))
     else:
@@ -974,7 +1025,7 @@ def _fill_v2_entries(rows: list[dict]) -> bool:
     """Offene timing-v2-Entries: im Mark-Fenster vorher frische Quotes abrufen (landen über den Hook im Archiv),
     dann je Zeile der früheste zulässige Fill aus dem Archiv. Außerhalb des Fensters nur das Archiv."""
     from modules import option_quotes as oq
-    pend = [(row, k) for row in rows if _is_v2(row) for k in ("real_option", "real_option_alt", "real_strategy")
+    pend = [(row, k) for row in rows if _is_v2(row) for k in _ENTRY_KEYS
             if isinstance(row.get(k), dict) and row[k].get("entry_pending")]
     if not pend:
         return False
@@ -1009,7 +1060,7 @@ def pending_entry_targets(today: str, root: Path = LEDGER_ROOT) -> dict:
                     if not isinstance(row, dict) or not _is_v2(row):
                         continue
                     sig = tp._ts(row.get("signal_timestamp"))
-                    for k in ("real_option", "real_option_alt", "real_strategy"):
+                    for k in _ENTRY_KEYS:
                         if sig is not None and isinstance(row.get(k), dict) and row[k].get("entry_pending"):
                             for x in _v2_symbols(row, k):
                                 if x:
@@ -1258,6 +1309,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         # kein eigenes Budget/Gate.
         term_calls = 0
         real_strategy_raw_by_id = {}
+        spread_cf_raw_by_id = {}
         for signal_id, (ticker, real_option_raw, e) in real_option_raw_by_id.items():
             spot = spot_by_id[signal_id]
             term_calls += 1
@@ -1268,6 +1320,10 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             )
             if real_strategy_raw is not None:
                 real_strategy_raw_by_id[signal_id] = real_strategy_raw
+                if SPREAD_COUNTERFACTUAL and _timing_policy_current() == "timing-v2":
+                    cf = _build_spread_counterfactual(e, ticker, real_option_raw, real_strategy_raw)
+                    if cf is not None:
+                        spread_cf_raw_by_id[signal_id] = cf
         if term_calls:
             log.info(f"candidate_ledger: {term_calls} zusätzliche Term-Structure-Chain-Call(s) für real_strategy")
 
@@ -1346,8 +1402,10 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                             row["real_strategy"] = _finalize_real_strategy(real_strategy_raw, _sess, today)
                         if _v2 and signal_id in alt_raw_by_id:
                             row["real_option_alt"] = _finalize_real_option(alt_raw_by_id[signal_id], _sess, today)
+                        if _v2 and signal_id in spread_cf_raw_by_id:
+                            row["real_spread_cf"] = _finalize_real_strategy(spread_cf_raw_by_id[signal_id], _sess, today)
                         if _v2:
-                            for _k in ("real_option", "real_option_alt", "real_strategy"):
+                            for _k in _ENTRY_KEYS:
                                 if row.get(_k):
                                     _v2_entry(row, _k, _now_utc())
                     else:
@@ -1522,10 +1580,11 @@ def _update_outcomes_in_file(path: Path, today_dt: datetime) -> None:
             changed |= _fill_real_option_marks(rows, today_dt, key=key, prefix=prefix)
         except Exception as e:
             log.warning(f"candidate_ledger: {prefix}_ret-Marks Fehler (ignoriert): {e}")
-    try:
-        changed |= _fill_real_strategy_marks(rows, today_dt)
-    except Exception as e:
-        log.warning(f"candidate_ledger: real_strat_ret-Marks Fehler (ignoriert): {e}")
+    for key, prefix in STRATEGY_SPECS:
+        try:
+            changed |= _fill_real_strategy_marks(rows, today_dt, key=key, prefix=prefix)
+        except Exception as e:
+            log.warning(f"candidate_ledger: {prefix}_ret-Marks Fehler (ignoriert): {e}")
 
     if changed:
         _atomic_write_jsonl(path, rows, passthrough_lines=corrupt)
@@ -1738,8 +1797,8 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
         if row.get("entry_price") in (None, 0) and row.get("entry_basis") == "next_open":
             continue  # Open noch nicht verfügbar — nächster Lauf versucht es erneut
         outcomes = row.setdefault("outcomes", {})
-        if _suspicious(outcomes):
-            pending_tickers.add(row["ticker"])      # extreme gefüllte Rendite: Preisbasis sofort prüfen
+        if _suspicious(outcomes) or _at_mark_due(outcomes, today_dt):
+            pending_tickers.add(row["ticker"])      # extreme Rendite: Preisbasis prüfen; Underlying zum Options-Mark
         for h in RETURN_HORIZONS:
             key = f"ret_{h}d"
             if key in outcomes:
@@ -1837,6 +1896,8 @@ def _fill_return_horizons(rows: list[dict], today_dt: datetime) -> bool:
                 if opt_ret is not None:
                     outcomes[opt_key] = opt_ret
 
+        changed |= _fill_at_mark(outcomes, hist, float(entry_price), direction, today_dt)
+
         if filled_any:
             # MFE/MAE über den bislang gefüllten Zeitraum (bis zum letzten
             # tatsächlich erreichten Horizont) neu berechnen.
@@ -1898,7 +1959,8 @@ def _check_price_basis(row: dict, hist, entry_dt: datetime, entry_price: float,
             p_h = _price_on_or_before(hist, entry_dt + timedelta(days=h))
         same_basis = None if p_h is None else _direction_adjusted_return(ref, p_h, row.get("direction"))
         if same_basis is None or abs(outcomes[key] - same_basis) > PRICE_BASIS_TOL:
-            invalid.update({k_: outcomes.pop(k_) for k_ in (key, f"opt_ret_{h}d") if k_ in outcomes})
+            invalid.update({k_: outcomes.pop(k_) for k_ in (key, f"opt_ret_{h}d", f"{key}{AT_MARK_SUFFIX}",
+                                                           f"{key}{AT_MARK_SUFFIX}_date") if k_ in outcomes})
             if h == 1 and ONE_DAY_CLOSE_KEY in outcomes:
                 invalid[ONE_DAY_CLOSE_KEY] = outcomes.pop(ONE_DAY_CLOSE_KEY)
     if invalid:
@@ -1908,7 +1970,7 @@ def _check_price_basis(row: dict, hist, entry_dt: datetime, entry_price: float,
                                "history_close_entry_day": round(float(ref), 4),
                                "checked_at": today_dt.strftime("%Y-%m-%d"),
                                "invalidated": sorted(k_ for k_ in invalid
-                                                     if k_.startswith("ret_") and k_ != ONE_DAY_CLOSE_KEY)}
+                                                     if k_.startswith("ret_") and not k_.endswith("_date"))}
     log.warning(f"candidate_ledger: {row.get('ticker')} {row.get('date')}: Preisbasis geändert (Historie/Entry "
                 f"{k:.3f}) -> keine weiteren Horizonte, ungültig: {outcomes['price_basis']['invalidated'] or '—'}")
     return True, True
@@ -1972,7 +2034,7 @@ def _give_up_marks(tasks: list, prefix: str, spec_key: str, today_dt: datetime) 
         # Verfallen: der Settlement-Schluss kann erst ab dem Verfallstag vorliegen -> Karenz ab dann, nicht ab Fälligkeit
         if (today_dt - (max(due, expiry) if expired else due)).days <= MARK_GIVE_UP_DAYS:
             continue
-        entry_ok = (spec.get("ask") not in (None, 0)) if spec_key == "real_option" else \
+        entry_ok = (spec.get("ask") not in (None, 0)) if spec_key not in STRATEGY_KEYS else \
             ((spec.get("net_debit_entry") or 0) > 0 and (spec.get("net_mid_entry") or 0) > 0)
         oc[_mark_status_key(prefix, h)] = ("NO_ENTRY_QUOTE" if not entry_ok else
                                            "NO_SETTLEMENT" if expired else "NO_QUOTE")
@@ -2088,7 +2150,8 @@ def _fill_real_option_marks(rows: list[dict], today_dt: datetime, key: str = "re
     return changed
 
 
-def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
+def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime, key: str = "real_strategy",
+                              prefix: str = "real_strat") -> bool:
     """
     P0-2: Pendant zu _fill_real_option_marks, aber für real_strategy
     (Long-Leg allein ODER Long+Short-Leg bei einem Spread):
@@ -2103,10 +2166,12 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
     Schlusskurs am Expiry-Tag (Long-Intrinsic - Short-Intrinsic, ebenfalls
     bei 0 gefloort für den konservativen Wert). Session-Gating und
     late_mark wie bei real_option.
+
+    key/prefix: Zeilen-Schlüssel und Outcome-Präfix aus STRATEGY_SPECS (real_strategy | real_spread_cf).
     """
     tasks = []  # (row, h, entry_dt)
     for row in rows:
-        rs = row.get("real_strategy")
+        rs = row.get(key)
         if not rs or rs.get("entry_pending"):
             continue
         entry_dt = _parse_date(rs.get("entry_date") or "")
@@ -2114,7 +2179,7 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
             continue
         outcomes = row.setdefault("outcomes", {})
         for h in HORIZONS:
-            if f"real_strat_ret_{h}d" in outcomes or _mark_status_key("real_strat", h) in outcomes:
+            if f"{prefix}_ret_{h}d" in outcomes or _mark_status_key(prefix, h) in outcomes:
                 continue
             if (today_dt - entry_dt).days >= h:
                 tasks.append((row, h, entry_dt))
@@ -2125,18 +2190,18 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
     symbols = sorted({
         leg.get("symbol")
         for t in tasks
-        for leg in (t[0]["real_strategy"].get("legs") or [])
+        for leg in (t[0][key].get("legs") or [])
         if leg.get("symbol")
     })
     mode, quotes = _mark_quotes(symbols)
-    short_syms = sorted({leg.get("symbol") for t in tasks for leg in (t[0]["real_strategy"].get("legs") or [])
+    short_syms = sorted({leg.get("symbol") for t in tasks for leg in (t[0][key].get("legs") or [])
                          if leg.get("side") == "short" and leg.get("symbol")})
     short_hist = _short_leg_history(short_syms) if mode == "archive" else {}
 
     changed = False
     for row, h, entry_dt in tasks:
         try:
-            rs   = row.get("real_strategy") or {}
+            rs   = row.get(key) or {}
             legs = rs.get("legs") or []
             long_leg  = next((leg_ for leg_ in legs if leg_.get("side") == "long"), None)
             short_leg = next((leg_ for leg_ in legs if leg_.get("side") == "short"), None)
@@ -2209,20 +2274,20 @@ def _fill_real_strategy_marks(rows: list[dict], today_dt: datetime) -> bool:
                     exit_mid          = long_mid_q
 
             outcomes = row.setdefault("outcomes", {})
-            outcomes[f"real_strat_ret_{h}d"]       = round(exit_conservative / net_debit_entry - 1.0, 4)
-            outcomes[f"real_strat_ret_mid_{h}d"]   = round(exit_mid / net_mid_entry - 1.0, 4)
-            outcomes[f"real_strat_mark_date_{h}d"] = mark_day
+            outcomes[f"{prefix}_ret_{h}d"]       = round(exit_conservative / net_debit_entry - 1.0, 4)
+            outcomes[f"{prefix}_ret_mid_{h}d"]   = round(exit_mid / net_mid_entry - 1.0, 4)
+            outcomes[f"{prefix}_mark_date_{h}d"] = mark_day
             if from_archive:
-                outcomes[f"real_strat_mark_source_{h}d"] = "archive_rth"
+                outcomes[f"{prefix}_mark_source_{h}d"] = "archive_rth"
 
             if (_parse_date(mark_day) - (entry_dt + timedelta(days=h))).days > LATE_MARK_DAYS:
                 row["late_mark"] = True                                   # Kompatibilität (Zeilen-Flag)
-                outcomes[f"real_strat_late_{h}d"] = True                  # je Instrument/Horizont (Evidenz)
+                outcomes[f"{prefix}_late_{h}d"] = True                  # je Instrument/Horizont (Evidenz)
 
             changed = True
         except Exception as e:
             log.warning(f"candidate_ledger._fill_real_strategy_marks Fehler (ignoriert): {e}")
-    changed |= _give_up_marks(tasks, "real_strat", "real_strategy", today_dt)
+    changed |= _give_up_marks(tasks, prefix, key, today_dt)
     return changed
 
 
@@ -2381,6 +2446,48 @@ def _label_close(hist, entry_dt: datetime, target_dt: datetime, today_dt: dateti
     if nxt_dt is None or nxt_dt.date() >= today_dt.date():
         return None, None
     return float(nxt), nxt_dt.date().isoformat()
+
+
+# Audit 2026-11-06 A8: Options-Marks nehmen den ersten Handelstag am oder nach dem Fälligkeitstag, ret_{h}d den letzten
+# davor. Live: bei 295 von 699 5-T-Options-Labels lagen 1–4 Kalendertage zwischen beiden Fenstern (233 davon 3–4 T,
+# Wochenende); jede Zerlegung "Option gegen Underlying" verglich damit verschiedene Zeiträume. ret_{h}d bleibt
+# unverändert (Protokoll); zusätzlich das Underlying exakt am Mark-Tag der Option (real_opt_mark_date_{h}d).
+AT_MARK_SUFFIX = "_at_mark"
+AT_MARK_HORIZONS = (5, 20, 45, 120)          # Options-Horizonte (HORIZONS)
+
+
+def _at_mark_due(outcomes: dict, today_dt: datetime) -> list[int]:
+    """Horizonte mit Options-Mark-Datum in einer abgeschlossenen Sitzung (< heute) und noch ohne ret_{h}d_at_mark."""
+    due = []
+    for h in AT_MARK_HORIZONS:
+        mark = _parse_date(str(outcomes.get(f"real_opt_mark_date_{h}d") or ""))
+        if mark is not None and mark.date() < today_dt.date() and f"ret_{h}d{AT_MARK_SUFFIX}" not in outcomes:
+            due.append(h)
+    return due
+
+
+def _close_on(hist, day: datetime):
+    """Schluss exakt an `day` (kein Ersatz durch einen Nachbartag) oder None."""
+    for ts, price in hist:
+        ts_naive = ts.replace(tzinfo=None) if getattr(ts, "tzinfo", None) else ts
+        if ts_naive.date() == day.date():
+            return float(price)
+    return None
+
+
+def _fill_at_mark(outcomes: dict, hist, entry_price: float, direction, today_dt: datetime) -> bool:
+    """ret_{h}d_at_mark (+ _date): Underlying-Rendite vom Einstieg bis zum Schluss am Mark-Tag der Option, gleiche
+    Richtungs- und Einstiegsregel wie ret_{h}d. Ohne Schluss genau an diesem Tag bleibt das Label leer."""
+    changed = False
+    for h in _at_mark_due(outcomes, today_dt):
+        mark_day = outcomes[f"real_opt_mark_date_{h}d"]
+        price = _close_on(hist, _parse_date(str(mark_day)))
+        if price is None or not entry_price:
+            continue
+        outcomes[f"ret_{h}d{AT_MARK_SUFFIX}"] = round(_direction_adjusted_return(entry_price, price, direction), 4)
+        outcomes[f"ret_{h}d{AT_MARK_SUFFIX}_date"] = str(mark_day)
+        changed = True
+    return changed
 
 
 def _prices_between(hist, start_dt: datetime, end_dt: datetime):

@@ -188,6 +188,12 @@ def compute_iv_rank_components(closes: list, term_points: list) -> dict:
 
     closes: Liste von Schlusskursen (chronologisch, älteste zuerst).
     term_points: Liste von (dte, iv)-Tupeln.
+
+    ACHTUNG (Audit 2026-11-06/07, A7): Trotz des Namens enthält der Wert KEIN IV-Niveau. 80 % sind das Perzentil der
+    REALISIERTEN 21-T-Vola, 20 % die IV-Laufzeitsteigung. Rangkorrelation mit der IV des gewählten Kontrakts im Census:
+    0,05 (n = 873). Die Formel bleibt unverändert, weil sie die Strategiewahl der Produktion steuert (Änderung nur nach
+    Forward-Vergleich und Owner-Freigabe). IV/RV21 je Zeile und der gepaarte Strukturvergleich laufen im Shadow
+    (candidate_ledger real_strategy.iv_rank_components.iv_rv_21, real_spread_cf; spread_execution.structure_comparison).
     """
     rv_score = 50.0
     rv_measured = False
