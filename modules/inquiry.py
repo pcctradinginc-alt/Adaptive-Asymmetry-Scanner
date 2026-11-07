@@ -26,6 +26,8 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
+from modules.research_memory import hypothesis_status
+
 log = logging.getLogger(__name__)
 
 RS = Path("outputs/research")
@@ -83,7 +85,7 @@ def explanations(a: dict, director: dict | None, hyp_db: dict | None, factory_pl
             h = db.get(c.get("research_id")) or {}
             out.append({"id": c.get("research_id"), "source": "director", "explanation": c.get("question"),
                         "data_needed": c.get("required_data"), "data_available": c.get("available_data"),
-                        "status": h.get("canonical_status") or "NOT_YET_TESTED", "evidence": "historisch",
+                        "status": hypothesis_status(h) if h else "NOT_YET_TESTED", "evidence": "historisch",
                         "reasons": (h.get("reasons") or [])[:2]})
     res = (factory_results or {}).get("results") or {}
     for h in (factory_plan or {}).get("ideas") or []:

@@ -57,6 +57,8 @@ from pathlib import Path
 
 import yaml
 
+from modules.research_memory import hypothesis_status as rm_status
+
 log = logging.getLogger(__name__)
 
 OUT = Path("outputs/research")
@@ -137,7 +139,7 @@ def candidates_from_regimes(meta: dict, hyp_db: dict) -> list[dict]:
     if stress <= 0:
         return out
     for hid, r in (hyp_db.get("hypotheses") or {}).items():
-        if r.get("canonical_status") != "INCONCLUSIVE" or not r.get("signal") or "step(" in str(r.get("signal")):
+        if rm_status(r) != "INCONCLUSIVE" or not r.get("signal") or "step(" in str(r.get("signal")):
             continue
         t = ((r.get("walk_forward") or {}).get("base") or {}).get("t_months") or 0
         for gate, name in (("step(vix - 20)", "VIX >= 20"), ("step(-spy_trend_200)", "SPY unter SMA200")):

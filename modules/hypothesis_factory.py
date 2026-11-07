@@ -842,7 +842,7 @@ def evaluate(panel: pd.DataFrame, protocol: dict | None = None, now: datetime | 
     results = {}
     for h in hyps:
         rec = db.get(h["id"]) or {}
-        lab = (rec.get("canonical_status") or rl.canonical_status(rec)) if rec else "NOT_TESTED"
+        lab = rl.canonical_status(rec) if rec else "NOT_TESTED"     # nie das gespeicherte Feld allein (Textsperre)
         spec = {k: h.get(k) for k in ("signal", "direction", "family", "domain", "exposure_sector", "spec_hash",
                                       "idea_source", "exploratory", "priority", "novelty", "commodity",
                                       "equity_population", "mechanism", "domain_features", "non_pit_mapping",
