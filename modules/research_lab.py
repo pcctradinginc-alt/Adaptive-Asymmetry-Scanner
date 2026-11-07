@@ -43,17 +43,14 @@ import pandas as pd
 import yaml
 
 from modules import ml_research as ml
+from modules import research_memory as rm_status
 
 log = logging.getLogger(__name__)
 
 HYP_CONFIG = Path("config/hypotheses.yaml")
 DIRECTOR_PATH = Path("outputs/research/director_hypotheses.json")   # vom Research Director erzeugt (maschinell)
 SIMILARITY_BLOCK = 0.6            # Jaccard der Wort-Tokens (Titel+Aussage) zu einer verworfenen Hypothese
-CANONICAL = {"accepted": "ACCEPTED", "rejected": "REJECTED", "rejected_leakage_or_invalid": "REJECTED",
-             "rejected_locked": "REJECTED", "duplicate": "REJECTED", "blocked_similar_to_rejected": "NOT_TESTED",
-             "invalid_modified": "REJECTED", "not_significant_after_fdr": "INCONCLUSIVE",
-             "passed_pre_fdr": "INCONCLUSIVE", "passed_pending_locked": "RETEST_LATER",
-             "insufficient_coverage": "RETEST_LATER", "blocked_data": "RETEST_LATER"}
+CANONICAL = rm_status.HYPOTHESIS_CANONICAL       # eine Zuordnung für Labor und alle Leser (research_memory)
 DB_PATH = ml.OUT_DIR / "hypothesis_db.json"
 from modules.alt_data.registry import ALT_FEATURES as _ALT  # noqa: E402
 
@@ -345,13 +342,7 @@ def text_similarity(a: dict, b: dict) -> float:
 def canonical_status(rec: dict) -> str:
     # Nur per Textähnlichkeit gesperrt = nie getestet: kein widerlegtes Ergebnis, auch wenn ältere Läufe dafür
     # "REJECTED" gespeichert haben (Audit 2026-11-06: 33 ungeprüfte Hypothesen zählten als verworfen).
-    if rec.get("status") == "blocked_similar_to_rejected":
-        return "NOT_TESTED"
-    if rec.get("canonical_status"):
-        return rec["canonical_status"]
-    if rec.get("status") == "prior_result":
-        return "REJECTED"
-    return CANONICAL.get(rec.get("status"), "INCONCLUSIVE")
+    return rm_status.hypothesis_status(rec)
 
 
 def memory_fields(rec: dict, hyp: dict) -> dict:

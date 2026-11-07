@@ -65,6 +65,32 @@ OPTION_VARIANT_STATUS = {"PROPOSE_ADOPTION": "FORWARD_VALIDATED", "CONFIRMED_ADO
                          "BETTER_THAN_BASE_ONLY": "PENDING_FORWARD", "RUNNING": "PENDING_FORWARD",
                          "RESEARCH_ONLY": "PENDING_FORWARD"}
 PROSPECTIVE_STATES = ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUCTION", "FULL_PRODUCTION")
+# Kanonischer Status eines research_lab-Datensatzes – EINZIGE Implementierung (research_lab.canonical_status delegiert
+# hierher). Audit 2026-11-07: Leser (research_memory, meta_cognition, hypothesis_factory, inquiry, hypothesis_contract,
+# research_director) lasen das GESPEICHERTE Feld canonical_status. In outputs/research/hypothesis_db.json (Stand 03.11.,
+# vor #165) stehen 15 nur per Textähnlichkeit gesperrte, nie getestete Hypothesen noch als REJECTED; research.yml
+# schreibt die Datei erst am 02.12. neu. Bis dahin zählten sie überall als widerlegt.
+HYPOTHESIS_CANONICAL = {"accepted": "ACCEPTED", "rejected": "REJECTED", "rejected_leakage_or_invalid": "REJECTED",
+                        "rejected_locked": "REJECTED", "duplicate": "REJECTED",
+                        "blocked_similar_to_rejected": "NOT_TESTED", "invalid_modified": "REJECTED",
+                        "not_significant_after_fdr": "INCONCLUSIVE", "passed_pre_fdr": "INCONCLUSIVE",
+                        "passed_pending_locked": "RETEST_LATER", "insufficient_coverage": "RETEST_LATER",
+                        "blocked_data": "RETEST_LATER"}
+
+
+def hypothesis_status(rec: dict | None) -> str:
+    """Nur per Textähnlichkeit gesperrt = nie getestet (NOT_TESTED), auch wenn ältere Läufe REJECTED gespeichert haben;
+    sonst der gespeicherte kanonische Status bzw. die Zuordnung des Roh-Status."""
+    rec = rec or {}
+    if rec.get("status") == "blocked_similar_to_rejected":
+        return "NOT_TESTED"
+    if rec.get("canonical_status"):
+        return rec["canonical_status"]
+    if rec.get("status") == "prior_result":
+        return "REJECTED"
+    return HYPOTHESIS_CANONICAL.get(rec.get("status"), "INCONCLUSIVE")
+
+
 TESTED = ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "ROBUST", "NOT_ROBUST", "PROSPECTIVE_CHALLENGER",
           *PROSPECTIVE_STATES, "DEMOTED", "EXPIRED")
 SUCCESS = ("ACCEPTED", "ROBUST", "PROSPECTIVE_CHALLENGER", *PROSPECTIVE_STATES)
@@ -119,7 +145,7 @@ def collect(sources: dict | None = None) -> list[dict]:
     db = src.get("hypothesis_db") or {}
     for hid, r in (db.get("hypotheses") or {}).items():
         wf = (r.get("walk_forward") or {}).get("base") or {}
-        out.append(_entry("research", hid, r.get("canonical_status") or "INCONCLUSIVE",
+        out.append(_entry("research", hid, hypothesis_status(r),
                           {"signal": r.get("signal"), "direction": r.get("direction"), "title": r.get("title"),
                            "family": r.get("family"), "domain": r.get("domain"),
                            "exposure_sector": r.get("exposure_sector")},
