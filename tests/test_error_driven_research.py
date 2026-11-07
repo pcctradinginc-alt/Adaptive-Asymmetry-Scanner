@@ -453,7 +453,7 @@ def test_director_hypotheses_never_confirmed_on_contaminated_locked(tmp_path, mo
            "hypothesis_acceptance": {"locked_must_be_positive": True}}
     db = rl.run(pd.DataFrame(), protocol=pol, db_path=tmp_path / "db.json", with_discovery=False)
     assert db["hypotheses"]["RD-1"]["status"] == "historical_exploratory_pending_forward"
-    assert db["hypotheses"]["RD-1"]["canonical_status"] == "INCONCLUSIVE"
+    assert db["hypotheses"]["RD-1"]["canonical_status"] == "EXPLORATORY"
 
 
 def test_workflow_runs_error_research_weekly_before_director_and_critical():
