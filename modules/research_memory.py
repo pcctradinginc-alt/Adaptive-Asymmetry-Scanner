@@ -80,7 +80,7 @@ PROSPECTIVE_STATES = ("FORWARD_VALIDATED", "GUARDED_PRODUCTION", "LIMITED_PRODUC
 # research_director) lasen das GESPEICHERTE Feld canonical_status. In outputs/research/hypothesis_db.json (Stand 03.11.,
 # vor #165) stehen 15 nur per Textähnlichkeit gesperrte, nie getestete Hypothesen noch als REJECTED; research.yml
 # schreibt die Datei erst am 02.12. neu. Bis dahin zählten sie überall als widerlegt.
-HYPOTHESIS_CANONICAL = {"accepted": "ACCEPTED", "rejected": "REJECTED", "rejected_leakage_or_invalid": "REJECTED",
+HYPOTHESIS_CANONICAL = {"accepted": "EXPLORATORY", "historical_exploratory_pending_forward": "EXPLORATORY", "rejected": "REJECTED", "rejected_leakage_or_invalid": "REJECTED",
                         "rejected_locked": "REJECTED", "duplicate": "REJECTED",
                         "blocked_similar_to_rejected": "NOT_TESTED", "invalid_modified": "REJECTED",
                         "not_significant_after_fdr": "INCONCLUSIVE", "passed_pre_fdr": "INCONCLUSIVE",
@@ -94,6 +94,16 @@ def hypothesis_status(rec: dict | None) -> str:
     rec = rec or {}
     if rec.get("status") == "blocked_similar_to_rejected":
         return "NOT_TESTED"
+    # A legacy cached ACCEPTED/ROBUST/VALIDATED is NOT independent proof.
+    # The historical locked interval was reused; pre-existing JSON files may
+    # still carry old canonical labels until the next monthly lab run.
+    if rec.get("status") in ("accepted", "historical_exploratory_pending_forward"):
+        return "EXPLORATORY"
+    historical = rec.get("locked_holdout_status") == "CONTAMINATED" or rec.get("evidence_class") in (
+        "EXPLORATORY_HISTORICAL", "HISTORICAL_RESEARCH", "HISTORICAL_ROBUSTNESS_BATTERY")
+    if historical and str(rec.get("canonical_status") or rec.get("status") or "").upper() in (
+        "ACCEPTED", "ROBUST", "VALIDATED", "CONFIRMED"):
+        return "EXPLORATORY"
     if rec.get("canonical_status"):
         return rec["canonical_status"]
     if rec.get("status") == "prior_result":
@@ -101,9 +111,10 @@ def hypothesis_status(rec: dict | None) -> str:
     return HYPOTHESIS_CANONICAL.get(rec.get("status"), "INCONCLUSIVE")
 
 
-TESTED = ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "ROBUST", "NOT_ROBUST", "PROSPECTIVE_CHALLENGER",
-          *PROSPECTIVE_STATES, "DEMOTED", "EXPIRED")
-SUCCESS = ("ACCEPTED", "ROBUST", "PROSPECTIVE_CHALLENGER", *PROSPECTIVE_STATES)
+TESTED = ("EXPLORATORY", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "NOT_ROBUST",
+          "PENDING_FORWARD", *PROSPECTIVE_STATES, "DEMOTED", "EXPIRED")
+# Research success has one evidence meaning: an independently validated forward result.
+SUCCESS = PROSPECTIVE_STATES
 _NAME = re.compile(r"[a-z_][a-z0-9_]*")
 
 
@@ -163,7 +174,7 @@ def collect(sources: dict | None = None) -> list[dict]:
                                                            "years_positive": wf.get("years_positive_share")},
                           regimes=r.get("regimes"), reasons=r.get("reasons"), data_kind="historical_walk_forward"))
     for sid, r in ((src.get("alt_validation") or {}).get("sources") or {}).items():
-        out.append(_entry("alt_source", sid, {"KEEP": "ACCEPTED", "MODIFY": "INCONCLUSIVE"}.get(r.get("verdict"), "REJECTED"),
+        out.append(_entry("alt_source", sid, {"KEEP": "EXPLORATORY", "MODIFY": "INCONCLUSIVE"}.get(r.get("verdict"), "REJECTED"),
                           {"signal": " ".join(r.get("selected_features") or []), "domain": sid},
                           source="alt_data", evidence={"verdict": r.get("verdict")}, reasons=[r.get("verdict_reason")],
                           data_kind="historical_walk_forward_ablation"))
@@ -175,7 +186,7 @@ def collect(sources: dict | None = None) -> list[dict]:
                           reasons=[p.get("reason")], data_kind="historical_walk_forward"))
     for p in ap.get("proposals") or []:
         wf = p.get("walk_forward") or {}
-        out.append(_entry("abstention", wf.get("rule"), "ACCEPTED", {"signal": wf.get("rule"), "direction": -1,
+        out.append(_entry("abstention", wf.get("rule"), "EXPLORATORY", {"signal": wf.get("rule"), "direction": -1,
                                                                      "domain": "champion_trades"},
                           source="abstention_proposals", evidence=wf, data_kind="historical_walk_forward"))
     for k, h in ((src.get("promotion_state") or {}).get("hypotheses") or {}).items():
@@ -306,8 +317,8 @@ def alpha_option_entries(econ: dict | None, validation: dict | None) -> list[dic
                               reasons=(e.get("research_decision") or {}).get("reasons"),
                               data_kind="prospective_quote_verified_paper"))
     for p in (validation or {}).get("plans") or []:
-        if p.get("classification") == "QUALIFIED_FOR_HUMAN_REVIEW":
-            status = "ACCEPTED"
+        if p.get("classification") == "QUALIFIED_FOR_HUMAN_REVIEW" and p.get("status") == "CONFIRMED":
+            status = "FORWARD_VALIDATED"
         else:
             status = ALPHA_PLAN_STATUS.get(p.get("status"), "PENDING_FORWARD")
         b = p.get("binding") or {}
