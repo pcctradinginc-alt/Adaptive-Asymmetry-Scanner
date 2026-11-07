@@ -69,8 +69,10 @@ jobs:
 
       # Fehlergetriebene Forschung (wöchentlich + full, vor dem Director): geprüfte Forward-Prognosefehler des
       # Ensembles (Candidate Ledger gegen ml_predictions) -> fester Suchraum (config/error_research_protocol.yaml)
-      # -> höchstens 2 eingefrorene Hypothesen je Lauf -> Walk-Forward-Screen + einmaliger Forward-Test (BH) ->
-      # Options-Prüfung auf geprüften Netto-Labels -> Research Memory. Kein LLM, keine Markt-API, keine Orders.
+      # -> höchstens 2 eingefrorene Hypothesen je Lauf -> Walk-Forward-Screen (unabhängige, gepurgte Fenster) ->
+      # Forward-Prüfungen mit Bonferroni-Slot-Budget, eingefroren in error_forward_journal.jsonl (Hash-Kette) ->
+      # Options-Prüfung ohne Auswahlverzerrung -> Datenentscheidung -> Research Memory. Kein LLM, keine Markt-API,
+      # keine Orders. Exit 2 bei kritischem Befund (Prognose-Abweichung, verletzte Kette, geänderte Registrierung).
       - name: Fehlergetriebene Forschung – Prognosefehler, Hypothesen, Forward-Test, Gedächtnis
         id: error_research
         continue-on-error: true

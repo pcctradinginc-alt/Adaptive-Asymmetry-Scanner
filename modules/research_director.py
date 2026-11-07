@@ -1833,7 +1833,8 @@ ERROR_REGISTRY = OUT / "error_hypotheses.jsonl"          # append-only: eingefro
 LEDGER_DIR = Path("outputs/candidate_ledger")
 ML_PRED_DIR = OUT / "ml_predictions"
 PRED_MAX_AGE_DAYS = 8                                    # wie ml_research.latest_scores
-ERROR_STATUS = ("PENDING_FORWARD", "REJECTED_WF", "FORWARD_CONFIRMED", "FORWARD_REJECTED", "INCONCLUSIVE")
+ERROR_STATUS = ("PENDING_FORWARD", "REJECTED_WF", "FORWARD_CONFIRMED", "FORWARD_REJECTED", "FORWARD_NOT_CONFIRMED",
+                "INCONCLUSIVE", "NO_BUDGET")
 ERROR_MECHANISM = {
     "news": "Nachrichtenfluss ist im Ensemble nicht enthalten; viel beachtete Titel sind effizienter bepreist.",
     "sentiment": "Stimmung wird verzögert eingepreist (begrenzte Aufmerksamkeit), das Ensemble sieht sie nicht.",
@@ -1849,7 +1850,12 @@ ERROR_MECHANISM = {
 def error_protocol(path: Path | None = None) -> dict:
     path = path or ERROR_PROTOCOL
     raw = path.read_bytes()
-    return {**yaml.safe_load(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+    p = {**yaml.safe_load(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+    if p["budget"]["max_lifetime"] > p["forward"]["test_budget"]["max_tests"]:
+        raise ValueError("error_research_protocol: mehr Registrierungen als Slots im Testbudget")
+    if len(p["forward"]["looks"]) != 3:
+        raise ValueError("error_research_protocol: drei Prüfzeitpunkte (option_learner.LOOK_FRACTIONS) erwartet")
+    return p
 
 
 def _read_jsonl_dir(path: Path, pattern: str = "*.jsonl") -> list[dict]:
@@ -2037,8 +2043,9 @@ def forecast_errors(forecasts: list[dict], horizon: int, as_of, proto: dict) -> 
             for j, v in zip(idx, _ols_resid([ys[i] for i in idx], [[ps[i] for i in idx], sr])):
                 rc[j] = v
         out[d] = [{"ticker": fc["ticker"], "y": ys[i], "p": ps[i], "error": ys[i] - ps[i], "resid": resid[i],
-                   "resid_ctrl": rc[i], "sector": str((fc["row"].get("features") or {}).get("sector") or "unknown")}
-                  for i, (fc, _) in enumerate(items)]
+                   "resid_ctrl": rc[i], "sector": str((fc["row"].get("features") or {}).get("sector") or "unknown"),
+                   "ret": y, "pred": fc["pred"]}
+                  for i, (fc, y) in enumerate(items)]
         ens_ic[d] = _corr(ps, ys)
     return {"by_date": out, "ensemble_ic": ens_ic}
 
@@ -2180,16 +2187,21 @@ def error_spec(c: dict, horizon: int, disc: dict, proto: dict, registered_at: st
             "baseline": "Ensemble-Prognose (Residuum nach Rang-OLS je Stichtag); Kontrolle Größe",
             "metric": "Rang-IC Signal ~ Residuum je Stichtag, gemittelt je unabhängigem Haltefenster",
             "H0": "mittlerer Residual-IC des Signals <= 0", "H_alt": "mittlerer Residual-IC des Signals > 0",
-            "failure_condition": (f"Walk-Forward: Mittel <= 0 ab {proto['validation']['min_periods']} Fenstern; "
-                                  f"Forward: einseitig p >= {proto['forward']['alpha']} oder nicht BH-signifikant "
-                                  f"(q={proto['forward']['fdr_q']}) auf den ersten {proto['forward']['min_periods']} "
-                                  "Fenstern"),
+            "failure_condition": (f"Walk-Forward: Mittel <= 0 ab {proto['validation']['min_periods']} unabhängigen "
+                                  "Fenstern; Forward: Mittel <= 0 an einer Prüfung (falsifiziert) oder an keiner der "
+                                  f"Prüfungen bei {proto['forward']['looks']} unabhängigen Fenstern einseitig p < "
+                                  "Teil-Alpha des zugeteilten Slots (Budget "
+                                  f"{proto['forward']['test_budget']['total_alpha']} / "
+                                  f"{proto['forward']['test_budget']['max_tests']}, O'Brien-Fleming)"),
+            "window_method": "alternierende Haltefenster mit Purging (v2)",
             "mechanism": ERROR_MECHANISM.get(c["families"][0], "gemessener Befund"),
             "discovery": {"start": disc["start"], "end": disc["end"], "periods": disc["periods"],
                           "residual_ic": c["discovery"]["mean"], "t": c["discovery"]["t"],
                           "control_size_t": (c.get("control_size") or {}).get("t")},
-            "forward": {"start_after": start_after, **{k: proto["forward"][k] for k in ("min_periods", "alpha",
-                                                                                        "fdr_q", "max_days")}}}
+            "forward": {"start_after": start_after, "looks": list(proto["forward"]["looks"]),
+                        "test_budget": dict(proto["forward"]["test_budget"]),
+                        "max_days": (2 * int(proto["forward"]["looks"][-1]) + 2) * math.ceil(int(horizon) * 7 / 5)
+                        + 14}}
 
 
 def _spec_hash(spec: dict) -> str:
@@ -2300,68 +2312,181 @@ def _gap_sources(dims: list[str], catalog: list[dict]) -> list[dict]:
     return sorted(out, key=lambda x: (not x["usable_now"], x["source"]))
 
 
-def _option_labels(as_of, horizon: int) -> dict:
-    """Geprüfte Netto-Optionslabels (option_learner: VERIFIED gegen das Quote-Archiv) je (Stichtag, Ticker):
-    die erste geprüfte Ausdrucksform (Produktionsstruktur zuerst)."""
+ERROR_JOURNAL = OUT / "error_forward_journal.jsonl"      # append-only, Hash-Kette: Budget, Slots, Prüfungen, Audits
+FORWARD_CORRECTION = ("Bonferroni-Slots über die Testfamilie aller Registrierungen (wie option_learner.test_budget): "
+                      "Slot-Alpha = total_alpha / max_tests, bei der ersten Auswertung eingefroren; Teil-Alphas je "
+                      "Prüfzeitpunkt nach O'Brien-Fleming (option_learner.alpha_spending), Union-Bound -> "
+                      "familienweise Fehlerrate <= total_alpha auch bei abhängigen Tests; Entscheidungen unwiderruflich")
+OPTION_STRUCTURES = {"LONG_CALL": lambda e: e.get("strategy") == "LONG_CALL" and e.get("expression") != "single_alt",
+                     "BULL_CALL_SPREAD": lambda e: e.get("strategy") == "BULL_CALL_SPREAD"}
+FINAL_STATUS = {"CONFIRMED": "FORWARD_CONFIRMED", "REJECTED": "FORWARD_REJECTED",
+                "NOT_CONFIRMED": "FORWARD_NOT_CONFIRMED", "EXPIRED": "INCONCLUSIVE"}
+
+
+def _canon(x) -> str:
+    return json.dumps(x, sort_keys=True, ensure_ascii=False, default=str, separators=(",", ":"))
+
+
+def read_journal(path: Path) -> tuple[list[dict], list[str]]:
+    """Append-only Journal mit Hash-Kette; eine verletzte Kette ist ein kritischer Befund (nichts wird angehängt)."""
+    if not path.exists():
+        return [], []
+    events, prev = [], ""
+    for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            e = json.loads(line)
+        except ValueError:
+            return events, [f"{path.name} Zeile {i}: kein JSON"]
+        body = {k: v for k, v in e.items() if k != "hash"}
+        if e.get("prev") != prev or hashlib.sha256(_canon(body).encode()).hexdigest() != e.get("hash"):
+            return events, [f"{path.name} Zeile {i}: Hash-Kette verletzt (nachträglich geändert oder entfernt)"]
+        events.append(e)
+        prev = e["hash"]
+    return events, []
+
+
+def _signal_value(vals: dict, spec: dict, d: str, t: str):
+    if spec["kind"] == "pair":
+        a, b = (vals.get(p, {}).get((d, t)) for p in spec["parts"])
+        return None if a is None or b is None else [round(a, 10), round(b, 10)]
+    x = vals.get(spec.get("feature", spec.get("id")), {}).get((d, t))
+    return None if x is None else round(x, 10)
+
+
+def _inputs_ref(errs: dict, vals: dict, spec: dict, blocks: list[dict], as_of, code_sha) -> dict:
+    """Eindeutiger Datenstand einer Prüfung: Hash über alle verwendeten Zeilen (Stichtag, Ticker, realisierte Rendite,
+    Ensemble-Prognose, Signalwert) der Prüf-Fenster – jede spätere Kurs-, Prognose- oder Ergebniskorrektur ändert ihn."""
+    items = []
+    for b in blocks:
+        for d in b.get("dates") or []:
+            for r in errs.get(d, []):
+                x = _signal_value(vals, spec, d, r["ticker"])
+                if x is not None:
+                    items.append([d, r["ticker"], round(r["ret"], 10), round(r["pred"], 10), x])
+    items.sort(key=_canon)
+    return {"inputs_sha256": hashlib.sha256(_canon(items).encode()).hexdigest(), "n_rows": len(items),
+            "n_dates": sum(b["n_dates"] for b in blocks), "first": blocks[0]["start"] if blocks else None,
+            "last": blocks[-1]["end"] if blocks else None, "as_of": str(as_of), "code_sha": code_sha}
+
+
+def _compact_blocks(blocks: list[dict]) -> list[dict]:
+    return [{k: b[k] for k in ("start", "end", "n_dates", "n_purged", "mean_ic", "dates") if k in b} for b in blocks]
+
+
+def forward_plan(entry: dict, slot: int, budget: dict) -> dict:
+    """Prüfplan einer Registrierung: Slot aus dem eingefrorenen Budget; v2-Spezifikationen haben drei Prüfzeitpunkte
+    (O'Brien-Fleming über das Slot-Alpha), ältere (v1, z. B. ERR-d6695229) genau eine Prüfung mit
+    min(eigenes Alpha, Slot-Alpha) – strenger als registriert, nie lockerer."""
+    from modules import option_learner as ol
+    fw, slot_alpha = entry["spec"]["forward"], budget["total_alpha"] / budget["max_tests"]
+    if fw.get("looks"):
+        looks, alphas = list(fw["looks"]), ol.alpha_spending(slot_alpha)
+    else:
+        looks, alphas = [int(fw["min_periods"])], [min(float(fw.get("alpha", slot_alpha)), slot_alpha)]
+    return {"slot": slot, "slot_alpha": slot_alpha, "looks": looks, "look_alpha": [float(a) for a in alphas],
+            "max_days": int(fw["max_days"]), "correction": FORWARD_CORRECTION,
+            "supersedes": None if fw.get("looks") else "BH-Klausel der v1-Spezifikation (lebenslang neu berechnet, "
+                                                       "nachträglich veränderlich) – ersetzt vor der ersten Prüfung"}
+
+
+def _option_cands(as_of, horizon: int) -> list[dict]:
+    """Ledger-Kandidaten mit allen zum Signalzeitpunkt erfassten Optionsformen und deren Label-Status (option_learner:
+    VERIFIED gegen das Quote-Archiv, sonst Prüf-Grund oder NO_LABEL)."""
     from modules import option_learner as ol
     from modules import research_evidence_discovery as red
-    _rows, cands, _data = ol._load(as_of, horizon, red.LEDGER, red.QUOTES)
-    out = {}
-    for c in cands:
-        e = next((e for e in c["exprs"] if e["status"] == "VERIFIED" and e["y"] is not None), None)
-        if e is not None:
-            out.setdefault((str(c["date"])[:10], c["ticker"]), e["y"])
-    return out
+    return ol._load(as_of, horizon, red.LEDGER, red.QUOTES)[1]
 
 
-def option_check(spec: dict, vals: dict, labels: dict, proto: dict, window: tuple, evidence: str) -> dict:
-    """Ausführbares Options-Alpha einer Aktienhypothese: oberes Drittel des Signals je Stichtag (unter Titeln mit
-    geprüftem Netto-Label nach Spreads und Kommission) gegen "alles handeln" und "nie handeln" (0), gepaart je
-    Stichtag, Block-Bootstrap über unabhängige Haltefenster (option_learner._paired)."""
+def option_check(spec: dict, vals: dict, cands: list[dict], proto: dict, window: tuple, evidence: str,
+                 as_of) -> dict:
+    """Ausführbares Options-Alpha einer Aktienhypothese, ohne Auswahl nach Ergebnisverfügbarkeit:
+    1. Population je Stichtag und Struktur = alle Kandidaten, für die zum Signalzeitpunkt ein Kontrakt dieser Struktur
+       erfasst ist und ein Signalwert vorliegt (LONG_CALL und BULL_CALL_SPREAD getrennt, identische Regel).
+    2. Auswahl = oberes Drittel des Signals in dieser Population – VOR jedem Blick auf Labels.
+    3. Erst danach: geprüftes Netto-Label (Kauf Ask, Verkauf Bid, 0,65 USD je Leg und Seite auf 100er-Kontrakt) oder
+       Coverage-Lücke mit Grund; nie Ersatz durch andere Kandidaten. Noch nicht fällige Labels zählen als ausstehend.
+    4. Vergleich gegen "alle geeigneten Signale handeln" und "nicht handeln", gepaart je Stichtag, Block-Bootstrap über
+       unabhängige (alternierende, gepurgte) Haltefenster. Unter Coverage/Fenster-Minimum: INSUFFICIENT_DATA;
+       explorative Evidenz ist nie ein Alpha-Nachweis."""
+    from collections import Counter
     from modules import option_learner as ol
     from modules import research_lab as rl
-    oc = proto["options"]
-    lo, hi = window
-    by_d: dict[str, list] = {}
-    for (d, t), y in labels.items():
-        if not (lo <= d <= hi):
-            continue
-        if spec["kind"] == "pair":
-            a, b = vals.get(spec["parts"][0], {}).get((d, t)), vals.get(spec["parts"][1], {}).get((d, t))
-            x = None if a is None or b is None else (a, b)
+    oc, h = proto["options"], int(spec["horizon"])
+    lo, hi = str(window[0])[:10], str(window[1])[:10]
+    dates = sorted({str(c["date"])[:10] for c in cands if lo <= str(c["date"])[:10] <= hi})
+    block_of = {d: b["start"] for b in rl.period_blocks({d: 0.0 for d in dates}, h, lo, as_of) for d in b["dates"]}
+    out = {}
+    for name, pick in OPTION_STRUCTURES.items():
+        per_date: dict[str, list] = {}
+        for c in cands:
+            d = str(c["date"])[:10]
+            if d not in block_of:
+                continue
+            e = next((e for e in c.get("exprs") or [] if pick(e)), None)
+            x = _signal_value(vals, spec, d, c["ticker"]) if e is not None else None
+            if x is not None:
+                per_date.setdefault(d, []).append((x, e))
+        n = Counter()
+        missing, hold = Counter(), []
+        vs_all, never = {}, {}
+        for d, pts in sorted(per_date.items()):
+            if not ol._due(d, rl._day(as_of), h):
+                n["pending"] += len(pts)
+                continue
+            if len(pts) < 3:
+                n["dates_too_small"] += 1
+                continue
+            if spec["kind"] == "pair":
+                ra, rb = _rank_pct([p[0][0] for p in pts]), _rank_pct([p[0][1] for p in pts])
+                xs = [u * v for u, v in zip(ra, rb)]
+            else:
+                xs = [p[0] for p in pts]
+            q = [r if spec["direction"] > 0 else 1 - r + 1 / len(xs) for r in _rank_pct(xs)]
+            sel = [e for (_x, e), s in zip(pts, q) if s >= oc["select_quantile"]]
+            ok_all = [e for _x, e in pts if e["status"] == "VERIFIED" and e["y"] is not None]
+            ok_sel = [e for e in sel if e["status"] == "VERIFIED" and e["y"] is not None]
+            n["eligible"] += len(pts)
+            n["eligible_verified"] += len(ok_all)
+            n["selected"] += len(sel)
+            n["selected_verified"] += len(ok_sel)
+            missing.update(e["status"] for e in sel if e not in ok_sel)
+            hold += [(e["label_day"] - rl._day(d)).days for e in ok_sel if e.get("label_day")]
+            b = block_of[d]
+            if ok_sel:
+                never.setdefault(b, []).extend(e["y"] for e in ok_sel)
+                if ok_all:
+                    vs_all.setdefault(b, []).append(sum(e["y"] for e in ok_sel) / len(ok_sel)
+                                                    - sum(e["y"] for e in ok_all) / len(ok_all))
+        H = rl.hold_days(h)
+        a, nv = ol._paired(vs_all, H), ol._paired(never, H)
+        cov_sel = n["selected_verified"] / n["selected"] if n["selected"] else 0.0
+        cov_all = n["eligible_verified"] / n["eligible"] if n["eligible"] else 0.0
+        periods = nv["independent_periods"]
+        if (not n["selected"] or cov_sel < oc["min_coverage"] or cov_all < oc["min_coverage"]
+                or periods < oc["min_independent_periods"]):
+            status = "INSUFFICIENT_DATA"
+        elif nv["ci95"] and nv["ci95"][1] < 0:
+            status = "NEGATIVE_NET"
+        elif (evidence == "confirmatory" and a["ci95"] and a["ci95"][0] > 0 and nv["ci95"] and nv["ci95"][0] > 0):
+            status = "OPTION_EDGE"
         else:
-            x = vals.get(spec["feature"], {}).get((d, t))
-        if x is not None:
-            by_d.setdefault(d, []).append((x, y))
-    vs_all, vs_never = {}, {}
-    for d, pts in by_d.items():
-        if len(pts) < 3:
-            continue
-        if spec["kind"] == "pair":
-            ra, rb = _rank_pct([p[0][0] for p in pts]), _rank_pct([p[0][1] for p in pts])
-            xs = [u * v for u, v in zip(ra, rb)]
-        else:
-            xs = [p[0] for p in pts]
-        sc = [q if spec["direction"] > 0 else 1 - q for q in _rank_pct(xs)]
-        sel = [y for (x, y), s in zip(pts, sc) if s >= oc["select_quantile"]]
-        if not sel:
-            continue
-        allm = sum(y for _, y in pts) / len(pts)
-        vs_all[d] = [sum(sel) / len(sel) - allm]
-        vs_never[d] = sel
-    H = rl.hold_days(spec["horizon"])
-    a, n = ol._paired(vs_all, H), ol._paired(vs_never, H)
-    periods = min(a["independent_periods"], n["independent_periods"])
-    if periods < oc["min_independent_periods"]:
-        status = "INSUFFICIENT"
-    elif (a["ci95"] and a["ci95"][0] > 0) and (n["ci95"] and n["ci95"][0] > 0):
-        status = "OPTION_EDGE"
-    elif (n["mean_diff"] or 0) <= 0 or (a["mean_diff"] or 0) <= 0:
-        status = "NO_OPTION_EDGE"
-    else:
-        status = "NOT_PROVEN"
-    return {"status": status, "evidence": evidence, "window": [lo, hi], "vs_trade_all": a, "vs_never_trade": n,
-            "labels": "option_learner VERIFIED (Kauf Ask, Verkauf Bid, Kommission je Leg und Seite)"}
+            status = "NOT_PROVEN"
+        out[name] = {"status": status, "eligible": n["eligible"], "selected": n["selected"],
+                     "selected_verified": n["selected_verified"], "coverage_selected": round(cov_sel, 3),
+                     "coverage_all": round(cov_all, 3), "coverage_gaps": dict(missing),
+                     "pending_labels": n["pending"], "dates_too_small": n["dates_too_small"],
+                     "independent_periods": periods, "mean_net_selected": nv["mean_diff"],
+                     "vs_never_trade": nv, "vs_trade_all": a,
+                     "holding_days_median": sorted(hold)[len(hold) // 2] if hold else None}
+    order = ("OPTION_EDGE", "NOT_PROVEN", "NEGATIVE_NET", "INSUFFICIENT_DATA")
+    overall = next((s for s in order if any(v["status"] == s for v in out.values())), "INSUFFICIENT_DATA")
+    return {"status": overall, "evidence": evidence, "window": [lo, hi], "structures": out,
+            "selection": f"oberes Drittel (>= {oc['select_quantile']}) je Stichtag unter allen zum Signalzeitpunkt "
+                         "handelbaren Kandidaten der Struktur; Labels erst danach",
+            "labels": "option_learner VERIFIED (Kauf Ask, Verkauf Bid, Kommission 0,65 USD je Leg und Seite, "
+                      "Kontraktgröße 100)"}
 
 
 def _read_registry(path: Path) -> list[dict]:
@@ -2372,14 +2497,18 @@ def _read_registry(path: Path) -> list[dict]:
 
 def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, memory: list[dict] | None = None,
                    catalog: list[dict] | None = None, proto: dict | None = None, registry: Path | None = None,
-                   option_labels: dict | None = None, persist: bool = True,
-                   report: Path | None = None) -> dict:
-    """Ein Lauf des fehlergetriebenen Kreislaufs (deterministisch, nur lesend außer Bericht und Registrierung)."""
+                   journal: Path | None = None, option_cands: dict | None = None, persist: bool = True,
+                   report: Path | None = None, world: dict | None = None, blind: list | None = None) -> dict:
+    """Ein Lauf des fehlergetriebenen Kreislaufs (deterministisch). Schreibt nur Bericht, Registrierungen und das
+    append-only Journal; abgeschlossene Prüfungen werden gelesen, nie neu entschieden."""
+    from collections import defaultdict
+    from modules import ml_research as ml
     from modules import research_lab as rl
     from modules import research_memory as rm
     proto = proto or error_protocol()
-    registry = registry or ERROR_REGISTRY
+    registry, journal = registry or ERROR_REGISTRY, journal or ERROR_JOURNAL
     as_of = rl._day(as_of)
+    problems: list[str] = []
     memory = memory if memory is not None else rm.load()
     latest = rm.latest(memory)
     quality = {}
@@ -2390,15 +2519,24 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
     tested = {(e.get("spec") or {}).get("error_key"): e["hypothesis_id"] for e in latest.values()
               if (e.get("spec") or {}).get("error_key") and e.get("status") not in ("DATA_GAP",)}
     reg = _read_registry(registry)
-    reg_by_key = {h["key"]: h for h in reg}
     for h in reg:
         tested.setdefault(h["key"], h["id"])
+    if not rows:
+        problems.append("keine Candidate-Ledger-Zeilen")
+    if not preds:
+        problems.append("kein ml_predictions-Archiv")
     forecasts, provenance = verified_forecasts(rows, preds, proto["forecast"])
+    if rows and preds and not provenance.get("VERIFIED"):
+        problems.append("keine einzige Ledger-Prognose gegen das Archiv verifizierbar")
+    if provenance.get("FORECAST_MISMATCH"):
+        problems.append(f"{provenance['FORECAST_MISMATCH']} Ledger-Prognosen weichen vom ml_predictions-Archiv ab "
+                        "(ausgeschlossen, Herkunft prüfen)")
     vals = error_values(forecasts, proto, archive)
+    code_sha = ml._code_sha()
     rep = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "as_of": as_of.isoformat(),
            "protocol": proto["version"], "protocol_sha256": proto["sha256"], "seen_until": proto["seen_until"],
-           "forecast_provenance": provenance, "horizons": {}, "hypotheses": [], "data_gaps": [], "decisions": [],
-           "production_influence": "NONE"}
+           "window_method": rl.WINDOW_METHOD, "code_sha": code_sha, "forecast_provenance": provenance,
+           "horizons": {}, "hypotheses": [], "data_gaps": [], "decisions": [], "production_influence": "NONE"}
     errs_by_h, cands = {}, []
     for h in proto["forecast"]["horizons"]:
         fe = forecast_errors(forecasts, h, as_of, proto)
@@ -2412,7 +2550,7 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
             "verified_errors": rows_n, "dates": len(fe["by_date"]),
             "mean_abs_error": round(sum(abs(r["error"]) for v in fe["by_date"].values() for r in v) / rows_n, 4)
             if rows_n else None,
-            "ensemble_ic": rl.block_t([b["mean_ic"] for b in eb]), "ensemble_ic_blocks": eb,
+            "ensemble_ic": rl.block_t([b["mean_ic"] for b in eb]), "ensemble_ic_blocks": _compact_blocks(eb),
             "patterns": {k: v for k, v in pat.items() if k != "candidates"}, "candidates": pat["candidates"],
             "unexplained_segments": segs}
         if pat["status"] != "OK":
@@ -2439,24 +2577,55 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
                                                  f"{s['periods']} Fenster)"),
                                      "dimensions": s["dimensions"], "sources": _gap_sources(s["dimensions"], catalog),
                                      "decision": "Quelle der Dimension prüfen/aufnehmen (menschliche Freigabe)"})
-    # Auswahl: nur neue Schlüssel, Priorität (inkl. Gedächtnis-Prior), Budget je Lauf und lebenslang
+    # Journal: Budget, Slots, Prüfungen, Audits (Hash-Kette; bei verletzter Kette nur lesen)
+    events, jproblems = read_journal(journal)
+    problems += jproblems
+    frozen_only = bool(jproblems)
+
+    def jappend(ev: dict) -> dict:
+        ev = {**ev, "prev": events[-1]["hash"] if events else ""}
+        ev["hash"] = hashlib.sha256(_canon(ev).encode()).hexdigest()
+        events.append(ev)
+        if persist and not frozen_only:
+            journal.parent.mkdir(parents=True, exist_ok=True)
+            with open(journal, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(ev, ensure_ascii=False, sort_keys=True, default=str) + "\n")
+        return ev
+
+    budget = next((e for e in events if e.get("event") == "test_budget"), None)
+    if budget is None and not frozen_only:
+        tb = proto["forward"]["test_budget"]
+        budget = jappend({"event": "test_budget", "total_alpha": float(tb["total_alpha"]),
+                          "max_tests": int(tb["max_tests"]), "method": FORWARD_CORRECTION,
+                          "protocol": proto["version"], "created_at": as_of.isoformat()})
+    slots = {e["hypothesis_id"]: e for e in events if e.get("event") == "slot_assigned"}
+    looks = defaultdict(list)
+    for e in events:
+        if e.get("event") == "look":
+            looks[e["hypothesis_id"]].append(e)
+    audited = {(e["hypothesis_id"], e["look"], e["current_sha256"]) for e in events
+               if e.get("event") == "audit_data_change"}
+    # Auswahl: nur neue Schlüssel, Priorität (inkl. Gedächtnis-Prior), Budget je Lauf, lebenslang und Testbudget
     b = proto["budget"]
-    left = max(0, min(b["max_new_per_run"], b["max_lifetime"] - len(reg)))
+    cap = min(b["max_lifetime"], int((budget or proto["forward"]["test_budget"])["max_tests"]))
+    left = max(0, min(b["max_new_per_run"], cap - len(reg))) if not frozen_only else 0
     for h, disc, c, pr in sorted(cands, key=lambda x: -x[3]["priority"]):
         d = {"subject": f"{c['id']} ({h} T)", "priority": pr}
         if pr["memory_hit"]:
             d.update(decision="skip", because=f"bereits geprüft/registriert: {pr['memory_hit']}")
         elif left <= 0:
-            d.update(decision="defer", because="Budget dieses Laufs/lebenslang ausgeschöpft")
+            d.update(decision="defer", because="Budget dieses Laufs/lebenslang/Testbudget ausgeschöpft")
         else:
             spec = error_spec(c, h, disc, proto, as_of.isoformat())
             hid = "ERR-" + hashlib.sha256(pr["key"].encode()).hexdigest()[:8]
-            wf = rl.ledger_walk_forward(_signed_ic(errs_by_h[h], vals, c, spec["direction"], proto), h,
-                                        disc["end"], as_of.isoformat(), proto["validation"])
+            ic = _signed_ic(errs_by_h[h], vals, c, spec["direction"], proto)
+            wf = rl.ledger_walk_forward(ic, h, disc["end"], as_of.isoformat(), proto["validation"])
+            dblocks = rl.period_blocks({k: v for k, v in ic.items() if k <= disc["end"]}, h, disc["start"], as_of)
             entry = {"id": hid, "key": pr["key"], "registered_at": as_of.isoformat(), "spec": spec,
-                     "spec_hash": _spec_hash(spec), "walk_forward": wf, "priority": pr}
+                     "spec_hash": _spec_hash(spec), "walk_forward": wf, "priority": pr,
+                     "discovery_data_ref": _inputs_ref(errs_by_h[h], vals, {**c, "feature": c["id"]}, dblocks,
+                                                       as_of, code_sha)}
             reg.append(entry)
-            reg_by_key[pr["key"]] = entry
             tested[pr["key"]] = hid
             left -= 1
             d.update(decision="register", hypothesis=hid,
@@ -2466,57 +2635,136 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
                 with open(registry, "a", encoding="utf-8") as fh:
                     fh.write(json.dumps(entry, ensure_ascii=False, sort_keys=True, default=str) + "\n")
         rep["decisions"].append(d)
-    # Prüfung aller registrierten Hypothesen (eingefroren): WF-Screen (bei Registrierung), Forward, BH, Optionen
-    labels = option_labels
-    tested_p = {}
+    # Prüfung aller registrierten Hypothesen in Registrierungsreihenfolge (Slot = Reihenfolge, eingefroren)
+    cand_cache: dict[int, list] = dict(option_cands or {})
     for e in reg:
-        sp, h = e["spec"], e["spec"]["horizon"]
+        sp, h, hid = e["spec"], int(e["spec"]["horizon"]), e["id"]
+        x = {"id": hid, "key": e.get("key"), "registered_at": e.get("registered_at"), "spec": sp,
+             "spec_hash": e.get("spec_hash"), "walk_forward": e["walk_forward"], "priority": e.get("priority")}
+        rep["hypotheses"].append(x)
         if _spec_hash(sp) != e.get("spec_hash"):
-            rep["hypotheses"].append({"id": e["id"], "status": "INVALID_MODIFIED", "spec": sp})
+            x.update(status="INVALID_MODIFIED", reason="Spezifikation nach der Registrierung geändert",
+                     option_check={"status": "NOT_REACHED"}, next_decision="ungültig: nie bewertet")
+            problems.append(f"{hid}: Registrierung nachträglich geändert (INVALID_MODIFIED)")
             continue
+        slot_ev = slots.get(hid)
+        if slot_ev is None and budget is not None and not frozen_only and len(slots) < int(budget["max_tests"]):
+            plan = forward_plan(e, len(slots) + 1, budget)
+            slot_ev = jappend({"event": "slot_assigned", "hypothesis_id": hid, "spec_hash": e["spec_hash"],
+                               "assigned_at": as_of.isoformat(), **plan})
+            slots[hid] = slot_ev
+        x["forward_plan"] = {k: slot_ev[k] for k in ("slot", "slot_alpha", "looks", "look_alpha", "max_days",
+                                                     "assigned_at")} if slot_ev else None
+        start_after = sp["forward"]["start_after"]
         ic = _signed_ic(errs_by_h.get(h, {}), vals, sp, sp["direction"], proto)
-        fw = ({"status": "NOT_RUN", "reason": "Walk-Forward-Screen verworfen"} if e["walk_forward"]["status"] ==
-              "REJECTED_WF" else rl.ledger_forward_test(ic, h, sp["forward"]["start_after"], as_of, sp["forward"]))
-        if fw["status"] == "TESTED":
-            tested_p[e["id"]] = fw["p_one_sided"]
-        rep["hypotheses"].append({"id": e["id"], "key": e["key"], "registered_at": e["registered_at"],
-                                  "spec": sp, "spec_hash": e["spec_hash"], "walk_forward": e["walk_forward"],
-                                  "forward": fw, "priority": e.get("priority")})
-    bh = rl.benjamini_hochberg(tested_p, proto["forward"]["fdr_q"]) if tested_p else set()
-    for x in rep["hypotheses"]:
-        if x.get("status") == "INVALID_MODIFIED":
-            continue
-        wf, fw = x["walk_forward"], x["forward"]
-        if wf["status"] == "REJECTED_WF":
-            x["status"], x["reason"] = "REJECTED_WF", wf["reason"]
-        elif fw["status"] == "TESTED":
-            ok = x["id"] in bh and fw["p_one_sided"] < x["spec"]["forward"]["alpha"] and (fw["mean"] or 0) > 0
-            x["status"] = "FORWARD_CONFIRMED" if ok else "FORWARD_REJECTED"
-            x["reason"] = (f"Forward-IC {fw['mean']} (t={fw['t']}, p={fw['p_one_sided']:.4f}, BH über "
-                           f"{len(tested_p)} Forward-Tests: {'signifikant' if x['id'] in bh else 'nicht signifikant'})")
+        blocks = rl.forward_blocks(ic, h, start_after, as_of)
+        fl = sorted(looks.get(hid, []), key=lambda v: v["look"])
+        x["audits"] = []
+        for ev in fl:                                   # Datenänderungen nach einer Prüfung -> Audit, keine Änderung
+            n = int(ev.get("look_periods") or 0)
+            if not n:
+                continue
+            ref = _inputs_ref(errs_by_h.get(h, {}), vals, sp, blocks[:n], as_of, code_sha)
+            if len(blocks) < n or ref["inputs_sha256"] != ev["data_ref"]["inputs_sha256"]:
+                key = (hid, ev["look"], ref["inputs_sha256"])
+                if key not in audited and not frozen_only:
+                    re = (rl.look_outcome(blocks, n, ev["alpha"], ev["final"]) if len(blocks) >= n
+                          else {"outcome": "NOT_EVALUABLE", "mean": None, "t": None, "p_one_sided": None})
+                    jappend({"event": "audit_data_change", "hypothesis_id": hid, "look": ev["look"],
+                             "frozen_sha256": ev["data_ref"]["inputs_sha256"], "current_sha256": ref["inputs_sha256"],
+                             "frozen_outcome": ev["outcome"], "detected_at": as_of.isoformat(), "code_sha": code_sha,
+                             "reassessment": {k: re.get(k) for k in ("outcome", "mean", "t", "p_one_sided")},
+                             "note": "Neubewertung auf geänderten Daten – getrennt gekennzeichnet, die eingefrorene "
+                                     "Entscheidung bleibt gültig"})
+                    audited.add(key)
+        x["audits"] = [v for v in events if v.get("event") == "audit_data_change" and v["hypothesis_id"] == hid]
+        final = next((v for v in fl if v.get("final")), None)
+        if e["walk_forward"]["status"] == "REJECTED_WF":
+            x.update(status="REJECTED_WF", reason=e["walk_forward"]["reason"])
+        elif slot_ev is None:
+            x.update(status="NO_BUDGET", reason="kein Slot im Testbudget – nie bestätigbar")
         else:
-            x["status"], x["reason"] = fw["status"], fw.get("reason")
+            while final is None and not frozen_only:
+                k = len(fl)
+                if k < len(slot_ev["looks"]) and len(blocks) >= slot_ev["looks"][k]:
+                    n = int(slot_ev["looks"][k])
+                    res = rl.look_outcome(blocks, n, float(slot_ev["look_alpha"][k]), k == len(slot_ev["looks"]) - 1)
+                    ev = jappend({"event": "look", "hypothesis_id": hid, "spec_hash": e["spec_hash"], "look": k + 1,
+                                  "look_periods": n, "alpha": res["alpha"], "outcome": res["outcome"],
+                                  "final": res["outcome"] != "CONTINUE", "decided_at": as_of.isoformat(),
+                                  "stats": {s: res[s] for s in ("n_periods", "mean", "t", "p_one_sided")},
+                                  "blocks": _compact_blocks(res["blocks"]), "correction": slot_ev["correction"],
+                                  "data_ref": _inputs_ref(errs_by_h.get(h, {}), vals, sp, blocks[:n], as_of,
+                                                          code_sha)})
+                elif (as_of - rl._day(start_after)).days > int(slot_ev["max_days"]):
+                    ev = jappend({"event": "look", "hypothesis_id": hid, "spec_hash": e["spec_hash"], "look": k + 1,
+                                  "look_periods": None, "alpha": None, "outcome": "EXPIRED", "final": True,
+                                  "decided_at": as_of.isoformat(), "stats": {"n_periods": len(blocks)},
+                                  "blocks": [], "correction": slot_ev["correction"], "data_ref": None})
+                else:
+                    break
+                fl.append(ev)
+                final = ev if ev["final"] else None
+            if final:
+                st = final["stats"]
+                x.update(status=FINAL_STATUS[final["outcome"]],
+                         reason=(f"Prüfung {final['look']} ({final['decided_at']}): Forward-IC {st.get('mean')} "
+                                 f"(t={st.get('t')}, p={st.get('p_one_sided')}) bei Teil-Alpha {final['alpha']} – "
+                                 "eingefroren" if final["outcome"] != "EXPIRED" else
+                                 f"nach {slot_ev['max_days']} Tagen zu wenige unabhängige Forward-Fenster"))
+            else:
+                k = len(fl)
+                x.update(status="PENDING_FORWARD",
+                         reason=(f"{len(blocks)} unabhängige Forward-Fenster fertig; nächste Prüfung "
+                                 f"{k + 1}/{len(slot_ev['looks'])} bei {slot_ev['looks'][k]} Fenstern"
+                                 if k < len(slot_ev["looks"]) else "keine weitere Prüfung"))
+        x["forward"] = {"start_after": start_after, "complete_periods": len(blocks),
+                        "looks": [{k: v.get(k) for k in ("look", "look_periods", "alpha", "outcome", "final",
+                                                         "decided_at", "stats", "data_ref")} for v in fl]}
+        wf = e["walk_forward"]
         success = x["status"] == "FORWARD_CONFIRMED" or wf["status"] == "PASSED_WF"
-        if success:
-            if labels is None:
+        frozen_opt = next((v for v in events if v.get("event") == "option_check" and v["hypothesis_id"] == hid), None)
+        if frozen_opt:
+            x["option_check"] = {**frozen_opt["result"], "frozen_at": frozen_opt["decided_at"]}
+        elif success:
+            if h not in cand_cache:
                 try:
-                    labels = _option_labels(as_of, x["spec"]["horizon"])
-                except Exception as exc:  # noqa: BLE001 – fehlende Optionsdaten sind eine Lücke
-                    log.warning("error_research: Optionslabels nicht ladbar (%s)", exc)
-                    labels = {}
-            win = ((fw["start"], as_of.isoformat()) if x["status"] == "FORWARD_CONFIRMED"
-                   else (x["spec"]["discovery"]["start"], x["spec"]["forward"]["start_after"]))
-            x["option_check"] = option_check(x["spec"], vals, labels, proto, win,
-                                             "confirmatory" if x["status"] == "FORWARD_CONFIRMED" else "exploratory")
+                    cand_cache[h] = _option_cands(as_of, h)
+                except Exception as exc:  # noqa: BLE001 – fehlende Optionsdaten sind ein kritischer Befund
+                    problems.append(f"Optionskandidaten nicht ladbar ({exc})")
+                    cand_cache[h] = []
+            confirm = x["status"] == "FORWARD_CONFIRMED"
+            win = ((final["blocks"][0]["start"], final["blocks"][-1]["end"]) if confirm
+                   else (sp["discovery"]["start"], start_after))
+            x["option_check"] = option_check(sp, vals, cand_cache[h], proto, win,
+                                             "confirmatory" if confirm else "exploratory", as_of)
+            if confirm and not any(v["pending_labels"] for v in x["option_check"]["structures"].values()) \
+                    and not frozen_only:            # alle Labels des festen Fensters fällig -> einfrieren
+                jappend({"event": "option_check", "hypothesis_id": hid, "spec_hash": e["spec_hash"],
+                         "decided_at": as_of.isoformat(), "result": x["option_check"], "code_sha": code_sha})
         else:
             x["option_check"] = {"status": "NOT_REACHED", "reason": "Aktienhypothese (noch) nicht erfolgreich"}
         x["next_decision"] = {
             "REJECTED_WF": "verworfen: kein Forward-Test, Familien-Prior sinkt",
-            "FORWARD_REJECTED": "verworfen: Familien-Prior sinkt, gleiche Spezifikation nie erneut",
+            "FORWARD_REJECTED": "falsifiziert (Forward-Mittel <= 0): Familien-Prior sinkt, Spezifikation nie erneut",
+            "FORWARD_NOT_CONFIRMED": "nicht bestätigt an der letzten Prüfung: Familien-Prior sinkt",
             "FORWARD_CONFIRMED": "Forward bestätigt: Kandidat für Challenger-Vertrag (nur per menschlichem PR)",
             "INCONCLUSIVE": "keine Entscheidung: Datenlücke (zu wenige Forward-Fenster)",
-            "PENDING_FORWARD": f"Forward-Test läuft ab {fw.get('start')} ({fw.get('complete_periods', 0)}/"
-                               f"{fw.get('required_periods')} Fenster)"}.get(x["status"], x["status"])
+            "NO_BUDGET": "kein Testbudget: keine Bestätigung möglich",
+            "PENDING_FORWARD": x.get("reason")}.get(x["status"], x["status"])
+    # Wöchentliche Datenentscheidung (ohne den monatlichen Director-Lauf): Segmentlücken -> Quellen-Priorität
+    acq = active_learning(world or {}, blind or [], catalog or [], rep["data_gaps"])
+    rep["data_acquisition"] = [a for a in acq if a.get("driven_by_error_gaps")][:5]
+    for a in rep["data_acquisition"]:
+        rep["decisions"].append({"subject": a["source"], "decision": "propose_data_source",
+                                 "because": f"Fehlerlücken {a['driven_by_error_gaps']}; Priorität {a['priority']}",
+                                 "blocked_by": a["blocked_by"], "priority": {"priority": a["priority"]}})
+    used = len(slots)
+    rep["forward_budget"] = ({"total_alpha": budget["total_alpha"], "max_tests": budget["max_tests"],
+                              "slot_alpha": budget["total_alpha"] / budget["max_tests"], "used": used,
+                              "remaining": int(budget["max_tests"]) - used, "method": budget["method"],
+                              "frozen_at": budget["created_at"]} if budget else None)
+    rep["health"] = {"status": "CRITICAL" if problems else "OK", "problems": problems}
     rep["summary"] = {
         "verified_forecast_rows": provenance.get("VERIFIED", 0),
         "patterns_recurring": sum(1 for v in rep["horizons"].values() for c in v["candidates"]
@@ -2527,8 +2775,11 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
                                                                  if d["decision"] == "register"),
         "status_counts": {s: sum(1 for x in rep["hypotheses"] if x.get("status") == s)
                           for s in ERROR_STATUS + ("INVALID_MODIFIED",)},
+        "frozen_looks": sum(1 for v in events if v.get("event") == "look"),
+        "audits": sum(1 for v in events if v.get("event") == "audit_data_change"),
         "data_gaps": len(rep["data_gaps"]),
-        "skipped_by_memory": sum(1 for d in rep["decisions"] if d["decision"] == "skip")}
+        "skipped_by_memory": sum(1 for d in rep["decisions"] if d["decision"] == "skip"),
+        "health": rep["health"]["status"]}
     if persist:
         report = report or ERROR_REPORT
         report.parent.mkdir(parents=True, exist_ok=True)
@@ -2537,7 +2788,8 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
 
 
 def run_errors(as_of=None, archive=None) -> dict:
-    """CLI/CI: echte Daten (Ledger, Prognose-Archiv, externes Archiv, Katalog, Gedächtnis), dann Gedächtnis-Sync."""
+    """CLI/CI (wöchentlich): echte Daten (Ledger, Prognose-Archiv, externes Archiv, Katalog, Gedächtnis, World Model,
+    Blind Spots) -> ein vollständiger Kreislauf inkl. Datenentscheidung, dann Gedächtnis-Sync."""
     from modules import research_memory as rm
     if archive is None:
         try:
@@ -2548,7 +2800,9 @@ def run_errors(as_of=None, archive=None) -> dict:
     catalog = annotate_catalog((yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", [])
                                if CATALOG.exists() else [])
     rep = error_research(_read_jsonl_dir(LEDGER_DIR, "????-??.jsonl"), _read_jsonl_dir(ML_PRED_DIR),
-                         as_of or datetime.now(timezone.utc).date(), archive=archive, catalog=catalog)
+                         as_of or datetime.now(timezone.utc).date(), archive=archive, catalog=catalog,
+                         world=_load(OUT / "world_model.json", {}),
+                         blind=(_load(OUT / "next_validation.json", {}) or {}).get("blind_spot_clusters") or [])
     rep["research_memory_new"] = rm.sync()
     return rep
 
@@ -2592,7 +2846,9 @@ def main(argv=None) -> int:
             print(f"- {d['decision']}: {d['subject']} – {d['because']}")
         for h in rep["hypotheses"]:
             print(f"  {h['id']} {h.get('status')}: {h.get('next_decision')}")
-        return 0
+        for p in rep["health"]["problems"]:
+            print(f"KRITISCH: {p}")
+        return 2 if rep["health"]["status"] == "CRITICAL" else 0      # Workflow-Schritt rot -> Lauf rot
     if args.notify:
         rep = run_notify(dry_run=args.dry_run, mode="critical" if args.critical else "weekly")
         print(json.dumps({k: rep.get(k) for k in ("mode", "mail_status", "tasks_detected", "pending",

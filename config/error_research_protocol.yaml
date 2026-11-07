@@ -18,10 +18,23 @@
 # (synthetischer Test: Residual-IC 0,235 -> 0,022 nach Kontrolle, t = 14 aus drei gleichförmig winzigen Fenstern)
 # galt dadurch als "nicht erklärt". Neu: control_min_share (vorab 0,5, nicht an echten Daten gewählt).
 #
+# Version 2 (2026-11-07, nach Registrierung von ERR-d6695229, VOR der ersten Forward-Beobachtung – Forward beginnt
+# am 08.11.; ERR-d6695229 und ihre Registrierung bleiben unverändert, sie wird nur strenger ausgewertet):
+#  * Mehrfachtest: Das lebenslang neu berechnete BH über alle Forward-Tests konnte frühere Entscheidungen durch
+#    spätere Tests nachträglich kippen. Ersetzt durch das vorhandene Verfahren aus option_learner.test_budget:
+#    festes Fehlerbudget total_alpha, max_tests gleich große Bonferroni-Slots (Slot = Registrierungsreihenfolge, bei
+#    der ersten Auswertung im Journal eingefroren), Teil-Alphas je Prüfzeitpunkt nach O'Brien-Fleming. Union-Bound ->
+#    familienweise Fehlerrate <= total_alpha über die GESAMTE Testfamilie (alle je möglichen Registrierungen), auch
+#    bei abhängigen Tests; jede Prüfung wird mit Datenstand eingefroren und nie neu entschieden.
+#  * Unabhängigkeit: Benachbarte Haltefenster teilen Renditezeiträume (Signal vom Fensterende reicht h Handelstage
+#    ins nächste Fenster). Nur jedes zweite Fenster zählt, mit Purging (research_lab.period_blocks).
+#  * Optionen: Auswahl zum Signalzeitpunkt unter ALLEN handelbaren Kandidaten je Struktur, fehlende Quotes =
+#    Coverage-Lücke; LONG_CALL und BULL_CALL_SPREAD getrennt.
+#
 # Hash gepinnt in tests/test_error_driven_research.py. Nur strenger oder bei belegtem Fehler ändern – nie, um ein
 # Ergebnis zu schönen. Suchraum, Schwellen und Budgets sind fest; neue Merkmale = neue Protokollversion.
 
-version: "error-research-v1"
+version: "error-research-v2"
 registered_at: "2026-11-07"
 seen_until: "2026-11-06"
 
@@ -78,8 +91,8 @@ families:                           # Quellenfamilie je Merkmal (Gedächtnis-Pri
 known_factor_control: log_market_cap   # Baseline "bekannter Faktor": Residuum zusätzlich nach Größe
 
 discovery:
-  share: 0.6                        # erste 60 % der unabhängigen Haltefenster = Entdeckung
-  min_periods: 3                    # nicht überlappende Haltefenster in der Entdeckung
+  share: 0.6                        # erste 60 % der unabhängigen (alternierenden, gepurgten) Fenster = Entdeckung
+  min_periods: 3                    # unabhängige Fenster in der Entdeckung
   screen_p: 0.10                    # zweiseitig, t-Test der Fenstermittel: nur Screen, nie Bestätigung
   fdr_q: 0.10                       # BH über den GESAMTEN Suchraum je Horizont (berichtet: fdr_significant)
   min_same_sign_share: 0.6          # wiederkehrend: Anteil Stichtage mit gleichem Vorzeichen
@@ -88,18 +101,22 @@ discovery:
   control_min_share: 0.5            # … und mindestens die Hälfte seiner Stärke behalten (sonst durch Größe erklärt)
 
 validation:                         # Walk-Forward-Screen auf den Fenstern nach der Entdeckung + Embargo
-  embargo_periods: 1                # ein volles Haltefenster Abstand (Labels der Entdeckung überlappen nicht)
+  embargo_periods: 1                # ein volles Haltefenster Abstand (= Purge-Fenster der Alternierung)
   min_periods: 2
   screen_alpha: 0.10                # einseitig; nur Screen, nie Bestätigung
 
-forward:                            # einzige Bestätigung: prospektiv, eingefrorene Spezifikation
-  min_periods: 4                    # genau eine Prüfung, sobald 4 unabhängige Forward-Fenster fertig sind
-  alpha: 0.05                       # einseitig je Hypothese …
-  fdr_q: 0.05                       # … und BH über ALLE je abgeschlossenen Forward-Tests (lebenslang)
-  max_days: 150                     # danach ohne genug Daten: INCONCLUSIVE (Datenlücke), kein Urteil
+forward:                            # einzige Bestätigung: prospektiv, eingefrorene Spezifikation und Prüfungen
+  test_budget:                      # Testfamilie = alle Registrierungen; Slot-Alpha = 0,05 / 24 ≈ 0,00208 (einseitig)
+    total_alpha: 0.05
+    max_tests: 24                   # >= budget.max_lifetime (sonst Ladefehler)
+  looks: [4, 8, 12]                 # Prüfungen bei so vielen unabhängigen Forward-Fenstern (1/3, 2/3, 1 –
+                                    # option_learner.LOOK_FRACTIONS); Mittel <= 0 an einer Prüfung = falsifiziert
+                                    # v1-Registrierungen: eine Prüfung bei min_periods mit min(alpha, Slot-Alpha)
 
 options:                            # nur für erfolgreiche Aktienhypothesen (WF-Screen bestanden oder Forward bestätigt)
-  select_quantile: 0.6667           # Auswahl = oberes Drittel des Signals je Stichtag (unter geprüften Labels)
+  select_quantile: 0.6667           # oberes Drittel des Signals je Stichtag unter ALLEN zum Signalzeitpunkt
+                                    # handelbaren Kandidaten der Struktur (LONG_CALL, BULL_CALL_SPREAD getrennt)
+  min_coverage: 0.8                 # wie option_learner.MIN_COVERAGE: geprüfte Labels / fällige Auswahl
   min_independent_periods: 5        # wie option_learner.MIN_INDEPENDENT_PERIODS
 
 budget:

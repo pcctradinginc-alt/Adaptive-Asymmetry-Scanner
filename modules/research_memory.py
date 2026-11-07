@@ -56,8 +56,9 @@ SOURCES = {
 # Fehlergetriebene Forschung (research_director.error_research) -> Memory-Status. PENDING_FORWARD ist weder Erfolg
 # noch abgeschlossener Test; Erfolg nur nach prospektiver Bestätigung (FORWARD_VALIDATED).
 ERROR_RESEARCH_STATUS = {"PENDING_FORWARD": "PENDING_FORWARD", "REJECTED_WF": "REJECTED",
-                         "FORWARD_REJECTED": "REJECTED", "FORWARD_CONFIRMED": "FORWARD_VALIDATED",
-                         "INCONCLUSIVE": "INCONCLUSIVE", "INVALID_MODIFIED": "REJECTED"}
+                         "FORWARD_REJECTED": "REJECTED", "FORWARD_NOT_CONFIRMED": "REJECTED",
+                         "FORWARD_CONFIRMED": "FORWARD_VALIDATED", "INCONCLUSIVE": "INCONCLUSIVE",
+                         "NO_BUDGET": "INCONCLUSIVE", "INVALID_MODIFIED": "REJECTED"}
 # Alpha-to-Options: Phase-B-Labels sind explorativ (kein abgeschlossener Test), Phase-C-Ergebnisse sind vorab
 # registrierte prospektive Tests. "Qualifiziert" ist ein Forschungserfolg, nie ein Produktionsstatus.
 ALPHA_ECON_STATUS = {"CANDIDATE_FOR_PROSPECTIVE_VALIDATION": "PENDING_FORWARD", "NEED_MORE_DATA": "DATA_GAP",
@@ -232,12 +233,14 @@ def collect(sources: dict | None = None) -> list[dict]:
 
 def error_entries(rep: dict | None) -> list[dict]:
     """Fehlergetriebene Forschung: jede registrierte Hypothese (Familie error:<Quellenfamilie>, eigener Schlüssel
-    error_key -> nie erneut registriert), jedes durch Größe erklärte Muster (NOT_ROBUST: senkt den Familien-Prior)
-    und jede Datenlücke. Evidenz enthält nur abgeschlossene Stufen (kein Eintrag je Zwischenstand)."""
+    error_key -> nie erneut registriert), jedes durch Größe erklärte Muster (NOT_ROBUST: senkt den Familien-Prior),
+    jede Datenlücke und jede nachträgliche Datenänderung (Audit). Evidenz enthält nur EINGEFRORENE Stufen (finale
+    Forward-Prüfung aus dem Journal), keinen Zwischenstand – ein Eintrag je abgeschlossenem Ergebnis."""
     rep = rep or {}
     out = []
     for h in rep.get("hypotheses") or []:
-        sp, wf, fw = h.get("spec") or {}, h.get("walk_forward") or {}, h.get("forward") or {}
+        sp, wf = h.get("spec") or {}, h.get("walk_forward") or {}
+        final = next((v for v in (h.get("forward") or {}).get("looks") or [] if v.get("final")), None)
         status = ERROR_RESEARCH_STATUS.get(h.get("status"))
         if not status:
             continue
@@ -248,13 +251,23 @@ def error_entries(rep: dict | None) -> list[dict]:
                            "spec_hash": h.get("spec_hash")},
                           source="error_research",
                           evidence={"walk_forward": wf.get("status"), "wf_mean": wf.get("mean"),
-                                    "forward": fw.get("status") if fw.get("status") == "TESTED" else None,
-                                    "forward_mean": fw.get("mean") if fw.get("status") == "TESTED" else None,
-                                    "forward_p": fw.get("p_one_sided") if fw.get("status") == "TESTED" else None,
+                                    "forward_outcome": (final or {}).get("outcome"),
+                                    "forward_look": (final or {}).get("look"),
+                                    "forward_mean": ((final or {}).get("stats") or {}).get("mean"),
+                                    "forward_p": ((final or {}).get("stats") or {}).get("p_one_sided"),
+                                    "alpha": (final or {}).get("alpha"),
+                                    "data_sha256": ((final or {}).get("data_ref") or {}).get("inputs_sha256"),
+                                    "slot": (h.get("forward_plan") or {}).get("slot"),
                                     "option_check": (h.get("option_check") or {}).get("status")},
-                          reasons=[h.get("reason")] if h.get("reason") else [],
-                          data_kind="prospective_forward" if fw.get("status") == "TESTED"
-                          else "ledger_walk_forward_seen_data"))
+                          reasons=[h.get("reason")] if h.get("reason") and final else [],
+                          data_kind="prospective_forward_frozen" if final else "ledger_walk_forward_seen_data"))
+        for a in h.get("audits") or []:
+            out.append(_entry("error_audit", f"{h['id']}:look{a['look']}:{a['current_sha256'][:12]}", "DATA_GAP",
+                              {"signal": sp.get("signal"), "domain": "forecast_error"}, source="error_research",
+                              evidence={"frozen_outcome": a.get("frozen_outcome"),
+                                        "reassessment": a.get("reassessment")},
+                              reasons=["Daten nach eingefrorener Prüfung geändert – Entscheidung bleibt, "
+                                       "Neubewertung getrennt"], data_kind="audit"))
     for hz, v in sorted((rep.get("horizons") or {}).items()):
         for c in v.get("candidates") or []:
             if c.get("verdict") != "EXPLAINED_BY_KNOWN_FACTOR":

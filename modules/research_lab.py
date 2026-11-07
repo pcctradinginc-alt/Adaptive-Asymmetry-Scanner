@@ -158,9 +158,19 @@ def benjamini_hochberg(pvals: dict[str, float], q: float) -> set[str]:
 
 
 # ── Ledger-Prüfkette: Hypothesen aus Forward-Prognosefehlern (research_director.error_research) ──────────────
-# Gleiche Prüflogik wie oben (feste Richtung, unabhängige Perioden, BH), aber auf den prospektiv erfassten
-# Candidate-Ledger-Zeilen statt auf dem historischen Panel. Eine Beobachtung ist der Rang-IC eines Stichtags; Stichtage
-# innerhalb eines Haltefensters überlappen (gleiche Marktbewegung) und werden zu EINEM Wert gemittelt.
+# Gleiche Prüflogik wie oben (feste Richtung, unabhängige Perioden, Mehrfachtest-Kontrolle), aber auf den prospektiv
+# erfassten Candidate-Ledger-Zeilen statt auf dem historischen Panel. Eine Beobachtung ist der Rang-IC eines Stichtags;
+# Stichtage innerhalb eines Haltefensters überlappen (gleiche Marktbewegung) und werden zu EINEM Wert gemittelt.
+#
+# Unabhängigkeit (Protokoll v2): Die h-Tage-Rendite eines Signals vom letzten Tag eines Fensters reicht bis zu h
+# Handelstage in das NÄCHSTE Fenster – benachbarte Fenster teilen also Renditezeiträume (bei 5 T fast die ganze
+# Folgewoche, bei 20 T den Großteil der nächsten vier Wochen) und sind nicht unabhängig. Deshalb wird nur jedes
+# ZWEITE Fenster genutzt (das dazwischen ist Purge/Embargo), und ein Stichtag zählt nur, wenn sein Label vor dem
+# Beginn des nächsten genutzten Fensters feststeht (Purging). Genutzte Fenster haben disjunkte Renditezeiträume.
+
+WINDOW_METHOD = "alternierende Haltefenster mit Purging (v2)"
+LABEL_GRACE_DAYS = 3        # Feiertage (numpy kennt keine Börsenfeiertage) und Füll-Verzögerung des Ledgers
+
 
 def hold_days(horizon: int) -> int:
     """Haltefenster in Kalendertagen für h Handelstage (5 -> 7, 20 -> 28)."""
@@ -176,22 +186,35 @@ def label_due(day, horizon: int) -> date:
     return np.busday_offset(np.datetime64(_day(day)), int(horizon), roll="forward").astype(object)
 
 
-def period_blocks(ic_by_date: dict[str, float], horizon: int, start, as_of) -> list[dict]:
-    """Nicht überlappende Haltefenster, verankert am Montag der Woche von `start` (Kalenderwochen, unabhängig vom
-    ersten Datenpunkt); gezählt werden nur Stichtage >= `start`. Nur VOLLSTÄNDIGE Fenster (Label des letzten
-    Werktags im Fenster vor `as_of` fällig) mit mindestens einem Stichtag. Wert = Mittel der Tages-ICs."""
-    H, first, as_of = hold_days(horizon), _day(start), _day(as_of)
-    s = first - timedelta(days=first.weekday())
-    out = []
-    for k in range(10_000):                              # Schutz gegen falsches start/as_of
+def _windows(horizon: int, start, as_of, purge: bool = True):
+    """Genutzte, vollständige Fenster (lo, hi, Beginn des nächsten genutzten Fensters). Verankert am Montag der
+    Woche des ersten Werktags >= start; vollständig = Label des letzten Werktags im Fenster plus LABEL_GRACE_DAYS
+    vor `as_of` fällig (eine eingefrorene Prüfung soll nicht auf noch fehlenden Ergebnissen beruhen)."""
+    H, as_of = hold_days(horizon), _day(as_of)
+    fb = np.busday_offset(np.datetime64(_day(start)), 0, roll="forward").astype(object)
+    s = fb - timedelta(days=fb.weekday())
+    step = 2 if purge else 1
+    for k in range(0, 20_000, step):                      # Schutz gegen falsches start/as_of
         lo, hi = s + timedelta(days=k * H), s + timedelta(days=(k + 1) * H - 1)
-        last_bday = np.busday_offset(np.datetime64(hi), 0, roll="backward").astype(object)
-        if label_due(last_bday, horizon) >= as_of:
-            break
-        vals = [v for d, v in ic_by_date.items() if v is not None and max(lo, first) <= _day(d) <= hi]
-        if vals:
-            out.append({"start": lo.isoformat(), "end": hi.isoformat(), "n_dates": len(vals),
-                        "mean_ic": round(float(np.mean(vals)), 6)})
+        last = np.busday_offset(np.datetime64(hi), 0, roll="backward").astype(object)
+        if label_due(last, horizon) + timedelta(days=LABEL_GRACE_DAYS) >= as_of:
+            return
+        yield lo, hi, s + timedelta(days=(k + step) * H)
+
+
+def period_blocks(ic_by_date: dict[str, float], horizon: int, start, as_of, purge: bool = True) -> list[dict]:
+    """Unabhängige Beobachtungen: je genutztem, vollständigem Fenster das Mittel der Tages-Werte (Stichtage >= start;
+    mit purge nur jedes zweite Fenster und nur Stichtage, deren Label vor dem nächsten genutzten Fenster feststeht).
+    `dates` nennt die verwendeten Stichtage (Datenstand-Referenz), `n_purged` die ausgeschlossenen."""
+    first = _day(start)
+    out = []
+    for lo, hi, nxt in _windows(horizon, start, as_of, purge):
+        ds = sorted(d for d, v in ic_by_date.items() if v is not None and max(lo, first) <= _day(d) <= hi)
+        keep = [d for d in ds if not purge or label_due(d, horizon) < nxt]
+        if keep:
+            out.append({"start": lo.isoformat(), "end": hi.isoformat(), "n_dates": len(keep),
+                        "n_purged": len(ds) - len(keep), "dates": keep,
+                        "mean_ic": round(float(np.mean([ic_by_date[d] for d in keep])), 6)})
     return out
 
 
@@ -227,26 +250,27 @@ def ledger_walk_forward(ic_by_date: dict[str, float], horizon: int, discovery_en
     else:
         status, reason = "INCONCLUSIVE_WF", f"Residual-IC {st['mean']} > 0, aber einseitig p={st['p_one_sided']:.3f}"
     return {"status": status, "reason": reason, "window_start": start.isoformat(), "window_end": str(until)[:10],
-            "blocks": blocks, **st}
+            "window_method": WINDOW_METHOD, "blocks": blocks, **st}
 
 
-def ledger_forward_test(ic_by_date: dict[str, float], horizon: int, start_after, as_of, cfg: dict) -> dict:
-    """Prospektive Bestätigung: genau EINE Prüfung auf den ersten `min_periods` vollständigen Fenstern nach
-    `start_after` (kein Nachprüfen bis zum Zufallstreffer). Ergebnis TESTED (p für das lebenslange BH im Director),
-    PENDING_FORWARD oder INCONCLUSIVE (zu wenige Fenster nach max_days)."""
+def forward_blocks(ic_by_date: dict[str, float], horizon: int, start_after, as_of) -> list[dict]:
+    """Unabhängige Forward-Fenster: nur Stichtage NACH `start_after` (Registrierung bzw. Ende der gesehenen Daten)."""
     start = _day(start_after) + timedelta(days=1)
-    blocks = period_blocks({d: v for d, v in ic_by_date.items() if _day(d) >= start}, horizon, start, as_of)
-    n = cfg["min_periods"]
-    if len(blocks) < n:
-        late = (_day(as_of) - start).days > cfg["max_days"]
-        return {"status": "INCONCLUSIVE" if late else "PENDING_FORWARD", "start": start.isoformat(),
-                "complete_periods": len(blocks), "required_periods": n,
-                "reason": (f"nach {cfg['max_days']} Tagen nur {len(blocks)} Forward-Fenster" if late else
-                           f"{len(blocks)}/{n} Forward-Fenster fertig"),
-                "interim_mean": ml._r(float(np.mean([b["mean_ic"] for b in blocks])), 5) if blocks else None}
-    st = block_t([b["mean_ic"] for b in blocks[:n]])
-    return {"status": "TESTED", "start": start.isoformat(), "complete_periods": len(blocks), "required_periods": n,
-            "blocks": blocks[:n], **st}
+    return period_blocks({d: v for d, v in ic_by_date.items() if _day(d) >= start}, horizon, start, as_of)
+
+
+def look_outcome(blocks: list[dict], periods: int, alpha: float, final: bool) -> dict:
+    """Eine vorab festgelegte Prüfung auf den ERSTEN `periods` Forward-Fenstern (spätere Fenster ändern sie nicht):
+    REJECTED (Mittel <= 0, Falsifikation), CONFIRMED (einseitig p < Teil-Alpha), sonst CONTINUE bzw. an der letzten
+    Prüfung NOT_CONFIRMED. Die Entscheidung friert der Director ein (error_forward_journal.jsonl)."""
+    st = block_t([b["mean_ic"] for b in blocks[:periods]])
+    if st["mean"] is None or st["mean"] <= 0:
+        outcome = "REJECTED"
+    elif st["p_one_sided"] is not None and st["p_one_sided"] < alpha:
+        outcome = "CONFIRMED"
+    else:
+        outcome = "NOT_CONFIRMED" if final else "CONTINUE"
+    return {"look_periods": periods, "alpha": alpha, "outcome": outcome, "blocks": blocks[:periods], **st}
 
 
 def window(panel: pd.DataFrame, start, end, label_end_before) -> pd.DataFrame:

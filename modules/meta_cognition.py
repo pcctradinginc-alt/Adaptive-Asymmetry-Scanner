@@ -120,7 +120,8 @@ def research_value(hyp_db: dict, ml_rep: dict, meta: dict, error_rep: dict | Non
         tracks["error_research"] = {"experiments": len(hs),
                                     "accepted": sum(h["status"] == "FORWARD_CONFIRMED" for h in hs),
                                     "oos_contribution": 0.0,
-                                    "rejected": sum(h["status"] in ("REJECTED_WF", "FORWARD_REJECTED", "INVALID_MODIFIED")
+                                    "rejected": sum(h["status"] in ("REJECTED_WF", "FORWARD_REJECTED",
+                                                                    "FORWARD_NOT_CONFIRMED", "INVALID_MODIFIED")
                                                     for h in hs)}
     tracks["meta_learning"] = {"experiments": len((meta or {}).get("approaches") or {}),
                                "accepted": int(((meta or {}).get("decision") or {}).get("verdict") == "PROMOTE"),
@@ -327,9 +328,18 @@ def error_research_lines(rep: dict) -> list[str]:
         out.append(f"{hz} T: {v.get('verified_errors')} geprüfte Forward-Fehler an {v.get('dates')} Stichtagen; "
                    f"Ensemble-IC je unabhängigem Fenster {e.get('mean')} (t={e.get('t')}, {e.get('n_periods')} Fenster); "
                    f"Muster: {(v.get('patterns') or {}).get('status')}")
+    fb = rep.get("forward_budget") or {}
+    if fb:
+        out.append(f"Testbudget: {fb.get('used')}/{fb.get('max_tests')} Slots belegt, Slot-Alpha "
+                   f"{round(fb.get('slot_alpha') or 0, 5)} (familienweise <= {fb.get('total_alpha')})")
     for h in rep.get("hypotheses") or []:
         out.append(f"{h['id']} {h['spec']['signal']} ({h['spec']['horizon']} T): {h.get('status')} – "
                    f"{h.get('next_decision')}")
+        out += [f"Audit {h['id']}: Daten nach Prüfung {a['look']} geändert, Neubewertung "
+                f"{(a.get('reassessment') or {}).get('outcome')} (Entscheidung bleibt {a.get('frozen_outcome')})"
+                for a in h.get("audits") or []]
+    for p in (rep.get("health") or {}).get("problems") or []:
+        out.append(f"KRITISCH: {p}")
     segs = [g for g in rep.get("data_gaps") or [] if g.get("kind") == "unexplained_segment"]
     out += [f"Datenlücke: {g['finding']} -> {', '.join(g.get('dimensions') or [])}" for g in segs]
     return out
