@@ -516,7 +516,8 @@ def directions(entries: list[dict], prior: tuple[float, float] = (1.0, 4.0)) -> 
         d["rejected"] += st in ("REJECTED", "NOT_ROBUST", "DEMOTED", "EXPIRED")
     out = {}
     for k, d in agg.items():
-        a, b = a0 + d["success"] + d["prospective"], b0 + d["tested"] - d["success"]
+        # PROSPECTIVE_STATES are already counted in success; do not count twice.
+    a, b = a0 + d["success"], b0 + d["tested"] - d["success"]
         mean = a / (a + b)
         sd = math.sqrt(a * b / ((a + b) ** 2 * (a + b + 1)))
         out[k] = {**d, "posterior_success": round(mean, 4), "posterior_sd": round(sd, 4),
