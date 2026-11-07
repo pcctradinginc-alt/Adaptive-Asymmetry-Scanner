@@ -261,7 +261,8 @@ def option_gaps(status: dict, variants: list[dict] | None = None) -> list[dict]:
                 if c < ol.MIN_FEATURE_COVERAGE:
                     out.append(_gap(f"sparse_feature:{f}", "data", h,
                                     f"Merkmal {f} nur in {c:.0%} der {n} geprüften Labels befüllt – vom Modell verworfen",
-                                    "feature_coverage", c, ol.MIN_FEATURE_COVERAGE, 1 - c, feature=f))
+                                    "feature_coverage", c, ol.MIN_FEATURE_COVERAGE, 1 - c, feature=f,
+                                    variant_coverage=dict(st.get("variant_feature_coverage") or {})))
         for name, s in (("walk_forward", wf), ("forward", fw)):
             cov = s.get("coverage")
             if (s.get("trades") or 0) >= MIN_TRADES_FOR_COVERAGE and cov is not None and cov < ol.MIN_COVERAGE:
@@ -320,11 +321,15 @@ GAP_METHODS = {
     "selection_no_value": (("min_pred", None),),
     "choice_worse_than_default": (("min_pred", None),),
     "untested_alternatives": (("ridge_alpha", "up"), ("min_pred", None), ("drop_feature_group", None)),
+    # nur für das Merkmal news_novelty (in der Basis ein Objekt statt einer Zahl, siehe option_learner.novelty_value)
+    "sparse_feature": (("news_novelty_field", None),),
 }
 MECHANISM = {
     "ridge_alpha": "Stärkere/schwächere Regularisierung verschiebt den Kompromiss zwischen Varianz und Verzerrung",
     "min_pred": "Erst ab einer Netto-Prognose über der Kostenunsicherheit handeln: weniger, dafür bessere Fälle",
     "drop_feature_group": "Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser",
+    "news_novelty_field": ("Neue, noch nicht wiederholte Nachrichten tragen mehr unverarbeitete Information als "
+                           "Wiederholungen; die Basis verwirft das Merkmal, weil es als Objekt statt als Zahl vorliegt"),
 }
 PROPOSAL_COST = {"variant": 1.0, "data_pipeline": 2.0, "data_capture": 3.0, "sampling": 3.0, "segment_review": 2.0}
 
@@ -362,6 +367,8 @@ def _variant_overrides(method: str, direction: str | None, cfg: dict) -> list[di
         return []
     if method == "drop_feature_group":
         return [{method: g} for g in allowed]
+    if method == "news_novelty_field":
+        return [{method: str(v)} for v in allowed]
     vals = [float(v) for v in allowed]
     if method == "ridge_alpha":
         vals = [v for v in vals if (v > ol.RIDGE_ALPHA if direction == "up" else v < ol.RIDGE_ALPHA)]
@@ -398,11 +405,16 @@ def option_proposals(gaps: list[dict], cfg: dict | None = None, catalog: list[di
     for g in gaps:
         name = g["gap_id"].split(":")[1]
         for method, direction in GAP_METHODS.get(name, ()):
+            if method == "news_novelty_field" and g.get("feature") != "news_novelty":
+                continue
             for change in _variant_overrides(method, direction, cfg):
                 try:
                     ol.validate_overrides(change, cfg)
                 except ValueError:
                     continue
+                if method == "news_novelty_field" and (g.get("variant_coverage") or {}).get(
+                        ol.novelty_feature(change[method]), 0.0) < ol.MIN_FEATURE_COVERAGE:
+                    continue      # Merkmal noch zu dünn: Variante wäre mit der Basis identisch (Slot ohne Erkenntnis)
                 (m, v), = change.items()
                 add("variant", change, g, f"Variante {m}={v} ({g['horizon']} T)",
                     f"Mit {m}={v} trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als "

@@ -93,3 +93,21 @@ Siehe `docs/AUTONOMOUS_RESEARCH_IMPROVEMENT.md`. Kurz:
 - **Frühestens möglich** (bei etwa 40 Kandidaten je Tag, wenn alle Mindestzahlen erreicht werden):
   - 5-Tage-Modell: Walk-Forward- und Forward-Verdikt ab Mitte Dezember 2026, ebenso der gepaarte Vergleich mit der Referenz.
   - 20-Tage-Modell (Hauptmaßstab, einzige Handels-Mail): 5 unabhängige Perioden zu je 20 Tagen plus Fälligkeit (Horizont + 10 Tage) ergeben ein Forward-Verdikt frühestens etwa Mitte März 2027.
+
+## news_novelty als Zahl – nur als Variante (2026-11-06, Freigabe nötig)
+
+- Befund (IMP-4a0d2d31): Das Ledger speichert `news_novelty` als Objekt (`novelty_max`, `novelty_mean`, `n_today`,
+  `n_history`, `novelty_status`; berechnet zum Scan-Zeitpunkt, also point-in-time). `features()` liest nur Zahlen,
+  deshalb ist das Merkmal in 0 % der Labels befüllt.
+- Die Basis bleibt unverändert: Experimentversion `4a0f886d1979`, dieselben Merkmalsnamen und Prognosen. Laufende
+  Forward-Pläne und eingefrorene Referenzen sind nicht berührt.
+- Neue freigegebene Methode `news_novelty_field: [novelty_max]` in `config/option_learner_variants.yaml`. Die
+  Variante ersetzt das leere Merkmal durch `news_novelty__novelty_max` (eigene Experimentversion, eigener Slot im
+  dauerhaften Fehlerbudget).
+- Ungültige Werte zählen als fehlend, nie als 0: Status ungleich `ok`, kein endlicher Wert in [0, 1] oder kein
+  Objekt.
+- Der Research Director schlägt die Variante nur bei der Lücke `sparse_feature:news_novelty` vor, und erst wenn
+  `variant_feature_coverage` mindestens `MIN_FEATURE_COVERAGE` erreicht. Darunter würde die Variante das Merkmal
+  verwerfen und wäre mit der Basis identisch.
+- Stand 06.11.: `novelty_max` gültig in 48 % (5 T) bzw. 9 % (20 T) der geprüften Labels, also noch kein Vorschlag.
+  Status: NEED_MORE_DATA.
