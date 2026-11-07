@@ -56,3 +56,24 @@ def test_successful_weekly_receipt_deduplicates_send(tmp_path, monkeypatch):
     record = json.loads((tmp_path / pr.ROOT / "mail" / (first["week"] + ".json")).read_text())
     assert record["payload"]["status"] == "SENT"
     assert "test-only" not in json.dumps(record)
+
+
+def test_e2e_owner_digest_carries_verified_feedback_and_actual_defects():
+    audit = {"status": "TECHNICAL_DEFECT", "n_technical_defects": 1,
+             "paper_account": {"activation_verified_from_events": True},
+             "source_chain": {"verified_settled_economics": 3},
+             "existing_learning": {"validation_plans": 2,
+                                   "verdicts_reconciled_to_memory": 1,
+                                   "forward_confirmed_and_memorized": 0,
+                                   "alpha_improvement_proven": False},
+             "issues": [{"severity": "TECHNICAL_DEFECT",
+                         "id": "FORWARD_VERDICT_NOT_IN_RESEARCH_MEMORY",
+                         "observed_fact": "FROZEN-12 is missing"}],
+             "next_action": "Synchronize the existing research memory"}
+    msg = pr.render({}, {}, {}, {}, {}, week="2026-W45", e2e_audit=audit)
+    assert "End-to-End-Betriebsprüfung" in msg
+    assert "TECHNICAL_DEFECT" in msg
+    assert "1 / 2" in msg
+    assert "NEIN / NOCH NICHT NACHGEWIESEN" in msg
+    assert "FROZEN-12 is missing" in msg
+    assert "Keine Doppel-Labels" in msg
