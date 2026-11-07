@@ -193,7 +193,10 @@ def test_verified_exit_books_only_once_and_balances(account, monkeypatch):
         "evidence_class": "QUOTE_VERIFIED_PAPER",
         "exit_legs": [{"occ_symbol": "XYZ270116C00100000", "quote_record_id": "quote-exit-1"}],
     }]
-    monkeypatch.setattr(pa.oe, "_archive", lambda *args: {})
+    monkeypatch.setattr(pa.oe, "_archive", lambda *args: {
+        "quote-entry-1": {"source": "SYNTHETIC_TEST_ONLY"},
+        "quote-exit-1": {"source": "SYNTHETIC_TEST_ONLY"},
+    })
     monkeypatch.setattr(pa.oe, "_verify", lambda *args: ["MISSING_EXIT_QUOTE"])
     first = pa.sync(root, now=LATER, persist_report=False)
     assert first["open_trades"] == 1 and first["closed_trades"] == 0
