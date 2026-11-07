@@ -225,14 +225,6 @@ jobs:
           python -m modules.option_learner evaluate --as-of "$(date -u +%Y-%m-%d)" --horizon 5
           python -m modules.option_learner evaluate --as-of "$(date -u +%Y-%m-%d)" --horizon 20
 
-      # Existing research evidence only. Never recreates missing past option quotes.
-      # Dated gap observations are append-only and included in the normal research push.
-      - name: Alpha 2.0 – PIT-Abdeckung, Einstieg/Exit und unabhängige Fenster
-        id: alpha_data_quality
-        if: env.MODE == 'weekly'
-        continue-on-error: true
-        run: python -m modules.autonomous_alpha data-quality
-
       # Autonomous Research Improvement (nur Research, kein Handel): messbare Lücken des Options-Lernmodells,
       # strukturierte Vorschläge mit Kosten und Falsifikation, Registrierung freigegebener Varianten
       # (config/option_learner_variants.yaml, Start am Folgetag im Scanner), Research Memory. Kein LLM, keine
@@ -241,6 +233,14 @@ jobs:
         id: research_improvement
         continue-on-error: true
         run: python -m modules.research_director --options
+
+      # Existing research evidence only. Never recreates missing past option quotes.
+      # Dated gap observations are append-only and included in the normal research push.
+      - name: Alpha 2.0 – PIT-Abdeckung, Einstieg/Exit und unabhängige Fenster
+        id: alpha_data_quality
+        if: env.MODE == 'weekly'
+        continue-on-error: true
+        run: python -m modules.autonomous_alpha data-quality
 
       # Self-Improvement Notifications (nur Hinweise, nie Code): Wochen-Digest der technischen
       # Verbesserungsaufgaben P1–P3 aus BELEGTEN Befunden (nie aus NEED_MORE_DATA, Wartezeit oder veralteten
