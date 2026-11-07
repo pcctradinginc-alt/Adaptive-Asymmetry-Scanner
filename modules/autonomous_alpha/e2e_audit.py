@@ -86,7 +86,38 @@ def _capture(root: Path, now: datetime, issues: list[dict]) -> dict:
         issues.append(_issue("CAPTURE_MONITOR_STALE", "DEGRADED", "capture",
                              "No recent in-window receipt in at least five weekdays; holidays not inferred",
                              "Inspect schedule delays, Actions runs and read-only Tradier quote entitlements"))
+    # Inspect immutable run receipts as well: daily latest-state JSON may have
+    # overwritten an earlier failed capture attempt from the same session.
+    import hashlib
+    failed_attempts = 0
+    attempts = sorted((root / CAPTURE / "runs").glob("????-??-??/*.json"))[-100:]
+    for path in attempts:
+        wrapped = _json(root, path.relative_to(root))
+        payload = wrapped.get("payload")
+        if not isinstance(payload, dict):
+            issues.append(_issue("CAPTURE_ATTEMPT_INTEGRITY", "TECHNICAL_DEFECT", "capture",
+                                 "Non-object immutable capture attempt",
+                                 "Investigate original Git capture receipt history"))
+            break
+        checksum = hashlib.sha256(json.dumps(payload, sort_keys=True,
+                                  ensure_ascii=False, default=str).encode("utf-8")).hexdigest()
+        if wrapped.get("sha256") != checksum or path.stem != checksum:
+            issues.append(_issue("CAPTURE_ATTEMPT_INTEGRITY", "TECHNICAL_DEFECT", "capture",
+                                 "Capture-attempt content checksum does not match",
+                                 "Investigate the append-only Git archive before trusting results"))
+            break
+        observed_at = _age(payload.get("observed_at"), now)
+        if observed_at is not None and 0 <= observed_at <= 168 and (
+                (payload.get("alpha_link") or {}).get("status") == "ERROR"
+                or (payload.get("paper_account") or {}).get("status") == "ERROR"):
+            failed_attempts += 1
+    if failed_attempts and (rec.get("alpha_link") or {}).get("status") != "ERROR" and (
+            rec.get("paper_account") or {}).get("status") != "ERROR":
+        issues.append(_issue("RECOVERED_CAPTURE_ERRORS", "DEGRADED", "capture",
+                             str(failed_attempts) + " earlier failed attempts in 7 days; latest receipt recovered",
+                             "Check historic capture logs and ensure remediation is durable"))
     return {"status": rec.get("capture_status") or "UNKNOWN",
+            "recent_failed_attempts": failed_attempts,
             "latest_session": last, "observed_at": observed,
             "paper_status": (rec.get("paper_account") or {}).get("status"),
             "alpha_link_status": (rec.get("alpha_link") or {}).get("status"),
