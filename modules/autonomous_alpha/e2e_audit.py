@@ -178,6 +178,8 @@ def build(root: Path = Path("."), *, now: datetime | None = None) -> dict:
                              "No option-validation result has been published",
                              "Run existing alpha-option research step; not a separate learning algorithm"))
     latest = _existing_memory(root)
+    from . import option_validation as validator
+    validation_cfg = validator.config(root)
     plan_proofs = []
     verified_mem = 0
     for plan in validation.get("plans") or []:
@@ -186,7 +188,24 @@ def build(root: Path = Path("."), *, now: datetime | None = None) -> dict:
         cls = plan.get("classification")
         expected = ("FORWARD_VALIDATED" if status == "CONFIRMED"
                     and cls == "QUALIFIED_FOR_HUMAN_REVIEW" else
-                    "REJECTED" if status in ("FALSIFIED", "NOT_CONFIRMED") else "PENDING_FORWARD")
+                    memory.ALPHA_PLAN_STATUS.get(status, "PENDING_FORWARD"))
+        proof_pop = [r for r in verified.values()
+                     if r["hypothesis_id"] == plan.get("hypothesis_id")
+                     and r["structure"] == plan.get("structure")
+                     and r["comparison_group"] == "TREATMENT"
+                     and str(r["pit_data_date"]) >= str(plan.get("start_date") or "9999-12-31")]
+        independent = economics.independent_periods(r["pit_data_date"] for r in proof_pop)
+        provenance_ok = (len(proof_pop) >= int(validation_cfg["min_verified_outcomes"])
+                         and independent >= int(validation_cfg["min_independent_periods"])
+                         and bool((plan.get("binding") or {}).get("report_id")))
+        if expected == "FORWARD_VALIDATED" and not provenance_ok:
+            issues.append(_issue("FORWARD_CONFIRMATION_PROVENANCE_MISSING", "TECHNICAL_DEFECT",
+                                 "option_validation",
+                                 "Plan " + pid + " has " + str(len(proof_pop))
+                                 + " quote-verified post-registration treated exits, "
+                                 + str(independent) + " independent periods or no frozen look receipt",
+                                 "Investigate existing validation look receipt and archived quotes; "
+                                 "do not treat cached CONFIRMED as alpha proof"))
         entry = latest.get("alpha_option_validation:" + pid)
         observed = entry.get("status") if entry else None
         if observed == expected:
@@ -202,7 +221,10 @@ def build(root: Path = Path("."), *, now: datetime | None = None) -> dict:
                             "structure": plan.get("structure"), "forward_verdict": status,
                             "classification": cls, "expected_memory_status": expected,
                             "observed_memory_status": observed, "memory_confirmed": observed == expected,
-                            "confirmation_proven": expected == "FORWARD_VALIDATED" and observed == expected})
+                            "verified_post_registration_outcomes": len(proof_pop),
+                            "independent_quote_periods": independent,
+                            "confirmation_proven": expected == "FORWARD_VALIDATED"
+                                                  and observed == expected and provenance_ok})
     if verified and not _json(root, economics.REPORT):
         issues.append(_issue("ECONOMICS_OUTPUT_MISSING", "TECHNICAL_DEFECT", "option_economics",
                              "Source quotes yield settled trades but the economics report is absent",
