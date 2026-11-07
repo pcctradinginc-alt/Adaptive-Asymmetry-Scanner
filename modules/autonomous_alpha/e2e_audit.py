@@ -226,9 +226,26 @@ def build(root: Path = Path("."), *, now: datetime | None = None) -> dict:
                      and r["comparison_group"] == "TREATMENT"
                      and str(r["pit_data_date"]) >= str(plan.get("start_date") or "9999-12-31")]
         independent = economics.independent_periods(r["pit_data_date"] for r in proof_pop)
+        frozen_id = str((plan.get("binding") or {}).get("report_id") or "")
+        # The existing freeze_look_report creates an immutable checksum-verified
+        # file. A report_id string by itself is NOT a frozen forward proof.
+        look = {}
+        if frozen_id and frozen_id.replace("-", "").replace("_", "").isalnum():
+            look = _json(root, validator.OUT / validator.LOOK_DIR / (frozen_id + ".json"))
+        if look:
+            from modules import option_learner as learner
+            frozen_sha = look.get("report_sha256")
+            look_ok = (look.get("report_id") == frozen_id
+                       and look.get("plan_id") == pid
+                       and look.get("verdict") == status
+                       and isinstance(frozen_sha, str)
+                       and frozen_sha == learner._sha({k: v for k, v in look.items()
+                                                      if k != "report_sha256"}))
+        else:
+            look_ok = False
         provenance_ok = (len(proof_pop) >= int(validation_cfg["min_verified_outcomes"])
                          and independent >= int(validation_cfg["min_independent_periods"])
-                         and bool((plan.get("binding") or {}).get("report_id")))
+                         and look_ok)
         if expected == "FORWARD_VALIDATED" and not provenance_ok:
             issues.append(_issue("FORWARD_CONFIRMATION_PROVENANCE_MISSING", "TECHNICAL_DEFECT",
                                  "option_validation",
@@ -254,6 +271,7 @@ def build(root: Path = Path("."), *, now: datetime | None = None) -> dict:
                             "observed_memory_status": observed, "memory_confirmed": observed == expected,
                             "verified_post_registration_outcomes": len(proof_pop),
                             "independent_quote_periods": independent,
+                            "frozen_look_receipt_verified": look_ok,
                             "confirmation_proven": expected == "FORWARD_VALIDATED"
                                                   and observed == expected and provenance_ok})
     if verified and not _json(root, economics.REPORT):
