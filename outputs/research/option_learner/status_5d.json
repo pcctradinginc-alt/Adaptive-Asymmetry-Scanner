@@ -1,5 +1,5 @@
 {
- "as_of": "2026-11-03",
+ "as_of": "2026-11-07",
  "horizon": 5,
  "experiment": {
   "name": "option_learner_ridge",
@@ -86,30 +86,30 @@
   "min_coverage": 0.8,
   "due_grace_days": 10
  },
- "verified_labels": 441,
- "label_dates": 11,
+ "verified_labels": 495,
+ "label_dates": 13,
  "provenance_counts": {
   "ENTRY_NOT_ARCHIVED": 308,
-  "VERIFIED": 441
+  "VERIFIED": 495
  },
- "ledger_rows_7d": 1276,
- "option_snapshots_7d": 84,
+ "ledger_rows_7d": 1307,
+ "option_snapshots_7d": 196,
  "manifest": {
-  "cutoff": "2026-11-03",
-  "n_labels": 441,
-  "labels_sha256": "6f3882a24534aba7",
+  "cutoff": "2026-11-07",
+  "n_labels": 495,
+  "labels_sha256": "373704e84e8eb096",
   "first_signal": "2026-10-14",
-  "last_signal": "2026-10-28",
+  "last_signal": "2026-10-30",
   "by_expression": {
-   "single": 384,
-   "spread": 57
+   "single": 427,
+   "spread": 68
   },
   "all_labels_verified": true,
   "trains_model": true
  },
  "feature_coverage": {
-  "impact": 1.0,
-  "surprise": 1.0,
+  "impact": 0.9051,
+  "surprise": 0.9051,
   "sentiment_score": 1.0,
   "sentiment_confidence": 1.0,
   "sentiment_drift": 1.0,
@@ -117,31 +117,35 @@
   "news_novelty": 0.0,
   "rel_volume": 1.0,
   "scan_day_ret": 1.0,
-  "short_mom": 0.9977,
+  "short_mom": 0.998,
   "log_market_cap": 1.0,
-  "short_pct_float": 0.9887,
-  "options_skew_25d": 0.9955,
-  "options_skew_ratio": 1.0,
-  "dealer_oi_ratio": 0.9388,
-  "ml_exp_ret_60": 0.9546,
-  "ml_q10_ret_60": 0.9546,
-  "ml_q90_ret_60": 0.9546,
-  "ml_exp_dd_60": 0.9546,
-  "ml_p_gt10_60": 0.9546,
-  "ml_disagreement_sd": 0.9546,
-  "ml_hgb_xs20_v1": 0.9546,
-  "ml_enet_xs20_v1": 0.9546,
+  "short_pct_float": 0.9899,
+  "options_skew_25d": 0.901,
+  "options_skew_ratio": 0.9051,
+  "dealer_oi_ratio": 0.8465,
+  "ml_exp_ret_60": 0.9576,
+  "ml_q10_ret_60": 0.9576,
+  "ml_q90_ret_60": 0.9576,
+  "ml_exp_dd_60": 0.9576,
+  "ml_p_gt10_60": 0.9576,
+  "ml_disagreement_sd": 0.9576,
+  "ml_hgb_xs20_v1": 0.9576,
+  "ml_enet_xs20_v1": 0.9576,
   "c_entry_spread": 1.0,
   "c_is_spread": 1.0,
   "c_is_call": 1.0,
-  "c_iv": 0.9932,
+  "c_iv": 0.9899,
   "c_dte": 1.0,
   "c_moneyness": 1.0,
-  "c_delta": 0.9932,
+  "c_delta": 0.9899,
   "c_log_oi": 1.0,
-  "c_iv_rank": 0.9977,
-  "c_rv_score": 0.9977,
-  "c_term_score": 0.9977
+  "c_iv_rank": 0.998,
+  "c_rv_score": 0.998,
+  "c_term_score": 0.998
+ },
+ "variant_feature_coverage": {
+  "news_novelty__novelty_max": 0.798,
+  "news_novelty__novelty_mean": 0.798
  },
  "walk_forward": {
   "n": 0,
@@ -226,10 +230,10 @@
  },
  "by_gate": {
   "bearish_disabled": {
-   "n": 123,
-   "dates": 10,
-   "mean": -0.117632,
-   "win_rate": 0.3008,
+   "n": 127,
+   "dates": 12,
+   "mean": -0.122123,
+   "win_rate": 0.2992,
    "sufficient": true
   },
   "earnings_gate": {
@@ -237,6 +241,13 @@
    "dates": 9,
    "mean": -0.139616,
    "win_rate": 0.2941,
+   "sufficient": false
+  },
+  "economics_first_quote_probe_budget": {
+   "n": 44,
+   "dates": 1,
+   "mean": -0.026392,
+   "win_rate": 0.5,
    "sufficient": false
   },
   "impact_x_surprise_below_floor": {
@@ -254,17 +265,17 @@
    "sufficient": false
   },
   "mc_below_threshold": {
-   "n": 44,
-   "dates": 10,
-   "mean": -0.029323,
-   "win_rate": 0.4318,
+   "n": 45,
+   "dates": 11,
+   "mean": -0.022129,
+   "win_rate": 0.4444,
    "sufficient": true
   },
   "mismatch_below_min": {
-   "n": 169,
-   "dates": 11,
-   "mean": -0.102734,
-   "win_rate": 0.3373,
+   "n": 171,
+   "dates": 12,
+   "mean": -0.10271,
+   "win_rate": 0.3392,
    "sufficient": true
   },
   "options_design_roi_or_edge": {
@@ -274,11 +285,25 @@
    "win_rate": 0.2353,
    "sufficient": true
   },
+  "prescreen_no": {
+   "n": 2,
+   "dates": 1,
+   "mean": 0.6307,
+   "win_rate": 1.0,
+   "sufficient": false
+  },
   "proposed": {
    "n": 3,
    "dates": 2,
    "mean": -0.133148,
    "win_rate": 0.3333,
+   "sufficient": false
+  },
+  "sector_momentum_weak": {
+   "n": 1,
+   "dates": 1,
+   "mean": 0.360416,
+   "win_rate": 1.0,
    "sufficient": false
   },
   "unlabeled_after_options_design": {
@@ -328,16 +353,16 @@
   },
   "verdict": "NEED_MORE_DATA",
   "experiment_id": "4a0f886d1979",
-  "valid_decisions": 40,
-  "valid_predictions": 93,
-  "pending_decisions": 40,
+  "valid_decisions": 196,
+  "valid_predictions": 472,
+  "pending_decisions": 196,
   "model_instances": 0,
   "excluded": {
    "OTHER_EXPERIMENT": 40
   },
   "journal_by_experiment": {
    "298be00d41bc": 40,
-   "4a0f886d1979": 173
+   "4a0f886d1979": 864
   },
   "vs_reference": {
    "candidates": 0,
@@ -379,7 +404,7 @@
  "forward_sequential": {
   "experiment_id": "4a0f886d1979",
   "horizon": 5,
-  "evaluated_as_of": "2026-11-03",
+  "evaluated_as_of": "2026-11-07",
   "looks_evaluated": [],
   "binding": null,
   "status": "AWAITING_LOOK",
@@ -399,7 +424,7 @@
    0.033625333549951675
   ],
   "look": 0,
-  "valid_decisions": 40,
+  "valid_decisions": 196,
   "next_look": {
    "look": 1,
    "cutoff": "2026-12-12",
@@ -409,53 +434,53 @@
  "model": {
   "features": 33,
   "clip": [
-   -0.7647,
-   0.4478
+   -0.773,
+   0.5922
   ],
-  "intercept": -0.103555,
+  "intercept": -0.093329,
   "top_coefficients": {
-   "c_entry_spread": -0.091165,
-   "c_is_spread": -0.03829,
-   "c_iv": -0.037268,
-   "c_log_oi": 0.022672,
-   "c_is_call": 0.02186,
-   "ml_exp_dd_60": -0.021398,
-   "scan_day_ret": -0.019739,
-   "ml_q90_ret_60": -0.019006
+   "c_is_spread": -0.085344,
+   "ml_exp_dd_60": -0.066612,
+   "ml_q90_ret_60": -0.044386,
+   "c_is_call": 0.044303,
+   "c_log_oi": 0.033678,
+   "c_iv": -0.033078,
+   "ml_p_gt10_60": 0.031597,
+   "c_entry_spread": -0.031496
   }
  },
  "production_influence": "NONE",
  "orders_created": 0,
  "label_pipeline": {
-  "verified": 441,
-  "independent_signal_days": 11,
-  "not_yet_due": 147,
+  "verified": 495,
+  "independent_signal_days": 13,
+  "not_yet_due": 472,
   "technically_missing": {},
   "historical_gap": {
    "ENTRY_NOT_ARCHIVED": 308,
    "NO_LABEL_AFTER_DUE": 1
   },
   "archive_start": "2026-10-12",
-  "due_after_archive_start": 441,
+  "due_after_archive_start": 495,
   "technical_missing_share": 0.0
  },
  "learning_status": {
   "state": "NEED_MORE_DATA",
-  "reason": "441 gepr\u00fcfte Labels an 11 Signaltagen, 147 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA",
+  "reason": "495 gepr\u00fcfte Labels an 13 Signaltagen, 472 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA",
   "alpha_claim": "keiner"
  },
  "model_instances": {
-  "count": 1,
+  "count": 4,
   "latest": {
-   "model_id": "519261c95a8a6da7",
+   "model_id": "e2ace215d8a8976c",
    "experiment_id": "4a0f886d1979",
-   "train_cutoff": "2026-11-02",
-   "n_train_labels": 359,
-   "labels_sha256": "bfa297eef5341a67",
-   "weights_sha256": "d8a88fafa38a4a18",
-   "max_label_day": "2026-10-28",
+   "train_cutoff": "2026-11-05",
+   "n_train_labels": 495,
+   "labels_sha256": "373704e84e8eb096",
+   "weights_sha256": "58758e29827a14c1",
+   "max_label_day": "2026-11-04",
    "horizon": 5,
-   "registered_at": "2026-11-02T16:22:59+00:00"
+   "registered_at": "2026-11-05T18:03:14+00:00"
   }
  },
  "reference": {
@@ -495,7 +520,7 @@
      "model:untested_alternatives:5d"
     ],
     "start_date": "2026-11-01",
-    "days_running": 2,
+    "days_running": 6,
     "falsification": {
      "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
      "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
@@ -549,9 +574,9 @@
      "coverage": null,
      "min_coverage": 0.8,
      "excluded": {},
-     "decisions_after_cutoff": 40
+     "decisions_after_cutoff": 196
     },
-    "valid_decisions": 40,
+    "valid_decisions": 196,
     "invalid_entries": {},
     "vs_base": {
      "candidates": 0,
@@ -641,7 +666,7 @@
      "model:untested_alternatives:5d"
     ],
     "start_date": "2026-11-01",
-    "days_running": 2,
+    "days_running": 6,
     "falsification": {
      "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
      "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
@@ -695,9 +720,9 @@
      "coverage": null,
      "min_coverage": 0.8,
      "excluded": {},
-     "decisions_after_cutoff": 40
+     "decisions_after_cutoff": 196
     },
-    "valid_decisions": 40,
+    "valid_decisions": 196,
     "invalid_entries": {},
     "vs_base": {
      "candidates": 0,
@@ -786,7 +811,7 @@
      "model:untested_alternatives:5d"
     ],
     "start_date": "2026-11-01",
-    "days_running": 2,
+    "days_running": 6,
     "falsification": {
      "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
      "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
@@ -840,9 +865,9 @@
      "coverage": null,
      "min_coverage": 0.8,
      "excluded": {},
-     "decisions_after_cutoff": 40
+     "decisions_after_cutoff": 196
     },
-    "valid_decisions": 40,
+    "valid_decisions": 196,
     "invalid_entries": {},
     "vs_base": {
      "candidates": 0,
@@ -931,13 +956,18 @@
    "as_of": "2026-11-03",
    "verdict": "NEED_MORE_DATA",
    "mean_diff": null
+  },
+  {
+   "as_of": "2026-11-07",
+   "verdict": "NEED_MORE_DATA",
+   "mean_diff": null
   }
  ],
  "vs_previous": {
-  "previous_as_of": "2026-10-31",
+  "previous_as_of": "2026-11-03",
   "previous_verdict": "NEED_MORE_DATA",
   "delta_mean_selected": null,
   "delta_ic_mean": null,
-  "delta_labels": 82
+  "delta_labels": 54
  }
 }

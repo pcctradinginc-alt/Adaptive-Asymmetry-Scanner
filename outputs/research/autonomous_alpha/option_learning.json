@@ -48,8 +48,12 @@
     "ted_awards_z"
   ],
   "failing_feature_combinations": {},
-  "generated_at": "2026-11-03T16:04:30+00:00",
+  "generated_at": "2026-11-07T15:06:51+00:00",
   "missing_data": {
+    "ABSTAIN:CAPITAL_ABOVE_MAX": 11,
+    "ABSTAIN:LONG_OPEN_INTEREST_BELOW_MIN": 6,
+    "ABSTAIN:SHORT_OPEN_INTEREST_BELOW_MIN": 1,
+    "ABSTAIN:SHORT_SPREAD_TOO_WIDE": 3,
     "NO_EXECUTED_TRADES_WITH_EX_ANTE_SIGNAL_ID": 1,
     "PRE_LINK_PREDICTIONS_WITHOUT_OPTION_DECISION": 48
   },
@@ -58,6 +62,13 @@
   "repeatedly_failing_feature_combinations": {},
   "schema": "alpha-option-learning-v1",
   "signals_without_pit_features": 0,
-  "structure_labels": {},
+  "structure_labels": {
+    "BULL_CALL_SPREAD": {
+      "NEED_MORE_DATA": 6
+    },
+    "LONG_CALL": {
+      "NEED_MORE_DATA": 6
+    }
+  },
   "suggested_hypotheses": []
 }

@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-06",
+  "as_of": "2026-11-07",
   "decisions_by_class": {
     "ABSTAIN": 17,
     "TRADE": 29
@@ -18,8 +18,104 @@
     "n_real_trades": 5,
     "note": "The trade outcomes are scanner paper trades valued from archived bid/ask quotes, without broker fills: they are never EXECUTED evidence. EXECUTED needs a documented broker execution AND an ex-ante alpha_signal_id (neither exists today; trading path unchanged)."
   },
-  "generated_at": "2026-11-06T20:25:15+00:00",
+  "generated_at": "2026-11-07T15:06:50+00:00",
   "hypotheses": {
+    "AUTO-9F3C98A8BD0B": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "TREATMENT",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "autonomous_factor",
+      "overdue_decision": 0,
+      "pending_decision": 6,
+      "signals": 6,
+      "status": "NEED_MORE_DATA",
+      "untradable": {
+        "NO_ALLOWED_STRUCTURE": 3
+      },
+      "versions": [
+        "9f3c98a8bd0bd050d1617c7bfe703c3a6d2bfda880fd99202963e7024736978f"
+      ]
+    },
+    "AUTO-F34E5C6BBF7D": {
+      "by_structure": {
+        "BULL_CALL_SPREAD": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        },
+        "LONG_CALL": {
+          "ABSTAIN": 0,
+          "EXIT_MISSING": 0,
+          "EXIT_OBSERVED": 0,
+          "EXIT_PENDING": 0,
+          "TRADE": 0,
+          "abstain_reasons": {},
+          "distinct_verified_signal_dates": 0,
+          "evidence": {
+            "EXECUTED": 0,
+            "QUOTE_VERIFIED_PAPER": 0,
+            "UNVERIFIABLE": 0
+          },
+          "status": "NEED_MORE_DATA"
+        }
+      },
+      "comparison_group": "TREATMENT",
+      "distinct_signal_dates": 1,
+      "excluded_by_correction": 0,
+      "hypothesis_source": "autonomous_factor",
+      "overdue_decision": 0,
+      "pending_decision": 6,
+      "signals": 6,
+      "status": "NEED_MORE_DATA",
+      "untradable": {
+        "NO_ALLOWED_STRUCTURE": 3
+      },
+      "versions": [
+        "f34e5c6bbf7d947e7f6961ab1b39904d5d1b04e686e16f739f337e54d60898fd"
+      ]
+    },
     "CONTROL-UNIVERSE-RANDOM": {
       "by_structure": {
         "BULL_CALL_SPREAD": {
@@ -60,12 +156,12 @@
         }
       },
       "comparison_group": "CONTROL",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "control",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 5,
+      "pending_decision": 10,
+      "signals": 10,
       "status": "NEED_MORE_DATA",
       "untradable": {},
       "versions": [
@@ -112,15 +208,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 6,
+      "pending_decision": 6,
+      "signals": 12,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 3
+        "NO_ALLOWED_STRUCTURE": 6
       },
       "versions": [
         "8de25a33fe281eb9"
@@ -160,15 +256,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 6,
+      "pending_decision": 6,
+      "signals": 12,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 3
+        "NO_ALLOWED_STRUCTURE": 6
       },
       "versions": [
         "7422b09c3c93c911"
@@ -210,15 +306,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 6,
+      "pending_decision": 6,
+      "signals": 12,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 3
+        "NO_ALLOWED_STRUCTURE": 6
       },
       "versions": [
         "dbbebe4ad1475752"
@@ -262,15 +358,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 6,
+      "pending_decision": 6,
+      "signals": 12,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 3
+        "NO_ALLOWED_STRUCTURE": 6
       },
       "versions": [
         "bc68f4e5430f286f"
@@ -314,15 +410,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 6,
+      "pending_decision": 6,
+      "signals": 12,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 3
+        "NO_ALLOWED_STRUCTURE": 6
       },
       "versions": [
         "1d342821148821bd"
@@ -368,15 +464,15 @@
         }
       },
       "comparison_group": "REFERENCE",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 6,
+      "pending_decision": 6,
+      "signals": 12,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 3
+        "NO_ALLOWED_STRUCTURE": 6
       },
       "versions": [
         "60f816ac9441b233"
@@ -404,8 +500,8 @@
       },
       "signals": {
         "conflicting_duplicates": 0,
-        "rows": 41,
-        "unique": 41
+        "rows": 94,
+        "unique": 94
       }
     },
     "status": "OK"
@@ -415,7 +511,7 @@
   "llm_calls": 0,
   "n_decisions": 46,
   "n_outcomes": 0,
-  "n_signals": 41,
+  "n_signals": 94,
   "order_placed": false,
   "outcomes_by_evidence_class": {
     "EXECUTED": 0,
@@ -442,7 +538,8 @@
   "rule_version": "alpha-option-rule-v1",
   "schema": "alpha-option-link-coverage-v1",
   "source_stats": {
-    "status": "SKIPPED_CAPTURE_LIGHTWEIGHT"
+    "ml_broken_lines": 0,
+    "ml_pre_link_rows": 48
   },
   "status": "NEED_MORE_DATA"
 }

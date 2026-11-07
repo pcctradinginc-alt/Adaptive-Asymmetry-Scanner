@@ -4,17 +4,20 @@
     "frozen_ml_benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
     "random_control": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)"
   },
-  "coverage": {},
+  "coverage": {
+    "ABSTAIN": 17,
+    "PENDING": 29
+  },
   "data_origin": "REPOSITORY_JOURNALS_ONLY",
   "decision_type": "RESEARCH_ONLY",
   "evidence_classes": {
     "EXECUTED": {
       "attribution_checks": {
-        "NO_EX_ANTE_SIGNAL_ID": 4
+        "NO_EX_ANTE_SIGNAL_ID": 5
       },
       "n": 0,
       "real_trade_evidence_classes": {
-        "UNVERIFIABLE": 4
+        "UNVERIFIABLE": 5
       },
       "rule": "documented broker execution (entry and exit fills) AND ex-ante alpha_signal_id",
       "status": "NONE_DOCUMENTED"
@@ -36,17 +39,1195 @@
       "holding_horizon": "20 calendar days vs 20 trading days",
       "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
     },
-    "reason": "no base journal or no decision days",
+    "reason": "no base decision on these decision days",
     "status": "NO_CONTEMPORANEOUS_DATA",
     "used_for_superiority": false
   },
-  "generated_at": "2026-11-03T16:04:30+00:00",
-  "hypotheses": {},
+  "generated_at": "2026-11-07T15:06:51+00:00",
+  "hypotheses": {
+    "CONTROL-UNIVERSE-RANDOM": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "CONTROL",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "status": "SELF"
+          }
+        },
+        "coverage": {
+          "abstain": 3,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+            "SHORT_OPEN_INTEREST_BELOW_MIN": 1,
+            "SHORT_SPREAD_TOO_WIDE": 3
+          },
+          "decisions": 5,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 2,
+          "settled_verified": 0,
+          "trade_decided": 2,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "RANDOM_CONTROL_BENCHMARK",
+          "order": null,
+          "production_influence": "NONE"
+        },
+        "versions": [
+          "f88636597f2936ba"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "CONTROL",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "status": "SELF"
+          }
+        },
+        "coverage": {
+          "abstain": 1,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+          },
+          "decisions": 5,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 4,
+          "settled_verified": 0,
+          "trade_decided": 4,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "RANDOM_CONTROL_BENCHMARK",
+          "order": null,
+          "production_influence": "NONE"
+        },
+        "versions": [
+          "f88636597f2936ba"
+        ]
+      }
+    },
+    "enet_xs20_v1": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 2,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 1,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 1,
+          "settled_verified": 0,
+          "trade_decided": 1,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "8de25a33fe281eb9"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 2,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 2,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 1,
+          "settled_verified": 0,
+          "trade_decided": 1,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "8de25a33fe281eb9"
+        ]
+      }
+    },
+    "hgb_asym20_v1": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 0,
+          "abstain_reasons": {},
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 3,
+          "settled_verified": 0,
+          "trade_decided": 3,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "7422b09c3c93c911"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 0,
+          "abstain_reasons": {},
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 3,
+          "settled_verified": 0,
+          "trade_decided": 3,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "7422b09c3c93c911"
+        ]
+      }
+    },
+    "hgb_xs20_momentum_v1": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 0,
+          "abstain_reasons": {},
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 3,
+          "settled_verified": 0,
+          "trade_decided": 3,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "dbbebe4ad1475752"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 1,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 2,
+          "settled_verified": 0,
+          "trade_decided": 2,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "dbbebe4ad1475752"
+        ]
+      }
+    },
+    "hgb_xs20_risk_regime_v1": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 1,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 2,
+          "settled_verified": 0,
+          "trade_decided": 2,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "bc68f4e5430f286f"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 1,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 2,
+          "settled_verified": 0,
+          "trade_decided": 2,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "bc68f4e5430f286f"
+        ]
+      }
+    },
+    "hgb_xs20_v1": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 1,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 2,
+          "settled_verified": 0,
+          "trade_decided": 2,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "1d342821148821bd"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 1,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 2,
+          "settled_verified": 0,
+          "trade_decided": 2,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "1d342821148821bd"
+        ]
+      }
+    },
+    "momentum_12_1": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "REFERENCE",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "status": "SELF"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 2,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 1,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 1,
+          "settled_verified": 0,
+          "trade_decided": 1,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "60f816ac9441b233"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "REFERENCE",
+        "comparisons": {
+          "existing_base_strategy": {
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "reason": "no base decision on these decision days",
+            "status": "NO_CONTEMPORANEOUS_DATA",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "status": "SELF"
+          },
+          "no_trade": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade_conservative": {
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 2,
+          "abstain_reasons": {
+            "CAPITAL_ABOVE_MAX": 2,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 1,
+          "settled_verified": 0,
+          "trade_decided": 1,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "60f816ac9441b233"
+        ]
+      }
+    }
+  },
   "llm_calls": 0,
   "order_placed": false,
   "primary_scenario": "ADVERSE",
   "production_influence": "NONE",
-  "proposals": {},
+  "proposals": {
+    "enet_xs20_v1": {
+      "decision_type": "RESEARCH_ONLY",
+      "order": null,
+      "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
+      "structure": null
+    },
+    "hgb_asym20_v1": {
+      "decision_type": "RESEARCH_ONLY",
+      "order": null,
+      "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
+      "structure": null
+    },
+    "hgb_xs20_momentum_v1": {
+      "decision_type": "RESEARCH_ONLY",
+      "order": null,
+      "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
+      "structure": null
+    },
+    "hgb_xs20_risk_regime_v1": {
+      "decision_type": "RESEARCH_ONLY",
+      "order": null,
+      "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
+      "structure": null
+    },
+    "hgb_xs20_v1": {
+      "decision_type": "RESEARCH_ONLY",
+      "order": null,
+      "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
+      "structure": null
+    },
+    "momentum_12_1": {
+      "decision_type": "RESEARCH_ONLY",
+      "order": null,
+      "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
+      "structure": null
+    }
+  },
   "rule_hash": "03f872d1d33961ec8075665ed67226a745c26af58ae32f32265640104ba953e0",
   "rule_version": "alpha-option-rule-v1",
   "scenarios": [

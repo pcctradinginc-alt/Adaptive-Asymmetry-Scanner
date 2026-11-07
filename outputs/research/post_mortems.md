@@ -3,6 +3,14 @@
 Deterministisch aus trade_memory (feste Regeln, keine Signifikanzaussage). Ähnliche Fälle: nur solche,
 die vor dem Entry bereits abgeschlossen waren.
 
+## AAPL · 2026-09-22 → 2026-11-06 · LOSS -5 %
+- Strategie LONG_CALL, Haltedauer 45 T, Exit: max_holding_period, Outcome verlässlich: ja
+- Underlying (signiert) 1 %, Option/Underlying -5.80, Zwischenhoch 11 %
+- Vorhersage: MC-Trefferquote 0.736, Impact 4.0
+- Ursache: structure_decay ['structure_decay', 'regime_changed']
+- Lehre: Underlying in Signalrichtung, Option trotzdem im Verlust – Zeitwert-/IV-Verfall der Struktur.
+- Ähnliche frühere Fälle: n=10, Gewinnanteil 10 %, Median -20 %
+
 ## HOOD · 2026-10-06 → 2026-10-22 · LOSS -47 %
 - Strategie LONG_CALL, Haltedauer 16 T, Exit: stop_loss, Outcome verlässlich: ja
 - Underlying (signiert) -14 %, Option/Underlying 3.23, Zwischenhoch -4 %
@@ -74,12 +82,4 @@ die vor dem Entry bereits abgeschlossen waren.
 - Ursache: unreliable_outcome ['unreliable_outcome']
 - Lehre: Outcome nicht verlässlich bewertet – keine Lernaussage möglich.
 - Ähnliche frühere Fälle: n=10, Gewinnanteil 20 %, Median -65 %
-
-## ALL · 2026-08-06 → 2026-09-10 · LOSS -50 %
-- Strategie BULL_CALL_SPREAD, Haltedauer 35 T, Exit: stop_loss, Outcome verlässlich: nein
-- Underlying (signiert) -8 %, Option/Underlying 6.61, Zwischenhoch -6 %
-- Vorhersage: MC-Trefferquote 0.720, Impact 6.0
-- Ursache: unreliable_outcome ['unreliable_outcome']
-- Lehre: Outcome nicht verlässlich bewertet – keine Lernaussage möglich.
-- Ähnliche frühere Fälle: n=10, Gewinnanteil 10 %, Median -100 %
 

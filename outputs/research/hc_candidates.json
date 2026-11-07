@@ -1,15 +1,15 @@
 {
- "date": "2026-11-03",
- "signal_date": "2026-11-02",
+ "date": "2026-11-07",
+ "signal_date": "2026-11-06",
  "active_ensemble": "static_equal",
  "rule": null,
  "enabled": false,
- "disabled_reason": "keine OOS-validierte Regel: keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre); Feature-Drift außerhalb des Trainingsbereichs; Wahrscheinlichkeiten nicht validiert: Kalibrierungsfehler > 0.05 in ['55–60 %']; Trefferquote nicht monoton steigend [0.4706, 0.4657]; SAFE MODE aktiv: MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19",
+ "disabled_reason": "keine OOS-validierte Regel: keine Regel mit positiver unterer Schranke der Netto-Expectancy (Kalibrierjahre); Feature-Drift außerhalb des Trainingsbereichs; Wahrscheinlichkeiten nicht validiert: Kalibrierungsfehler > 0.05 in ['65–70 %']; SAFE MODE aktiv: DATA: 2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']; MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.33",
  "candidates": [],
  "sent": [],
- "system_state_version": 89,
+ "system_state_version": 103,
  "drift_level": "MILD",
  "confidence_multiplier": 0.9,
  "memory_new": 50,
- "memory_outcomes": 0
+ "memory_outcomes": 50
 }
