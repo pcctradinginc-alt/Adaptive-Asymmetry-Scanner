@@ -138,3 +138,39 @@ def test_existing_workflow_audits_after_memory_sync_and_before_owner_digest():
     assert "e2e-audit" in stages[ids.index("alpha_e2e")]["run"]
     assert "alpha_e2e=" in (ROOT / ".github/workflows/ml_research.yml").read_text()
     assert "paper_account.sync" not in (ROOT / ".github/workflows/ml_research.yml").read_text()
+
+
+def test_recovered_capture_error_survives_latest_daily_overwrite(configured):
+    from scripts import rth_marks
+    from datetime import timedelta
+    directory = configured / audit.CAPTURE
+    t0 = NOW
+    bad = {"mode": "capture", "window": "IN_WINDOW",
+           "capture_status": "ALPHA_LINK_ERROR",
+           "alpha_link": {"status": "ERROR", "error": "synthetic quote schema failure"},
+           "paper_account": {"status": "ERROR", "error": "synthetic account failure"}}
+    good = {"mode": "capture", "window": "IN_WINDOW",
+            "capture_status": "COMPLETE",
+            "alpha_link": {"status": "OK"}, "paper_account": {"status": "ACTIVE"}}
+    rth_marks.persist_capture_status(bad, now=t0, root=directory)
+    rth_marks.persist_capture_status(good, now=t0 + timedelta(minutes=1), root=directory)
+    result = audit.build(configured, now=t0 + timedelta(minutes=2))
+    issues = {x["id"]: x["severity"] for x in result["issues"]}
+    assert result["capture"]["alpha_link_status"] == "OK"
+    assert result["capture"]["recent_failed_attempts"] == 1
+    assert issues["RECOVERED_CAPTURE_ERRORS"] == "DEGRADED"
+    assert result["n_technical_defects"] == 0
+    assert len(list((directory / "runs").glob("*/*.json"))) == 2
+
+
+def test_corrupt_capture_attempt_receipt_fails_closed(configured):
+    from scripts import rth_marks
+    directory = configured / audit.CAPTURE
+    rth_marks.persist_capture_status({"mode": "capture", "window": "IN_WINDOW",
+                                      "capture_status": "COMPLETE"},
+                                     now=NOW, root=directory)
+    path = next((directory / "runs").glob("*/*.json"))
+    path.write_text('{"sha256":"bad","payload":{}}')
+    result = audit.build(configured, now=NOW)
+    assert result["n_technical_defects"] == 1
+    assert "CAPTURE_ATTEMPT_INTEGRITY" in {x["id"] for x in result["issues"]}
