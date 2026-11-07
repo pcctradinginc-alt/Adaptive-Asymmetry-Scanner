@@ -1,6 +1,7 @@
 """P1 quote, model feature and independent-window observability tests."""
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 from modules.autonomous_alpha import data_quality as dq
 
@@ -55,3 +56,20 @@ def test_missing_reports_do_not_invent_independent_periods(tmp_path):
     assert report["existing_option_learner"]["5"]["archive_sample_verified_fraction"] is None
     assert report["existing_option_learner"]["20"]["independent_periods"] is None
     assert report["largest_observed_count_gaps"] == []
+
+
+def test_real_repository_research_evidence_is_read_without_fabrication():
+    # P6 real repository-data pass, not a synthetic backtest: no external API,
+    # new paper trades, changed frozen experiments or historical quote filling.
+    root = Path(__file__).resolve().parents[1]
+    actual = dq.build(root, now=NOW)
+    assert actual["link_signals"] >= 90
+    assert actual["link_decisions"] >= 40
+    assert actual["link_settled_outcomes"] == 0
+    assert actual["alpha_option_status"] == "NEED_MORE_DATA"
+    assert actual["existing_option_learner"]["20"]["verified_quote_labels"] >= 100
+    assert actual["existing_option_learner"]["20"]["entry_not_archived"] > 0
+    assert actual["existing_option_learner"]["20"]["independent_periods"] is None
+    assert "ENTRY_NOT_ARCHIVED" in actual["active_gap_ids"]
+    assert "NO_PREREGISTERED_ALPHA_OPTION_FORWARD_PLANS" in actual["active_gap_ids"]
+    assert actual["no_reconstructed_quotes"] is True
