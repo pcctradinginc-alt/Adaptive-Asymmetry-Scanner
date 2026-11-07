@@ -273,3 +273,129 @@ def analyse(trades: list[dict], cfg: dict | None = None, production_stop: float 
                   "median_dte": statistics.median([r["dte"] for r in g if r["dte"]]) if any(r["dte"] for r in g) else None}
     return {"n_spreads": len(rows), "buckets": out, "label": "EXPLORATORY (überwiegend NON_RELIABLE Outcomes)",
             "note": "Keine automatische Schwellenoptimierung; n < min_n je Bucket -> NEED_MORE_DATA."}
+
+
+# ── Strukturwahl im Census: Produktions-Gate vs. Long-Leg vs. IV/RV-Shadow (Audit 2026-11-07, A7) ──────────────
+# Befund: der "IV-Rank" (options_designer.compute_iv_rank_components) ist zu 80 % das Perzentil der realisierten
+# 21-T-Vola und enthält kein IV-Niveau; er entscheidet trotzdem zwischen Long-Leg und Debit-Spread. Auf denselben
+# Census-Zeilen liegen Long-Leg (real_opt_*) und gewählte Struktur (real_strat_*) vor; seit real_spread_cf auch der
+# Spread für Zeilen, deren Strategie ein Long-Leg ist. Damit sind die Regeln gepaart vergleichbar. Reine Auswertung:
+# keine Produktionsentscheidung, keine Schwellensuche (IVRV_SPREAD_MIN vorab fest: Spread nur, wenn die implizite
+# über der realisierten Vola liegt, also die verkaufte Option teuer ist).
+IVRV_SPREAD_MIN = 1.0
+STRUCTURE_HORIZONS = (5, 20)
+STRUCTURE_MIN_DAYS = 10
+STRUCTURE_MIN_ROWS = 30
+_BOOT_N = 2000
+
+
+def _row_outcomes(row: dict, h: int, basis: str) -> dict | None:
+    """Ergebnisse einer Census-Zeile je Regel (None, wenn die von einer Regel gewählte Struktur kein Ergebnis hat)."""
+    oc, rs = row.get("outcomes") or {}, row.get("real_strategy")
+    if not isinstance(rs, dict) or not isinstance(row.get("real_option"), dict):
+        return None
+    sfx = f"ret_{basis}{h}d"
+    long_ = _f(oc.get(f"real_opt_{sfx}"))
+    chosen = _f(oc.get(f"real_strat_{sfx}"))
+    is_spread = "SPREAD" in str(rs.get("strategy") or "")
+    spread = chosen if is_spread else _f(oc.get(f"real_spread_cf_{sfx}"))
+    ivrv = _f((rs.get("iv_rank_components") or {}).get("iv_rv_21"))
+    ivrv_pick = None if ivrv is None else (spread if ivrv >= IVRV_SPREAD_MIN else long_)
+    return {"production": chosen, "long_only": long_, "ivrv": ivrv_pick, "is_spread": is_spread, "ivrv_value": ivrv}
+
+
+def _clustered(diffs_by_day: dict, seed: str) -> dict:
+    days = sorted(diffs_by_day)
+    means = [statistics.mean(diffs_by_day[d]) for d in days]
+    n = sum(len(v) for v in diffs_by_day.values())
+    out = {"n": n, "days": len(days), "mean_daily_diff": round(statistics.mean(means), 4) if means else None}
+    if len(means) >= 2:
+        import random
+        rng = random.Random(int(hashlib.sha256(seed.encode()).hexdigest()[:8], 16))
+        boots = sorted(statistics.mean(rng.choices(means, k=len(means))) for _ in range(_BOOT_N))
+        sd = statistics.stdev(means)
+        out.update(ci95=[round(boots[int(0.025 * _BOOT_N)], 4), round(boots[int(0.975 * _BOOT_N) - 1], 4)],
+                   t=round(out["mean_daily_diff"] / (sd / len(means) ** 0.5), 2) if sd > 0 else None,
+                   days_negative=sum(m < 0 for m in means))
+    if len(days) < STRUCTURE_MIN_DAYS or n < STRUCTURE_MIN_ROWS or "ci95" not in out:
+        out["verdict"] = "NEED_MORE_DATA"
+    elif out["ci95"][1] < 0:
+        out["verdict"] = "A_WORSE"
+    elif out["ci95"][0] > 0:
+        out["verdict"] = "A_BETTER"
+    else:
+        out["verdict"] = "NO_SIGNIFICANT_DIFFERENCE"
+    return out
+
+
+def _rank_corr(xs: list, ys: list) -> float | None:
+    if len(xs) < 3:
+        return None
+
+    def ranks(v):
+        order = sorted(range(len(v)), key=lambda i: v[i])
+        r = [0.0] * len(v)
+        i = 0
+        while i < len(order):
+            j = i
+            while j + 1 < len(order) and v[order[j + 1]] == v[order[i]]:
+                j += 1
+            for k in range(i, j + 1):
+                r[order[k]] = (i + j) / 2.0
+            i = j + 1
+        return r
+    rx, ry = ranks(xs), ranks(ys)
+    mx, my = statistics.mean(rx), statistics.mean(ry)
+    num = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
+    den = (sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry)) ** 0.5
+    return round(num / den, 4) if den else None
+
+
+def structure_comparison(rows: list[dict], horizons: tuple = STRUCTURE_HORIZONS) -> dict:
+    """Gepaarter Vergleich der Strukturwahl auf denselben Census-Zeilen (je Aktie und Tag eine Zeile), Tagesmittel
+    als Cluster, Block-Bootstrap-KI. Paare: "A − B" = A minus B. Ausführbar (Kauf Ask, Verkauf Bid) und zum Mid.
+    production − long_only: alle Zeilen mit beiden Ergebnissen. ivrv − long_only / ivrv − production: nur Zeilen mit
+    IV/RV21 (ab 07.11. erfasst) und vorhandenem Ergebnis der gewählten Struktur."""
+    seen, uniq = set(), []
+    for r in sorted(rows, key=lambda x: (str(x.get("date")), str(x.get("ticker")), str(x.get("signal_id")))):
+        k = (r.get("date"), r.get("ticker"))
+        if k not in seen and isinstance(r.get("real_strategy"), dict):
+            seen.add(k)
+            uniq.append(r)
+    iv_pairs = [(_f(r["real_strategy"].get("replicated_iv_rank")), _f((r.get("real_option") or {}).get("iv")))
+                for r in uniq]
+    iv_pairs = [(a, b) for a, b in iv_pairs if a is not None and b is not None]
+    entry_cost = {"spread": [], "long": []}
+    for r in uniq:
+        rs, ro = r["real_strategy"], r.get("real_option") or {}
+        sp = rs if "SPREAD" in str(rs.get("strategy") or "") else r.get("real_spread_cf")
+        if isinstance(sp, dict) and (_f(sp.get("net_mid_entry")) or 0) > 0 and _f(sp.get("net_debit_entry")):
+            entry_cost["spread"].append(sp["net_debit_entry"] / sp["net_mid_entry"] - 1)
+        if (_f(ro.get("mid")) or 0) > 0 and _f(ro.get("ask")):
+            entry_cost["long"].append(ro["ask"] / ro["mid"] - 1)
+    out = {"label": "SHADOW_ONLY – keine Produktionsentscheidung, keine Schwellensuche",
+           "ivrv_spread_min": IVRV_SPREAD_MIN,
+           "iv_rank_vs_contract_iv": {"n": len(iv_pairs), "rank_corr": _rank_corr(*zip(*iv_pairs)) if iv_pairs else None,
+                                      "note": "Rangkorrelation 'IV-Rank' (Produktionsformel) gegen die IV des Kontrakts"},
+           "entry_cost_vs_mid_median": {k: (round(statistics.median(v), 4) if v else None) for k, v in entry_cost.items()},
+           "rows_with_ivrv": sum(1 for r in uniq if _f((r["real_strategy"].get("iv_rank_components") or {})
+                                                       .get("iv_rv_21")) is not None),
+           "rows_with_spread_counterfactual": sum(1 for r in uniq if isinstance(r.get("real_spread_cf"), dict)),
+           "horizons": {}}
+    for h in horizons:
+        hz = {}
+        for basis, label in (("", "executable"), ("mid_", "mid")):
+            pairs = {"production_minus_long_only": ("production", "long_only"),
+                     "ivrv_minus_long_only": ("ivrv", "long_only"), "ivrv_minus_production": ("ivrv", "production")}
+            res = {}
+            for name, (a, b) in pairs.items():
+                by_day: dict = {}
+                for r in uniq:
+                    o = _row_outcomes(r, h, basis)
+                    if o is None or o[a] is None or o[b] is None:
+                        continue
+                    by_day.setdefault(r["date"], []).append(o[a] - o[b])
+                res[name] = _clustered(by_day, f"{name}:{h}:{label}")
+            hz[label] = res
+        out["horizons"][f"{h}d"] = hz
+    return out
