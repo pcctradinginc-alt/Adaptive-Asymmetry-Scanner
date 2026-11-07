@@ -1,6 +1,8 @@
 """scripts/spread_execution_analysis.py – Shadow-Analyse immediate_liquidation_loss vs. Outcome (2026-10-09).
 Quellen: history.json (geschlossene/aktive Trades, Schatten-Trades) + shadow_trades_archive.jsonl.
-Nur Spreads mit gespeicherten Leg-Quotes. Explorativ (überwiegend NON_RELIABLE); keine Schwellenoptimierung."""
+Nur Spreads mit gespeicherten Leg-Quotes. Explorativ (überwiegend NON_RELIABLE); keine Schwellenoptimierung.
+Dazu (2026-11-07) die Strukturwahl im Census (spread_execution.structure_comparison): Produktions-Gate gegen Long-Leg
+und gegen die IV/RV-Shadow-Regel, gepaart auf denselben Zeilen."""
 from __future__ import annotations
 
 import json
@@ -18,6 +20,8 @@ def main() -> int:
     trades = (h.get("closed_trades") or []) + (h.get("active_trades") or []) + (h.get("shadow_trades") or []) \
         + (read_jsonl(arch) if arch.exists() else [])
     res = se.analyse(trades)
+    ledger = [r for p in sorted(Path("outputs/candidate_ledger").glob("*.jsonl")) for r in read_jsonl(p)]
+    res["census_structure_comparison"] = se.structure_comparison(ledger)
     res["sources"] = {"closed": len(h.get("closed_trades") or []), "active": len(h.get("active_trades") or []),
                       "shadow_view": len(h.get("shadow_trades") or []), "archive": arch.exists()}
     atomic_write_json(OUT, res, indent=1, ensure_ascii=False)
