@@ -52,6 +52,7 @@ SOURCES = {
     "alpha_option_economics": Path("outputs/research/autonomous_alpha/option_economics.json"),
     "alpha_option_validation": Path("outputs/research/autonomous_alpha/option_validation.json"),
     "error_research": Path("outputs/research/error_research.json"),
+    "alpha_data_quality": Path("outputs/research/autonomous_alpha/data_quality.json"),
 }
 # Fehlergetriebene Forschung (research_director.error_research) -> Memory-Status. PENDING_FORWARD ist weder Erfolg
 # noch abgeschlossener Test; Erfolg nur nach prospektiver Bestätigung (FORWARD_VALIDATED).
@@ -298,6 +299,17 @@ def error_entries(rep: dict | None) -> list[dict]:
                           reasons=[g.get("decision")],
                           free_sources=[s["source"] if isinstance(s, dict) else s for s in g.get("sources") or []],
                           data_kind="none"))
+    # P1 research feedback uses existing Research Memory; quality gaps are not
+    # hypotheses, training labels, or successful trials.
+    for g in (src.get("alpha_data_quality") or {}).get("data_gaps") or []:
+        out.append(_entry("alpha_data_gap", str(g.get("id")), "DATA_GAP",
+                          {"signal": str(g.get("id")), "domain": "alpha_option_data_quality"},
+                          source="alpha_data_quality",
+                          evidence={"count": g.get("count"),
+                                    "coverage": g.get("coverage_fraction"),
+                                    "first_observed": g.get("first_observed_in_monitoring")},
+                          reasons=[g.get("cause"), g.get("action")],
+                          data_kind="observed_repository_health"))
     return out
 
 
