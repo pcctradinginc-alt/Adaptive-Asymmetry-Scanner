@@ -25,8 +25,7 @@ def account(tmp_path, monkeypatch):
     (tmp_path / "config").mkdir()
     (tmp_path / pa.CONFIG).write_text(
         Path("config/paper_account.yaml").read_text(encoding="utf-8")
-        .replace("enabled: false", "enabled: true")
-        .replace("approved_quote_sources: []", "approved_quote_sources: [SYNTHETIC_TEST_ONLY]"), encoding="utf-8")
+        .replace("approved_quote_sources: [tradier]", "approved_quote_sources: [SYNTHETIC_TEST_ONLY]"), encoding="utf-8")
     alpha_cfg = {"rule": {"contracts_per_position": 1, "commission_usd_per_contract_per_side": 0.65,
                           "adverse_slippage_fraction_of_spread": 0.25}}
     sig = {"signal_id": "ALS-1", "hypothesis_id": "AUTO-one",
@@ -231,6 +230,24 @@ def test_no_broker_or_real_order_configuration_is_accepted(account):
     p = root / pa.CONFIG
     p.write_text(p.read_text().replace("broker_connection: NONE", "broker_connection: TRADIER"))
     with pytest.raises(ValueError, match="broker-free"):
+        pa.policy(root)
+
+
+def test_tradier_is_read_only_market_data_source_no_tradier_paper_account(account):
+    root, _, _, _ = account
+    cfg = pa.policy(root)
+    assert cfg["market_data_only"] is True
+    assert cfg["broker_connection"] == "NONE"
+    assert cfg["real_orders"] is False
+    assert pa.policy(Path(".")).get("approved_quote_sources") == ["tradier"]
+    assert pa.policy(Path(".")).get("enabled") is True
+
+
+def test_market_data_only_guard_refuses_order_mode(account):
+    root, _, _, _ = account
+    p = root / pa.CONFIG
+    p.write_text(p.read_text().replace("market_data_only: true", "market_data_only: false"))
+    with pytest.raises(ValueError, match="read-only market data"):
         pa.policy(root)
 
 
