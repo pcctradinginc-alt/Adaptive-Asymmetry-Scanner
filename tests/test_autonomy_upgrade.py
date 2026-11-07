@@ -173,7 +173,9 @@ def test_lab_text_similarity_no_longer_drops_untested_factory_specs(env, tmp_pat
     out = rl.run(env["panel"], protocol=env["proto"], hyp_path=tmp_path / "h.yaml", db_path=tmp_path / "db.json",
                  with_discovery=False)["hypotheses"]
     assert out["FAC-NEW"]["status"] != "blocked_similar_to_rejected" and out["FAC-NEW"]["stages"]["leakage"] == "pass"
-    assert out["DIR-NEW"]["status"] == "blocked_similar_to_rejected"
+    # Audit 2026-11-06: auch Director-Ideen mit auswertbarem Signal werden geprüft; Textähnlichkeit nur vermerkt
+    assert out["DIR-NEW"]["status"] != "blocked_similar_to_rejected" and out["DIR-NEW"]["stages"]["leakage"] == "pass"
+    assert out["DIR-NEW"]["text_similar_to"] in ("FAC-OLD", "FAC-NEW")      # gleicher Vorlagentext
     assert out["FAC-OLD"]["canonical_status"] == "REJECTED"                  # Historie unverändert
 
 

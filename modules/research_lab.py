@@ -50,7 +50,7 @@ HYP_CONFIG = Path("config/hypotheses.yaml")
 DIRECTOR_PATH = Path("outputs/research/director_hypotheses.json")   # vom Research Director erzeugt (maschinell)
 SIMILARITY_BLOCK = 0.6            # Jaccard der Wort-Tokens (Titel+Aussage) zu einer verworfenen Hypothese
 CANONICAL = {"accepted": "ACCEPTED", "rejected": "REJECTED", "rejected_leakage_or_invalid": "REJECTED",
-             "rejected_locked": "REJECTED", "duplicate": "REJECTED", "blocked_similar_to_rejected": "REJECTED",
+             "rejected_locked": "REJECTED", "duplicate": "REJECTED", "blocked_similar_to_rejected": "NOT_TESTED",
              "invalid_modified": "REJECTED", "not_significant_after_fdr": "INCONCLUSIVE",
              "passed_pre_fdr": "INCONCLUSIVE", "passed_pending_locked": "RETEST_LATER",
              "insufficient_coverage": "RETEST_LATER", "blocked_data": "RETEST_LATER"}
@@ -343,6 +343,10 @@ def text_similarity(a: dict, b: dict) -> float:
 
 
 def canonical_status(rec: dict) -> str:
+    # Nur per Textähnlichkeit gesperrt = nie getestet: kein widerlegtes Ergebnis, auch wenn ältere Läufe dafür
+    # "REJECTED" gespeichert haben (Audit 2026-11-06: 33 ungeprüfte Hypothesen zählten als verworfen).
+    if rec.get("status") == "blocked_similar_to_rejected":
+        return "NOT_TESTED"
     if rec.get("canonical_status"):
         return rec["canonical_status"]
     if rec.get("status") == "prior_result":
@@ -496,11 +500,19 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
         # (Audit 2026-11-01: 4 von 6 Fabrik-Tests 2026-10-03 ungeprüft als "ähnlich" verworfen). Für sie gelten die
         # Ähnlichkeitssperre der Fabrik auf Spezifikations-Tokens (factory_protocol similarity_block) und hier die
         # statistische Duplikat-Prüfung (Rang-Korrelation) – beides unverändert.
+        # Audit 2026-11-06: Auch Director-, Explorer- und Config-Ideen mit maschinell auswertbarem Signal wurden allein
+        # wegen Wort-Ähnlichkeit gesperrt, obwohl ihr Signal ein anderes war (z. B. rev_1m * step(vix - 20) wegen
+        # rev_1m * step(-spy_trend_200)). Ist das Signal auswertbar (signal_key), entscheidet die statistische
+        # Duplikat-Prüfung auf den Signalwerten (Rang-Korrelation >= duplicate_rank_corr, evaluate_hypothesis); die
+        # Textähnlichkeit wird nur noch vermerkt. Gesperrt bleibt nur, was ohne auswertbares Signal vorliegt.
+        text_note = None
         if not prev and not (hyp.get("source") == "factory" and hyp.get("spec_hash") and hyp.get("family")):
             sim = [(k, text_similarity(hyp, r)) for k, r in recs.items() if canonical_status(r) == "REJECTED"
                    and k != hyp["id"] and not r.get("retest_after")]
             k_best, s_best = max(sim, key=lambda x: x[1], default=(None, 0.0))
-            if s_best >= SIMILARITY_BLOCK:
+            if s_best >= SIMILARITY_BLOCK and key is not None:
+                text_note = {"text_similar_to": k_best, "text_similarity": round(s_best, 3)}
+            elif s_best >= SIMILARITY_BLOCK:
                 recs[hyp["id"]] = {"id": hyp["id"], "title": hyp.get("title"), "signal": hyp.get("signal"),
                                    "source": hyp.get("source"), "status": "blocked_similar_to_rejected",
                                    "similar_to": k_best, "similarity": round(s_best, 3),
@@ -508,6 +520,8 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
                                    "evaluated_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
                 continue
         rec = evaluate_hypothesis(panel, hyp, tested_signals, protocol)
+        if text_note:
+            rec.update(text_note)
         rec["memory"] = memory_fields(rec, hyp)
         if rec.get("walk_forward"):
             rec["adversarial_review"] = adversarial_review(rec, protocol)
@@ -553,7 +567,7 @@ def run(panel: pd.DataFrame, protocol: dict | None = None, hyp_path: Path = HYP_
         r["canonical_status"] = canonical_status(r) if r.get("status") != "prior_result" or not r.get("canonical_status") \
             else r["canonical_status"]
     db["status_counts"] = {c: sum(1 for r in recs.values() if r["canonical_status"] == c)
-                           for c in ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER")}
+                           for c in ("ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "NOT_TESTED")}
     db["generated"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     db_path.parent.mkdir(parents=True, exist_ok=True)
     db_path.write_text(json.dumps(db, indent=2, ensure_ascii=False, default=str))

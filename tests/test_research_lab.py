@@ -3,6 +3,7 @@ Discovery nur im Discovery-Fenster, Locked höchstens einmal, Gedächtnis
 (invalid_modified), Seeds. Synthetisch, kein Netz."""
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -134,11 +135,15 @@ def test_similar_to_rejected_is_blocked_and_memory_review_written(tmp_path, pane
                                {"id": "H-NOISE2", "title": "relatives Volumen Anomalie Test neu",
                                 "statement": "hohes relatives Volumen schlägt", "signal": "rank(relvol_5_60) * 3", "direction": 1}])
         db2 = lab.run(panel, hyp_path=hp2, db_path=dbp, with_discovery=False)
-        assert db2["hypotheses"]["H-NOISE2"]["status"] == "blocked_similar_to_rejected"
+        # Audit 2026-11-06: auswertbares Signal -> statistische Duplikat-Prüfung statt Textsperre. Gleiches Signal
+        # (Rang-Transformation von relvol_5_60) wird als Duplikat erkannt, die Textähnlichkeit nur vermerkt.
+        n2 = db2["hypotheses"]["H-NOISE2"]
+        assert n2["status"] == "duplicate" and n2["duplicate_of"] == "H-NOISE"
+        assert n2["text_similar_to"] == "H-NOISE" and n2["text_similarity"] >= lab.SIMILARITY_BLOCK
     r = db["hypotheses"]["H-NOISE"]
     assert r["memory"]["validation_design"] and "relvol_5_60" in r["memory"]["data_used"]
     assert r["adversarial_review"]["final_decision_by"].startswith("vorab")
-    assert set(db["status_counts"]) == {"ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER"}
+    assert set(db["status_counts"]) == {"ACCEPTED", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "NOT_TESTED"}
 
 
 def test_canonical_status_mapping():
@@ -163,3 +168,33 @@ def test_self_play_roles_have_own_measured_verdicts():
               "regimes": {"vix_lt_20": "works"}}
     assert rl.adversarial_review(strong, proto)["objections"] == []
     assert rl.adversarial_review(strong, proto)["final_decision_by"].startswith("vorab")
+
+
+def test_text_similar_but_different_signal_is_tested_not_rejected(tmp_path, panel):
+    """Live 2026-11-03: RD-53a5a5aa 'rev_1m * step(vix - 20)' wurde ungeprüft gesperrt, weil der Text
+    RD-034c5e10 'rev_1m * step(-spy_trend_200)' (verworfen) ähnelte (Jaccard 0,77). Verschiedene Signale ->
+    Test auf den Signalwerten, nicht Textsperre; die Textähnlichkeit bleibt nachvollziehbar vermerkt."""
+    dbp = tmp_path / "db.json"
+    title = "Kurzfrist-Umkehr wirkt nur im Stressregime"
+    stmt = "Ein-Monats-Umkehr ist im Stressregime stärker"
+    dbp.write_text(json.dumps({"hypotheses": {"RD-OLD": {
+        "id": "RD-OLD", "title": title, "statement": stmt, "signal": "rev_1m * step(-spy_trend_200)",
+        "status": "rejected", "canonical_status": "REJECTED", "source": "director"}}}))
+    hp = _hyps(tmp_path, [{"id": "RD-NEW", "title": title, "statement": stmt,
+                           "signal": "rev_1m * step(vix - 20)", "direction": 1, "source": "director"}])
+    db = lab.run(panel, hyp_path=hp, db_path=dbp, with_discovery=False)
+    new = db["hypotheses"]["RD-NEW"]
+    assert new["status"] != "blocked_similar_to_rejected" and new["stages"]["leakage"] == "pass"
+    assert new["text_similar_to"] == "RD-OLD" and new["text_similarity"] >= lab.SIMILARITY_BLOCK
+    assert db["hypotheses"]["RD-OLD"]["canonical_status"] == "REJECTED"          # echtes Ergebnis unverändert
+
+
+def test_text_blocked_records_count_as_not_tested_not_rejected():
+    """Ältere Läufe speicherten für nur textlich gesperrte (nie getestete) Hypothesen canonical_status REJECTED;
+    das Forschungsgedächtnis las sie als widerlegt. Ein ungeprüfter Eintrag ist NOT_TESTED."""
+    old = {"id": "RD-X", "status": "blocked_similar_to_rejected", "canonical_status": "REJECTED",
+           "reasons": ["zu ähnlich zu verworfener Hypothese RD-Y (Jaccard 0.65)"]}
+    assert lab.canonical_status(old) == "NOT_TESTED"
+    assert lab.canonical_status({"status": "rejected", "canonical_status": "REJECTED"}) == "REJECTED"
+    from modules import research_memory as rm
+    assert "NOT_TESTED" not in rm.TESTED
