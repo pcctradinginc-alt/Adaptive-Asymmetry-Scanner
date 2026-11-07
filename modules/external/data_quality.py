@@ -158,3 +158,44 @@ def assess(observations: list, source_cfg: dict | None, now: datetime,
         "details": details,
         "severe": bool(set(issues) & SEVERE),
     }
+
+
+# ── Archiv-Profil einer Quelle (Audit 2026-11-07): gemessen statt aus Katalog-Metadaten ─────────────────────────────
+# research_director.onboarding_checklist meldete "ok" für Zeitstempel, Historie und Revisionen allein aus den Texten in
+# config/data_catalog.yaml. Für Quellen mit Archiv ersetzt dieses Profil die Behauptungen durch Messwerte:
+#   pit_history_from     frühestes available_at (point-in-time nutzbare Historie; Backfills ohne Vintages tragen die
+#                        Abrufzeit und zählen erst ab dann)
+#   confirmatory_share   Anteil mit belastbarer Verfügbarkeit (pit.CONFIRMATORY_PRECISIONS)
+#   available_before_period  available_at < observation_time ohne Prognosefelder (Defekt)
+#   null_share           Anteil value=None
+#   revision_rate        Anteil ALLER Schlüssel (Serie, Entität, Kennzahl, Periode), deren Wert sich zwischen Vintages
+#                        geändert hat. Nenner bewusst alle Schlüssel: das Archiv speichert eine Zeile nur bei geändertem
+#                        Inhalt, "revidiert unter Mehrfach-Vintages" wäre deshalb stets 1,0
+#   days_since_last_available  Frische
+def archive_profile(observations: list, now: datetime) -> dict:
+    from modules.external.pit import CONFIRMATORY_PRECISIONS
+    obs = list(observations or [])
+    if not obs:
+        return {"n_rows": 0}
+    now = ensure_utc(now)
+    avail = [ensure_utc(o.available_at) for o in obs if o.available_at is not None]
+    conf = sum(1 for o in obs if o.availability_precision in CONFIRMATORY_PRECISIONS)
+    before = sum(1 for o in obs if o.available_at is not None and o.forecast_valid_time is None
+                 and o.forecast_issue_time is None and ensure_utc(o.available_at) < ensure_utc(o.observation_time))
+    by_key: dict = {}
+    for o in obs:
+        k = (o.series_id, o.entity_id, o.metric, o.observation_time)
+        by_key.setdefault(k, set()).add((ensure_utc(o.vintage_time or o.available_at), o.value))
+    multi = [v for v in by_key.values() if len({t for t, _ in v}) > 1]
+    revised = sum(1 for v in multi if len({val for _, val in v}) > 1)
+    last = max(avail) if avail else None
+    return {"n_rows": len(obs), "n_keys": len(by_key),
+            "first_observation": min(ensure_utc(o.observation_time) for o in obs).date().isoformat(),
+            "pit_history_from": min(avail).date().isoformat() if avail else None,
+            "last_available_at": last.isoformat(timespec="seconds") if last else None,
+            "days_since_last_available": (now - last).days if last else None,
+            "confirmatory_share": round(conf / len(obs), 4),
+            "available_before_period": before,
+            "null_share": round(sum(1 for o in obs if o.value is None) / len(obs), 4),
+            "keys_with_multiple_vintages": len(multi), "keys_revised": revised,
+            "revision_rate": round(revised / len(by_key), 4)}
