@@ -234,18 +234,6 @@ jobs:
         continue-on-error: true
         run: python -m modules.research_director --options
 
-      # Wochenbericht mit Depot, Strukturvergleich, Alpha-Validierung und Datenlücken.
-      # Ein bereits persistierter SENT-Beleg verhindert doppelten Versand bei Wiederholung.
-      - name: 100k-USD-Paper-Konto – Wochenbericht per E-Mail
-        id: paper_report
-        if: env.MODE == 'weekly'
-        continue-on-error: true
-        env:
-          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
-          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
-          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
-        run: python -m modules.autonomous_alpha paper-report
-
       # Self-Improvement Notifications (nur Hinweise, nie Code): Wochen-Digest der technischen
       # Verbesserungsaufgaben P1–P3 aus BELEGTEN Befunden (nie aus NEED_MORE_DATA, Wartezeit oder veralteten
       # Daten); feste Vorlagen mit kopierfertiger Claude-Code-Aufgabe, kein LLM, keine Kosten. Höchstens 3
@@ -260,6 +248,18 @@ jobs:
           GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         run: python -m modules.research_director --notify
+
+      # Wochenbericht mit Depot, Strukturvergleich, Alpha-Validierung und Datenlücken.
+      # Ein bereits persistierter SENT-Beleg verhindert doppelten Versand bei Wiederholung.
+      - name: 100k-USD-Paper-Konto – Wochenbericht per E-Mail
+        id: paper_report
+        if: env.MODE == 'weekly'
+        continue-on-error: true
+        env:
+          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+          GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: python -m modules.autonomous_alpha paper-report
 
       # Audit F14 / P2-5: eingefrorener Daten-Snapshot für Reproduktionsläufe
       # (workflow repro.yml: ML_PANEL_SNAPSHOT=<dieses Artefakt>).
