@@ -1,7 +1,10 @@
 # Separate virtual account policy; changes after activation require a reviewed migration.
 # Does not affect scanner sizing or any production risk gate.
 version: github-paper-account-v1
-enabled: true
+enabled: false
+# Empty until an owner verifies a licensed account-free source with point-in-time quotes.
+# Tradier is excluded: its market-data API requires an active brokerage account.
+approved_quote_sources: []
 starting_cash_usd: 100000
 max_position_risk_fraction: 0.02
 max_total_open_risk_fraction: 0.15
