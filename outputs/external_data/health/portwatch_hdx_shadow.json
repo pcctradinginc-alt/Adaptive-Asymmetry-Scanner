@@ -1,0 +1,74 @@
+{
+  "checked_at": "2026-11-07T10:29:42.395658+00:00",
+  "mode": "SHADOW_ONLY",
+  "ports_global_coverage": false,
+  "production_fallback_enabled": false,
+  "resources": {
+    "chokepoints": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "chokepoints",
+      "resource_id": "cbd17f06-8ab2-4ba4-a666-f7a4bcc9ea3f",
+      "scope": "GLOBAL_CHOKEPOINTS",
+      "status": "FAIL"
+    },
+    "djibouti": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "ports",
+      "resource_id": "96a7bdea-8297-49b7-ad6c-adb1d1f48e6d",
+      "scope": "COUNTRY_ONLY",
+      "status": "FAIL"
+    },
+    "kenya": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "ports",
+      "resource_id": "e0bde7c9-2cb7-4eab-ae71-3e2c2e225207",
+      "scope": "COUNTRY_ONLY",
+      "status": "FAIL"
+    },
+    "lebanon": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "ports",
+      "resource_id": "8d1d8984-fd6d-4f8e-af84-32b0ab8bacd3",
+      "scope": "COUNTRY_ONLY",
+      "status": "FAIL"
+    },
+    "mozambique": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "ports",
+      "resource_id": "9c88af9b-9868-44a6-af3b-2df6db2e8c58",
+      "scope": "COUNTRY_ONLY",
+      "status": "FAIL"
+    },
+    "oman": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "ports",
+      "resource_id": "381b41b9-12c8-4bb3-b056-65ef6ddf1c6b",
+      "scope": "COUNTRY_ONLY",
+      "status": "FAIL"
+    },
+    "somalia": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "ports",
+      "resource_id": "8bf8a420-56b3-492a-96b0-e8acb7f14c04",
+      "scope": "COUNTRY_ONLY",
+      "status": "FAIL"
+    },
+    "sudan": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "ports",
+      "resource_id": "6ce7a041-ce33-4e83-bc66-7fd1d1fa4af8",
+      "scope": "COUNTRY_ONLY",
+      "status": "FAIL"
+    },
+    "yemen": {
+      "error": "UNTRUSTED_DOWNLOAD_URL",
+      "family": "ports",
+      "resource_id": "5b130c44-8c57-485c-b1bf-6ab07aa12ce9",
+      "scope": "COUNTRY_ONLY",
+      "status": "FAIL"
+    }
+  },
+  "safe_mode_override": false,
+  "source": "OCHA/HDX IMF PortWatch",
+  "status": "FAIL_SHADOW"
+}
