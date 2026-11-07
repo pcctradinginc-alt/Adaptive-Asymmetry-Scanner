@@ -15,6 +15,7 @@ sources:
     history_from: 2015
     acquisition_cost: 1
     status: integrated          # fred_world_macro
+    registry_source_ids: [fred_world_macro]
   - id: earnings_calendar_history
     dimension: [event_risk, earnings_momentum]
     provider: "SEC EDGAR 8-K Item 2.02 (Ergebnis-Veröffentlichungen, Filing-Zeitstempel)"
@@ -47,6 +48,7 @@ sources:
     history_from: 2018
     acquisition_cost: 3
     status: candidate
+    registry_source_ids: [finra_short_interest]   # läuft seit 15.10. im Archiv (public_research.yaml)
   - id: cboe_put_call
     dimension: [positioning, risk_appetite]
     provider: "Cboe Market Statistics (täglich)"
@@ -63,6 +65,7 @@ sources:
     history_from: 2026
     acquisition_cost: 1
     status: accumulating        # historisch nicht PIT (available_at = Abrufdatum)
+    registry_source_ids: [imf_portwatch_ports, imf_portwatch_chokepoints]
   - id: destatis_truck_toll_pit
     dimension: [freight_supply_chain, industrial_activity]
     provider: "Destatis LKW-Maut-Fahrleistungsindex"
@@ -71,6 +74,7 @@ sources:
     history_from: 2026
     acquisition_cost: 1
     status: accumulating
+    registry_source_ids: [destatis_truck_toll]
   # ── Kandidaten aus dem Quellen-Audit 2026-11-06 (docs/DATA_SOURCE_DISCOVERY_2026-11-06.md) ───────────────────
   # Zugang aus der Entwicklungsumgebung NICHT prüfbar (Proxy), Lizenz/Limits nur aus Sekundärquellen belegt:
   # access_verified: false und REVIEW_REQUIRED, bis ein Mensch die offiziellen Bedingungen bestätigt und ein
@@ -84,6 +88,8 @@ sources:
     acquisition_cost: 1
     access_verified: false
     status: candidate
+    registry_source_ids: [wikimedia_pageviews]   # Audit 2026-11-07: KEIN neuer Connector – läuft seit 15.10. (503 Ticker)
+    audit_2026_11_07: "Zuordnung: Artikel aus Links der S&P-500-Liste; Weiterleitungstitel (z. B. Fifth_Third_Bancorp, Median 4 Aufrufe/Tag) zählen nur die Weiterleitungsseite. 5-T-IC des PIT-Aufmerksamkeitsschocks +0,036 (t 1,5, 9 Tage), partiell +0,033 – kein Nachweis."
   - id: openfda_enforcement
     dimension: [event_risk, product_quality]
     provider: "openFDA Enforcement Reports (food/drug/device), report_date, recalling_firm"
@@ -93,6 +99,7 @@ sources:
     acquisition_cost: 1
     access_verified: false
     status: candidate
+    audit_2026_11_07: "Zugang aus der Entwicklungsumgebung nicht prüfbar (Host nicht freigegeben). Inhaltlich: report_date liegt meist Wochen nach der Rückrufmeldung des Unternehmens bzw. der FDA-Pressemitteilung -> zum report_date ist die Information typischerweise öffentlich; recall_initiation_date ist historisch nicht PIT (Look-ahead). openFDA liefert nur den aktuellen Stand (keine Vintages). Firmenzuordnung über recalling_firm (Freitext, Tochterfirmen). Die Pipeline führt bereits fda_headline_count. Kein Pilot ohne Live-Prüfung."
   - id: federal_register_documents
     dimension: [regulatory, event_risk]
     provider: "Federal Register API v1 (documents, agencies, publication date)"
@@ -102,6 +109,7 @@ sources:
     acquisition_cost: 1
     access_verified: false
     status: candidate
+    audit_2026_11_07: "Zugang aus der Entwicklungsumgebung nicht prüfbar (Host nicht freigegeben). Inhaltlich: publication_date ist exakt (tägliche Ausgabe), Public-Inspection-Zeitpunkt früher; Dokumente nennen Behörden, selten Unternehmen -> überwiegend Sektor-Zuordnung, hoher Zuordnungsaufwand. Kein Pilot ohne Live-Prüfung."
   - id: usgs_river_stage
     dimension: [freight_supply_chain, commodities]
     provider: "USGS Water Services (NWIS) Pegel/Abfluss, z. B. Mississippi/Ohio"
