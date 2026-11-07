@@ -1,0 +1,1386 @@
+{
+ "generated": "2026-11-07T16:47:53+00:00",
+ "as_of": "2026-11-07",
+ "protocol": "error-research-v1",
+ "protocol_sha256": "ef2914e42f346c7a51f9122051faa4425bc409d665755a14f868e7095f8030f2",
+ "seen_until": "2026-11-06",
+ "forecast_provenance": {
+  "TOO_FEW_MODELS": 386,
+  "VERIFIED": 8590
+ },
+ "horizons": {
+  "5": {
+   "verified_errors": 7342,
+   "dates": 21,
+   "mean_abs_error": 0.3403,
+   "ensemble_ic": {
+    "n_periods": 5,
+    "mean": -0.07754,
+    "t": -1.087,
+    "p_one_sided": 0.8308647636386507,
+    "p_two_sided": 0.33827047272269856
+   },
+   "ensemble_ic_blocks": [
+    {
+     "start": "2026-09-28",
+     "end": "2026-10-04",
+     "n_dates": 4,
+     "mean_ic": 0.187544
+    },
+    {
+     "start": "2026-10-05",
+     "end": "2026-10-11",
+     "n_dates": 4,
+     "mean_ic": -0.222354
+    },
+    {
+     "start": "2026-10-12",
+     "end": "2026-10-18",
+     "n_dates": 3,
+     "mean_ic": -0.127295
+    },
+    {
+     "start": "2026-10-19",
+     "end": "2026-10-25",
+     "n_dates": 5,
+     "mean_ic": -0.059747
+    },
+    {
+     "start": "2026-10-26",
+     "end": "2026-11-01",
+     "n_dates": 5,
+     "mean_ic": -0.165862
+    }
+   ],
+   "patterns": {
+    "status": "OK",
+    "windows": 5,
+    "n_tests": 14,
+    "n_significant": 0,
+    "discovery": {
+     "start": "2026-09-29",
+     "end": "2026-10-18",
+     "periods": 3
+    }
+   },
+   "candidates": [
+    {
+     "id": "news_count",
+     "kind": "ledger",
+     "parts": [
+      "news_count"
+     ],
+     "families": [
+      "news"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.636,
+     "discovery": {
+      "n_periods": 3,
+      "mean": -0.01393,
+      "t": -2.139,
+      "p_one_sided": 0.9171060596375737,
+      "p_two_sided": 0.16578788072485248
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": -0.0292,
+      "t": -3.421,
+      "p_one_sided": 0.9620768021312763,
+      "p_two_sided": 0.07584639573744731
+     },
+     "p": 0.16578788072485248,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.166 >= 0.1"
+     ]
+    },
+    {
+     "id": "sentiment_score",
+     "kind": "ledger",
+     "parts": [
+      "sentiment_score"
+     ],
+     "families": [
+      "sentiment"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.818,
+     "discovery": {
+      "n_periods": 3,
+      "mean": 0.03634,
+      "t": 3.039,
+      "p_one_sided": 0.046680897742083435,
+      "p_two_sided": 0.09336179548416687
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": 0.03294,
+      "t": 2.327,
+      "p_one_sided": 0.07270941379597785,
+      "p_two_sided": 0.1454188275919557
+     },
+     "p": 0.09336179548416687,
+     "fdr_significant": false,
+     "verdict": "RECURRING",
+     "reasons": []
+    },
+    {
+     "id": "sentiment_drift",
+     "kind": "ledger",
+     "parts": [
+      "sentiment_drift"
+     ],
+     "families": [
+      "sentiment"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.727,
+     "discovery": {
+      "n_periods": 3,
+      "mean": 0.01432,
+      "t": 1.507,
+      "p_one_sided": 0.13535207389020337,
+      "p_two_sided": 0.27070414778040675
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": 0.01701,
+      "t": 1.25,
+      "p_one_sided": 0.16887539558536552,
+      "p_two_sided": 0.33775079117073104
+     },
+     "p": 0.27070414778040675,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.271 >= 0.1"
+     ]
+    },
+    {
+     "id": "sentiment_confidence",
+     "kind": "ledger",
+     "parts": [
+      "sentiment_confidence"
+     ],
+     "families": [
+      "sentiment"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.455,
+     "discovery": {
+      "n_periods": 3,
+      "mean": -0.01017,
+      "t": -3.763,
+      "p_one_sided": 0.9680331186905261,
+      "p_two_sided": 0.06393376261894779
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": -0.00408,
+      "t": -0.673,
+      "p_one_sided": 0.7148920274369971,
+      "p_two_sided": 0.5702159451260058
+     },
+     "p": 0.06393376261894779,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Vorzeichen nur an 0.455 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "short_pct_float",
+     "kind": "ledger",
+     "parts": [
+      "short_pct_float"
+     ],
+     "families": [
+      "positioning"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 0.99,
+     "same_sign_share": 0.727,
+     "discovery": {
+      "n_periods": 3,
+      "mean": -0.05682,
+      "t": -1.28,
+      "p_one_sided": 0.8355539834790424,
+      "p_two_sided": 0.32889203304191506
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": -0.02919,
+      "t": -2.734,
+      "p_one_sided": 0.9440872200904017,
+      "p_two_sided": 0.11182555981919672
+     },
+     "p": 0.32889203304191506,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.329 >= 0.1"
+     ]
+    },
+    {
+     "id": "short_mom",
+     "kind": "ledger",
+     "parts": [
+      "short_mom"
+     ],
+     "families": [
+      "positioning"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 0.997,
+     "same_sign_share": 0.727,
+     "discovery": {
+      "n_periods": 3,
+      "mean": 0.00281,
+      "t": 0.22,
+      "p_one_sided": 0.4231357506409568,
+      "p_two_sided": 0.8462715012819136
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": 0.00551,
+      "t": 0.411,
+      "p_one_sided": 0.3603917992268836,
+      "p_two_sided": 0.7207835984537672
+     },
+     "p": 0.8462715012819136,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.846 >= 0.1"
+     ]
+    },
+    {
+     "id": "rel_volume",
+     "kind": "ledger",
+     "parts": [
+      "rel_volume"
+     ],
+     "families": [
+      "trading_activity"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.727,
+     "discovery": {
+      "n_periods": 3,
+      "mean": -0.06032,
+      "t": -1.539,
+      "p_one_sided": 0.8681519268915348,
+      "p_two_sided": 0.2636961462169306
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": -0.05219,
+      "t": -1.449,
+      "p_one_sided": 0.8578286259267546,
+      "p_two_sided": 0.28434274814649085
+     },
+     "p": 0.2636961462169306,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.264 >= 0.1"
+     ]
+    },
+    {
+     "id": "scan_day_ret",
+     "kind": "ledger",
+     "parts": [
+      "scan_day_ret"
+     ],
+     "families": [
+      "price_action"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.455,
+     "discovery": {
+      "n_periods": 3,
+      "mean": -0.0149,
+      "t": -0.821,
+      "p_one_sided": 0.7510155908653555,
+      "p_two_sided": 0.4979688182692889
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": -0.01639,
+      "t": -1.189,
+      "p_one_sided": 0.8218266609447532,
+      "p_two_sided": 0.35634667811049353
+     },
+     "p": 0.4979688182692889,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.498 >= 0.1",
+      "Vorzeichen nur an 0.455 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "gap_at_entry",
+     "kind": "ledger",
+     "parts": [
+      "gap_at_entry"
+     ],
+     "families": [
+      "price_action"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 0.996,
+     "same_sign_share": 0.545,
+     "discovery": {
+      "n_periods": 3,
+      "mean": -0.02533,
+      "t": -1.316,
+      "p_one_sided": 0.8406685079215702,
+      "p_two_sided": 0.31866298415685956
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": -0.02658,
+      "t": -1.308,
+      "p_one_sided": 0.8394320325711948,
+      "p_two_sided": 0.3211359348576103
+     },
+     "p": 0.31866298415685956,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.319 >= 0.1",
+      "Vorzeichen nur an 0.545 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "ml_disagreement_sd",
+     "kind": "ledger",
+     "parts": [
+      "ml_disagreement_sd"
+     ],
+     "families": [
+      "model_uncertainty"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.455,
+     "discovery": {
+      "n_periods": 3,
+      "mean": 0.00517,
+      "t": 0.168,
+      "p_one_sided": 0.4410568187001642,
+      "p_two_sided": 0.8821136374003284
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": 0.00111,
+      "t": 0.031,
+      "p_one_sided": 0.48914099101930564,
+      "p_two_sided": 0.9782819820386113
+     },
+     "p": 0.8821136374003284,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.882 >= 0.1",
+      "Vorzeichen nur an 0.455 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "log_market_cap",
+     "kind": "ledger",
+     "parts": [
+      "log_market_cap"
+     ],
+     "families": [
+      "size"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.636,
+     "discovery": {
+      "n_periods": 3,
+      "mean": 0.03747,
+      "t": 0.817,
+      "p_one_sided": 0.24978635148577374,
+      "p_two_sided": 0.4995727029715475
+     },
+     "control_size": null,
+     "p": 0.4995727029715475,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.5 >= 0.1"
+     ]
+    },
+    {
+     "id": "dollar_volume",
+     "kind": "ledger",
+     "parts": [
+      "dollar_volume"
+     ],
+     "families": [
+      "size"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 7,
+     "coverage": 0.633,
+     "same_sign_share": 0.429,
+     "discovery": {
+      "n_periods": 2,
+      "mean": 0.00678,
+      "t": 0.131,
+      "p_one_sided": 0.4584967456602999,
+      "p_two_sided": 0.9169934913205998
+     },
+     "control_size": null,
+     "p": 0.9169934913205998,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 2 unabhängige Fenster (< 3)",
+      "Screen nicht bestanden: p=0.917 >= 0.1",
+      "Vorzeichen nur an 0.429 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "pv_shock_l1",
+     "kind": "external",
+     "parts": [
+      "pv_shock_l1"
+     ],
+     "families": [
+      "attention"
+     ],
+     "sources": [
+      "wikimedia_pageviews"
+     ],
+     "lag_days": 1,
+     "n_dates": 0,
+     "coverage": 0.0,
+     "same_sign_share": 0.0,
+     "discovery": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 0 unabhängige Fenster (< 3)",
+      "Abdeckung 0.0 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1",
+      "Vorzeichen nur an 0.0 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "pv_shock_l5",
+     "kind": "external",
+     "parts": [
+      "pv_shock_l5"
+     ],
+     "families": [
+      "attention"
+     ],
+     "sources": [
+      "wikimedia_pageviews"
+     ],
+     "lag_days": 5,
+     "n_dates": 0,
+     "coverage": 0.0,
+     "same_sign_share": 0.0,
+     "discovery": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 0 unabhängige Fenster (< 3)",
+      "Abdeckung 0.0 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1",
+      "Vorzeichen nur an 0.0 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "short_vol_ratio_l1",
+     "kind": "external",
+     "parts": [
+      "short_vol_ratio_l1"
+     ],
+     "families": [
+      "positioning"
+     ],
+     "sources": [
+      "finra_short_volume"
+     ],
+     "lag_days": 1,
+     "n_dates": 2,
+     "coverage": 0.176,
+     "same_sign_share": 1.0,
+     "discovery": {
+      "n_periods": 1,
+      "mean": 0.06686,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 1,
+      "mean": 0.05499,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 1 unabhängige Fenster (< 3)",
+      "Abdeckung 0.176 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1"
+     ]
+    },
+    {
+     "id": "short_vol_ratio_chg_l1",
+     "kind": "external",
+     "parts": [
+      "short_vol_ratio_chg_l1"
+     ],
+     "families": [
+      "positioning"
+     ],
+     "sources": [
+      "finra_short_volume"
+     ],
+     "lag_days": 1,
+     "n_dates": 2,
+     "coverage": 0.176,
+     "same_sign_share": 0.5,
+     "discovery": {
+      "n_periods": 1,
+      "mean": 0.05055,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 1,
+      "mean": 0.04428,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 1 unabhängige Fenster (< 3)",
+      "Abdeckung 0.176 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1",
+      "Vorzeichen nur an 0.5 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "days_to_cover_l1",
+     "kind": "external",
+     "parts": [
+      "days_to_cover_l1"
+     ],
+     "families": [
+      "positioning"
+     ],
+     "sources": [
+      "finra_short_interest"
+     ],
+     "lag_days": 1,
+     "n_dates": 2,
+     "coverage": 0.175,
+     "same_sign_share": 0.5,
+     "discovery": {
+      "n_periods": 1,
+      "mean": 0.02767,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 1,
+      "mean": 0.01865,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 1 unabhängige Fenster (< 3)",
+      "Abdeckung 0.175 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1",
+      "Vorzeichen nur an 0.5 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "pv_shock_l1*short_pct_float",
+     "kind": "pair",
+     "parts": [
+      "pv_shock_l1",
+      "short_pct_float"
+     ],
+     "families": [
+      "attention",
+      "positioning"
+     ],
+     "sources": [
+      "candidate_ledger",
+      "wikimedia_pageviews"
+     ],
+     "n_dates": 0,
+     "coverage": 0.0,
+     "same_sign_share": 0.0,
+     "discovery": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 0 unabhängige Fenster (< 3)",
+      "Abdeckung 0.0 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1",
+      "Vorzeichen nur an 0.0 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "pv_shock_l1*scan_day_ret",
+     "kind": "pair",
+     "parts": [
+      "pv_shock_l1",
+      "scan_day_ret"
+     ],
+     "families": [
+      "attention",
+      "price_action"
+     ],
+     "sources": [
+      "candidate_ledger",
+      "wikimedia_pageviews"
+     ],
+     "n_dates": 0,
+     "coverage": 0.0,
+     "same_sign_share": 0.0,
+     "discovery": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 0 unabhängige Fenster (< 3)",
+      "Abdeckung 0.0 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1",
+      "Vorzeichen nur an 0.0 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "pv_shock_l5*sentiment_drift",
+     "kind": "pair",
+     "parts": [
+      "pv_shock_l5",
+      "sentiment_drift"
+     ],
+     "families": [
+      "attention",
+      "sentiment"
+     ],
+     "sources": [
+      "candidate_ledger",
+      "wikimedia_pageviews"
+     ],
+     "n_dates": 0,
+     "coverage": 0.0,
+     "same_sign_share": 0.0,
+     "discovery": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 0,
+      "mean": null,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 0 unabhängige Fenster (< 3)",
+      "Abdeckung 0.0 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1",
+      "Vorzeichen nur an 0.0 der Stichtage gleich"
+     ]
+    },
+    {
+     "id": "short_vol_ratio_l1*sentiment_score",
+     "kind": "pair",
+     "parts": [
+      "short_vol_ratio_l1",
+      "sentiment_score"
+     ],
+     "families": [
+      "positioning",
+      "sentiment"
+     ],
+     "sources": [
+      "candidate_ledger",
+      "finra_short_volume"
+     ],
+     "n_dates": 2,
+     "coverage": 0.176,
+     "same_sign_share": 1.0,
+     "discovery": {
+      "n_periods": 1,
+      "mean": 0.08366,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "control_size": {
+      "n_periods": 1,
+      "mean": 0.0735,
+      "t": null,
+      "p_one_sided": null,
+      "p_two_sided": null
+     },
+     "p": null,
+     "fdr_significant": false,
+     "verdict": "INSUFFICIENT_DATA",
+     "reasons": [
+      "nur 1 unabhängige Fenster (< 3)",
+      "Abdeckung 0.176 < 0.5",
+      "Screen nicht bestanden: p=– >= 0.1"
+     ]
+    },
+    {
+     "id": "news_count*sentiment_score",
+     "kind": "pair",
+     "parts": [
+      "news_count",
+      "sentiment_score"
+     ],
+     "families": [
+      "news",
+      "sentiment"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.636,
+     "discovery": {
+      "n_periods": 3,
+      "mean": 0.02224,
+      "t": 3.047,
+      "p_one_sided": 0.04648089941864384,
+      "p_two_sided": 0.09296179883728768
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": 0.00948,
+      "t": 0.896,
+      "p_one_sided": 0.23243807185670512,
+      "p_two_sided": 0.46487614371341024
+     },
+     "p": 0.09296179883728768,
+     "fdr_significant": false,
+     "verdict": "EXPLAINED_BY_KNOWN_FACTOR",
+     "reasons": [
+      "nach Größenkontrolle nicht mehr vorhanden (Residual-IC 0.02224 -> 0.00948, t=0.896)"
+     ]
+    },
+    {
+     "id": "rel_volume*scan_day_ret",
+     "kind": "pair",
+     "parts": [
+      "rel_volume",
+      "scan_day_ret"
+     ],
+     "families": [
+      "price_action",
+      "trading_activity"
+     ],
+     "sources": [
+      "candidate_ledger"
+     ],
+     "n_dates": 11,
+     "coverage": 1.0,
+     "same_sign_share": 0.727,
+     "discovery": {
+      "n_periods": 3,
+      "mean": -0.0381,
+      "t": -1.886,
+      "p_one_sided": 0.9000006199445946,
+      "p_two_sided": 0.19999876011081077
+     },
+     "control_size": {
+      "n_periods": 3,
+      "mean": -0.03418,
+      "t": -1.624,
+      "p_one_sided": 0.877105393215362,
+      "p_two_sided": 0.24578921356927602
+     },
+     "p": 0.19999876011081077,
+     "fdr_significant": false,
+     "verdict": "NOT_RECURRING",
+     "reasons": [
+      "Screen nicht bestanden: p=0.2 >= 0.1"
+     ]
+    }
+   ],
+   "unexplained_segments": [
+    {
+     "segment": "high_short_interest",
+     "excess_abs_residual": 0.01817,
+     "t": 6.714,
+     "periods": 5,
+     "p_two_sided": 0.00256,
+     "n_segments_tested": 13,
+     "dimensions": [
+      "positioning"
+     ]
+    },
+    {
+     "segment": "sector:Communication Services",
+     "excess_abs_residual": 0.03759,
+     "t": 3.73,
+     "periods": 5,
+     "p_two_sided": 0.0203,
+     "n_segments_tested": 13,
+     "dimensions": [
+      "fundamentals",
+      "earnings_momentum"
+     ]
+    },
+    {
+     "segment": "sector:Technology",
+     "excess_abs_residual": 0.06706,
+     "t": 11.976,
+     "periods": 5,
+     "p_two_sided": 0.00028,
+     "n_segments_tested": 13,
+     "dimensions": [
+      "fundamentals",
+      "earnings_momentum"
+     ]
+    }
+   ]
+  },
+  "20": {
+   "verified_errors": 2963,
+   "dates": 8,
+   "mean_abs_error": 0.3937,
+   "ensemble_ic": {
+    "n_periods": 0,
+    "mean": null,
+    "t": null,
+    "p_one_sided": null,
+    "p_two_sided": null
+   },
+   "ensemble_ic_blocks": [],
+   "patterns": {
+    "status": "DATA_GAP",
+    "windows": 0,
+    "reason": "0 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 0 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind"
+   },
+   "candidates": [],
+   "unexplained_segments": []
+  }
+ },
+ "hypotheses": [
+  {
+   "id": "ERR-d6695229",
+   "key": "sentiment_score|5|1",
+   "registered_at": "2026-11-07",
+   "spec": {
+    "protocol": "error-research-v1",
+    "protocol_sha256": "ef2914e42f346c7a51f9122051faa4425bc409d665755a14f868e7095f8030f2",
+    "feature": "sentiment_score",
+    "kind": "ledger",
+    "parts": [
+     "sentiment_score"
+    ],
+    "sources": [
+     "candidate_ledger"
+    ],
+    "family": "error:sentiment",
+    "idea_source": "forecast_error",
+    "horizon": 5,
+    "direction": 1,
+    "signal": "sentiment_score",
+    "population": "Candidate-Ledger-Zeilen mit geprüfter Ensemble-Prognose (>= 3 ML-Ränge) und fälligem 5-Tage-Ergebnis",
+    "exposure": "sentiment_score",
+    "baseline": "Ensemble-Prognose (Residuum nach Rang-OLS je Stichtag); Kontrolle Größe",
+    "metric": "Rang-IC Signal ~ Residuum je Stichtag, gemittelt je unabhängigem Haltefenster",
+    "H0": "mittlerer Residual-IC des Signals <= 0",
+    "H_alt": "mittlerer Residual-IC des Signals > 0",
+    "failure_condition": "Walk-Forward: Mittel <= 0 ab 2 Fenstern; Forward: einseitig p >= 0.05 oder nicht BH-signifikant (q=0.05) auf den ersten 4 Fenstern",
+    "mechanism": "Stimmung wird verzögert eingepreist (begrenzte Aufmerksamkeit), das Ensemble sieht sie nicht.",
+    "discovery": {
+     "start": "2026-09-29",
+     "end": "2026-10-18",
+     "periods": 3,
+     "residual_ic": 0.03634,
+     "t": 3.039,
+     "control_size_t": 2.327
+    },
+    "forward": {
+     "start_after": "2026-11-07",
+     "min_periods": 4,
+     "alpha": 0.05,
+     "fdr_q": 0.05,
+     "max_days": 150
+    }
+   },
+   "spec_hash": "0b87a198410b6131679b6e121b143cf6ea5f12cf9b9d708974522b8128600318",
+   "walk_forward": {
+    "status": "INCONCLUSIVE_WF",
+    "reason": "nur 1 unabhängige Validierungsfenster (< 2) nach Embargo – kein Urteil",
+    "window_start": "2026-10-26",
+    "window_end": "2026-11-07",
+    "blocks": [
+     {
+      "start": "2026-10-26",
+      "end": "2026-11-01",
+      "n_dates": 5,
+      "mean_ic": -0.020506
+     }
+    ],
+    "n_periods": 1,
+    "mean": -0.02051,
+    "t": null,
+    "p_one_sided": null,
+    "p_two_sided": null
+   },
+   "forward": {
+    "status": "PENDING_FORWARD",
+    "start": "2026-11-08",
+    "complete_periods": 0,
+    "required_periods": 4,
+    "reason": "0/4 Forward-Fenster fertig",
+    "interim_mean": null
+   },
+   "priority": {
+    "key": "sentiment_score|5|1",
+    "eig": 1.0,
+    "value": 3.634,
+    "novelty": 1.0,
+    "reliability": 0.5,
+    "data_quality": 1.0,
+    "acquisition_cost": 1.0,
+    "research_cost": 1.0,
+    "base_priority": 1.817,
+    "memory_prior": {
+     "factor": 1.0,
+     "posterior_success": 0.2,
+     "tested": 0,
+     "success": 0,
+     "prospective": 0,
+     "rejected": 0,
+     "evidence": []
+    },
+    "priority": 1.817,
+    "memory_hit": null
+   },
+   "status": "PENDING_FORWARD",
+   "reason": "0/4 Forward-Fenster fertig",
+   "option_check": {
+    "status": "NOT_REACHED",
+    "reason": "Aktienhypothese (noch) nicht erfolgreich"
+   },
+   "next_decision": "Forward-Test läuft ab 2026-11-08 (0/4 Fenster)"
+  }
+ ],
+ "data_gaps": [
+  {
+   "gap_id": "error:history:pv_shock_l1:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "pv_shock_l1: nur 0 unabhängige Fenster (< 3); Abdeckung 0.0 < 0.5; Screen nicht bestanden: p=– >= 0.1; Vorzeichen nur an 0.0 der Stichtage gleich",
+   "severity": 0.5,
+   "dimensions": [
+    "attention",
+    "event_risk"
+   ],
+   "sources": [
+    "wikimedia_pageviews"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:history:pv_shock_l5:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "pv_shock_l5: nur 0 unabhängige Fenster (< 3); Abdeckung 0.0 < 0.5; Screen nicht bestanden: p=– >= 0.1; Vorzeichen nur an 0.0 der Stichtage gleich",
+   "severity": 0.5,
+   "dimensions": [
+    "attention",
+    "event_risk"
+   ],
+   "sources": [
+    "wikimedia_pageviews"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:history:short_vol_ratio_l1:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "short_vol_ratio_l1: nur 1 unabhängige Fenster (< 3); Abdeckung 0.176 < 0.5; Screen nicht bestanden: p=– >= 0.1",
+   "severity": 0.5,
+   "dimensions": [],
+   "sources": [
+    "finra_short_volume"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:history:short_vol_ratio_chg_l1:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "short_vol_ratio_chg_l1: nur 1 unabhängige Fenster (< 3); Abdeckung 0.176 < 0.5; Screen nicht bestanden: p=– >= 0.1; Vorzeichen nur an 0.5 der Stichtage gleich",
+   "severity": 0.5,
+   "dimensions": [],
+   "sources": [
+    "finra_short_volume"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:history:days_to_cover_l1:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "days_to_cover_l1: nur 1 unabhängige Fenster (< 3); Abdeckung 0.175 < 0.5; Screen nicht bestanden: p=– >= 0.1; Vorzeichen nur an 0.5 der Stichtage gleich",
+   "severity": 0.5,
+   "dimensions": [
+    "positioning"
+   ],
+   "sources": [
+    "finra_short_interest"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:history:pv_shock_l1*short_pct_float:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "pv_shock_l1*short_pct_float: nur 0 unabhängige Fenster (< 3); Abdeckung 0.0 < 0.5; Screen nicht bestanden: p=– >= 0.1; Vorzeichen nur an 0.0 der Stichtage gleich",
+   "severity": 0.5,
+   "dimensions": [
+    "attention",
+    "event_risk"
+   ],
+   "sources": [
+    "wikimedia_pageviews"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:history:pv_shock_l1*scan_day_ret:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "pv_shock_l1*scan_day_ret: nur 0 unabhängige Fenster (< 3); Abdeckung 0.0 < 0.5; Screen nicht bestanden: p=– >= 0.1; Vorzeichen nur an 0.0 der Stichtage gleich",
+   "severity": 0.5,
+   "dimensions": [
+    "attention",
+    "event_risk"
+   ],
+   "sources": [
+    "wikimedia_pageviews"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:history:pv_shock_l5*sentiment_drift:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "pv_shock_l5*sentiment_drift: nur 0 unabhängige Fenster (< 3); Abdeckung 0.0 < 0.5; Screen nicht bestanden: p=– >= 0.1; Vorzeichen nur an 0.0 der Stichtage gleich",
+   "severity": 0.5,
+   "dimensions": [
+    "attention",
+    "event_risk"
+   ],
+   "sources": [
+    "wikimedia_pageviews"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:history:short_vol_ratio_l1*sentiment_score:5d",
+   "kind": "history_too_short",
+   "horizon": 5,
+   "finding": "short_vol_ratio_l1*sentiment_score: nur 1 unabhängige Fenster (< 3); Abdeckung 0.176 < 0.5; Screen nicht bestanden: p=– >= 0.1",
+   "severity": 0.5,
+   "dimensions": [],
+   "sources": [
+    "finra_short_volume"
+   ],
+   "decision": "Quelle läuft bereits – Historie wächst, erneute Prüfung automatisch"
+  },
+  {
+   "gap_id": "error:segment:high_short_interest:5d",
+   "kind": "unexplained_segment",
+   "horizon": 5,
+   "severity": 1.0,
+   "finding": "unerklärter Fehler im Segment high_short_interest um 0.01817 höher (t=6.714, 5 Fenster)",
+   "dimensions": [
+    "positioning"
+   ],
+   "sources": [
+    {
+     "source": "cboe_put_call",
+     "status": "candidate",
+     "license": "review_required",
+     "access": "pending",
+     "historical_coverage": "declared_unverified",
+     "usable_now": false
+    },
+    {
+     "source": "finra_short_interest",
+     "status": "integrated",
+     "license": "review_required",
+     "access": "ok",
+     "historical_coverage": "insufficient",
+     "usable_now": false
+    }
+   ],
+   "decision": "Quelle der Dimension prüfen/aufnehmen (menschliche Freigabe)"
+  },
+  {
+   "gap_id": "error:segment:sector:Communication Services:5d",
+   "kind": "unexplained_segment",
+   "horizon": 5,
+   "severity": 0.932,
+   "finding": "unerklärter Fehler im Segment sector:Communication Services um 0.03759 höher (t=3.73, 5 Fenster)",
+   "dimensions": [
+    "fundamentals",
+    "earnings_momentum"
+   ],
+   "sources": [
+    {
+     "source": "earnings_calendar_history",
+     "status": "candidate",
+     "license": "ok",
+     "access": "pending",
+     "historical_coverage": "declared_unverified",
+     "usable_now": false
+    },
+    {
+     "source": "ibes_estimate_revisions",
+     "status": "candidate",
+     "license": "review_required",
+     "access": "pending",
+     "historical_coverage": "declared_unverified",
+     "usable_now": false
+    },
+    {
+     "source": "sec_financial_statements",
+     "status": "candidate",
+     "license": "ok",
+     "access": "pending",
+     "historical_coverage": "declared_unverified",
+     "usable_now": false
+    }
+   ],
+   "decision": "Quelle der Dimension prüfen/aufnehmen (menschliche Freigabe)"
+  },
+  {
+   "gap_id": "error:segment:sector:Technology:5d",
+   "kind": "unexplained_segment",
+   "horizon": 5,
+   "severity": 1.0,
+   "finding": "unerklärter Fehler im Segment sector:Technology um 0.06706 höher (t=11.976, 5 Fenster)",
+   "dimensions": [
+    "fundamentals",
+    "earnings_momentum"
+   ],
+   "sources": [
+    {
+     "source": "earnings_calendar_history",
+     "status": "candidate",
+     "license": "ok",
+     "access": "pending",
+     "historical_coverage": "declared_unverified",
+     "usable_now": false
+    },
+    {
+     "source": "ibes_estimate_revisions",
+     "status": "candidate",
+     "license": "review_required",
+     "access": "pending",
+     "historical_coverage": "declared_unverified",
+     "usable_now": false
+    },
+    {
+     "source": "sec_financial_statements",
+     "status": "candidate",
+     "license": "ok",
+     "access": "pending",
+     "historical_coverage": "declared_unverified",
+     "usable_now": false
+    }
+   ],
+   "decision": "Quelle der Dimension prüfen/aufnehmen (menschliche Freigabe)"
+  },
+  {
+   "gap_id": "error:periods:20d",
+   "kind": "independent_periods",
+   "horizon": 20,
+   "finding": "0 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 0 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind",
+   "severity": 1.0,
+   "dimensions": [],
+   "sources": [],
+   "decision": "warten: Fenster entstehen nur mit der Zeit"
+  }
+ ],
+ "decisions": [
+  {
+   "subject": "sentiment_score (5 T)",
+   "priority": {
+    "key": "sentiment_score|5|1",
+    "eig": 1.0,
+    "value": 3.634,
+    "novelty": 1.0,
+    "reliability": 0.5,
+    "data_quality": 1.0,
+    "acquisition_cost": 1.0,
+    "research_cost": 1.0,
+    "base_priority": 1.817,
+    "memory_prior": {
+     "factor": 1.0,
+     "posterior_success": 0.2,
+     "tested": 0,
+     "success": 0,
+     "prospective": 0,
+     "rejected": 0,
+     "evidence": []
+    },
+    "priority": 1.817,
+    "memory_hit": null
+   },
+   "decision": "register",
+   "hypothesis": "ERR-d6695229",
+   "because": "Priorität 1.817 (Gedächtnis-Faktor 1.0)"
+  }
+ ],
+ "production_influence": "NONE",
+ "summary": {
+  "verified_forecast_rows": 8590,
+  "patterns_recurring": 1,
+  "patterns_explained_by_known_factor": 1,
+  "registered_total": 1,
+  "registered_this_run": 1,
+  "status_counts": {
+   "PENDING_FORWARD": 1,
+   "REJECTED_WF": 0,
+   "FORWARD_CONFIRMED": 0,
+   "FORWARD_REJECTED": 0,
+   "INCONCLUSIVE": 0,
+   "INVALID_MODIFIED": 0
+  },
+  "data_gaps": 13,
+  "skipped_by_memory": 0
+ }
+}

@@ -1,0 +1,116 @@
+# config/error_research_protocol.yaml – Präregistrierung: fehlergetriebene Forschung (NUR RESEARCH, keine Orders)
+#
+# Registriert 2026-11-07. Ablauf: research_director (Fehleranalyse, Hypothese, Priorität, Datenlücken)
+# -> research_lab (Walk-Forward-Screen mit Embargo, Forward-Test, BH) -> option_learner (geprüfte Netto-Labels)
+# -> research_memory (Ergebnis) -> nächste Auswahl des Directors.
+#
+# Ehrlichkeitsvermerk: Vor der Registrierung wurde der Candidate Ledger bis 2026-11-06 explorativ angesehen
+# (Residual-ICs des festen Suchraums). Alle Ledger-Daten bis `seen_until` sind daher GESEHEN: Sie dienen nur
+# der Entdeckung und dem Walk-Forward-Screen, nie als unabhängige Bestätigung. Bestätigt wird ausschließlich
+# prospektiv auf Signalen nach der Registrierung der Hypothese UND nach `seen_until`.
+#
+# Änderung 2026-11-07 VOR der ersten Registrierung (Lauf 1 registrierte nichts): Die Entdeckung verlangte zunächst
+# BH-Signifikanz über den Suchraum. Bei 3 unabhängigen Fenstern (df = 2) und 14 Tests heißt das |t| >= 11,8 – in
+# den ersten Wochen nie erfüllbar (Trennschärfe 0). Die Entdeckung ist nur ein Screen für die Registrierung; sie
+# verlangt jetzt nominal p < screen_p plus Wiederkehr und Größenkontrolle, BH wird weiter berichtet. Die
+# Bestätigungsschwellen (Walk-Forward-Screen, Forward-Test, BH über alle Forward-Tests) sind unverändert.
+# Ebenfalls vor der ersten Registrierung: Die Größenkontrolle prüfte nur |t| >= 1. Ein reiner Größen-Stellvertreter
+# (synthetischer Test: Residual-IC 0,235 -> 0,022 nach Kontrolle, t = 14 aus drei gleichförmig winzigen Fenstern)
+# galt dadurch als "nicht erklärt". Neu: control_min_share (vorab 0,5, nicht an echten Daten gewählt).
+#
+# Hash gepinnt in tests/test_error_driven_research.py. Nur strenger oder bei belegtem Fehler ändern – nie, um ein
+# Ergebnis zu schönen. Suchraum, Schwellen und Budgets sind fest; neue Merkmale = neue Protokollversion.
+
+version: "error-research-v1"
+registered_at: "2026-11-07"
+seen_until: "2026-11-06"
+
+forecast:
+  # Prognose des Systems = Gleichgewicht der PIT-Shadow-Ränge (ml_predictions -> Ledger-Merkmale ml_*), wie das
+  # static_equal-Ensemble. Fehler = Rang der realisierten Rendite minus Rang der Prognose (je Stichtag).
+  models: [ml_enet_xs20_v1, ml_hgb_asym20_v1, ml_hgb_xs20_momentum_v1, ml_hgb_xs20_risk_regime_v1,
+           ml_hgb_xs20_v1, ml_momentum_12_1]
+  min_models: 3
+  horizons: [5, 20]                 # Handelstage; Haltefenster in Kalendertagen = ceil(h * 7 / 5)
+  min_cross_section: 30             # Zeilen je Stichtag mit Prognose und Ergebnis
+
+search_space:
+  # Merkmale, die das Ensemble NICHT nutzt (Ledger, zum Signalzeitpunkt erfasst) …
+  ledger: [news_count, sentiment_score, sentiment_drift, sentiment_confidence, short_pct_float, short_mom,
+           rel_volume, scan_day_ret, gap_at_entry, ml_disagreement_sd, log_market_cap, dollar_volume]
+  # … externe PIT-Quellen (ExternalArchive, nur available_at <= Signalzeit) mit festen Verzögerungen …
+  external:
+    pv_shock_l1: {source: wikimedia_pageviews, metric: wiki_pageviews, transform: log_shock, lag_days: 1, window: 14}
+    pv_shock_l5: {source: wikimedia_pageviews, metric: wiki_pageviews, transform: log_shock, lag_days: 5, window: 14}
+    short_vol_ratio_l1: {source: finra_short_volume, metric: short_volume_ratio, transform: level, lag_days: 1}
+    short_vol_ratio_chg_l1: {source: finra_short_volume, metric: short_volume_ratio, transform: change, lag_days: 1,
+                             window: 5}
+    days_to_cover_l1: {source: finra_short_interest, metric: days_to_cover, transform: level, lag_days: 1,
+                       max_age_days: 20}     # Stichtag zweimal im Monat
+  # … und wenige, ökonomisch begründete Kombinationen über Quellenfamilien (Rang-Produkt je Stichtag).
+  pairs:
+    - [pv_shock_l1, short_pct_float]      # Aufmerksamkeit trifft Leerverkaufsquote (Squeeze/Crowding)
+    - [pv_shock_l1, scan_day_ret]         # Aufmerksamkeit bestätigt die Tagesbewegung
+    - [pv_shock_l5, sentiment_drift]      # verzögerte Aufmerksamkeit vs. Stimmungswechsel
+    - [short_vol_ratio_l1, sentiment_score]   # Leerverkäufer gegen Nachrichtenstimmung
+    - [news_count, sentiment_score]       # Stimmung mit Nachrichtengewicht
+    - [rel_volume, scan_day_ret]          # volumenbestätigte Bewegung
+
+families:                           # Quellenfamilie je Merkmal (Gedächtnis-Prior, Datenlücken)
+  news_count: news
+  sentiment_score: sentiment
+  sentiment_drift: sentiment
+  sentiment_confidence: sentiment
+  short_pct_float: positioning
+  short_mom: positioning
+  days_to_cover_l1: positioning
+  short_vol_ratio_l1: positioning
+  short_vol_ratio_chg_l1: positioning
+  rel_volume: trading_activity
+  scan_day_ret: price_action
+  gap_at_entry: price_action
+  ml_disagreement_sd: model_uncertainty
+  log_market_cap: size
+  dollar_volume: size
+  pv_shock_l1: attention
+  pv_shock_l5: attention
+
+known_factor_control: log_market_cap   # Baseline "bekannter Faktor": Residuum zusätzlich nach Größe
+
+discovery:
+  share: 0.6                        # erste 60 % der unabhängigen Haltefenster = Entdeckung
+  min_periods: 3                    # nicht überlappende Haltefenster in der Entdeckung
+  screen_p: 0.10                    # zweiseitig, t-Test der Fenstermittel: nur Screen, nie Bestätigung
+  fdr_q: 0.10                       # BH über den GESAMTEN Suchraum je Horizont (berichtet: fdr_significant)
+  min_same_sign_share: 0.6          # wiederkehrend: Anteil Stichtage mit gleichem Vorzeichen
+  min_coverage: 0.5                 # Anteil der Fehlerzeilen mit Merkmal
+  control_min_abs_t: 1.0            # nach Größenkontrolle muss das Muster (gleiches Vorzeichen) bestehen …
+  control_min_share: 0.5            # … und mindestens die Hälfte seiner Stärke behalten (sonst durch Größe erklärt)
+
+validation:                         # Walk-Forward-Screen auf den Fenstern nach der Entdeckung + Embargo
+  embargo_periods: 1                # ein volles Haltefenster Abstand (Labels der Entdeckung überlappen nicht)
+  min_periods: 2
+  screen_alpha: 0.10                # einseitig; nur Screen, nie Bestätigung
+
+forward:                            # einzige Bestätigung: prospektiv, eingefrorene Spezifikation
+  min_periods: 4                    # genau eine Prüfung, sobald 4 unabhängige Forward-Fenster fertig sind
+  alpha: 0.05                       # einseitig je Hypothese …
+  fdr_q: 0.05                       # … und BH über ALLE je abgeschlossenen Forward-Tests (lebenslang)
+  max_days: 150                     # danach ohne genug Daten: INCONCLUSIVE (Datenlücke), kein Urteil
+
+options:                            # nur für erfolgreiche Aktienhypothesen (WF-Screen bestanden oder Forward bestätigt)
+  select_quantile: 0.6667           # Auswahl = oberes Drittel des Signals je Stichtag (unter geprüften Labels)
+  min_independent_periods: 5        # wie option_learner.MIN_INDEPENDENT_PERIODS
+
+budget:
+  max_new_per_run: 2                # höchstens so viele neue Hypothesen je Lauf
+  max_lifetime: 24                  # höchstens so viele Registrierungen insgesamt (Mehrfachtest-Nenner)
+
+segments:                           # unerklärte Fehlerkonzentration -> gesuchte Informationsdimension (Katalog)
+  min_abs_t: 2.0
+  fdr_q: 0.10                       # BH über alle getesteten Segmente
+  dimensions:
+    no_news: [attention, event_risk]
+    small_cap: [positioning, fundamentals]
+    high_short_interest: [positioning]
+    sector: [fundamentals, earnings_momentum]

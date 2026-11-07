@@ -12,6 +12,9 @@ aus den vorhandenen Speichern
   * outputs/research/option_learner/status_<h>d.json (Varianten-Experimente des Options-Lernmodells, prospektiv)
   * outputs/research/option_learner/improvement.json (Vorschläge, die eine menschliche Freigabe brauchen)
   * outputs/research/improvement_tasks.json         (technische Verbesserungsaufgaben mit Status und Versand)
+  * outputs/research/error_research.json           (fehlergetriebene Forschung: Hypothesen aus Forward-
+                                                    Prognosefehlern, durch bekannte Faktoren erklärte Muster,
+                                                    Datenlücken – research_director --errors)
 nach outputs/research/research_memory.jsonl. Jeder Eintrag: Spezifikation, Daten, Tests,
 Resultat, Regime, Gründe – und ob die Evidenz PROSPEKTIV (Forward) ist.
 
@@ -48,7 +51,13 @@ SOURCES = {
     "improvement_tasks": Path("outputs/research/improvement_tasks.json"),
     "alpha_option_economics": Path("outputs/research/autonomous_alpha/option_economics.json"),
     "alpha_option_validation": Path("outputs/research/autonomous_alpha/option_validation.json"),
+    "error_research": Path("outputs/research/error_research.json"),
 }
+# Fehlergetriebene Forschung (research_director.error_research) -> Memory-Status. PENDING_FORWARD ist weder Erfolg
+# noch abgeschlossener Test; Erfolg nur nach prospektiver Bestätigung (FORWARD_VALIDATED).
+ERROR_RESEARCH_STATUS = {"PENDING_FORWARD": "PENDING_FORWARD", "REJECTED_WF": "REJECTED",
+                         "FORWARD_REJECTED": "REJECTED", "FORWARD_CONFIRMED": "FORWARD_VALIDATED",
+                         "INCONCLUSIVE": "INCONCLUSIVE", "INVALID_MODIFIED": "REJECTED"}
 # Alpha-to-Options: Phase-B-Labels sind explorativ (kein abgeschlossener Test), Phase-C-Ergebnisse sind vorab
 # registrierte prospektive Tests. "Qualifiziert" ist ein Forschungserfolg, nie ein Produktionsstatus.
 ALPHA_ECON_STATUS = {"CANDIDATE_FOR_PROSPECTIVE_VALIDATION": "PENDING_FORWARD", "NEED_MORE_DATA": "DATA_GAP",
@@ -217,6 +226,54 @@ def collect(sources: dict | None = None) -> list[dict]:
     out += option_entries(*(src.get(k) for k in ("option_status_20d", "option_status_5d", "option_improvement")))
     out += task_entries(src.get("improvement_tasks"))
     out += alpha_option_entries(src.get("alpha_option_economics"), src.get("alpha_option_validation"))
+    out += error_entries(src.get("error_research"))
+    return out
+
+
+def error_entries(rep: dict | None) -> list[dict]:
+    """Fehlergetriebene Forschung: jede registrierte Hypothese (Familie error:<Quellenfamilie>, eigener Schlüssel
+    error_key -> nie erneut registriert), jedes durch Größe erklärte Muster (NOT_ROBUST: senkt den Familien-Prior)
+    und jede Datenlücke. Evidenz enthält nur abgeschlossene Stufen (kein Eintrag je Zwischenstand)."""
+    rep = rep or {}
+    out = []
+    for h in rep.get("hypotheses") or []:
+        sp, wf, fw = h.get("spec") or {}, h.get("walk_forward") or {}, h.get("forward") or {}
+        status = ERROR_RESEARCH_STATUS.get(h.get("status"))
+        if not status:
+            continue
+        out.append(_entry("error_research", h["id"], status,
+                          {"signal": sp.get("signal"), "direction": sp.get("direction"), "family": sp.get("family"),
+                           "domain": "forecast_error", "idea_source": "forecast_error", "error_key": h.get("key"),
+                           "horizon": sp.get("horizon"), "priority": (h.get("priority") or {}).get("priority"),
+                           "spec_hash": h.get("spec_hash")},
+                          source="error_research",
+                          evidence={"walk_forward": wf.get("status"), "wf_mean": wf.get("mean"),
+                                    "forward": fw.get("status") if fw.get("status") == "TESTED" else None,
+                                    "forward_mean": fw.get("mean") if fw.get("status") == "TESTED" else None,
+                                    "forward_p": fw.get("p_one_sided") if fw.get("status") == "TESTED" else None,
+                                    "option_check": (h.get("option_check") or {}).get("status")},
+                          reasons=[h.get("reason")] if h.get("reason") else [],
+                          data_kind="prospective_forward" if fw.get("status") == "TESTED"
+                          else "ledger_walk_forward_seen_data"))
+    for hz, v in sorted((rep.get("horizons") or {}).items()):
+        for c in v.get("candidates") or []:
+            if c.get("verdict") != "EXPLAINED_BY_KNOWN_FACTOR":
+                continue
+            d = c.get("discovery") or {}
+            out.append(_entry("error_pattern", f"ERRPAT-{c['id']}-{hz}d", "NOT_ROBUST",
+                              {"signal": c["id"], "family": "error:" + "+".join(c.get("families") or []),
+                               "domain": "forecast_error", "idea_source": "forecast_error", "horizon": int(hz)},
+                              source="error_research",
+                              evidence={"residual_ic": d.get("mean"), "t": d.get("t"),
+                                        "control_size_t": (c.get("control_size") or {}).get("t")},
+                              reasons=c.get("reasons"), data_kind="ledger_discovery_seen_data"))
+    for g in rep.get("data_gaps") or []:
+        out.append(_entry("error_gap", g["gap_id"], "DATA_GAP",
+                          {"signal": g.get("kind"), "domain": "forecast_error", "dimensions": g.get("dimensions")},
+                          source="error_research", evidence={"finding": g.get("finding")},
+                          reasons=[g.get("decision")],
+                          free_sources=[s["source"] if isinstance(s, dict) else s for s in g.get("sources") or []],
+                          data_kind="none"))
     return out
 
 
