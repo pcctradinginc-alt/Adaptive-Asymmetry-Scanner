@@ -229,7 +229,7 @@ def test_research_memory_and_meta_cognition_entries():
                      {"plan_id": "AOV-3", "hypothesis_id": HID, "structure": "LONG_CALL", "status": "RUNNING",
                       "classification": "RESEARCH"}]}
     st = {e["hypothesis_id"]: e["status"] for e in rm.alpha_option_entries(econ, val)}
-    assert st == {f"{HID}:LONG_CALL": "DATA_GAP", "AOV-1": "ACCEPTED", "AOV-2": "REJECTED", "AOV-3": "PENDING_FORWARD"}
+    assert st == {f"{HID}:LONG_CALL": "DATA_GAP", "AOV-1": "FORWARD_VALIDATED", "AOV-2": "REJECTED", "AOV-3": "PENDING_FORWARD"}
     assert "FORWARD_VALIDATED" not in st.values()                       # never a production state
     lines = mc.alpha_lines({"status": "EVALUATED", "n_plans": 3, **val,
                             "learning": {"missing_data": {"IV_UNKNOWN": 2}}})
