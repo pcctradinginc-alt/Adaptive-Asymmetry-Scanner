@@ -9,6 +9,11 @@ ebenfalls – aufgefallen ist es erst bei einer manuellen Log-Durchsicht. Dieses
   scanner_start   Start des heutigen Scan-Jobs in New-York-Zeit (Cron-Läufe kommen real 4–7 h verspätet; startet der
                   Scanner zu spät, fallen die RTH-Marks aus dem Fenster)
 
+  governance      (Audit 2026-11-07) Branch-Schutz von main und gemergte PRs der letzten Tage, die CODEOWNERS-Pfade
+                  (Bewertungsprotokolle, Gates, Datenkatalog, Workflows) ohne freigebendes Review geändert haben.
+                  CODEOWNERS selbst sagt: "Wirksam erst mit Branch-Protection 'Require review from Code Owners'".
+                  Live 07.11.: main protected=false; #165 (research_lab.py) und #166 (data_catalog.yaml) ohne Review gemergt.
+
 Nie schreibend, nie werfend: ohne Token oder bei API-Fehlern -> status UNAVAILABLE mit Grund.
 """
 from __future__ import annotations
@@ -18,6 +23,7 @@ import os
 import re
 from collections import Counter
 from datetime import datetime, time, timedelta, timezone
+from pathlib import Path
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +35,8 @@ SCANNER_FILE = ".github/workflows/scanner.yml"
 SCAN_JOB = "scan"
 LATE_START_ET = time(15, 0)          # danach bleibt bis zum Ende des Mark-Fensters (Schluss − 10 min) kaum Zeit
 MAX_RUNS, MAX_LOG_JOBS, MAX_LINES, MAX_PAGES = 15, 6, 4, 3
+CODEOWNERS = Path(".github/CODEOWNERS")
+GOVERNANCE_WINDOW_DAYS, GOVERNANCE_MAX_PRS = 14, 15
 _TS_RE = re.compile(r"^\d{4}-\d\d-\d\dT[\d:.]+Z\s?")
 _ERR_RE = re.compile(r"Traceback|Error|Exception|##\[error\]|\bFAILED\b|Fehler")
 _NOISE_RE = re.compile(r"Node\.js 20 is deprecated|DeprecationWarning|punycode|##\[warning\]|trace-deprecation")
@@ -218,7 +226,8 @@ def collect(now: datetime | None = None, env: dict | None = None, session=None) 
         return {"status": "OK", "window_hours": hours, "since": since, "runs_total": len(runs), "failed": failed,
                 "failed_by_workflow": dict(Counter(f["workflow"] for f in failed)),
                 "scanner_start": _scanner_start(session, runs, now),
-                "recent_outcomes": recent_run_outcomes(session, runs)}
+                "recent_outcomes": recent_run_outcomes(session, runs),
+                "governance": governance(session, repo, now)}
     except Exception as e:  # noqa: BLE001 – Monitoring darf nie scheitern
         return {"status": "UNAVAILABLE", "reason": f"GitHub-API: {type(e).__name__}: {str(e)[:160]}"}
 
@@ -238,3 +247,55 @@ def _scanner_start(session, runs: list[dict], now: datetime) -> dict:
                         "late": t.time() > LATE_START_ET, "late_after_et": LATE_START_ET.strftime("%H:%M"),
                         "trading_day": ms.is_trading_day(today)}
     return {"started_et": None, "trading_day": ms.is_trading_day(today)}
+
+
+def codeowner_patterns(text: str) -> list[str]:
+    """Pfadmuster aus CODEOWNERS (erste Spalte, ohne Kommentare); führender Slash entfernt."""
+    out = []
+    for line in (text or "").splitlines():
+        line = line.split("#", 1)[0].strip()
+        if line and len(line.split()) >= 2:
+            out.append(line.split()[0].lstrip("/"))
+    return out
+
+
+def owned(path: str, patterns: list[str]) -> bool:
+    """Grobe CODEOWNERS-Zuordnung: Verzeichnis-Muster (endet auf /) als Präfix, sonst exakter Pfad, '*' als Joker."""
+    import fnmatch
+    for pat in patterns:
+        if pat.endswith("/") and path.startswith(pat):
+            return True
+        if path == pat or ("*" in pat and fnmatch.fnmatch(path, pat)):
+            return True
+    return False
+
+
+def governance(session, repo: str, now: datetime, patterns: list[str] | None = None) -> dict:
+    """Branch-Schutz von main + gemergte PRs (letzte GOVERNANCE_WINDOW_DAYS Tage) mit CODEOWNERS-Pfaden ohne
+    APPROVED-Review. Nur lesend; eigener Fehlerpfad (der Fehler-Digest bleibt unberührt)."""
+    try:
+        if patterns is None:
+            patterns = codeowner_patterns(CODEOWNERS.read_text(encoding="utf-8")) if CODEOWNERS.exists() else []
+        protected = bool(_get(session, f"{API}/repos/{repo}/branches/{BRANCH}").json().get("protected"))
+        since = now - timedelta(days=GOVERNANCE_WINDOW_DAYS)
+        pulls = _get(session, f"{API}/repos/{repo}/pulls", {"state": "closed", "base": BRANCH, "sort": "updated",
+                                                            "direction": "desc", "per_page": 50}).json() or []
+        merged = [p for p in pulls if p.get("merged_at")
+                  and datetime.fromisoformat(p["merged_at"].replace("Z", "+00:00")) >= since][:GOVERNANCE_MAX_PRS]
+        unreviewed = []
+        for p in merged:
+            n = p.get("number")
+            files = [f.get("filename") for f in (_get(session, f"{API}/repos/{repo}/pulls/{n}/files",
+                                                      {"per_page": 100}).json() or [])]
+            hit = sorted(f for f in files if f and owned(f, patterns))
+            if not hit:
+                continue
+            reviews = _get(session, f"{API}/repos/{repo}/pulls/{n}/reviews").json() or []
+            if not any(r.get("state") == "APPROVED" for r in reviews):
+                unreviewed.append({"number": n, "title": (p.get("title") or "")[:120], "merged_at": p.get("merged_at"),
+                                   "url": p.get("html_url"), "codeowner_paths": hit[:10], "n_codeowner_paths": len(hit)})
+        return {"status": "OK", "branch": BRANCH, "protected": protected, "window_days": GOVERNANCE_WINDOW_DAYS,
+                "merged_checked": len(merged), "codeowner_patterns": len(patterns),
+                "unreviewed_codeowner_merges": unreviewed}
+    except Exception as e:  # noqa: BLE001 – Monitoring darf nie scheitern
+        return {"status": "UNAVAILABLE", "reason": f"GitHub-API: {type(e).__name__}: {str(e)[:160]}"}

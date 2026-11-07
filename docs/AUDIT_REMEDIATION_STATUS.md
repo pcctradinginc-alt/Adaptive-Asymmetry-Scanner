@@ -77,6 +77,23 @@ nächste sinnvolle Schritt (P3, nicht Teil dieses Plans).
    - „Require status checks“: `Tests (Pflicht-Check) / pytest`;
    - „Require review from Code Owners“;
    - „Do not allow bypassing“.
+
+   **Nachtrag 2026-11-07 (Prüfung über die GitHub-API):**
+   - Der Schritt ist nicht umgesetzt: `main` meldet `protected: false`.
+   - #165 (`modules/research_lab.py`) und #166 (`config/data_catalog.yaml`) wurden ohne Review gemergt, obwohl beide
+     Pfade unter CODEOWNERS stehen. CODEOWNERS wird also nicht erzwungen.
+   - Die Einstellung wie oben beschrieben würde den Betrieb blockieren. 18 von 21 Workflows schreiben ihre Daten über
+     `scripts/ci_push.sh` direkt auf `main` (`git push HEAD:main`). Mit Pflicht-Review und ohne Ausnahme schlagen diese
+     Pushes fehl.
+   - Umsetzbar ist ein Ruleset für `main` mit drei Teilen:
+     - Pull Request mit Code-Owner-Review und Pflicht-Check `pytest`.
+     - Bypass nur für die GitHub-Actions-Integration, nicht für Personen oder andere Apps.
+     - Dazu ein Push-Ruleset, das `.github/**`, `config/*_protocol.yaml` und die übrigen CODEOWNERS-Pfade für alle
+       außer dem Owner sperrt.
+     - Die Alternative: Datencommits auf einen eigenen Branch verlegen.
+   - Das bleibt eine Owner-Einstellung. Seit diesem Stand meldet der tägliche Ops-Digest
+     (`ops_workflows.governance`) fehlenden Branch-Schutz (`BRANCH_UNPROTECTED`) und ungeprüfte Merges kritischer Pfade
+     (`UNREVIEWED_CRITICAL_MERGE`).
 2. **P1-6 entscheiden:** Soll die Abstinenz-Regel, sobald sie vorwärts
    bestätigt ist, auch die tägliche Mail gaten?
 3. **Neuberechnung anstoßen:** ein `ml_research`-Full-Lauf auf dem

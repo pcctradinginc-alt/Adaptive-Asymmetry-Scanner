@@ -273,6 +273,19 @@ def _rules(status: dict, row: dict, prev: dict | None) -> list[tuple]:
                 f"„{name}“: {len(fs)} fehlgeschlagene(r) Lauf/Läufe seit {wf.get('since') or NA}; Schritte: "
                 f"{', '.join(steps) or NA}; letzte Fehlerzeile: {last or NA}; {fs[-1].get('url') or ''}",
                 (name, tuple(steps)))
+        gov = wf.get("governance") or {}
+        if gov.get("status") == "OK" and gov.get("protected") is False:
+            add("BRANCH_UNPROTECTED", "WARNING", "Governance",
+                f"Branch „{gov.get('branch')}“ ist nicht geschützt: CODEOWNERS-Reviews (Bewertungsprotokolle, Gates, "
+                f"Datenkatalog, Workflows) werden nicht erzwungen. Nur der Owner kann das ändern (Settings → Rules).",
+                (gov.get("branch"),))
+        ur = gov.get("unreviewed_codeowner_merges") or []
+        if gov.get("status") == "OK" and ur:
+            add("UNREVIEWED_CRITICAL_MERGE", "WARNING", "Governance",
+                f"{len(ur)} PR(s) mit CODEOWNERS-Pfaden ohne freigebendes Review gemergt (letzte "
+                f"{gov.get('window_days')} Tage): " + "; ".join(f"#{u.get('number')} ({', '.join(u.get('codeowner_paths')[:3])})"
+                                                           for u in ur[:5]),
+                tuple(sorted(u.get("number") for u in ur)))
         st_ = wf.get("scanner_start") or {}
         if st_.get("late") and st_.get("trading_day"):
             add("SCANNER_LATE_START", "WARNING", "Lauf",
@@ -408,6 +421,7 @@ _OWNER = {"SCANNER_FAILED": "run", "ARCHIVE_FAILED": "run", "QUOTE_COVERAGE_LOW"
           "TRAINING_INADMISSIBLE": "training", "PROMOTION_UNJUSTIFIED": "promotion", "DATA_DEGRADATION": "data_health",
           "TIMING_EXIT_PENDING_OVERDUE": "timing", "TIMING_UNUSABLE": "timing",
           "WORKFLOW_FAILED": "workflows", "SCANNER_LATE_START": "workflows", "DIRECTION_CONFLICT_HIGH": "run",
+          "BRANCH_UNPROTECTED": "workflows", "UNREVIEWED_CRITICAL_MERGE": "workflows",
           "UNIVERSE_SOURCE_MISMATCH": "data_health"}
 
 
