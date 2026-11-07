@@ -100,6 +100,11 @@ def hypothesis_status(rec: dict | None) -> str:
     # still carry old canonical labels until the next monthly lab run.
     if rec.get("status") in ("accepted", "historical_exploratory_pending_forward"):
         return "EXPLORATORY"
+    # A cached Research-Lab ACCEPTED, even without the original raw status,
+    # is always historical. Forward confirmation belongs to separate frozen
+    # validation journals and must never be inferred from this legacy field.
+    if str(rec.get("canonical_status") or "").upper() == "ACCEPTED":
+        return "EXPLORATORY"
     historical = rec.get("locked_holdout_status") == "CONTAMINATED" or rec.get("evidence_class") in (
         "EXPLORATORY_HISTORICAL", "HISTORICAL_RESEARCH", "HISTORICAL_ROBUSTNESS_BATTERY")
     if historical and str(rec.get("canonical_status") or rec.get("status") or "").upper() in (
@@ -113,7 +118,8 @@ def hypothesis_status(rec: dict | None) -> str:
 
 
 TESTED = ("EXPLORATORY", "REJECTED", "INCONCLUSIVE", "RETEST_LATER", "NOT_ROBUST",
-          "PENDING_FORWARD", *PROSPECTIVE_STATES, "DEMOTED", "EXPIRED")
+          *PROSPECTIVE_STATES, "DEMOTED", "EXPIRED")
+# Merely registered PENDING_FORWARD is not yet a performed independent test.
 # Research success has one evidence meaning: an independently validated forward result.
 SUCCESS = PROSPECTIVE_STATES
 _NAME = re.compile(r"[a-z_][a-z0-9_]*")
