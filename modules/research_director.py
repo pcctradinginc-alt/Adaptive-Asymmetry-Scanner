@@ -321,8 +321,12 @@ def active_learning(world: dict, blind: list[dict], catalog: list[dict],
 
 
 def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict], max_new: int = MAX_NEW_PER_RUN,
-         error_gaps: list[dict] | None = None) -> dict:
+         error_gaps: list[dict] | None = None, memory: list[dict] | None = None) -> dict:
+    from modules import research_memory as rmem
+    from modules.research_lab import SignalError, validate_expr
     tested = hyp_db.get("hypotheses") or {}
+    memory = memory or []
+    max_new = max(0, min(int(max_new), MAX_NEW_PER_RUN))
     blind = nextv.get("blind_spot_clusters") or []
     raw = candidates_from_blind_spots(blind) + candidates_from_regimes(meta, hyp_db) + candidates_from_drift(meta)
     cands = []
@@ -337,15 +341,40 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
         c["research_cost"] = 1.0 if c["kind"] == "testable" else 3.0
         c["priority"] = priority(c["expected_information_gain"], max(c.get("value", 0) * 100, 0.1), c["novelty"],
                                  1 - c["risk_of_overfitting"], 1.0 if c.get("available_data") else 3.0, c["research_cost"])
+        c["status"] = "EXPLORATORY"
+        c["defer_reason"] = None
+        if c["kind"] == "testable":
+            spec = {"signal": c.get("signal"), "direction": c.get("direction"),
+                    "domain": c.get("domain")}
+            hits = rmem.search(spec, memory, threshold=0.85)
+            c["memory_matches"] = [{"id": k, "status": st, "similarity": sim}
+                                   for k, st, sim in hits[:3]]
+            if hits:  # no resurrection by minor rephrasing, even when old verdict is negative
+                c["defer_reason"] = "RESEARCH_MEMORY_SIMILAR_PREVIOUSLY_TESTED"
+            elif not c.get("available_data"):
+                c["defer_reason"] = "NEED_MORE_DATA"
+            else:
+                try:
+                    validate_expr(str(c.get("signal") or ""))
+                except (SignalError, ValueError) as exc:
+                    c["defer_reason"] = "UNSAFE_OR_UNAVAILABLE_PIT_EXPRESSION"
+                    c["validation_error"] = str(exc)[:160]
+            if c["defer_reason"]:
+                c["status"] = "NEED_MORE_DATA" if c["defer_reason"] == "NEED_MORE_DATA" else "DEFERRED"
+                c["priority"] = 0.0
         cands.append(c)
-    cands.sort(key=lambda c: -c["priority"])
-    chosen = [c for c in cands if c["kind"] == "testable" and c["novelty"] > 0.2 and c["research_id"] not in tested][:max_new]
+    cands.sort(key=lambda c: (-c["priority"], c["research_id"]))
+    chosen = [c for c in cands if c["kind"] == "testable" and not c["defer_reason"]
+              and c["novelty"] > 0.2 and c["research_id"] not in tested][:max_new]
     hyps = [{"id": c["research_id"], "title": c["title"], "statement": c["statement"], "signal": c["signal"],
              "direction": c["direction"], "rationale": c["economic_rationale"],
              "created_at": datetime.now(timezone.utc).date().isoformat()} for c in chosen]
     return {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "n_candidates": len(cands), "n_selected_for_testing": len(hyps), "max_new_per_run": max_new,
             "candidates": cands, "selected": [c["research_id"] for c in chosen], "hypotheses": hyps,
+            "deferred": [{"id": c["research_id"], "reason": c["defer_reason"]}
+                         for c in cands if c.get("defer_reason")],
+            "memory_entries_considered": len(memory),
             "active_learning": active_learning(world, blind, catalog, error_gaps)}
 
 
@@ -2815,7 +2844,10 @@ def run() -> dict:
     catalog = annotate_catalog((yaml.safe_load(CATALOG.read_text(encoding="utf-8")) or {}).get("sources", [])
                                if CATALOG.exists() else [])
     errors = _load(ERROR_REPORT, {})              # wöchentlich von --errors geschrieben (fehlergetriebene Forschung)
-    rep = plan(meta, nextv, world, hyp_db, catalog, error_gaps=errors.get("data_gaps"))
+    from modules import research_memory as rmem
+    rmem.sync()  # use canonical latest research results and measured data-quality gaps before selecting
+    rep = plan(meta, nextv, world, hyp_db, catalog, error_gaps=errors.get("data_gaps"),
+               memory=rmem.load())
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "research_candidates.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False, default=str))
     (OUT / "director_hypotheses.json").write_text(json.dumps({"generated": rep["generated"],
