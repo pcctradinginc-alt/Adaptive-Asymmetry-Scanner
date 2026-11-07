@@ -56,17 +56,34 @@ class HDXShadowError(ValueError):
     """Input/data/provenance failure; shadow status FAIL, never bypass Safe Mode."""
 
 
-def _validate_url(url: str) -> str:
+_HOST_RE = re.compile(r"^[a-z0-9.-]{1,253}$")
+
+
+def _untrusted(url, stage: str) -> HDXShadowError:
+    """UNTRUSTED_DOWNLOAD_URL plus diagnostics: only the bare hostname (never path, query or credentials, which may
+    carry signed tokens) and where it appeared. Live 2026-11-07: all 9 resources failed with this error and the
+    report did not say which host was rejected (storage redirect vs. a link back to ArcGIS, i.e. not independent)."""
+    err = HDXShadowError("UNTRUSTED_DOWNLOAD_URL")
+    try:
+        host = (urlsplit(url).hostname or "") if isinstance(url, str) else ""
+    except ValueError:
+        host = ""
+    err.host = host if _HOST_RE.fullmatch(host or "") else None
+    err.stage = stage
+    return err
+
+
+def _validate_url(url: str, stage: str = "request") -> str:
     if not isinstance(url, str) or len(url) > 2048:
-        raise HDXShadowError("UNTRUSTED_DOWNLOAD_URL")
+        raise _untrusted(url, stage)
     try:
         p = urlsplit(url)
         if (p.scheme != "https" or p.hostname not in ALLOWED_HOSTS
                 or p.username is not None or p.password is not None
                 or p.port not in (None, 443) or not p.path.startswith("/")):
-            raise HDXShadowError("UNTRUSTED_DOWNLOAD_URL")
+            raise _untrusted(url, stage)
     except ValueError as exc:
-        raise HDXShadowError("UNTRUSTED_DOWNLOAD_URL") from exc
+        raise _untrusted(url, stage) from exc
     return url
 
 
@@ -84,7 +101,7 @@ def _safe_get(session, url: str, **kwargs):
             response.close()
             if not location:
                 raise HDXShadowError("REDIRECT_WITHOUT_LOCATION")
-            url = _validate_url(urljoin(url, location))
+            url = _validate_url(urljoin(url, location), "redirect")
             continue
         response.raise_for_status()
         return response
@@ -132,7 +149,7 @@ def _resolve_resource(session, spec: ResourceSpec, package_cache: dict) -> tuple
     if spec.resource_id not in {x.get("id") for x in pkg.get("resources", [])
                                if isinstance(x, dict)}:
         raise HDXShadowError("RESOURCE_PACKAGE_LINK_MISMATCH")
-    return _validate_url(meta.get("url")), {"publisher": "HDX/PortWatch", "package_id": package_id,
+    return _validate_url(meta.get("url"), "resource_url"), {"publisher": "HDX/PortWatch", "package_id": package_id,
                                            "resource_id": spec.resource_id, "name": meta["name"]}
 
 
@@ -235,6 +252,8 @@ def check_resources(now: datetime | None = None, keys=DEFAULT_KEYS, session=None
             except (HDXShadowError, requests.RequestException, UnicodeError, csv.Error, OSError) as exc:
                 entry["error"] = (str(exc) if isinstance(exc, HDXShadowError)
                                   else f"HTTP_OR_IO_{type(exc).__name__}")
+                if getattr(exc, "stage", None):
+                    entry["rejected_host"], entry["rejected_stage"] = getattr(exc, "host", None), exc.stage
             report["resources"][key] = entry
     finally:
         if owned_session:
