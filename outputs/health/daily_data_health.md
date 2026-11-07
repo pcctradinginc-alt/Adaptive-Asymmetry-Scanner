@@ -1,17 +1,29 @@
-# Daily Data Health Report – 2026-11-06
+# Daily Data Health Report – 2026-11-07
 
-**Safe Mode (Daten): AKTIV** – gewichtete Data Quality 0.888 – 2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.912
 
-Status: HEALTHY 49 · DEGRADED 2 · STALE 1 · BROKEN 2 · UNVALIDATED 9
+Status: HEALTHY 48 · DEGRADED 5 · STALE 1 · BROKEN 0 · UNVALIDATED 9
+
+## Neue Änderungen
+
+- recovery: imf_portwatch_disruptions DEGRADED → HEALTHY
+- degradation: destatis_truck_toll HEALTHY → DEGRADED (Ingest FAIL: GENESIS meldet Status 7000: Für die Teiltabelle mit der Metadatenkombination:
+Indizes aus der Lkw-Mauterhebung (42191)
+Lkw-Maut-Fahrleistungsindex )
+- degradation: bts_open_data_tsi HEALTHY → DEGRADED (Ingest FAIL: SODA-Zeilenabruf fehlgeschlagen (bw6n-ddqk): 503 für https://data.bts.gov/resource/bw6n-ddqk.json; Data-Quality-Befund schwerwiegend)
+- safe_mode_off: * True → False
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| imf_portwatch_chokepoints | BROKEN | IMPORTANT | 8 | 2026-10-25 | – | Ingest FAIL: [Isolation basis=FAIL(429) where=FAIL(429) outFields=FAIL(429) orderByFields=FAIL(429) paging=FAIL(429)] ArcGIS-Query-Fehler: { |
-| imf_portwatch_ports | BROKEN | IMPORTANT | 16 | 2026-10-23 | – | Ingest FAIL: [Isolation basis=FAIL(429) where=FAIL(429) outFields=FAIL(429) orderByFields=FAIL(429) paging=FAIL(429)] ArcGIS-Query-Fehler: { |
 | estat_jp_truck | STALE | NON_CRITICAL | 0 | 2026-03-01 | – | veraltet (Frequenz-Grenze der Registry) |
-| imf_portwatch_disruptions | DEGRADED | NON_CRITICAL | 2 | 2026-08-14 | – | Ingest FAIL: [Isolation basis=FAIL(429) outFields=FAIL(429) paging=FAIL(429)] ArcGIS-Query-Fehler: {'code': 429, 'message': 'Unable to perfo |
+| bts_open_data_tsi | DEGRADED | IMPORTANT | 1 | 2026-08-01 | – | Ingest FAIL: SODA-Zeilenabruf fehlgeschlagen (bw6n-ddqk): 503 für https://data.bts.gov/resource/bw6n-ddqk.json; Data-Quality-Befund schwerwi |
+| destatis_truck_toll | DEGRADED | IMPORTANT | 1 | 2026-09-01 | – | Ingest FAIL: GENESIS meldet Status 7000: Für die Teiltabelle mit der Metadatenkombination:
+Indizes aus der Lkw-Mauterhebung (42191)
+Lkw-Maut |
+| imf_portwatch_chokepoints | DEGRADED | IMPORTANT | 0 | 2026-10-25 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
+| imf_portwatch_ports | DEGRADED | IMPORTANT | 0 | 2026-10-30 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
 
 ## Fallbacks
