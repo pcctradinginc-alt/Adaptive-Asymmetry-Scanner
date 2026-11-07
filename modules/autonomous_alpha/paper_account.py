@@ -317,6 +317,10 @@ def _close(root: Path, data: dict, cfg: dict, current: dict) -> int:
         if o.get("excluded_by_correction") or o.get("evidence_class") != "QUOTE_VERIFIED_PAPER":
             continue
         archive = oe._archive(root, [d], [o])
+        ids = [leg["quote_record_id"] for leg in d["legs"] + o["exit_legs"]]
+        approved = set(cfg["approved_quote_sources"])
+        if not approved or any(archive.get(rid, {}).get("source") not in approved for rid in ids):
+            continue  # broker-required or unapproved quotes cannot close the account
         if oe._verify(d, o, archive):
             continue
         rule = al.config(root)["rule"]
@@ -351,7 +355,11 @@ def _mark(root: Path, position: dict, as_of: datetime) -> dict:
     available = [{day for day, _ in history.get(sym, [])} for sym in symbols]
     common = set.intersection(*available) if available else set()
     for day in sorted(common, reverse=True):
-        records = [next(r for d, r in reversed(history[sym]) if d == day) for sym in symbols]
+        records = [next((r for d, r in reversed(history[sym])
+                         if d == day and r.get("source") in set(policy(root)["approved_quote_sources"])), None)
+                   for sym in symbols]
+        if any(r is None for r in records):
+            continue
         times = [_utc(r["retrieved_at"]) for r in records]
         if (max(times) - min(times)).total_seconds() > 900:
             continue
