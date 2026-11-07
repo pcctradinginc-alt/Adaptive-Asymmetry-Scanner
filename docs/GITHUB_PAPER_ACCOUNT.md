@@ -33,25 +33,32 @@ certification.
 
 ## Operation
 
-Policy: config/paper_account.yaml, starting cash **$100,000**. The account is
-DISABLED by default and has no approved quote source until a provider with
-account-free market data, suitable quote timestamps, archive provenance and
-permitted automated use has passed explicit human review. Its exposure
-limits apply only to this account, not to production position sizing or
-production RiskGates. Changing a used policy hash requires a separate reviewed
-migration.
+Policy: config/paper_account.yaml, starting cash **$100,000**. The
+account is enabled in the PR (not deployed until manually merged). Its allowed
+quote source is the existing **Tradier read-only market-data feed**, already
+used by option_link and option_quotes via the GitHub Actions secret
+TRADIER_API_KEY. It does not create or connect a Tradier paper account, read a
+broker portfolio, or submit an order. Trade executions are simulated locally
+using stored bid/ask quotes and one 100-contract multiplier.
 
-The options-capture job first commits all observed quotes and decisions.
-Then it runs:
+Its exposure limits apply only to this account, not to production position
+sizing or production RiskGates. Changing a used policy hash requires a
+separate reviewed migration.
 
-    python -m modules.autonomous_alpha paper-account --paper-mode capture
+The unchanged options-capture GitHub Actions workflow runs
+python scripts/rth_marks.py --capture-only once. After collecting observed
+quotes and settling alpha-link outcomes, that same Python entrypoint calls the
+GitHub-only paper_account.sync(capture=True) module. Its existing single
+ci_push.sh invocation commits all outputs/options_archive files, including the
+new paper receipts. There is no extra GitHub workflow, no extra API key and no
+separate Tradier paper-account connection. If account bookkeeping fails, the
+quote-archive push still runs and the account error is recorded in capture
+telemetry.
 
-It commits only the account receipt path. Therefore, account failure **cannot
-discard already committed quotes**. The first run creates an activation
-receipt; it never backfills prior Research decisions. Later runs only book
-decisions that occurred after activation and no more than 15 minutes ago.
-Settlement uses existing validated outcomes. Neither path contains order
-transmission or a broker dependency.
+The first successful capture creates an activation receipt and intentionally
+does not backfill prior Research decisions. Later captures only book decisions
+that occurred after activation and at most 15 minutes ago. Settlement uses
+existing quote-verified outcomes. Neither path sends orders.
 
 The weekly research job, after its existing alpha-option evaluation, runs:
 
@@ -79,16 +86,13 @@ receipt enable investigation). No credentials are stored in Git.
 
 ## Known limitations and release gates
 
-- Hard blocker: the existing Alpha→Options live decision path uses Tradier,
-  whose official API requires an active brokerage account and account token.
-  This is unacceptable as a *necessary* dependency for a strictly broker-free
-  account. The current GitHub-only account therefore cannot automatically
-  start until an approved nonbroker option-quote decision/capture feed is added.
-  Changing provider configuration alone is insufficient if the underlying
-  option_link.decide path still uses Tradier.
-- Cboe explicitly prohibits automated downloading of its free delayed quote
-  table; do not scrape it. Yahoo/yfinance option quote freshness and provenance
-  are not established to the standard needed for verified paper fills.
+- The owner has already configured TRADIER_API_KEY in GitHub for market-data
+  read access. The virtual portfolio is held exclusively in GitHub journal
+  files; Tradier is a quote provider only. Access entitlements and quote
+  timeliness must still be monitored via the existing archived provenance and
+  RTH quality gates; no order scopes or broker portfolio APIs are introduced.
+- If the existing quote stream is missing or unusable, the account does not
+  fabricate prices or treat unverified results as real fills.
 - Draft PR: not merged or activated; **no live paper fills** and no
   economic alpha evidence from this feature.
 - The account starts only at its first post-approval capture, and intentionally
@@ -114,7 +118,7 @@ receipt enable investigation). No credentials are stored in Git.
 
 ## Release checklist
 
-1. New tests and full pre-existing tests must pass on the final head.
+1. New tests and full pre-existing tests must pass on the final head; pre-existing capture invariants must remain unchanged.
 2. Run repeated synthetic capture/settlement and replay checks; confirm
    prevention of double booking and prevention of real orders.
 3. Review the two workflow edits and read-only data dependencies.
