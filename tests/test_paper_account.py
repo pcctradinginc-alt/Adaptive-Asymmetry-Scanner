@@ -24,7 +24,9 @@ LATER = datetime(2026, 12, 9, 18, 0, tzinfo=timezone.utc)
 def account(tmp_path, monkeypatch):
     (tmp_path / "config").mkdir()
     (tmp_path / pa.CONFIG).write_text(
-        Path("config/paper_account.yaml").read_text(encoding="utf-8"), encoding="utf-8")
+        Path("config/paper_account.yaml").read_text(encoding="utf-8")
+        .replace("enabled: false", "enabled: true")
+        .replace("approved_quote_sources: []", "approved_quote_sources: [SYNTHETIC_TEST_ONLY]"), encoding="utf-8")
     alpha_cfg = {"rule": {"contracts_per_position": 1, "commission_usd_per_contract_per_side": 0.65,
                           "adverse_slippage_fraction_of_spread": 0.25}}
     sig = {"signal_id": "ALS-1", "hypothesis_id": "AUTO-one",
