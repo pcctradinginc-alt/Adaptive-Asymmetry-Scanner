@@ -354,6 +354,43 @@ def parse_wiki_list(html: str, table_id: str = "constituents") -> dict[str, str]
     return out
 
 
+WIKI_API = "https://en.wikipedia.org/w/api.php"
+REDIRECT_BATCH = 50                                   # MediaWiki: höchstens 50 Titel je Abfrage
+
+
+def resolve_wiki_titles(titles, fetch=None) -> tuple[dict[str, str], dict]:
+    """Audit 2026-11-07: Die Artikel stammen aus Links der S&P-500-/Nasdaq-100-Listen; viele Links sind
+    Weiterleitungen (z. B. Fifth_Third_Bancorp, Tractor_Supply, J.B._Hunt, PG&E). Die Pageviews-API folgt
+    Weiterleitungen NICHT: gezählt wurden nur die Aufrufe der Weiterleitungsseite (Median 4–14 Aufrufe/Tag bei
+    S&P-500-Firmen). Löst Normalisierung und Weiterleitungen über die MediaWiki-API auf -> {Titel: Zieltitel}.
+    Fehlgeschlagene Abfragen behalten den Originaltitel (bisheriges Verhalten), nie eine geratene Zuordnung."""
+    fetch = fetch or http.fetch
+    out = {t: t for t in titles}
+    diag = {"batches": 0, "failed_batches": 0, "resolved": 0}
+    uniq = sorted(set(titles))
+    for i in range(0, len(uniq), REDIRECT_BATCH):
+        batch = uniq[i:i + REDIRECT_BATCH]
+        try:
+            res = fetch(WIKI_API, params={"action": "query", "format": "json", "redirects": "1",
+                                          "titles": "|".join(t.replace("_", " ") for t in batch)},
+                        headers=WIKI_HEADERS, retries=2)
+            q = (res.json() or {}).get("query") or {}
+        except Exception as e:  # noqa: BLE001 – Auflösung ist Verbesserung, nie Abbruchgrund
+            diag["failed_batches"] += 1
+            log.warning("Wikipedia-Weiterleitungen: Abfrage fehlgeschlagen (%s)", type(e).__name__)
+            continue
+        diag["batches"] += 1
+        norm = {n.get("from"): n.get("to") for n in q.get("normalized") or [] if isinstance(n, dict)}
+        redir = {r.get("from"): r.get("to") for r in q.get("redirects") or [] if isinstance(r, dict)}
+        for t in batch:
+            name = norm.get(t.replace("_", " "), t.replace("_", " "))
+            final = (redir.get(name) or name).replace(" ", "_")
+            if final and final != t:
+                out[t] = final
+                diag["resolved"] += 1
+    return out, diag
+
+
 def parse_pageviews(payload: dict) -> list[tuple[date, float]]:
     items = (payload or {}).get("items")
     if not isinstance(items, list):
@@ -393,6 +430,10 @@ class WikimediaPageviewsConnector(Connector):
             return ConnectorResult(self.source_id, SourceStatus.SCHEMA_CHANGED, raw=raw,
                                    message=f"nur {len(articles)} Ticker-Artikel aus den Wikipedia-Listen; "
                                            f"Diagnose: {diag}")
+        sample = getattr(self, "_sample", None)              # Preflight: nur die Stichprobe auflösen
+        resolved, rdiag = resolve_wiki_titles([a for _, a in sorted(articles.items())[:sample or None]])
+        linked = dict(articles)                                   # Titel laut Listen-Link (Diagnose)
+        articles = {tk: resolved.get(art, art) for tk, art in articles.items()}
         end = now.date() - timedelta(days=1)
         start = end - timedelta(days=int(self.cfg.get("lookback_days", 3)) - 1)
         obs, failures, pause = [], 0, float(self.cfg.get("request_pause_seconds", 0.05))
@@ -417,7 +458,7 @@ class WikimediaPageviewsConnector(Connector):
                     metric="wiki_pageviews", value=v, unit="views", observation_time=_day(d),
                     available_at=res.retrieved_at, retrieved_at=res.retrieved_at,
                     availability_precision=AvailabilityPrecision.EXACT_TIMESTAMP, parser_version=self.parser_version,
-                    attrs={"article": art}))
+                    attrs={"article": art, **({"linked_title": linked[tk]} if linked.get(tk) != art else {})}))
             if pause:
                 time.sleep(pause)
         if first_raw is not None:
@@ -426,7 +467,9 @@ class WikimediaPageviewsConnector(Connector):
         status = SourceStatus.PASS if obs and failures <= 0.1 * n_req else \
             SourceStatus.WARN if obs else SourceStatus.FAIL
         return ConnectorResult(self.source_id, status, observations=obs, raw=raw,
-                               message=f"{len(articles)} Artikel, {len(obs)} Tageswerte, {failures} Fehler",
+                               message=f"{len(articles)} Artikel, {len(obs)} Tageswerte, {failures} Fehler; "
+                                       f"Weiterleitungen aufgelöst: {rdiag['resolved']} "
+                                       f"(Abfragen {rdiag['batches']}, fehlgeschlagen {rdiag['failed_batches']})",
                                latest_observation_time=max((o.observation_time for o in obs), default=None))
 
 

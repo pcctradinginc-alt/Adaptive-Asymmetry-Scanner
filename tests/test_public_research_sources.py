@@ -139,6 +139,8 @@ def test_wiki_list_parser_both_column_orders():
 
 def test_pageviews_connector(monkeypatch):
     def fake(url, **kw):
+        if url == mp.WIKI_API:
+            return resp({"query": {}}, url=url)
         if "List_of_S" in url:
             return resp(WIKI_HTML, url=url)
         if "Nasdaq-100" in url:
@@ -408,6 +410,8 @@ def test_pageviews_preflight_uses_sample(monkeypatch):
     def fake(url, **kw):
         if "wikipedia.org/wiki/" in url:
             return resp(html, url=url)
+        if url == mp.WIKI_API:                                          # Weiterleitungs-Auflösung (Audit 2026-11-07)
+            return resp({"query": {}}, url=url)
         calls.append(url)
         return resp({"items": [{"timestamp": "2026101400", "views": 1}]}, url=url)
 
@@ -510,3 +514,39 @@ def test_calendar_future_dates_are_neither_dq_finding_nor_pit_violation():
     assert any("Zeitpunkt in der Zukunft" in r and "keine PIT-Verletzung" in r for r in cls["fred_liquidity"]["reasons"])
     assert cls["fred_market_expectations"]["raw_status"] == "BROKEN"
     assert any(r.startswith("PIT-Verletzung: 3") for r in cls["fred_market_expectations"]["reasons"])
+
+
+def test_pageviews_follow_wikipedia_redirects_to_the_target_article():
+    """Audit 2026-11-07: Listen-Links zeigen oft auf Weiterleitungen (live: Fifth_Third_Bancorp, Median 4 Aufrufe/Tag);
+    die Pageviews-API zählt dann nur die Weiterleitungsseite. Jetzt Abruf des Zielartikels, Listen-Titel in attrs."""
+    html = ("<table id='constituents'><tr><th>S</th><th>N</th></tr>"
+            "<tr><td>FITB</td><td><a href='/wiki/Fifth_Third_Bancorp'>x</a></td></tr>"
+            "<tr><td>AAPL</td><td><a href='/wiki/Apple_Inc.'>x</a></td></tr>"
+            "<tr><td>PCG</td><td><a href='/wiki/PG%26E'>x</a></td></tr></table>")
+    seen = []
+
+    def fake(url, params=None, **kw):
+        if "wikipedia.org/wiki/" in url:
+            return resp(html, url=url)
+        if url == mp.WIKI_API:
+            assert params["redirects"] == "1" and set(params["titles"].split("|")) == {
+                "Apple Inc.", "Fifth Third Bancorp", "PG&E"}
+            return resp({"query": {"redirects": [{"from": "Fifth Third Bancorp", "to": "Fifth Third Bank"},
+                                                 {"from": "PG&E", "to": "Pacific Gas and Electric Company"}]}}, url=url)
+        art = url.split("/user/")[1].split("/")[0]
+        seen.append(art)
+        return resp({"items": [{"timestamp": "2026101300", "views": 900}]}, url=url)
+
+    with patch.object(mp.http, "fetch", side_effect=fake), patch.object(mp.time, "sleep"):
+        r = mp.WikimediaPageviewsConnector({"min_articles": 3, "lookback_days": 1}).fetch(NOW)
+    assert sorted(seen) == ["Apple_Inc.", "Fifth_Third_Bank", "Pacific_Gas_and_Electric_Company"]
+    by = {o.entity_id: o for o in r.observations}
+    assert by["FITB"].attrs == {"article": "Fifth_Third_Bank", "linked_title": "Fifth_Third_Bancorp"}
+    assert by["AAPL"].attrs == {"article": "Apple_Inc."} and "Weiterleitungen aufgelöst: 2" in r.message
+
+
+def test_redirect_lookup_failure_keeps_the_linked_titles():
+    def boom(url, **kw):
+        raise http.FetchError("blocked")
+    out, diag = mp.resolve_wiki_titles(["A_b", "C"], fetch=boom)
+    assert out == {"A_b": "A_b", "C": "C"} and diag == {"batches": 0, "failed_batches": 1, "resolved": 0}
