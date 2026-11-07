@@ -183,3 +183,20 @@ def test_corrupt_capture_attempt_receipt_fails_closed(configured):
     result = audit.build(configured, now=NOW)
     assert result["n_technical_defects"] == 1
     assert "CAPTURE_ATTEMPT_INTEGRITY" in {x["id"] for x in result["issues"]}
+
+
+def test_cached_account_balances_must_equal_signed_git_journal(configured):
+    pa.sync(configured, now=NOW, capture=True, persist_report=False)
+    pa.sync(configured, now=NOW, capture=False, persist_report=True)
+    clean = audit.build(configured, now=NOW)
+    assert clean["n_technical_defects"] == 0
+    file = configured / audit.ACCOUNT_REPORT
+    fake = json.loads(file.read_text())
+    fake["cash_usd"] += 25000
+    file.write_text(json.dumps(fake))
+    broken = audit.build(configured, now=NOW)
+    assert broken["n_technical_defects"] == 1
+    assert "ACCOUNT_SUMMARY_DIFFERS_FROM_SIGNED_LEDGER" in {i["id"] for i in broken["issues"]}
+    checked = audit.run(configured, now=NOW)
+    assert checked["n_technical_defects"] == 1
+    assert not (configured / rm.MEMORY).exists()  # source corruption prevents memory ingestion
