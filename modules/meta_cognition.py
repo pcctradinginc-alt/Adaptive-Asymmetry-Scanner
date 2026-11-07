@@ -29,6 +29,8 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
+from modules.research_memory import hypothesis_status
+
 log = logging.getLogger(__name__)
 
 OUT = Path("outputs/research")
@@ -95,13 +97,14 @@ def research_value(hyp_db: dict, ml_rep: dict, meta: dict) -> dict:
     for hid, r in (hyp_db.get("hypotheses") or {}).items():
         src = r.get("source") or "config"
         tr = tracks.setdefault(src, {"experiments": 0, "accepted": 0, "oos_contribution": 0.0, "rejected": 0})
-        if r.get("status") in ("blocked_data", "prior_result"):
-            continue
+        st = hypothesis_status(r)
+        if r.get("status") in ("blocked_data", "prior_result") or st == "NOT_TESTED":
+            continue                                   # nie getestet (Textsperre) ist kein Experiment
         tr["experiments"] += 1
-        if r.get("canonical_status") == "ACCEPTED":
+        if st == "ACCEPTED":
             tr["accepted"] += 1
             tr["oos_contribution"] += ((r.get("walk_forward") or {}).get("base") or {}).get("mean") or 0.0
-        if r.get("canonical_status") == "REJECTED":
+        if st == "REJECTED":
             tr["rejected"] += 1
     disc = (hyp_db.get("discovery") or {})
     if disc:
@@ -212,7 +215,7 @@ def machine_state(inp: dict, decay: dict, model_decay: dict, rv: dict, sm: dict)
         know.append(f"Abstinenz-Regel VORWÄRTS ab {fw.get('forward_from')}: {fw.get('active_cohorts', 0)} aktive / "
                     f"{fw.get('inactive_cohorts', 0)} inaktive fertige Kohorten, Status {fw.get('status')}")
     for d in (hyp.get("hypotheses") or {}).values():
-        if d.get("canonical_status") == "ACCEPTED":
+        if hypothesis_status(d) == "ACCEPTED":
             know.append(f"Akzeptierte Hypothese {d.get('id')}: {d.get('title')}")
     uncertain = []
     cal = ml_rep.get("calibration") or {}

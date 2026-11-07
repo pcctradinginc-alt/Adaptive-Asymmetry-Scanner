@@ -487,7 +487,9 @@ def research_inventory() -> list[dict]:
         return []
     out = []
     for hid, r in (db.get("hypotheses") or {}).items():
-        out.append({"hypothesis_id": hid, "source": r.get("source"), "status": r.get("canonical_status"),
+        from modules.research_memory import hypothesis_status
+        st = hypothesis_status(r)
+        out.append({"hypothesis_id": hid, "source": r.get("source"), "status": st,
                     "production_class": "research_only", "max_state": "HISTORICALLY_VALIDATED"
-                    if r.get("canonical_status") == "ACCEPTED" else "HISTORICAL_RESEARCH"})
+                    if st == "ACCEPTED" else "HISTORICAL_RESEARCH"})
     return out
