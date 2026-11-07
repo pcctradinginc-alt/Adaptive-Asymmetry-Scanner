@@ -136,11 +136,68 @@ def _killer_gate(stats: dict) -> str:
 
 # ── a) Dürre-Streak + Killer-Diagnose ────────────────────────────────────────
 
+# Streak über mehr als 10 Reports zählen (Live 2026-11-05: "10 Tage" gemeldet, tatsächlich 13 seit dem letzten
+# Trade am 16.10.); davor liegende Tage dienen als Basis der Durchsatz-Erwartung.
+DUERRE_LOOKBACK_REPORTS = 120
+THROUGHPUT_BASELINE_DAYS = 30           # Handelstage vor dem Streak als Vergleichsbasis
+THROUGHPUT_MIN_BASE_ANALYZED = 50       # darunter keine belastbare Quote Trades je Analyse
+THROUGHPUT_MIN_BASE_TRADES = 3
+THROUGHPUT_COLLAPSE_SHARE = 0.25        # Durchsatz < 25 % der Basis = eingebrochen
+THROUGHPUT_RECENT_DAYS = 5
+
+
+def _num_or_none(v) -> float | None:
+    return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) else None
+
+
+def _throughput_metrics(streak_days: list[dict], base_days: list[dict]) -> dict | None:
+    """Erwartete Trades im Streak bei der Umwandlungsquote der Vorperiode (Trades je LLM-Analyse).
+
+    Der Killer-Gate-Befund nennt nur die erste Stufe mit 0. Fällt der Durchsatz (LLM-Analysen je Tag) z. B. durch
+    ein Budget auf wenige Kandidaten, ist auch ein unverändertes Gate an jedem Tag "Killer", obwohl die Dürre allein
+    aus der kleinen Zahl der Versuche folgt (Live 2026-10-28..11-06: 1-3 statt 28-96 Analysen/Tag). P(0 Trades) nach
+    Poisson mit der Erwartung; hoch = Dürre durch den Durchsatz erklärbar, klein = Ursache liegt hinter der Analyse
+    (Gate, Markt). Reine Beschreibung, keine Schwellen- oder Gate-Änderung."""
+    base = [d for d in base_days if d["analyzed"] is not None and d["trades"] is not None]
+    streak = [d for d in streak_days if d["analyzed"] is not None]
+    base_an = sum(d["analyzed"] for d in base)
+    base_tr = sum(d["trades"] for d in base)
+    if not streak or base_an < THROUGHPUT_MIN_BASE_ANALYZED or base_tr < THROUGHPUT_MIN_BASE_TRADES:
+        return None
+    rate = base_tr / base_an
+    streak_an = sum(d["analyzed"] for d in streak)
+    expected = rate * streak_an
+    base_per_day = base_an / len(base)
+    recent = streak[:THROUGHPUT_RECENT_DAYS]          # neueste zuerst
+    recent_per_day = sum(d["analyzed"] for d in recent) / len(recent)
+    collapsed_since, collapsed_an = None, 0.0
+    if recent_per_day < THROUGHPUT_COLLAPSE_SHARE * base_per_day:
+        for d in streak:                                # zurück bis zum ersten Tag über der Schwelle
+            if d["analyzed"] >= THROUGHPUT_COLLAPSE_SHARE * base_per_day:
+                break
+            collapsed_since, collapsed_an = d["date"], collapsed_an + d["analyzed"]
+    return {
+        "baseline_days": len(base), "baseline_from": base[-1]["date"], "baseline_to": base[0]["date"],
+        "baseline_analyzed_per_day": round(base_per_day, 2),
+        "baseline_trades_per_analysis": round(rate, 5),
+        "streak_analyzed": int(streak_an), "streak_analyzed_per_day": round(streak_an / len(streak), 2),
+        "recent_analyzed_per_day": round(recent_per_day, 2),
+        "expected_trades": round(expected, 2), "p_zero_trades": round(math.exp(-expected), 4),
+        "throughput_collapsed_since": collapsed_since,
+        "expected_trades_since_collapse": round(rate * collapsed_an, 2) if collapsed_since else None,
+    }
+
+
 def _duerre_metrics(reports_dir: Path, today: date) -> dict:
-    recent = _load_recent_daily_reports(reports_dir, today, limit=10)
+    recent = _load_recent_daily_reports(reports_dir, today, limit=DUERRE_LOOKBACK_REPORTS)
 
     streak = 0
     killer_counts: dict[str, int] = {}
+    days = []
+    for file_date, data in recent:
+        stats = data.get("stats") or {}
+        days.append({"date": file_date.strftime("%Y-%m-%d"), "analyzed": _num_or_none(stats.get("analyzed")),
+                     "trades": _num_or_none(stats.get("trades"))})
     for _, data in recent:
         stats = data.get("stats") or {}
         trades = stats.get("trades", 0) or 0
@@ -151,7 +208,7 @@ def _duerre_metrics(reports_dir: Path, today: date) -> dict:
         killer_counts[killer] = killer_counts.get(killer, 0) + 1
 
     last_10_days = []
-    for file_date, data in recent:
+    for file_date, data in recent[:10]:
         stats = data.get("stats") or {}
         trades = stats.get("trades", 0) or 0
         last_10_days.append({
@@ -160,7 +217,24 @@ def _duerre_metrics(reports_dir: Path, today: date) -> dict:
             "killer": _killer_gate(stats) if trades == 0 else None,
         })
 
-    return {"streak": streak, "killer_counts": killer_counts, "last_10_days": last_10_days}
+    throughput = _throughput_metrics(days[:streak], days[streak:streak + THROUGHPUT_BASELINE_DAYS])
+    return {"streak": streak, "streak_capped": streak == len(recent) and len(recent) == DUERRE_LOOKBACK_REPORTS,
+            "killer_counts": killer_counts, "last_10_days": last_10_days, "throughput": throughput}
+
+
+def _throughput_note(tp: dict | None) -> str:
+    if not tp:
+        return ""
+    note = (f" Durchsatz: Ø {tp['streak_analyzed_per_day']:.1f} LLM-Analysen/Tag im Streak (letzte "
+            f"{THROUGHPUT_RECENT_DAYS}: {tp['recent_analyzed_per_day']:.1f}) vs. Ø {tp['baseline_analyzed_per_day']:.1f} "
+            f"in den {tp['baseline_days']} Tagen davor; bei deren Quote ({tp['baseline_trades_per_analysis']:.2%} Trades je "
+            f"Analyse) wären {tp['expected_trades']:.1f} Trades zu erwarten, P(0 Trades) = {tp['p_zero_trades']:.0%}.")
+    if tp.get("throughput_collapsed_since"):
+        note += (f" Durchsatz seit {tp['throughput_collapsed_since']} unter "
+                 f"{THROUGHPUT_COLLAPSE_SHARE:.0%} der Basis (seitdem erwartet "
+                 f"{tp['expected_trades_since_collapse']:.1f} Trades): bei so wenigen Analysen ist der Killer-Befund "
+                 f"dieser Tage kein Beleg für ein zu scharfes Gate.")
+    return note
 
 
 # ── b) Paralleltest-Reife (Shadow-Trades + Trailing-Sim) ─────────────────────
@@ -625,9 +699,11 @@ def build_health_report(history: dict, reports_dir, today: date) -> dict:
             warnings.append(
                 f"Dürre-Streak: {duerre['streak']} Tage ohne Trade in Folge "
                 f"(dominanter Killer: {dominant}, {duerre['killer_counts'][dominant]}x)."
+                + _throughput_note(duerre.get("throughput"))
             )
         else:
-            warnings.append(f"Dürre-Streak: {duerre['streak']} Tage ohne Trade in Folge.")
+            warnings.append(f"Dürre-Streak: {duerre['streak']} Tage ohne Trade in Folge."
+                            + _throughput_note(duerre.get("throughput")))
 
     parallel_tests = _parallel_test_metrics(history, today, close_after_days)
 

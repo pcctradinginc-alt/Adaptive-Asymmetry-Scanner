@@ -37,6 +37,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from modules.atomic_io import append_jsonl
+from modules.candidate_ledger import one_day_label_is_same_session
 
 log = logging.getLogger(__name__)
 
@@ -207,6 +208,8 @@ def load_events(history_path: Path = HISTORY_PATH, ledger_dir: Path = LEDGER_DIR
             oc = r.get("outcomes") or {}
             outcomes = {f"gross_{h_}d": float(oc[f"ret_{h_}d"]) for h_ in LEDGER_HORIZONS
                         if _finite(oc.get(f"ret_{h_}d"))}
+            if "gross_1d" in outcomes and one_day_label_is_same_session(r):
+                del outcomes["gross_1d"]      # alte Regel: nur Rest der Einstiegssitzung, kein 1-Tages-Label
             if _finite(oc.get("real_strat_ret_45d")):
                 outcomes["net_45d"] = float(oc["real_strat_ret_45d"])
             feats = _num_features(r.get("features"))

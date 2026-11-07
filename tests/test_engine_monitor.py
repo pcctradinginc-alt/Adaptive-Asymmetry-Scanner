@@ -107,6 +107,53 @@ class TestDuerreStreak:
         assert "Dürre-Streak" in result["warnings"][0]
         assert "mismatch_ok" in result["warnings"][0]
 
+    def test_streak_longer_than_ten_reports_is_counted_in_full(self, tmp_path):
+        """Live 2026-11-05: 13 Tage ohne Trade, gemeldet wurden 10 (nur 10 Reports geladen)."""
+        reports_dir = tmp_path / "daily_reports"
+        today = date(2026, 7, 31)
+        for i in range(13):
+            _write_daily(reports_dir, today - timedelta(days=i), _base_stats(analyzed=3, mismatch_ok=0, trades=0))
+        _write_daily(reports_dir, today - timedelta(days=13), _base_stats(trades=1))
+
+        result = build_health_report(history=_empty_history(), reports_dir=reports_dir, today=today)
+        duerre = result["metrics"]["duerre"]
+        assert duerre["streak"] == 13
+        assert duerre["killer_counts"] == {"mismatch_ok": 13}
+        assert len(duerre["last_10_days"]) == 10
+        assert "13 Tage ohne Trade" in result["warnings"][0]
+
+    def test_throughput_collapse_explains_drought_instead_of_gate(self, tmp_path):
+        """Basis: 30 Tage mit 40 Analysen/Tag und 12 Trades (1 % je Analyse). Danach 8 Tage mit 2 Analysen/Tag:
+        erwartet 0,16 Trades -> die Dürre folgt aus dem Durchsatz, nicht aus dem Killer-Gate."""
+        reports_dir = tmp_path / "daily_reports"
+        today = date(2026, 9, 30)
+        for i in range(8):
+            _write_daily(reports_dir, today - timedelta(days=i), _base_stats(analyzed=2, mismatch_ok=0, trades=0))
+        for i in range(8, 38):
+            _write_daily(reports_dir, today - timedelta(days=i),
+                         _base_stats(analyzed=40, mismatch_ok=10, trades=1 if (i - 8) % 5 == 0 else 0))
+        # Tag 8 hat einen Trade (i=8 -> (8-8)%5 == 0) und beendet den Streak.
+
+        result = build_health_report(history=_empty_history(), reports_dir=reports_dir, today=today)
+        tp = result["metrics"]["duerre"]["throughput"]
+        assert result["metrics"]["duerre"]["streak"] == 8
+        assert tp["baseline_days"] == 30 and tp["baseline_analyzed_per_day"] == 40.0
+        assert tp["baseline_trades_per_analysis"] == 0.005          # 6 Trades / 1200 Analysen
+        assert tp["expected_trades"] == 0.08 and tp["p_zero_trades"] > 0.9
+        assert tp["throughput_collapsed_since"] == (today - timedelta(days=7)).strftime("%Y-%m-%d")
+        warning = result["warnings"][0]
+        assert "Durchsatz seit" in warning and "kein Beleg für ein zu scharfes Gate" in warning
+
+    def test_no_throughput_claim_without_baseline(self, tmp_path):
+        reports_dir = tmp_path / "daily_reports"
+        today = date(2026, 7, 20)
+        for i in range(6):
+            _write_daily(reports_dir, today - timedelta(days=i), _base_stats(analyzed=3, mismatch_ok=0, trades=0))
+
+        result = build_health_report(history=_empty_history(), reports_dir=reports_dir, today=today)
+        assert result["metrics"]["duerre"]["throughput"] is None
+        assert "Durchsatz" not in result["warnings"][0]
+
     def test_streak_below_threshold_gives_no_warning(self, tmp_path):
         reports_dir = tmp_path / "daily_reports"
         today = date(2026, 7, 20)
