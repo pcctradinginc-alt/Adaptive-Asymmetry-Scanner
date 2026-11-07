@@ -234,14 +234,6 @@ jobs:
         continue-on-error: true
         run: python -m modules.research_director --options
 
-      # Existing research evidence only. Never recreates missing past option quotes.
-      # Dated gap observations are append-only and included in the normal research push.
-      - name: Alpha 2.0 – PIT-Abdeckung, Einstieg/Exit und unabhängige Fenster
-        id: alpha_data_quality
-        if: env.MODE == 'weekly'
-        continue-on-error: true
-        run: python -m modules.autonomous_alpha data-quality
-
       # Self-Improvement Notifications (nur Hinweise, nie Code): Wochen-Digest der technischen
       # Verbesserungsaufgaben P1–P3 aus BELEGTEN Befunden (nie aus NEED_MORE_DATA, Wartezeit oder veralteten
       # Daten); feste Vorlagen mit kopierfertiger Claude-Code-Aufgabe, kein LLM, keine Kosten. Höchstens 3
@@ -256,6 +248,14 @@ jobs:
           GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         run: python -m modules.research_director --notify
+
+      # Existing research evidence only. Never recreates missing past option quotes.
+      # Dated gap observations are append-only and included in the normal research push.
+      - name: Alpha 2.0 – PIT-Abdeckung, Einstieg/Exit und unabhängige Fenster
+        id: alpha_data_quality
+        if: env.MODE == 'weekly'
+        continue-on-error: true
+        run: python -m modules.autonomous_alpha data-quality
 
       # Wochenbericht mit Depot, Strukturvergleich, Alpha-Validierung und Datenlücken.
       # Ein bereits persistierter SENT-Beleg verhindert doppelten Versand bei Wiederholung.
