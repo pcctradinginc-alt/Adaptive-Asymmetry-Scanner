@@ -10,7 +10,7 @@ from . import registry as reg
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Experiment registry and research cycle")
     ap.add_argument("command", choices=["run", "ingest", "explore", "option-forward", "factor-forward", "option-link",
-                                        "option-link-correct", "paper-account", "reflect", "status", "leaderboard", "verify"])
+                                        "option-link-correct", "paper-account", "paper-report", "reflect", "status", "leaderboard", "verify"])
     ap.add_argument("--root", type=Path, default=Path("."))
     ap.add_argument("--panel-cache", type=Path)
     ap.add_argument("--timeout", type=int, default=3600)
@@ -57,6 +57,10 @@ def main(argv=None):
             from .paper_account import sync
             result = sync(root, capture=(args.paper_mode == "capture"),
                           persist_report=(args.paper_mode == "weekly"))
+            code = 0
+        elif args.command == "paper-report":
+            from .paper_report import send
+            result = send(root)
             code = 0
         elif args.command == "option-link-correct":
             from .option_link import record_correction
