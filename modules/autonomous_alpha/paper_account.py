@@ -436,7 +436,7 @@ def sync(root: Path = Path("."), *, now: datetime | None = None,
         out["note"] = "ACTIVATED_NO_HISTORICAL_BACKFILL"
         return out
     data = al.read_all(root)
-    if any(v.get("conflicts") for v in data.get("integrity", {}).values()):
+    if any(v.get("conflicting_duplicates") for v in data.get("integrity", {}).values()):
         raise ValueError("alpha-option journal conflict; paper trading halted")
     al._check_rule(al.config(root), data["decisions"])
     opened = _open(root, now, data, cfg, current) if capture else 0
