@@ -2291,7 +2291,8 @@ def memory_prior(families: list[str], latest: dict, prior: tuple = (1.0, 4.0)) -
         n["prospective"] += st in rm.PROSPECTIVE_STATES
         n["rejected"] += st in ("REJECTED", "NOT_ROBUST", "DEMOTED", "EXPIRED")
         used.append(f"{e['hypothesis_id']}:{st}")
-    a, b = prior[0] + n["success"] + n["prospective"], prior[1] + n["tested"] - n["success"]
+    # PROSPECTIVE_STATES are already counted in success; do not count twice.
+    a, b = prior[0] + n["success"], prior[1] + n["tested"] - n["success"]
     post = a / (a + b)
     return {"factor": round(post / base, 3), "posterior_success": round(post, 4), **n, "evidence": sorted(used)[:10]}
 
