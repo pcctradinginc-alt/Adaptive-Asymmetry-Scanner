@@ -39,6 +39,11 @@ ist abhängigkeitsgewichtet (`CRIT_WEIGHT`), also kein einfacher Durchschnitt. D
 - Tests: `tests/test_arcgis_rate_limit.py` (9).
   - Vorher: 1 Abruf plus bis zu 5 Probes je Layer.
   - Nachher: 1 Abruf, danach 0 weitere für den Host.
+- Nachtrag 2026-11-07: Das Kontingent ist ein Minutenlimit („maximum allowed request units (6000) per Minute.
+  Retry after 60 sec.“). Bisher hat schon der erste Treffer den Lauf für den Host beendet. Jetzt gilt (`_arcgis_json`):
+  - Erst wird die genannte Wartezeit eingehalten (gedeckelt auf 65 s), dann bis zu 2-mal erneut gefragt.
+  - Die Wartezeiten je Host und Lauf sind auf zusammen 130 s begrenzt. Das passt ins Abrufbudget der Quelle, es gibt also kein `SourceTimeout`.
+  - Erst wenn das scheitert, greift der Kreisunterbrecher.
 
 **R2 – Long-Exit zu Bid 0:**
 - Zählt bei Ask ≤ 0,25 USD (`ZERO_BID_EXIT_MAX_ASK`) als beobachteter Totalverlust.
