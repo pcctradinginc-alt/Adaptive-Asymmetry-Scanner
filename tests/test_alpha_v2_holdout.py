@@ -43,7 +43,7 @@ def test_all_sources_use_contaminated_locked_only_as_historical_screen(tmp_path,
     def fake_historical_screen(panel, hyp, tested, protocol):
         return {"id": hyp["id"], "source": hyp["source"], "status": "passed_pre_fdr",
                 "signal": hyp["signal"], "p_value": 1e-30,
-                "walk_forward": {"base": {"mean": 10000.0, "t_months": 500.0}},
+                "historical_net_mean": 10000.0, "historical_t": 500.0,
                 "stages": {"coverage": "pass"}}
     monkeypatch.setattr(lab, "evaluate_hypothesis", fake_historical_screen)
     monkeypatch.setattr(lab, "locked_check", lambda *a, **k: (_ for _ in ()).throw(
@@ -70,4 +70,5 @@ def test_registry_does_not_rebrand_old_accepted_as_validated():
     assert snap["source_status"] == "ACCEPTED"
     assert snap["locked_holdout_status"] == "CONTAMINATED"
     assert snap["promotion_eligible"] is False
-    assert snap["metrics"]["oos_net_mean"] == 123.0 or "metrics" in snap
+    assert snap["source_record_sha256"]
+    assert snap["evidence_class"] == "HISTORICAL_RESEARCH"
