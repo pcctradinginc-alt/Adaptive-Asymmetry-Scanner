@@ -334,10 +334,37 @@ def run(root: Path = Path("."), *, now: datetime | None = None,
     and flag technical defects via the existing weekly stage-balance check.
     """
     root = Path(root)
-    if sync_memory:
-        sources = {k: root / rel for k, rel in memory.SOURCES.items()}
-        memory.sync(path=root / MEMORY, sources=sources, now=(now or datetime.now(timezone.utc)).isoformat())
-    result = build(root, now=now)
+    now = now or datetime.now(timezone.utc)
+    try:
+        # P0: validate ALL source journals and their provenance BEFORE allowing
+        # existing Research Memory to ingest any new research interpretation.
+        preflight = build(root, now=now)
+        untrusted = [i for i in preflight["issues"]
+                     if i["severity"] == "TECHNICAL_DEFECT"
+                     and i["id"] != "FORWARD_VERDICT_NOT_IN_RESEARCH_MEMORY"]
+        if sync_memory and not untrusted:
+            sources = {k: root / rel for k, rel in memory.SOURCES.items()}
+            memory.sync(path=root / MEMORY, sources=sources, now=now.isoformat())
+            result = build(root, now=now)
+        else:
+            # Never turn an unverified confirmation into a canonical memory win.
+            result = preflight
+    except Exception as exc:  # noqa: BLE001 – fail CLOSED; persist the error for owner mail/CI
+        problem = _issue("E2E_PRECHECK_FAILED", "TECHNICAL_DEFECT", "integrity",
+                         type(exc).__name__ + ": " + str(exc)[:240],
+                         "Inspect the existing source journals/receipts; do not learn or trade from this run")
+        result = {
+            "schema": "autonomous-alpha-e2e-operations-v1", "generated_at": now.isoformat(),
+            "status": "TECHNICAL_DEFECT", "decision_type": "RESEARCH_ONLY",
+            "production_influence": "NONE", "real_orders": False,
+            "broker_connection": "NONE", "no_second_learner": True,
+            "source_chain": {}, "paper_account": {},
+            "existing_learning": {"validation_plans": 0, "verdicts_reconciled_to_memory": 0,
+                                  "forward_confirmed_and_memorized": 0,
+                                  "alpha_improvement_proven": False},
+            "issues": [problem], "n_technical_defects": 1,
+            "next_action": problem["next_action"], "safety": NO_AUTO_ACTION,
+        }
     _atomic_json(root / REPORT, result)
     day = result["generated_at"][:10]
     receipt_payload = {"schema": "alpha-e2e-observation-receipt-v1",
