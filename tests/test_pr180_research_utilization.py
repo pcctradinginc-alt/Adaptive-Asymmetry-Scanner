@@ -141,6 +141,7 @@ def test_weekly_workflow_is_observational_and_keeps_all_existing_research_gates(
     assert "source_utilization=\${{ steps.source_utilization.outcome }}".replace("\\", "") in workflow
     assert "outputs/research/" in workflow
     assert "python -m modules.research_evidence_discovery" in workflow
+    assert 'test "${{ steps.evidence_discovery.outcome }}" = "success"' in workflow
 
 
 def test_no_new_research_signals_or_online_quote_acquisition():
