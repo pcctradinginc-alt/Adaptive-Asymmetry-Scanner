@@ -42,7 +42,7 @@ import json
 import logging
 import math
 import random
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from statistics import NormalDist
@@ -1156,6 +1156,210 @@ def _load(as_of: date, horizon: int, ledger: Path, quotes: Path, counts: dict | 
     return rows, cands, _verified(cands)
 
 
+# ── Erfassungs-Bandit: welche Kandidaten ohne Richtung echte Options-Daten erhalten (nur Research) ─────────────────
+# Das Snapshot-Budget je Lauf (ledger.max_option_snapshots) reicht für 9–27 % der Kandidaten ohne Richtung. Welche
+# Kandidaten erfasst werden, bestimmt, welche Ergebnisse überhaupt beobachtbar sind (teilweise Rückmeldung). Statt
+# gleichverteilt wählt ein Thompson-Sampling auf einem bayesschen Ridge (nur Merkmale VOR der Erfassung) – mit
+# Gleichverteilungsanteil ACQ_EPSILON, exakten Einschlusswahrscheinlichkeiten (systematische Stichprobe) und deren
+# Protokoll je Zeile. Damit sind Populationswerte jeder Policy über den ganzen Pool erwartungstreu schätzbar
+# (Horvitz-Thompson, SNIPS) – auch rückwirkend für die gleichverteilten Altzeilen (π = Budget / Pool).
+
+ACQ_POLICY = "ts-acq-v1"
+ACQ_MODEL = "acquisition_model.json"
+ACQ_HORIZON = 5                        # meiste geprüfte Labels, schnellste Rückmeldung
+ACQ_EPSILON = 0.5                      # Gleichverteilungsanteil: Gewichte <= 1 / (ε·B/N) = 2N/B
+ACQ_DRAWS = 400                        # Posterior-Ziehungen für die Einschlusswahrscheinlichkeit
+ACQ_MAX_AGE_DAYS = 7                   # älteres Modell -> gleichverteilt (fail safe)
+
+
+def acquisition_features(row: dict) -> dict:
+    """Nur Merkmale, die VOR dem Options-Snapshot feststehen (keine Kontraktmerkmale)."""
+    x = features(row)
+    return {k: x[k] for k in LEDGER_FEATURES if k in x}
+
+
+def acquisition_fit(cands: list[dict], as_of: date) -> dict | None:
+    """Bayesscher Ridge je Kandidat: y = geprüftes Netto-Label der Einzeloption (sonst der ersten geprüften Form),
+    x = Merkmale vor der Erfassung; Posterior N(coef, σ²(XᵀX + αI)⁻¹) im standardisierten Raum. Nur Labels mit
+    Mark-Tag vor as_of (prospektiv nutzbar)."""
+    rows = []
+    for c in cands:
+        ok = [e for e in c["exprs"] if e["status"] == "VERIFIED" and e["label_day"] and e["label_day"] < as_of]
+        if not ok:
+            continue
+        e = next((e for e in ok if e["expression"] == "single"), ok[0])
+        rows.append(({k: e["x"][k] for k in LEDGER_FEATURES if k in e["x"]}, float(e["y"])))
+    if len(rows) < MIN_TRAIN_ROWS:
+        return None
+    names = [n for n in LEDGER_FEATURES if sum(n in x for x, _ in rows) >= MIN_FEATURE_COVERAGE * len(rows)]
+    if not names:
+        return None
+    med = [float(np.median([x[n] for x, _ in rows if n in x])) for n in names]
+    raw = np.array([[x.get(n, med[i]) for i, n in enumerate(names)] for x, _ in rows], dtype=float)
+    mu, sd = raw.mean(axis=0), raw.std(axis=0)
+    sd[sd == 0] = 1.0
+    X = (raw - mu) / sd
+    y = np.array([v for _, v in rows], dtype=float)
+    lo, hi = np.quantile(y, WINSOR)
+    y = np.clip(y, lo, hi)
+    b0 = float(y.mean())
+    A = X.T @ X + RIDGE_ALPHA * np.eye(len(names))
+    coef = np.linalg.solve(A, X.T @ (y - b0))
+    resid = y - b0 - X @ coef
+    sigma2 = float(resid @ resid / max(1, len(y) - len(names) - 1))
+    cov = sigma2 * np.linalg.inv(A)
+    return {"policy": ACQ_POLICY, "horizon": ACQ_HORIZON, "label_cutoff": as_of.isoformat(), "n": len(rows),
+            "names": names, "median": med, "mu": mu.tolist(), "sd": sd.tolist(), "intercept": b0,
+            "coef": coef.tolist(), "cov": cov.tolist(), "sigma2": sigma2,
+            "model_id": hashlib.sha256(json.dumps([names, coef.tolist(), as_of.isoformat()]).encode()).hexdigest()[:12]}
+
+
+def write_acquisition_model(out: Path, cands: list[dict], day: date, now: datetime) -> dict | None:
+    model = acquisition_fit(cands, day)
+    if model is not None:
+        atomic_write_json(out / ACQ_MODEL, {**model, "fitted_at": now.isoformat(timespec="seconds")}, indent=1)
+    return model
+
+
+def load_acquisition_model(day: date, out: Path = OUT) -> dict | None:
+    """Gültiges, höchstens ACQ_MAX_AGE_DAYS altes Modell mit Label-Stichtag vor `day` – sonst None (gleichverteilt)."""
+    try:
+        m = json.loads((out / ACQ_MODEL).read_text(encoding="utf-8"))
+        cut = date.fromisoformat(m["label_cutoff"])
+        k = len(m["names"])
+        if m.get("policy") != ACQ_POLICY or not 0 <= (day - cut).days <= ACQ_MAX_AGE_DAYS or k == 0 \
+                or len(m["coef"]) != k or len(m["cov"]) != k:
+            return None
+        return m
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def acquisition_propensities(xs: list[dict], budget: int, model: dict | None, seed: str) -> list[float]:
+    """Einschlusswahrscheinlichkeiten π_i (Σ π = min(B, N), jedes π <= 1): ε·B/N + (1−ε)·P(i unter den Top-B einer
+    Posterior-Ziehung). Ohne Modell gleichverteilt B/N. Deterministisch über `seed` (Datum), ergebnisunabhängig."""
+    n = len(xs)
+    b = max(0, min(int(budget), n))
+    if not n or not b:
+        return [0.0] * n
+    uni = b / n
+    if model is None:
+        return [uni] * n
+    names, med = model["names"], model["median"]
+    raw = np.array([[x.get(k, med[i]) for i, k in enumerate(names)] for x in xs], dtype=float)
+    X = (raw - np.array(model["mu"])) / np.array(model["sd"])
+    rng = np.random.default_rng(int(hashlib.sha256(seed.encode()).hexdigest()[:12], 16))
+    theta = rng.multivariate_normal(np.array(model["coef"]), np.array(model["cov"]), size=ACQ_DRAWS,
+                                    check_valid="ignore", method="eigh")
+    scores = X @ theta.T                                              # N × Ziehungen
+    top = np.argsort(-scores, axis=0)[:b, :]
+    hits = np.zeros(n)
+    np.add.at(hits, top.ravel(), 1.0)
+    return [float(ACQ_EPSILON * uni + (1 - ACQ_EPSILON) * h / ACQ_DRAWS) for h in hits]
+
+
+def systematic_sample(keys: list[str], pis: list[float], seed: str) -> set[int]:
+    """Systematische Stichprobe (Madow) in zufälliger, ergebnisunabhängiger Reihenfolge: P(i gezogen) = π_i exakt,
+    Umfang = Σ π (ganzzahlig). Gibt die Indizes zurück."""
+    order = sorted(range(len(keys)), key=lambda i: hashlib.sha1(f"{seed}:{keys[i]}".encode()).hexdigest())
+    u = int(hashlib.sha256(f"{seed}:start".encode()).hexdigest()[:12], 16) / float(16 ** 12)
+    picks, cum, nxt = set(), 0.0, u
+    for i in order:
+        cum += pis[i]
+        while nxt < cum - 1e-12:
+            picks.add(i)
+            nxt += 1.0
+    return picks
+
+
+def _pool_design(rows: list[dict]) -> dict:
+    """Je Signal der Kandidaten ohne Richtung: (Tag, π, Poolgröße, Policy). Altzeilen: π = Budget / Pool."""
+    out = {}
+    for r in rows:
+        if not isinstance(r, dict) or r.get("option_sample") not in ("research_census", None) or r.get("direction"):
+            continue
+        pi, n = _num(r.get("option_sample_propensity")), _num(r.get("snapshot_eligible_n"))
+        if pi is None and r.get("option_sample") == "research_census":
+            b = _num(r.get("snapshot_budget"))
+            pi = min(1.0, b / n) if b and n else None
+        if pi and pi > 0 and n:
+            out[str(r.get("signal_id"))] = {"date": str(r["date"])[:10], "pi": pi, "pool": int(n),
+                                            "policy": r.get("option_sample_policy") or "uniform-hash",
+                                            "sampled": r.get("option_sample") == "research_census"}
+    return out
+
+
+def acquisition_report(rows: list[dict], cands: list[dict], as_of: date, horizon: int) -> dict:
+    """Erwartungstreue Populationswerte je Policy über ALLE Kandidaten ohne Richtung (nicht nur die erfassten):
+    Horvitz-Thompson je Tag V_d = (1/N_d) Σ a_i·y_i/π_i und selbstnormiert (SNIPS), Block-Bootstrap über
+    unabhängige Haltefenster. Policies: alle handeln; nur Kandidaten mit positiver Prognose des Erfassungsmodells
+    (Walk-Forward: Modell nur aus Labels vor dem Tag); nie handeln = 0. Fehlende Labels gezogener Kandidaten sind
+    Coverage-Lücken (berichtet, nie ersetzt)."""
+    design = _pool_design(rows)
+    by_sig = {str(c["signal_id"]): c for c in cands}
+    days: dict[str, list] = defaultdict(list)
+    sampled, labelled = 0, 0
+    for sid, dsg in design.items():
+        c = by_sig.get(sid)
+        if not dsg["sampled"] or c is None or not _due(dsg["date"], as_of, horizon):
+            continue
+        sampled += 1
+        ok = [e for e in c["exprs"] if e["status"] == "VERIFIED"]
+        if not ok:
+            continue
+        labelled += 1
+        e = next((e for e in ok if e["expression"] == "single"), ok[0])
+        days[dsg["date"]].append({"y": float(e["y"]), "pi": dsg["pi"], "pool": dsg["pool"],
+                                  "x": {k: e["x"][k] for k in LEDGER_FEATURES if k in e["x"]}})
+    pols = {"trade_all": {}, "acq_model_positive": {}}
+    snips = {"trade_all": {}, "acq_model_positive": {}}
+    weights = []
+    models = {}
+    for d in sorted(days):
+        day = date.fromisoformat(d)
+        if day not in models:
+            models[day] = acquisition_fit([c for c in cands if c["date"] < d], day)
+        m = models[day]
+        units = days[d]
+        w = [1.0 / u["pi"] for u in units]
+        weights += w
+        acts = {"trade_all": [1.0] * len(units),
+                "acq_model_positive": ([1.0 if _acq_pred(m, u["x"]) > 0 else 0.0 for u in units] if m else None)}
+        for name, a in acts.items():
+            if a is None:
+                continue
+            ht = sum(ai * u["y"] * wi for ai, u, wi in zip(a, units, w)) / units[0]["pool"]
+            sn = sum(ai * u["y"] * wi for ai, u, wi in zip(a, units, w)) / sum(w)
+            pols[name][d], snips[name][d] = [ht], [sn]
+    ess = (sum(weights) ** 2 / sum(x * x for x in weights)) if weights else 0.0
+    return {"policy": ACQ_POLICY, "estimator": "Horvitz-Thompson je Tag (Block-Bootstrap über Haltefenster) + SNIPS",
+            "sampled_due": sampled, "labelled": labelled,
+            "coverage": round(labelled / sampled, 4) if sampled else None,
+            "propensity_sources": dict(sorted(Counter(v["policy"] for v in design.values()).items())),
+            "max_weight": round(max(weights), 3) if weights else None, "effective_n": round(ess, 1),
+            "values": {name: {"ht": _paired(pols[name], horizon) if pols[name] else None,
+                              "snips": _paired(snips[name], horizon) if snips[name] else None}
+                       for name in pols},
+            "never_trade": 0.0, "production_influence": "NONE",
+            "note": ("Populationswert je Kandidat ohne Richtung; Coverage < 1 heißt: fehlende Labels gezogener "
+                     "Kandidaten sind ausgeschlossen (berichtet). Beschreibende Research-Evidenz, keine Freigabe.")}
+
+
+def _safe_acquisition(rows, cands, as_of, horizon) -> dict:
+    try:
+        return acquisition_report(rows, cands, as_of, horizon)
+    except Exception as exc:  # noqa: BLE001 – Bericht darf die Auswertung nie stören
+        log.warning("option_learner: Erfassungsbericht fehlgeschlagen (%s)", exc)
+        return {"policy": ACQ_POLICY, "error": str(exc)}
+
+
+def _acq_pred(model: dict, x: dict) -> float:
+    names, med = model["names"], model["median"]
+    z = (np.array([x.get(k, med[i]) for i, k in enumerate(names)], dtype=float) - np.array(model["mu"])) \
+        / np.array(model["sd"])
+    return float(model["intercept"] + z @ np.array(model["coef"]))
+
+
 def _label_ids(data: list[dict]) -> list[str]:
     return sorted(f"{d['date']}|{d['signal_id']}|{'/'.join(d['contract'])}|{d['label_day']}" for d in data)
 
@@ -2049,6 +2253,7 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "option_snapshots_7d": sum(1 for r in recent if isinstance(r.get("real_option"), dict)),
               "manifest": manifest(data, as_of), "feature_coverage": feature_coverage(data),
               "variant_feature_coverage": variant_feature_coverage(data), "walk_forward": wf,
+              "acquisition": _safe_acquisition(rows, cands, as_of, horizon),
               "baselines": _baselines(wf.get("vs_reference") or {}),
               "by_gate": by_gate(data),
               "forward": forward(journal, cands, horizon, instances, as_of),
@@ -2090,6 +2295,11 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     Prüfberichte werden nur hier geschrieben (ein Schreiber); Prognosen und Entscheidungen hängen nie davon ab."""
     now = now or datetime.now(timezone.utc)
     _rows, cands, data = _load(day, horizon, ledger, quotes)
+    if horizon == ACQ_HORIZON:                   # Erfassungsmodell für den nächsten Scanner-Lauf (nur Research)
+        try:
+            write_acquisition_model(out, cands, day, now)
+        except Exception as exc:  # noqa: BLE001 – ohne Modell erfasst der Scanner gleichverteilt
+            log.warning("option_learner: Erfassungsmodell nicht geschrieben (%s)", exc)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
     instances = read_jsonl(out / INSTANCES) if (out / INSTANCES).exists() else []
     wf, fw = walk_forward(cands, day, horizon), forward(journal, cands, horizon, instances, day)

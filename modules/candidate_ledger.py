@@ -56,7 +56,7 @@ import os
 import re
 import tempfile
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from modules import market_snapshot
@@ -235,6 +235,53 @@ def _research_option_sample_enabled() -> bool:
         return bool(getattr(getattr(cfg, "ledger", None), "research_option_sample", True))
     except Exception:  # noqa: BLE001 – fehlende/kaputte Config -> Default
         return True
+
+
+def _acquisition_bandit_enabled() -> bool:
+    """Erfassungs-Bandit für die Research-Stichprobe. Abschaltbar über config.yaml ledger.acquisition_bandit: false
+    (dann die bisherige Hash-Stichprobe; Default an, Schlüssel bewusst nicht in config.yaml, Regelwerk-Hash
+    unverändert)."""
+    try:
+        from modules.config import cfg
+        return bool(getattr(getattr(cfg, "ledger", None), "acquisition_bandit", True))
+    except Exception:  # noqa: BLE001 – fehlende/kaputte Config -> Default
+        return True
+
+
+def _research_selection(pool: list, budget: int, today: str, hash_rank, model_dir: Path | None = None) \
+        -> tuple[set, dict]:
+    """(gezogene signal_ids, Design je signal_id {policy, pi, model_id}) für die Research-Stichprobe ohne Richtung.
+    Thompson-Sampling-Einschlusswahrscheinlichkeiten aus option_learner (Merkmale vor der Erfassung), gezogen per
+    systematischer Stichprobe (P(gezogen) = π exakt, Umfang = Budget). Ohne gültiges Modell oder bei jedem Fehler:
+    die bisherige deterministische Hash-Stichprobe mit π = B/N. Nie mehr als `budget` Snapshots."""
+    n = len(pool)
+    b = max(0, min(int(budget), n))
+    uniform = {"policy": "uniform-hash", "pi": (b / n) if n else 0.0, "model_id": None}
+
+    def fallback():
+        ids = {sig["signal_id"] for (_, sig, _) in hash_rank(pool, "research:")[:b]}
+        return ids, {sig["signal_id"]: dict(uniform) for (_, sig, _) in pool}
+
+    if not n or not b or not _acquisition_bandit_enabled():
+        return fallback()
+    try:
+        from modules import option_learner as ol
+        model = ol.load_acquisition_model(date.fromisoformat(str(today)[:10]), model_dir or ol.OUT)
+        if model is None:
+            return fallback()
+        xs = [ol.acquisition_features(sig) for (_, sig, _) in pool]
+        pis = ol.acquisition_propensities(xs, b, model, f"acq:{today}")
+        keys = [str(sig["signal_id"]) for (_, sig, _) in pool]
+        picks = ol.systematic_sample(keys, pis, f"acq:{today}")
+        if len(picks) > b or abs(sum(pis) - b) > 1e-6:      # Schutz: nie über Budget, Design muss aufgehen
+            return fallback()
+        ids = {pool[i][1]["signal_id"] for i in picks}
+        design = {pool[i][1]["signal_id"]: {"policy": ol.ACQ_POLICY, "pi": round(pis[i], 8),
+                                            "model_id": model["model_id"]} for i in range(n)}
+        return ids, design
+    except Exception as exc:  # noqa: BLE001 – Research-Stichprobe darf den Scanner nie stören
+        log.warning(f"candidate_ledger: Erfassungs-Bandit fehlgeschlagen ({exc}) – Hash-Stichprobe")
+        return fallback()
 
 
 def _research_contract_variant_enabled() -> bool:
@@ -1270,8 +1317,12 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         # Scorecards und Meta-Label (nur Zeilen mit Richtung) bleiben unverändert.
         # Kein LLM-Aufruf, nie mehr Snapshots als ledger.max_option_snapshots.
         research_budget = max(0, max_snapshots - len(selected_ids)) if _research_option_sample_enabled() else 0
-        research_ids = {sig["signal_id"] for (_, sig, _) in
-                        _hash_rank(research_pool, "research:")[:research_budget]}
+        # Erfassungs-Bandit (2026-11-08, nur Research): Thompson-Sampling auf dem Erfassungsmodell des
+        # Options-Lernmodells mit 50 % Gleichverteilung und exakten Einschlusswahrscheinlichkeiten, je Zeile
+        # protokolliert (option_learner.acquisition_report). Jeder Fehler -> bisherige Hash-Stichprobe (B/N).
+        research_ids, research_design = _research_selection(
+            research_pool, research_budget, today, _hash_rank,
+            model_dir=Path(reports_dir_root).parent / "research" / "option_learner")
         spot_by_id.update({sig["signal_id"]: spot for (_, sig, spot) in research_pool
                            if sig["signal_id"] in research_ids})
 
@@ -1378,6 +1429,11 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             # Zufallsauswahl statt "erste N", siehe oben).
             signal_id = e["signal_id"]
             directional = e.get("direction") in ("BULLISH", "BEARISH")
+            if not directional and signal_id in research_design:      # Design jeder Zeile des Pools (auch ungezogen)
+                row["option_sample_policy"]     = research_design[signal_id]["policy"]
+                row["option_sample_propensity"] = research_design[signal_id]["pi"]
+                row["option_sample_model"]      = research_design[signal_id]["model_id"]
+                row.setdefault("snapshot_eligible_n", len(research_pool))
             if directional or signal_id in research_ids:
                 row["snapshot_eligible_n"] = eligible_n if directional else len(research_pool)
                 row["snapshot_budget"]     = max_snapshots if directional else research_budget
