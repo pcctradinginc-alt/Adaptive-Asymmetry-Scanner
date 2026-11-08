@@ -22,6 +22,11 @@ sources:
   # Prospective Challenger der Hypothesis Factory (2026-11-01): nur frische Forward-Ledger-Zeilen nach der
   # Registrierung; Top-Dezil ohne Score-Reihenfolge -> deterministische Hash-Auswahl, kein Bottom-Tail.
   factory_challenger: {enabled: true, top_k: 3, bottom_k: 0}
+  # FD3 Phase 4: register 2 preselected feature families per weekly date,
+  # with exactly one baseline and one challenger stock each. This uses the
+  # EXISTING RTH capture, contract rule and budgets. Registration begins in
+  # the future; historical FD3 predictions are never linked retroactively.
+  fd3_shadow: {enabled: true, research_only: true, registration_start_utc: "2026-11-14T00:00:00+00:00", max_hypotheses_per_signal_date: 2, top_k: 1, min_issuers: 30}
 # Same-date, same-budget comparison group: deterministic pseudo-random names
 # from the same PIT universe, same contract rule (unconditional call buying).
 control:

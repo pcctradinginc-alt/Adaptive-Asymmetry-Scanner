@@ -106,6 +106,19 @@ def config(root: Path = Path(".")) -> dict:
     fac = (cfg.get("sources") or {}).get("factory_challenger")
     if fac is not None and (not 0 <= int(fac.get("top_k", -1)) <= 5 or int(fac.get("bottom_k", -1)) != 0):
         raise EvidenceIntegrityError("source tail sizes invalid: factory_challenger (top only, no bottom tail)")
+    fd3 = (cfg.get("sources") or {}).get("fd3_shadow")
+    if fd3 is not None:
+        start = None
+        try:
+            start = datetime.fromisoformat(str(fd3["registration_start_utc"]).replace("Z", "+00:00"))
+        except (KeyError, ValueError, TypeError):
+            pass
+        if (fd3.get("research_only") is not True or start is None or start.tzinfo is None
+                or start.date() <= date.fromisoformat(str(cfg["link_start"]))
+                or not 1 <= int(fd3.get("max_hypotheses_per_signal_date", 0)) <= 2
+                or int(fd3.get("top_k", 0)) != 1
+                or int(fd3.get("min_issuers", 0)) < 30):
+            raise EvidenceIntegrityError("FD3 source must be future-registered, tightly bounded and research-only")
     rule = cfg.get("rule") or {}
     if tuple(rule.get("structures") or ()) != STRUCTURES or rule.get("direction") != "BULLISH":
         raise EvidenceIntegrityError("only LONG_CALL and BULL_CALL_SPREAD are allowed")
@@ -517,6 +530,10 @@ def _sources(root: Path, cfg: dict, now: datetime) -> tuple[list[dict], dict]:
                 })
     if (src.get("factory_challenger") or {}).get("enabled"):
         batches += _factory_batches(root, src["factory_challenger"], link_start, max_age, now, stats)
+    if (src.get("fd3_shadow") or {}).get("enabled"):
+        # Lazy import: RTH capture functions retain their lightweight imports.
+        from modules.research_feature_option_signals import build_batches as fd3_batches
+        batches += fd3_batches(root, src["fd3_shadow"], link_start, max_age, now, stats)
     return batches, dict(stats)
 
 
