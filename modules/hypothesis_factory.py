@@ -581,6 +581,8 @@ def priority(h: dict, dirs: dict, memory_max_sim: float, protocol: dict) -> floa
     h["priority_components"] = {"eig": round(eig, 4), "relevance": h["relevance"], "novelty": round(novelty, 3),
                                 "data_quality": r["data_quality"], "cost": r["cost"], "plausibility": plaus,
                                 "testability": testab, "independent_evidence": contra,
+                                "posterior_sd": round(float(sd), 5),
+                                "prior_research_trials": int(d.get("tested") or 0),
                                 "role": "nur Priorisierung – historischer Erfolg ist kein unabhängiger Alpha-Nachweis"}
     return round(eig * h["relevance"] * novelty * r["data_quality"] / r["cost"] * plaus * testab * contra, 5)
 
@@ -592,7 +594,8 @@ def plan(panel: pd.DataFrame | None = None, protocol: dict | None = None, domain
     domains = domains or load_domains()
     now = now or datetime.now(timezone.utc)
     now_s = now.isoformat(timespec="seconds")
-    memory = memory if memory is not None else rm.load()
+    from modules import hypothesis_selection as selection
+    memory = selection.memory_as_of(memory if memory is not None else rm.load(), now)
     dirs = rm.directions(memory, tuple(protocol["priority"]["prior_success"]))
     b = protocol["budget"]
     if conditions is None and SOURCE_CONDITIONS.exists():
@@ -644,14 +647,23 @@ def plan(panel: pd.DataFrame | None = None, protocol: dict | None = None, domain
             h["plan_status"] = "FAMILY_EXHAUSTED"
         else:
             h["plan_status"] = "CANDIDATE"
-    cands = sorted((h for h in ideas if h["plan_status"] == "CANDIDATE"), key=lambda h: -h["priority"])
+    cands = sorted((h for h in ideas if h["plan_status"] == "CANDIDATE"), key=lambda h: (-h["priority"], h["id"]))
     slots = int(b["tests_per_run"])
     n_expl = math.ceil(b["exploratory_share"] * slots)
-    chosen = [h for h in cands if h["exploratory"]][:n_expl]
-    chosen += [h for h in cands if h not in chosen][: max(0, slots - len(chosen))]
+    # Only the allocation policy changes: same candidate population, immutable
+    # hypotheses/spec hashes, strict lifetime family/similarity guards, six
+    # research tests max and same Lab/BH + forward validation downstream.
+    chosen, choice = selection.select(cands, slots=slots, exploratory_slots=n_expl)
+    ids = {h["id"] for h in chosen}
     for h in cands:
-        h["plan_status"] = "SELECTED" if h in chosen else "NOT_SELECTED_BUDGET"
+        h["plan_status"] = "SELECTED" if h["id"] in ids else "NOT_SELECTED_BUDGET"
+    for h in ideas:
+        if h["plan_status"] not in ("SELECTED", "NOT_SELECTED_BUDGET"):
+            h["selection_audit"] = {"selection_version": selection.VERSION,
+                                    "decision": "NOT_ELIGIBLE", "reason": h["plan_status"],
+                                    "basis": "existing data, memory and protocol gates"}
     return {"generated": now_s, "protocol": protocol["version"], "budget": {"slots": slots, "exploratory_slots": n_expl},
+            "selection": choice,
             "n_ideas": len(ideas), "ideas": ideas, "selected": [h["id"] for h in chosen],
             "anomaly_scan": {k: v for k, v in scan.items() if k != "survivors"} | {
                 "survivor_ids": [h["id"] for h in ideas if h.get("idea_source") == "anomaly" and h.get("signal")]},
