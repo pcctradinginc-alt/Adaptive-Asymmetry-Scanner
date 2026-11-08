@@ -77,6 +77,7 @@ def audit_window(rows, as_of, days=7, sample_size=40):
     subset = [r for r in rows if isinstance(r, dict) and r.get("ticker")
               and isinstance(r.get("date"), str) and first.isoformat() <= r["date"] <= as_of.isoformat()]
     reasons = Counter(str(r.get("reject_reason") or "none") for r in subset)
+    stages = Counter(str(r.get("reject_stage") or "none") for r in subset)
     selections = Counter(str(r.get("option_sample") or "none") for r in subset)
     tickers = sorted({str(r["ticker"]) for r in subset})
     samples = sorted(tickers, key=lambda t: hashlib.sha256(
@@ -93,6 +94,7 @@ def audit_window(rows, as_of, days=7, sample_size=40):
             "days_with_candidate_rows": len({r["date"] for r in subset}),
             "unique_tickers": len(tickers), "signal_identified_rows": ident,
             "reject_reasons": dict(sorted(reasons.items())),
+            "reject_stages": dict(sorted(stages.items())),
             "option_sampling_classes": dict(sorted(selections.items())),
             "underlying_mark_present_rows": under,
             "option_mark_present_unverified_rows": opt,
