@@ -115,8 +115,12 @@ def quote_evidence_summary(report, as_of):
                 "scope": "ALL_ELIGIBLE_HISTORICAL_CANDIDATES_NOT_THIS_WEEK"}
     valid = report.get("genuine_option_labels")
     invalid = report.get("unverified_option_labels")
+    counters = report.get("provenance_counts")
     if not (type(valid) is int and valid >= 0 and type(invalid) is int and invalid >= 0
-            and isinstance(report.get("provenance_counts"), dict)):
+            and isinstance(counters, dict)
+            and all(type(v) is int and v >= 0 for v in counters.values())
+            and counters.get("VERIFIED", 0) == valid
+            and sum(counters.values()) == valid + invalid):
         return {"status": "MISSING_OR_INVALID_EXISTING_EVIDENCE", "global_verified_option_labels": None,
                 "global_unverified_option_labels": None, "provenance_counts": None,
                 "scope": "ALL_ELIGIBLE_HISTORICAL_CANDIDATES_NOT_THIS_WEEK"}
