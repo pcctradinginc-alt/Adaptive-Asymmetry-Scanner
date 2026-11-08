@@ -1,0 +1,39 @@
+# Frozen research protocol. Never edit this version after the first forward
+# journal record; changes require a NEW version and test family.
+version: fd3-2026-11-08
+research_only: true
+target: fwd_xs_20
+label_end: label_end_20
+horizon_trading_days: 20
+baseline_features: [mom_12_1, rs_63, vol_20, beta_126, log_dollar_vol]
+model:
+  kind: deterministic_ridge
+  ridge_alpha: 20.0
+  label_clip: 0.50
+evaluation:
+  min_train_dates: 26
+  min_cross_section: 30
+  min_independent_forward_dates: 8
+  min_calendar_days_between_forward_windows: 28
+  stock_cost_per_side: 0.001
+  # Descriptive diagnostics only. Global confirmations use the existing
+  # preregistered research protocol; no multiple-testing "success" in FD3.
+  family_alpha: 0.05
+  max_hypotheses: 4
+hypotheses:
+  - id: liq_beta_v1
+    feature: fd3_liquidity_x_beta
+    source: fred_liquidity
+    premise: "ALFRED-vintage net liquidity change improves beta-conditional stock returns"
+  - id: fomc_beta_v1
+    feature: fd3_fomc_near_x_beta
+    source: fomc_calendar
+    premise: "Preannounced FOMC proximity alters beta-conditional excess returns"
+  - id: bls_beta_v1
+    feature: fd3_bls_near_x_beta
+    source: bls_release_calendar
+    premise: "Preannounced BLS proximity alters beta-conditional excess returns"
+  - id: bea_beta_v1
+    feature: fd3_bea_near_x_beta
+    source: bea_release_calendar
+    premise: "Preannounced BEA proximity alters beta-conditional excess returns"
