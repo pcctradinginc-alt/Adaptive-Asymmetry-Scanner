@@ -19,8 +19,9 @@ def evidence(as_of="2026-11-08", verified=2, unverified=3):
             "evidence_class": "EXPLORATORY_REPEATED_HOLDOUT"}
 
 
-def candidate(day, ticker, *, outcome=None, reason=None, sample=None):
-    return {"date": day, "ticker": ticker, "signal_id": f"{day}:{ticker}", "reject_reason": reason,
+def candidate(day, ticker, *, outcome=None, reason=None, stage=None, sample=None):
+    return {"date": day, "ticker": ticker, "signal_id": f"{day}:{ticker}",
+            "reject_reason": reason, "reject_stage": stage,
             "option_sample": sample, "outcomes": outcome or {}}
 
 
@@ -29,7 +30,7 @@ def test_weekly_census_counts_all_rejected_candidates_and_never_confuses_marks_w
         candidate("2026-11-01", "OLD", outcome={"real_strat_ret_20d": 0.5}),
         candidate("2026-11-02", "AAA", reason="economics_first_quote_probe_budget",
                   sample="research_census", outcome={"ret_5d": 0.04}),
-        candidate("2026-11-05", "BBB", reason="economics_first", sample=None,
+        candidate("2026-11-05", "BBB", reason="economics_first", stage="economics_first", sample=None,
                   outcome={"real_strat_ret_5d": -0.22}),
         candidate("2026-11-07", "CCC", reason="none", sample="directional"),
         candidate("2026-11-08", "AAA", reason="economics_first"),
@@ -40,6 +41,7 @@ def test_weekly_census_counts_all_rejected_candidates_and_never_confuses_marks_w
     assert out["candidate_rows"] == 4
     assert out["unique_tickers"] == 3
     assert out["reject_reasons"]["economics_first"] == 2
+    assert out["reject_stages"]["economics_first"] == 1
     assert out["option_sampling_classes"]["research_census"] == 1
     assert out["underlying_mark_present_rows"] == 1
     assert out["option_mark_present_unverified_rows"] == 1
