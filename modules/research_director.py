@@ -323,7 +323,7 @@ def active_learning(world: dict, blind: list[dict], catalog: list[dict],
 def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict], max_new: int = MAX_NEW_PER_RUN,
          error_gaps: list[dict] | None = None, memory: list[dict] | None = None,
          data_quality: dict | None = None, forward_budget: dict | None = None) -> dict:
-    from modules import research_memory as rmem
+    from modules import research_memory as rmem, hypothesis_selection as selector
     from modules.research_lab import SignalError, validate_expr
     tested = hyp_db.get("hypotheses") or {}
     memory = memory or []
@@ -376,8 +376,26 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
                 c["priority"] = 0.0
         cands.append(c)
     cands.sort(key=lambda c: (-c["priority"], c["research_id"]))
-    chosen = [c for c in cands if c["kind"] == "testable" and not c["defer_reason"]
-              and c["novelty"] > 0.2 and c["research_id"] not in tested][:max_new]
+    # Reuse the same marginal-information selection policy as Hypothesis Factory:
+    # no new hypothesis engine, no extra tests or post-hoc winner selection.
+    # Two regime-gate alternatives from one observed blind spot may enter the
+    # same batch, but five near-identical tests cannot consume the whole budget.
+    eligible, seen_ids = [], set()
+    for c in cands:
+        if (c["kind"] != "testable" or c["defer_reason"] or c["novelty"] <= 0.2
+                or c["research_id"] in tested):
+            c["selection_audit"] = {"selection_version": selector.VERSION, "decision": "NOT_ELIGIBLE",
+                                    "reason": c.get("defer_reason") or "ALREADY_TESTED_OR_LOW_NOVELTY"}
+            continue
+        if c["research_id"] in seen_ids:
+            c["selection_audit"] = {"selection_version": selector.VERSION, "decision": "NOT_ELIGIBLE",
+                                    "reason": "DUPLICATE_EXPRESSION_IN_THIS_RUN"}
+            continue
+        seen_ids.add(c["research_id"])
+        c["family"] = str(c.get("source_finding") or c.get("domain") or c["research_id"])
+        c["exploratory"] = False
+        eligible.append(c)
+    chosen, choice = selector.select(eligible, slots=max_new, exploratory_slots=0, max_per_family=2)
     hyps = [{"id": c["research_id"], "title": c["title"], "statement": c["statement"], "signal": c["signal"],
              "direction": c["direction"], "rationale": c["economic_rationale"],
              "created_at": datetime.now(timezone.utc).date().isoformat(),
@@ -396,10 +414,12 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
                  "pre_registration": "Before post-registration prospective outcomes via existing alpha-option validation",
                  "forward_budget_status": "EXHAUSTED" if forward_budget.get("exhausted") else "AVAILABLE_OR_UNKNOWN",
                  "promotion": "NEVER_AUTOMATIC",
+                 "selection_audit": c["selection_audit"],
              }} for c in chosen]
     return {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "n_candidates": len(cands), "n_selected_for_testing": len(hyps), "max_new_per_run": max_new,
-            "candidates": cands, "selected": [c["research_id"] for c in chosen], "hypotheses": hyps,
+            "candidates": cands, "selection": choice,
+            "selected": [c["research_id"] for c in chosen], "hypotheses": hyps,
             "deferred": [{"id": c["research_id"], "reason": c["defer_reason"]}
                          for c in cands if c.get("defer_reason")],
             "memory_entries_considered": len(memory),
