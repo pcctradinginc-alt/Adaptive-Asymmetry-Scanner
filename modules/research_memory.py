@@ -54,6 +54,7 @@ SOURCES = {
     "error_research": Path("outputs/research/error_research.json"),
     "feature_discovery_v3": Path("outputs/research/feature_discovery_v3/status.json"),
     "feature_director_v1": Path("outputs/research/feature_discovery_v3/director_plan.json"),
+    "feature_option_economics": Path("outputs/research/feature_discovery_v3/options_economics.json"),
     "alpha_data_quality": Path("outputs/research/autonomous_alpha/data_quality.json"),
 }
 # Fehlergetriebene Forschung (research_director.error_research) -> Memory-Status. PENDING_FORWARD ist weder Erfolg
@@ -290,6 +291,23 @@ def collect(sources: dict | None = None) -> list[dict]:
                                     "priority_proxy": proposal.get("priority")},
                           reasons=[proposal.get("reason"), "Requires independent owner-reviewed preregistration"],
                           data_kind="research_planning_only"))
+    # Phase 4: quote-verified, paired economics remain an observational
+    # shadow diagnostic. No outcome can bypass the global alpha ledger.
+    for hid, row in ((src.get("feature_option_economics") or {}).get("hypotheses") or {}).items():
+        for structure, econ in (row.get("structures") or {}).items():
+            n = int(econ.get("independent_quote_verified_windows") or 0)
+            out.append(_entry("feature_option_economics", f"{hid}:{structure}",
+                              "DATA_GAP" if n < 8 else "PENDING_FORWARD",
+                              {"signal": f"{hid}:{structure}", "family": row.get("source"),
+                               "domain": "options_quote_verified_shadow"},
+                              source="alpha_option_link",
+                              evidence={"n_independent": n,
+                                        "paired_net_roi_delta": econ.get("mean_net_roi_delta"),
+                                        "adverse_net_roi_delta": econ.get("mean_adverse_net_roi_delta"),
+                                        "bootstrap_ci": econ.get("bootstrap_95pct_ci"),
+                                        "source_status": econ.get("status")},
+                              reasons=["Research-only options diagnostics; no global confirmatory slot"],
+                              data_kind="quote_verified_paper_options_unconfirmed"))
     # P1 research feedback uses existing Research Memory; quality gaps are not
     # hypotheses, training labels, or successful trials.
     for g in (src.get("alpha_data_quality") or {}).get("data_gaps") or []:
