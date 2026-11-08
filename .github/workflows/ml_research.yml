@@ -225,7 +225,14 @@ jobs:
         id: candidate_census
         if: env.MODE == 'weekly'
         continue-on-error: true
-        run: python -m modules.research_candidate_census --as-of "$(date -u +%Y-%m-%d)"
+        run: |
+          # Never accept a same-date but STALE evidence artifact from an earlier run.
+          # The current run's independent archived-RTH-quote verification MUST have succeeded.
+          test "${{ steps.evidence_discovery.outcome }}" = "success" || {
+            echo "::error::Independent quote evidence stage failed; refuse stale quote counts"
+            exit 2
+          }
+          python -m modules.research_candidate_census --as-of "$(date -u +%Y-%m-%d)"
 
       - name: Research Hygiene – unused source inventory and storage footprint
         id: source_utilization
