@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 from collections import Counter
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 ROOT = Path("outputs/candidate_ledger")
@@ -35,7 +36,10 @@ def audit(rows, day, sample_size=40):
             "actual_option_outcome_rows": actual_option_marks,
             "audit_sample": sample,
             "audit_sample_is_quote_request": False,
-            "missing_option_marks_are_not_zero_returns": True}
+            "missing_option_marks_are_not_zero_returns": True,
+            "option_outcome_provenance": "LEDGER_REPORTED_NOT_QUOTE_VERIFIED",
+            "verification_required": "Compare each option mark with archived entry/exit RTH bid/ask through existing research_quote_reconciliation",
+            "test_population": "all existing ledger candidates, including budget deferrals; no new quotes"}
 
 
 def run(day, root=ROOT, out=OUT, sample_size=40):
@@ -55,12 +59,59 @@ def run(day, root=ROOT, out=OUT, sample_size=40):
     return target
 
 
+def latest_completed_day(root=ROOT, as_of=None):
+    """Latest ledger date strictly before as-of (UTC); never research same-day partial data.
+
+    Read the existing monthly ledger, not a speculative exchange calendar.
+    Explicit missing/corrupt archives fail rather than fabricate outcomes.
+    """
+    if as_of is None:
+        as_of = datetime.now(timezone.utc).date()
+    if isinstance(as_of, str):
+        as_of = date.fromisoformat(as_of)
+    if not isinstance(as_of, date):
+        raise ValueError("as_of must be an ISO date")
+    days = set()
+    for path in sorted(root.glob("????-??.jsonl")):
+        with path.open(encoding="utf-8") as fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                row = json.loads(line)
+                raw = row.get("date")
+                if not isinstance(raw, str):
+                    continue
+                try:
+                    day = date.fromisoformat(raw)
+                except ValueError:
+                    continue
+                if day < as_of and row.get("ticker"):
+                    days.add(day)
+    if not days:
+        raise FileNotFoundError("No completed candidate ledger date before " + as_of.isoformat())
+    return max(days).isoformat()
+
+
+def run_latest(root=ROOT, out=OUT, as_of=None, sample_size=40):
+    """Run existing census automatically, with explicit provenance limitations."""
+    day = latest_completed_day(root, as_of)
+    target = run(day, root=root, out=out, sample_size=sample_size)
+    return target
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--date", required=True)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--date")
+    group.add_argument("--latest-completed", action="store_true")
+    parser.add_argument("--as-of", help="UTC reference date; only with --latest-completed")
     parser.add_argument("--sample-size", type=int, default=40)
     args = parser.parse_args()
-    print(run(args.date, sample_size=args.sample_size))
+    if args.as_of and not args.latest_completed:
+        parser.error("--as-of requires --latest-completed")
+    target = (run_latest(as_of=args.as_of, sample_size=args.sample_size)
+              if args.latest_completed else run(args.date, sample_size=args.sample_size))
+    print(target)
 
 
 if __name__ == "__main__":
