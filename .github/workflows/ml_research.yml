@@ -67,6 +67,14 @@ jobs:
           echo "MODE=$MODE" >> "$GITHUB_ENV"
           ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.ml_research --mode "$MODE"
 
+      # FD3: PIT-Features from archived ALFRED and AS-OF event schedules.
+      # One versioned shadow-only study; no LLM, broker, API or production changes.
+      # The ML panel already exists in RUNNER_TEMP; fail rather than re-download.
+      - name: Feature Discovery v3 – liquidity and macro-calendar shadow learning
+        id: feature_discovery_v3
+        continue-on-error: true
+        run: python -m modules.research_feature_discovery --panel-cache "$RUNNER_TEMP/panel.pkl"
+
       # Fehlergetriebene Forschung (wöchentlich + full, vor dem Director): geprüfte Forward-Prognosefehler des
       # Ensembles (Candidate Ledger gegen ml_predictions) -> fester Suchraum (config/error_research_protocol.yaml)
       # -> höchstens 2 eingefrorene Hypothesen je Lauf -> Walk-Forward-Screen (unabhängige, gepurgte Fenster) ->
@@ -333,5 +341,5 @@ jobs:
           # 2026-11-01: Schritte, die prospektive Evidenz einfrieren oder auswerten (Challenger-Forward-Ledger,
           # Alpha→Options-Link, Options-Lernmodell), sind zentral – ihr Ausfall macht den Lauf rot statt grün.
           CRITICAL: "error_research=${{ steps.error_research.outcome }} factory_plan=${{ steps.factory_plan.outcome }} alpha_explore=${{ steps.alpha_explore.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }} autonomous_alpha_registry=${{ steps.autonomous_alpha_registry.outcome }} alpha_factor_forward=${{ steps.alpha_factor_forward.outcome }} alpha_option_forward=${{ steps.alpha_option_forward.outcome }} alpha_reflection=${{ steps.alpha_reflection.outcome }} factory_forward=${{ steps.factory_forward.outcome }} alpha_option_link=${{ steps.alpha_option_link.outcome }} paper_account=${{ steps.paper_account.outcome }} paper_report=${{ steps.paper_report.outcome }} alpha_data_quality=${{ steps.alpha_data_quality.outcome }} alpha_e2e=${{ steps.alpha_e2e.outcome }} option_learner=${{ steps.option_learner.outcome }}"
-          DEGRADED: "alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }} evidence_coverage=${{ steps.evidence_coverage.outcome }} evidence_reconcile=${{ steps.evidence_reconcile.outcome }} evidence_discovery=${{ steps.evidence_discovery.outcome }} research_improvement=${{ steps.research_improvement.outcome }} candidate_census=${{ steps.candidate_census.outcome }} source_utilization=${{ steps.source_utilization.outcome }} improvement_notify=${{ steps.improvement_notify.outcome }}"
+          DEGRADED: "feature_discovery_v3=${{ steps.feature_discovery_v3.outcome }} alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }} evidence_coverage=${{ steps.evidence_coverage.outcome }} evidence_reconcile=${{ steps.evidence_reconcile.outcome }} evidence_discovery=${{ steps.evidence_discovery.outcome }} research_improvement=${{ steps.research_improvement.outcome }} candidate_census=${{ steps.candidate_census.outcome }} source_utilization=${{ steps.source_utilization.outcome }} improvement_notify=${{ steps.improvement_notify.outcome }}"
         run: bash scripts/ci_stage_check.sh
