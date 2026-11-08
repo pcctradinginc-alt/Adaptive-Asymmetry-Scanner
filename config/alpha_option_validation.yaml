@@ -36,6 +36,8 @@ stability:
 test_budget:
   total_alpha: 0.05
   max_tests: 20
+  alpha_ledger: true               # ab 2026-11-08: Slot-Alpha aus dem globalen Fehlerbudget (config/alpha_ledger.yaml,
+                                   # Klasse alpha_hypothesis); bis dahin wurde kein Plan registriert (keine Altlast)
 learning:
   max_suggested_hypotheses: 3      # suggestions only; registration stays in the explorer budget
   min_regime_n: 10

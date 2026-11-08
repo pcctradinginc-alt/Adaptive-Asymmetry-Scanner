@@ -1219,10 +1219,11 @@ def register_variants(out: Path, proposals: list[dict], now: datetime, cfg: dict
     reg, base, new = variant_registry(out), experiment_id(), []
     max_active = int(cfg.get("max_active_per_horizon") or 0)
     budget = test_budget(out, cfg)
+    use_ledger = bool((cfg.get("test_budget") or {}).get("alpha_ledger"))   # globales Fehlerbudget (alpha_ledger)
     for p in proposals:
         if not p.get("auto_experiment"):
             continue
-        if budget["used"] >= budget["max_tests"]:           # Fehlerbudget erschöpft: keine neuen Tests
+        if not use_ledger and budget["used"] >= budget["max_tests"]:   # Fehlerbudget erschöpft: keine neuen Tests
             break
         try:
             change, params = validate_overrides(p["change"], cfg), variant_params(p["change"], cfg)
@@ -1237,12 +1238,20 @@ def register_variants(out: Path, proposals: list[dict], now: datetime, cfg: dict
         if len(open_) >= max_active or any(next(iter(v["overrides"])) == next(iter(change)) for v in open_):
             continue
         max_days = int((p.get("falsification") or {}).get("max_days") or 4 * h + 60)
+        if use_ledger:
+            alloc = alpha_allocate(vid, "option_learner_variant", vexp, now, path=ledger_path(out))
+            if alloc is None:                                # kein Budget oder Ledger verletzt: nichts registrieren
+                break
+            tb = {"ledger": LEDGER_VERSION, "total_alpha": budget["total_alpha"], "max_tests": alloc["class_max"],
+                  "class": alloc["class"]}
+            slot, slot_alpha = alloc["class_index"], alloc["alpha"]
+        else:
+            tb = {"total_alpha": budget["total_alpha"], "max_tests": budget["max_tests"]}
+            slot, slot_alpha = budget["used"] + 1, budget["slot_alpha"]
         ev = {"event": "registered", "variant_id": vid, "horizon": h, "base_experiment_id": base,
               "experiment_id": vexp, "overrides": change, "params": params, "proposal_id": p.get("proposal_id"),
               "gap_ids": p.get("gap_ids"), "falsification": p.get("falsification"),
-              "look_days": look_days(max_days),
-              "test_budget": {"total_alpha": budget["total_alpha"], "max_tests": budget["max_tests"]},
-              "alpha_slot": budget["used"] + 1, "slot_alpha": budget["slot_alpha"],
+              "look_days": look_days(max_days), "test_budget": tb, "alpha_slot": slot, "slot_alpha": slot_alpha,
               "registered_at": now.isoformat(timespec="seconds"),
               "start_date": (now.date() + timedelta(days=1)).isoformat()}
         append_jsonl(out / VARIANTS, [ev])
@@ -1334,15 +1343,182 @@ def test_budget(out: Path = OUT, cfg: dict | None = None) -> dict:
     Basisversionen. Ein Neustart oder Modellwechsel setzt nichts zurück."""
     path = out / VARIANTS
     events = [e for e in (read_jsonl(path) if path.exists() else []) if e.get("event") == "registered"]
-    frozen = next((e["test_budget"] for e in events if isinstance(e.get("test_budget"), dict)), None)
+    legacy = [e for e in events if not (e.get("test_budget") or {}).get("ledger")]   # alte Bonferroni-Slots
+    frozen = next((e["test_budget"] for e in legacy if isinstance(e.get("test_budget"), dict)), None)
     conf = (cfg if cfg is not None else variant_config()).get("test_budget") or {}
     budget = frozen or {"total_alpha": float(conf.get("total_alpha", 0.05)),
                         "max_tests": int(conf.get("max_tests", 20))}
-    used = len(events)
-    return {"total_alpha": float(budget["total_alpha"]), "max_tests": int(budget["max_tests"]),
-            "slot_alpha": float(budget["total_alpha"]) / int(budget["max_tests"]), "used": used,
-            "remaining": max(0, int(budget["max_tests"]) - used), "exhausted": used >= int(budget["max_tests"]),
-            "frozen_by_registry": frozen is not None}
+    used = len(legacy)
+    res = {"total_alpha": float(budget["total_alpha"]), "max_tests": int(budget["max_tests"]),
+           "slot_alpha": float(budget["total_alpha"]) / int(budget["max_tests"]), "used": used,
+           "remaining": max(0, int(budget["max_tests"]) - used), "exhausted": used >= int(budget["max_tests"]),
+           "frozen_by_registry": frozen is not None}
+    if conf.get("alpha_ledger"):                     # neue Tests nur noch aus dem globalen Ledger
+        nxt = alpha_allocate("__preview__", "option_learner_variant", "", datetime.now(timezone.utc),
+                             path=ledger_path(out), preview=True)
+        res.update(source=LEDGER_VERSION, ledger_registered=len(events) - len(legacy),
+                   next_alpha=nxt["alpha"] if nxt else None, exhausted=nxt is None)
+    return res
+
+
+# ── Globales Fehlerbudget (config/alpha_ledger.yaml) ─────────────────────────────────────────────────────────────
+# Ein append-only Ledger mit Hash-Kette für ALLE prospektiven Bestätigungstests der Teilsysteme (Varianten dieses
+# Moduls, Alpha-to-Options-Prüfpläne, fehlergetriebene Forschung). Online-Bonferroni mit fester Folge: gültig bei
+# beliebiger Abhängigkeit; bereits vergebene Slots der alten Teilbudgets werden als Altlast abgezogen.
+
+ALPHA_LEDGER_CONFIG = Path("config/alpha_ledger.yaml")
+ALPHA_LEDGER = OUT.parent / "alpha_ledger.jsonl"
+LEDGER_VERSION = "alpha-ledger-v1"
+
+
+def alpha_ledger_config(path: Path | None = None) -> dict:
+    """Ledger-Konfiguration mit Prüfung der Invarianten (Summe der Anteile <= 1, Exponent > 1, eindeutige
+    Teilsysteme) und SHA-256 der Datei; jede Verletzung ist ein ValueError (fail closed)."""
+    raw = (path or ALPHA_LEDGER_CONFIG).read_bytes()
+    cfg = yaml.safe_load(raw) or {}
+    if cfg.get("version") != LEDGER_VERSION:
+        raise ValueError(f"alpha_ledger: Version {cfg.get('version')!r} statt {LEDGER_VERSION}")
+    classes = cfg.get("classes") or {}
+    subs = [s for c in classes.values() for s in c.get("subsystems") or []]
+    if not 0 < float(cfg.get("total_alpha", 0)) <= 0.05:
+        raise ValueError("alpha_ledger: total_alpha muss in (0, 0.05] liegen")
+    if float(cfg.get("gamma_exponent", 0)) <= 1:
+        raise ValueError("alpha_ledger: gamma_exponent <= 1 – die Folge wäre nicht summierbar")
+    if not classes or sum(float(c["share"]) for c in classes.values()) > 1 + 1e-12 or len(subs) != len(set(subs)):
+        raise ValueError("alpha_ledger: Klassenanteile > 1 oder Teilsystem mehrfach zugeordnet")
+    return {**cfg, "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def ledger_path(out: Path) -> Path:
+    """Ledger neben dem Ausgabeverzeichnis …/option_learner (Produktion: outputs/research/alpha_ledger.jsonl, gemeinsam
+    mit Alpha-to-Options und der fehlergetriebenen Forschung); andere Verzeichnisse erhalten ein eigenes (isoliert)."""
+    out = Path(out)
+    return out.parent / "alpha_ledger.jsonl" if out.name == OUT.name else out / "alpha_ledger.jsonl"
+
+
+def ledger_gamma(k: int, exponent: float) -> float:
+    """k-tes Glied der festen Folge k^(−s) / ζ(s); Summe über alle k = 1."""
+    from scipy.special import zeta
+    return float(k ** (-exponent) / zeta(exponent, 1))
+
+
+def _ledger_canon(ev: dict) -> str:
+    return json.dumps(ev, sort_keys=True, ensure_ascii=False, default=str, separators=(",", ":"))
+
+
+def _ledger_read(path: Path) -> tuple[list[dict], list[str]]:
+    if not path.exists():
+        return [], []
+    events, prev = [], ""
+    for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            e = json.loads(line)
+        except ValueError:
+            return events, [f"{path.name} Zeile {i}: kein JSON"]
+        body = {k: v for k, v in e.items() if k != "hash"}
+        if e.get("prev") != prev or hashlib.sha256(_ledger_canon(body).encode()).hexdigest() != e.get("hash"):
+            return events, [f"{path.name} Zeile {i}: Hash-Kette verletzt (nachträglich geändert oder entfernt)"]
+        events.append(e)
+        prev = e["hash"]
+    return events, []
+
+
+def _ledger_append(path: Path, events: list[dict], ev: dict) -> dict:
+    ev = {**ev, "prev": events[-1]["hash"] if events else ""}
+    ev["hash"] = hashlib.sha256(_ledger_canon(ev).encode()).hexdigest()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(ev, ensure_ascii=False, sort_keys=True, default=str) + "\n")
+    events.append(ev)
+    return ev
+
+
+def legacy_allocations(research_dir: Path, cfg: dict) -> list[dict]:
+    """Vor dem Ledger vergebene Slots der alten Teilbudgets (aus deren Registern gelesen, je Test einmal)."""
+    out, seen = [], set()
+    for sub, spec in sorted((cfg.get("legacy") or {}).items()):
+        p = Path(research_dir) / spec["path"]
+        for e in read_jsonl(p) if p.exists() else []:
+            a, tid = e.get(spec["alpha"]), e.get(spec["id"])
+            if e.get("event") != spec["event"] or not tid or (sub, tid) in seen:
+                continue
+            if isinstance(a, (int, float)) and not isinstance(a, bool) and math.isfinite(a) and a > 0:
+                seen.add((sub, tid))
+                out.append({"subsystem": sub, "test_id": tid, "alpha": float(a)})
+    return out
+
+
+def alpha_ledger_state(path: Path = ALPHA_LEDGER, cfg: dict | None = None, now: datetime | None = None,
+                       persist: bool = True, research_dir: Path | None = None) -> dict:
+    """Zustand des Ledgers. Beim ersten Aufruf wird es eingerichtet: Altlast aus den alten Registern lesen und
+    einfrieren, W0 = total_alpha − Altlast auf die Klassen verteilen. Danach gilt nur noch der eingefrorene Stand
+    (eine Konfigurationsänderung wirkt nicht rückwirkend; eine abweichende Konfiguration ist ein Befund)."""
+    cfg = cfg or alpha_ledger_config()
+    events, problems = _ledger_read(path)
+    init = next((e for e in events if e.get("event") == "init"), None)
+    if init is None and not problems:
+        legacy = legacy_allocations(research_dir or path.parent, cfg)
+        legacy_alpha = sum(x["alpha"] for x in legacy)
+        w0 = float(cfg["total_alpha"]) - legacy_alpha
+        if w0 <= 0:
+            problems.append(f"Altlast {legacy_alpha:.6f} >= total_alpha – kein Budget für neue Tests")
+        init = {"event": "init", "version": LEDGER_VERSION, "config_sha256": cfg["sha256"],
+                "total_alpha": float(cfg["total_alpha"]), "procedure": cfg["procedure"],
+                "gamma_exponent": float(cfg["gamma_exponent"]), "legacy": legacy,
+                "legacy_alpha": round(legacy_alpha, 12), "w0": round(max(w0, 0.0), 12),
+                "classes": {n: {"share": float(c["share"]), "wealth": round(max(w0, 0.0) * float(c["share"]), 12),
+                                "max_registrations": int(c["max_registrations"]),
+                                "subsystems": list(c["subsystems"])} for n, c in sorted(cfg["classes"].items())},
+                "created_at": (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")}
+        if persist and not problems:
+            init = _ledger_append(path, events, init)
+    allocs = {e["test_id"]: e for e in events if e.get("event") == "allocate"}
+    if init and init.get("hash"):                    # Umgehung: Slot in einem alten Register ohne Ledger-Zuteilung
+        known = {(x["subsystem"], x["test_id"]) for x in init["legacy"]}
+        stray = [x for x in legacy_allocations(research_dir or path.parent, cfg)
+                 if (x["subsystem"], x["test_id"]) not in known and x["test_id"] not in allocs]
+        if stray:
+            problems.append(f"{len(stray)} Registrierung(en) ohne Ledger-Zuteilung, z. B. {stray[0]['test_id']}")
+    spent = {n: sum(a["alpha"] for a in allocs.values() if a["class"] == n) for n in (init or {}).get("classes", {})}
+    if init and any(spent[n] > c["wealth"] + 1e-12 for n, c in init["classes"].items()):
+        problems.append("Zuteilungen übersteigen das Klassenbudget")
+    return {"path": str(path), "init": init, "allocations": allocs, "events": events, "spent": spent,
+            "problems": problems,
+            "summary": {"version": LEDGER_VERSION, "total_alpha": (init or {}).get("total_alpha"),
+                        "legacy_alpha": (init or {}).get("legacy_alpha"), "w0": (init or {}).get("w0"),
+                        "allocated": len(allocs), "spent": {n: round(v, 10) for n, v in spent.items()},
+                        "status": "CRITICAL" if problems else "OK"}}
+
+
+def alpha_allocate(test_id: str, subsystem: str, spec_hash: str, now: datetime, *, path: Path = ALPHA_LEDGER,
+                   cfg: dict | None = None, persist: bool = True, preview: bool = False,
+                   research_dir: Path | None = None) -> dict | None:
+    """Alpha eines neuen Tests aus dem globalen Ledger (idempotent je test_id; die Zuteilung ist endgültig).
+    k-ter Test der Klasse: alpha = Klassenbudget · k^(−s)/ζ(s). preview: nur berechnen, nichts schreiben (für das
+    Power-Gate vor der Registrierung). None = keine Zuteilung (verletzte Kette, unbekanntes Teilsystem,
+    Registrierungsgrenze erreicht oder kein Budget) – der Aufrufer registriert dann nichts (fail closed)."""
+    st = alpha_ledger_state(path, cfg, now, persist=persist and not preview, research_dir=research_dir)
+    if st["problems"] or not st["init"]:
+        return None
+    old = st["allocations"].get(test_id)
+    if old is not None:
+        return old if old["subsystem"] == subsystem else None
+    cls = next((n for n, c in st["init"]["classes"].items() if subsystem in c["subsystems"]), None)
+    if cls is None:
+        return None
+    k = sum(1 for a in st["allocations"].values() if a["class"] == cls) + 1
+    c = st["init"]["classes"][cls]
+    if k > c["max_registrations"] or c["wealth"] <= 0:
+        return None
+    ev = {"event": "allocate", "ledger": LEDGER_VERSION, "test_id": test_id, "subsystem": subsystem, "class": cls,
+          "class_index": k, "class_max": c["max_registrations"],
+          "alpha": c["wealth"] * ledger_gamma(k, st["init"]["gamma_exponent"]),
+          "spec_hash": spec_hash, "allocated_at": now.isoformat(timespec="seconds")}
+    if preview or not persist:
+        return ev
+    return _ledger_append(Path(st["path"]), st["events"], ev)
 
 
 def _economic(cmp: dict) -> str:

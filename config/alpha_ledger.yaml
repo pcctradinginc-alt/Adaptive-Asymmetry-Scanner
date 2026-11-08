@@ -1,0 +1,44 @@
+# config/alpha_ledger.yaml – EIN Fehlerbudget für alle prospektiven Bestätigungstests (NUR RESEARCH)
+#
+# Registriert 2026-11-08, vor der ersten Zuteilung. Bisher hatte jedes Teilsystem ein eigenes Budget von 0,05
+# (option_learner-Varianten, Alpha-to-Options-Prüfpläne, fehlergetriebene Forschung). Systemweit waren damit
+# bis zu 0,15 familienweise Fehlerrate möglich (Union-Bound). Dieses Ledger ersetzt die drei Budgets für alle
+# NEUEN Registrierungen durch ein gemeinsames:
+#
+#  * Familienweise Fehlerrate <= total_alpha über ALLE Tests der drei Teilsysteme, alte und neue (Union-Bound),
+#    bei beliebiger Abhängigkeit der Tests (gleicher Markt, überlappende Zeiträume).
+#  * Bereits vergebene Slots (Altlast) werden bei der Einrichtung aus den Registern gelesen, eingefroren und vom
+#    Budget abgezogen; sie bleiben unverändert gültig. W0 = total_alpha − Altlast.
+#  * Online-Bonferroni mit fester, vorab festgelegter Folge: der k-te Test einer Klasse erhält
+#    alpha_k = share · W0 · k^(−gamma_exponent) / zeta(gamma_exponent). Die Summe über alle k ist <= share · W0.
+#    Frühe, durch das Power-Gate geprüfte Tests erhalten mehr als der bisherige Gleichverteilungs-Slot, späte
+#    weniger. Die Folge hängt nur von der Reihenfolge der Registrierung ab, nie von Ergebnissen.
+#  * Keine Rückgabe von Budget nach Entdeckungen: Für asynchrone, abhängige Gruppen-Sequenztests ist eine
+#    Weitergabe ohne eigene Closed-Testing-Konstruktion nicht nachweislich gültig – bewusst weggelassen.
+#  * Innerhalb eines Tests wird alpha_k wie bisher nach O'Brien-Fleming auf die Prüfzeitpunkte verteilt.
+#  * Append-only Journal mit Hash-Kette (outputs/research/alpha_ledger.jsonl); verletzte Kette = keine neue
+#    Zuteilung (fail closed), bestehende Zuteilungen gelten unverändert.
+#
+# Nicht erfasst (eigene Regeln, offen dokumentiert): ML-Promotion (config/research_protocol.yaml),
+# Factory-/Promotion-Controller-Forward-Gate, Faktor-Forward. Nur strenger ändern; Hash in tests/test_alpha_ledger.py.
+
+version: "alpha-ledger-v1"
+registered_at: "2026-11-08"
+total_alpha: 0.05
+procedure: "online_bonferroni_fixed_sequence"
+gamma_exponent: 1.5
+classes:
+  alpha_hypothesis:                 # neue Alpha-Hypothesen (Aktien- bzw. Optionsrendite gegen Nicht-Handeln)
+    share: 0.7
+    max_registrations: 60
+    subsystems: [error_research, alpha_option_validation]
+  model_variant:                    # Varianten des Options-Lernmodells (ein Parameter geändert)
+    share: 0.3
+    max_registrations: 60
+    subsystems: [option_learner_variant]
+legacy:                             # vor dem Ledger vergebene Slots; Pfade relativ zu outputs/research
+  option_learner_variant: {path: option_learner/variants.jsonl, event: registered, id: variant_id,
+                           alpha: slot_alpha}
+  error_research: {path: error_forward_journal.jsonl, event: slot_assigned, id: hypothesis_id, alpha: slot_alpha}
+  alpha_option_validation: {path: autonomous_alpha/option_validation/variants.jsonl, event: registered,
+                            id: plan_id, alpha: alpha_slot}

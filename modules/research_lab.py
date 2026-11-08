@@ -273,6 +273,44 @@ def look_outcome(blocks: list[dict], periods: int, alpha: float, final: bool) ->
     return {"look_periods": periods, "alpha": alpha, "outcome": outcome, "blocks": blocks[:periods], **st}
 
 
+def design_power(effect: float, sd: float, looks: list[int], look_alpha: list[float], n_sims: int = 4000,
+                 seed: int = 20261108) -> float:
+    """Trennschärfe des vorab festgelegten Prüfplans: Wahrscheinlichkeit, dass `look_outcome` an einer der
+    Prüfungen CONFIRMED liefert, wenn die unabhängigen Fenstermittel N(effect, sd²) sind. Dieselbe Regel wie in der
+    Bestätigung (Mittel <= 0 -> REJECTED, einseitig p < Teil-Alpha -> CONFIRMED, sonst weiter). Fester Seed ->
+    reproduzierbar. Nur Planung: bestätigt nie etwas."""
+    from scipy.stats import t as student_t
+    if not looks or sd is None or not math.isfinite(sd) or sd <= 0 or effect is None or not math.isfinite(effect):
+        return 0.0
+    x = np.random.default_rng(seed).normal(effect, sd, (int(n_sims), int(max(looks))))
+    alive, confirmed = np.ones(int(n_sims), bool), np.zeros(int(n_sims), bool)
+    for n, a in zip(looks, look_alpha):
+        n = int(n)
+        m, s = x[:, :n].mean(axis=1), x[:, :n].std(axis=1, ddof=1)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            p = student_t.sf(m / (s / math.sqrt(n)), n - 1)
+        rej = alive & (m <= 0)
+        conf = alive & ~rej & (p < a)
+        confirmed |= conf
+        alive &= ~(rej | conf)
+    return float(confirmed.mean())
+
+
+def min_detectable_effect(sd: float, looks: list[int], look_alpha: list[float], power: float,
+                          n_sims: int = 4000) -> float | None:
+    """Kleinster Effekt (Fenstermittel), den der Prüfplan mit mindestens `power` bestätigt (Bisektion über
+    design_power); None, wenn selbst 20 Standardabweichungen nicht reichen."""
+    if sd is None or not math.isfinite(sd) or sd <= 0:
+        return None
+    lo, hi = 0.0, 20.0 * sd
+    if design_power(hi, sd, looks, look_alpha, n_sims) < power:
+        return None
+    for _ in range(30):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if design_power(mid, sd, looks, look_alpha, n_sims) < power else (lo, mid)
+    return hi
+
+
 def window(panel: pd.DataFrame, start, end, label_end_before) -> pd.DataFrame:
     le = panel["label_end_20"]
     return panel[(panel["date"] >= pd.Timestamp(start)) & (panel["date"] < pd.Timestamp(end))

@@ -100,14 +100,18 @@ def test_plan_is_preregistered_create_only_with_budget_slot(tmp_path, monkeypatc
     plan = ov.plans(tmp_path)[0]
     assert not plan.get("invalid") and plan["hypothesis_id"] == HID and plan["structure"] == "LONG_CALL"
     assert plan["start_date"] == "2026-11-08"                          # only data AFTER registration
-    assert plan["alpha_slot"] == pytest.approx(0.05 / 20)
+    from modules import option_learner as ol  # Alpha aus dem globalen Ledger (Klasse A)
+    alloc = ol.alpha_ledger_state(tmp_path / ov.LEDGER_REL, persist=False)["allocations"][plan["plan_id"]]
+    assert alloc["class"] == "alpha_hypothesis" and alloc["class_index"] == 1
+    assert plan["alpha_slot"] == pytest.approx(alloc["alpha"]) and plan["test_budget"]["ledger"] == "alpha-ledger-v1"
+    assert plan["alpha_slot"] == pytest.approx(0.05 * 0.7 * ol.ledger_gamma(1, 1.5))   # leeres Register: W0 = 0,05
     assert sum(plan["look_alpha"]) == pytest.approx(plan["alpha_slot"])
     assert plan["look_cutoffs"][-1] == (date(2026, 11, 8) + timedelta(days=364)).isoformat()
     for key in ("signal_definition", "contract_rule", "target", "comparisons", "population",
                 "min_decision_coverage", "min_independent_periods", "stop_rules", "test_budget"):
         assert plan[key]
     assert ov.register_plans(tmp_path, ECON, now=REG + timedelta(days=7)) == []     # never re-registered
-    assert ov._budget(tmp_path, ov.config(tmp_path))["used"] == 1
+    assert ol.alpha_ledger_state(tmp_path / ov.LEDGER_REL, persist=False)["summary"]["allocated"] == 1
 
 
 def test_tampered_plan_is_invalid(tmp_path, monkeypatch):
@@ -123,7 +127,7 @@ def test_tampered_plan_is_invalid(tmp_path, monkeypatch):
 
 
 def test_exhausted_budget_never_qualifies(tmp_path, monkeypatch):
-    _setup(tmp_path, test_budget={"max_tests": 1})
+    _setup(tmp_path, test_budget={"max_tests": 1, "alpha_ledger": False})        # alte Slot-Mechanik
     _world(monkeypatch, lambda w, i: 0.3)
     ov.register_plans(tmp_path, {"proposals": {HID: {"structure": "LONG_CALL"}}}, now=REG)
     data = al.read_all(tmp_path)

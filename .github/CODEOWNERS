@@ -71,3 +71,6 @@ modules/evidence_core.py           @pcctradinginc-alt
 # Fehlergetriebene Forschung: Präregistrierung (Suchraum, Schwellen, Budget, gesehene Daten)
 config/error_research_protocol.yaml @pcctradinginc-alt
 tests/test_error_driven_research.py @pcctradinginc-alt
+# Globales Fehlerbudget und fehlergetriebene Forschung (Präregistrierung, Hash gepinnt)
+config/alpha_ledger.yaml      @pcctradinginc-alt
+tests/test_alpha_ledger.py    @pcctradinginc-alt

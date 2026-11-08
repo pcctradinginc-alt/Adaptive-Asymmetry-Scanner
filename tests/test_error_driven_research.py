@@ -23,7 +23,7 @@ from modules import research_lab as rl
 from modules import research_memory as rm
 
 ROOT = Path(__file__).resolve().parent.parent
-PROTOCOL_SHA = "4050314a5ab5cbf95be67c734cf193a9e6ea7840af4aaa9c947cc127c4d64591"
+PROTOCOL_SHA = "b2a493966867763406a01525bc8c91d36544b34bf9d9dc6e792173e2e3f56823"
 MODELS = ("ml_a", "ml_b", "ml_c")
 FEATURES = ("sentiment_score", "short_mom", "news_count", "rel_volume", "sentiment_drift")
 START = "2026-08-03"
@@ -33,15 +33,21 @@ def test_protocol_is_pinned_and_bounded():
     raw = (ROOT / "config" / "error_research_protocol.yaml").read_bytes()
     assert hashlib.sha256(raw).hexdigest() == PROTOCOL_SHA, "Protokoll geändert – nur strenger oder bei belegtem Fehler"
     p = rd.error_protocol()
-    assert p["version"] == "error-research-v2" and p["seen_until"] == "2026-11-06"
+    assert p["version"] == "error-research-v3" and p["seen_until"] == "2026-11-06"
     assert p["budget"] == {"max_new_per_run": 2, "max_lifetime": 24}
-    assert p["forward"] == {"test_budget": {"total_alpha": 0.05, "max_tests": 24}, "looks": [4, 8, 12]}
+    assert p["forward"] == {"test_budget": {"total_alpha": 0.05, "max_tests": 24}, "looks": [4, 8, 12],
+                            "alpha_ledger": True,
+                            "power_gate": {"min_power": 0.5, "effect_shrinkage": 0.5, "min_windows": 3,
+                                           "n_sims": 4000}}
     assert len(rd.error_candidates(p)) == 23                       # fester Suchraum
     assert abs(sum(ol.alpha_spending(0.05 / 24)) - 0.05 / 24) < 1e-12   # Teil-Alphas summieren sich zum Slot
 
 
-def _proto(**over):
+def _proto(ledger: bool = False, **over):
+    """Synthetisches Protokoll. ledger=False: Slot-Mechanik von v2 (gilt weiter für Altlast-Registrierungen wie
+    ERR-d6695229); ledger=True: v3 mit globalem Fehlerbudget und Power-Gate."""
     p = json.loads(json.dumps(rd.error_protocol()))
+    p["forward"]["alpha_ledger"] = bool(ledger)
     p["forecast"]["models"] = list(MODELS)
     p["forecast"]["horizons"] = [5]
     p["search_space"] = {"ledger": list(FEATURES), "external": {}, "pairs": []}
