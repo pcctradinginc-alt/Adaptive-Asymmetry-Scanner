@@ -78,7 +78,7 @@ def test_source_utilization_has_no_implicit_research_reader_or_alpha_success():
     assert fred["feature_status"] == "NOT_ENABLED"
     assert rep["measured_daily_bytes_for_scope"] == {"raw": 500, "normalized": 60}
     assert rep["proposed_next_protocol"]["status"] == "DRAFT_ONLY_NOT_REGISTERED"
-    assert not rep["no_alpha_test"] is False
+    assert rep["no_alpha_test"] is True
     assert rep["no_new_features"] and rep["no_protocol_or_production_changes"]
     absent = next(x for x in rep["sources"] if x["source_id"] == "clinicaltrials_sponsors")
     assert absent["source_health"] == "UNOBSERVED"
@@ -109,8 +109,8 @@ def test_workflow_uses_weekly_only_research_and_commits_outputs():
     assert "env.MODE == 'weekly'" in source_step
     assert "research_candidate_census --latest-completed" in census_step
     assert "research_source_utilization" in source_step
-    assert "research_census=\${{ steps.research_census.outcome }}" in workflow
-    assert "source_utilization=\${{ steps.source_utilization.outcome }}" in workflow
+    assert "research_census=${{ steps.research_census.outcome }}" in workflow
+    assert "source_utilization=${{ steps.source_utilization.outcome }}" in workflow
     assert 'outputs/research/' in workflow
     assert "option_learner evaluate" in workflow  # existing learner, not replaced
 
