@@ -20,7 +20,7 @@ import pandas as pd
 import yaml
 
 from modules.external.archive import ExternalArchive
-from modules.research_feature_store import PITResearchStore
+from modules.research_feature_store import PITResearchStore, signal_time
 
 PROTOCOL = Path("config/research_feature_discovery_v3.yaml")
 OUT = Path("outputs/research/feature_discovery_v3")
@@ -92,13 +92,20 @@ def _date_metrics(rows, base, challenger, p):
 
 
 def independent(records: list[dict], p: dict) -> list[dict]:
+    """Do not treat overlapping holding windows as independent observations.
+
+    Prefer actual trading-calendar label end; old data without one receive
+    the conservative configured calendar gap as a fallback.
+    """
     min_gap = timedelta(days=p["evaluation"]["min_calendar_days_between_forward_windows"])
-    selected, last = [], None
+    selected, last_end = [], None
     for row in sorted(records, key=lambda r: r["date"]):
-        d = date.fromisoformat(str(row["date"])[:10])
-        if last is None or d - last >= min_gap:
-            selected.append(row)
-            last = d
+        start = date.fromisoformat(str(row["date"])[:10])
+        if last_end is not None and start <= last_end:
+            continue
+        selected.append(row)
+        last_end = (date.fromisoformat(str(row["window_end"])[:10])
+                    if row.get("window_end") else start + min_gap)
     return selected
 
 
@@ -139,7 +146,8 @@ def retrospective(panel: pd.DataFrame, h: dict, p: dict, until: date) -> dict:
             continue
         m = _date_metrics(test, pred0, pred1, p)
         if m:
-            reports.append({"date": str(day.date()), **m})
+            reports.append({"date": str(day.date()),
+                            "window_end": str(pd.to_datetime(test[p["label_end"]]).max().date()), **m})
     return summarize(reports, p, forward=False)
 
 
@@ -178,7 +186,7 @@ def freeze_latest(panel: pd.DataFrame, p: dict, digest: str, journal: Path, now:
                 "protocol_sha256": digest, "protocol_version": p["version"],
                 "hypothesis_id": h["id"],
                 "date": str(latest.date()), "ticker": ticker,
-                "signal_asof": str(latest.date()) + "T23:59:59Z",
+                "signal_asof": signal_time(latest.date()).isoformat(),
                 "feature_value": float(getattr(row, feature)),
                 "frozen_at": now.isoformat(), "baseline_pred": float(b),
                 "challenger_pred": float(c), "feature": feature,
@@ -238,7 +246,7 @@ def prospective(panel: pd.DataFrame, h: dict, p: dict, digest: str, journal: Pat
                 frozen_outcomes: Path | None = None):
     preds = [r for r in _read_jsonl(journal)
              if r.get("protocol_sha256") == digest and r.get("hypothesis_id") == h["id"]]
-    grouped = {}
+    grouped, window_ends = {}, {}
     if frozen_outcomes is not None:
         labels = {(r["date"], r["ticker"]): r for r in _read_jsonl(frozen_outcomes)
                   if r.get("protocol_sha256") == digest}
@@ -250,6 +258,7 @@ def prospective(panel: pd.DataFrame, h: dict, p: dict, digest: str, journal: Pat
                 continue
             grouped.setdefault(row["date"], []).append(
                 (float(label["fwd_xs_20"]), row["baseline_pred"], row["challenger_pred"]))
+            window_ends[row["date"]] = label["label_end"]
     else:
         # For deterministic unit tests only; operational run uses the locked
         # append-only outcomes journal above.
@@ -270,6 +279,7 @@ def prospective(panel: pd.DataFrame, h: dict, p: dict, digest: str, journal: Pat
             if pd.isna(y):
                 continue
             grouped.setdefault(row["date"], []).append((float(y), row["baseline_pred"], row["challenger_pred"]))
+            window_ends[row["date"]] = str(end.date())
     metrics = []
     for day, rows in sorted(grouped.items()):
         if len(rows) < p["evaluation"]["min_cross_section"]:
@@ -277,7 +287,7 @@ def prospective(panel: pd.DataFrame, h: dict, p: dict, digest: str, journal: Pat
         data = pd.DataFrame(rows, columns=[p["target"], "b", "c"])
         m = _date_metrics(data, data["b"].to_numpy(), data["c"].to_numpy(), p)
         if m:
-            metrics.append({"date": day, **m})
+            metrics.append({"date": day, "window_end": window_ends.get(day), **m})
     return summarize(metrics, p, forward=True)
 
 
