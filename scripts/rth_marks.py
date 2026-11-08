@@ -202,6 +202,24 @@ def persist_capture_status(res: dict, *, now: datetime | None = None,
     dest = root / f"{day}.json"
     payload = dict(res)
     payload["observed_at"] = (now or datetime.now(timezone.utc)).isoformat()
+    # The previous daily JSON remains a latest-state compatibility view.
+    # An earlier in-window failure MUST NOT vanish when a later cron succeeds.
+    # Store immutable, content-addressed capture attempts in the SAME existing
+    # archive commit. No extra workflow/API, no re-querying the market.
+    import hashlib
+    raw = json.dumps(payload, sort_keys=True, ensure_ascii=False, default=str)
+    hexdigest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    attempts = root / "runs" / str(day)
+    attempts.mkdir(parents=True, exist_ok=True)
+    attempt = attempts / (hexdigest + ".json")
+    stored = json.dumps({"sha256": hexdigest, "payload": payload}, sort_keys=True,
+                        ensure_ascii=False, default=str) + "\n"
+    try:
+        with attempt.open("x", encoding="utf-8") as handle:
+            handle.write(stored)
+    except FileExistsError:
+        if attempt.read_text(encoding="utf-8") != stored:
+            raise ValueError("conflicting capture attempt receipt")
     dest.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
     return dest
 

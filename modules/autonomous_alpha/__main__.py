@@ -10,7 +10,7 @@ from . import registry as reg
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Experiment registry and research cycle")
     ap.add_argument("command", choices=["run", "ingest", "explore", "option-forward", "factor-forward", "option-link",
-                                        "option-link-correct", "paper-account", "paper-report", "data-quality", "reflect", "status", "leaderboard", "verify"])
+                                        "option-link-correct", "paper-account", "paper-report", "data-quality", "e2e-audit", "reflect", "status", "leaderboard", "verify"])
     ap.add_argument("--root", type=Path, default=Path("."))
     ap.add_argument("--panel-cache", type=Path)
     ap.add_argument("--timeout", type=int, default=3600)
@@ -66,6 +66,10 @@ def main(argv=None):
             from .data_quality import write
             result = write(root)
             code = 0
+        elif args.command == "e2e-audit":
+            from .e2e_audit import run as e2e_run
+            result = e2e_run(root)
+            code = 2 if result["n_technical_defects"] else 0
         elif args.command == "option-link-correct":
             from .option_link import record_correction
             result = record_correction(root, kind=args.kind, target_id=args.target, action=args.action,

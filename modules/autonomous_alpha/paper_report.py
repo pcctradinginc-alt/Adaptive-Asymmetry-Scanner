@@ -23,6 +23,7 @@ LEARNER = Path("outputs/research/option_learner")
 ALPHA_QUALITY = Path("outputs/research/autonomous_alpha/data_quality.json")
 HYP_DB = Path("outputs/research/hypothesis_db.json")
 FACTORY_PLAN = Path("outputs/research/factory_plan.json")
+E2E_REPORT = Path("outputs/research/autonomous_alpha/e2e_audit.json")
 
 
 def _json(root: Path, path: Path) -> dict:
@@ -45,7 +46,7 @@ def _pct(v) -> str:
 def render(account: dict, economics: dict, validation: dict,
            learner5: dict, learner20: dict, *, week: str,
            data_quality: dict | None = None, hypothesis_db: dict | None = None,
-           factory_plan: dict | None = None) -> str:
+           factory_plan: dict | None = None, e2e_audit: dict | None = None) -> str:
     """Separate observed facts, exploratory hypotheses and confirmation."""
     lines = [f"GITHUB-PAPER-DEPOT – Wochenbericht {week}",
              "Ausschließlich virtuelle Optionsgeschäfte. Keine Brokeranbindung, keine echten Orders.", "",
@@ -140,6 +141,31 @@ def render(account: dict, economics: dict, validation: dict,
               "Status-Definition: EXPLORATORY (historisch), PENDING_FORWARD (vorgemerkt), "
               "CONFIRMED/FALSIFIED (prospektiv), NEED_MORE_DATA (noch nicht bewertbar).",
               "Historische ACCEPTED-/ROBUST-Marker aus dem kontaminierten Locked-Holdout sind KEIN Alpha-Beweis."]
+    audit = e2e_audit or {}
+    chain = audit.get("source_chain") or {}
+    feedback = audit.get("existing_learning") or {}
+    depot = audit.get("paper_account") or {}
+    lines += ["", "H. End-to-End-Betriebsprüfung – vorhandener Lernkreislauf",
+              "Audit-Status: " + str(audit.get("status") or "NOT_OBSERVED"),
+              "Virtuelles GitHub-Depot aktiviert (Event-Beleg): " +
+              str(depot.get("activation_verified_from_events", "NICHT GEPRÜFT")),
+              "Archivierte verifizierte Alpha-Options-Abschlüsse: " +
+              str(chain.get("verified_settled_economics", "unbekannt")),
+              "Forward-Prüfpläne im Research Memory nachvollziehbar: " +
+              str(feedback.get("verdicts_reconciled_to_memory", "unbekannt")) + " / " +
+              str(feedback.get("validation_plans", "unbekannt")),
+              "Unabhängig bestätigte und gespeicherte Alpha-Prüfungen: " +
+              str(feedback.get("forward_confirmed_and_memorized", 0)),
+              "Nachweis eines besseren Alpha-Modells: " +
+              ("JA – nur für die unabhängig bestätigten Prüfpläne" if feedback.get("alpha_improvement_proven")
+               else "NEIN / NOCH NICHT NACHGEWIESEN"),
+              "Technische Defekte: " + str(audit.get("n_technical_defects", "unbekannt")),
+              "Nächster Schritt: " + str(audit.get("next_action") or "Betriebsprüfung ausstehend"),
+              "Jedes Ergebnis wird ausschließlich einmal im vorhandenen Research Memory geführt.",
+              "Keine Doppel-Labels, keine echten Orders, kein automatischer Strategie-Wechsel."]
+    for problem in (audit.get("issues") or [])[:3]:
+        lines.append("  - " + str(problem.get("severity")) + ": " + str(problem.get("id"))
+                     + " – " + str(problem.get("observed_fact"))[:120])
     return "\n".join(lines) + "\n"
 
 
@@ -153,7 +179,8 @@ def generate(root: Path = Path("."), *, now: datetime | None = None) -> tuple[st
                      _json(root, LEARNER / "status_20d.json"), week=week,
                      data_quality=_json(root, ALPHA_QUALITY),
                      hypothesis_db=_json(root, HYP_DB),
-                     factory_plan=_json(root, FACTORY_PLAN))
+                     factory_plan=_json(root, FACTORY_PLAN),
+                     e2e_audit=_json(root, E2E_REPORT))
     return week, content
 
 
