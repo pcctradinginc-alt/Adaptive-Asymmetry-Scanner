@@ -27,7 +27,7 @@ def memory_as_of(entries: list[dict], cutoff: datetime) -> list[dict]:
     explicitly unknown, not proof of independent forward performance.
     """
     if cutoff.tzinfo is None:
-        raise ValueError("selection cutoff must be timezone aware")
+        raise ValueError("selection cutoff must be timezone-aware")
     out = []
     for entry in entries:
         raw = entry.get("recorded_at")
