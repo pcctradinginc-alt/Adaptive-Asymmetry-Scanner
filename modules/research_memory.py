@@ -53,6 +53,7 @@ SOURCES = {
     "alpha_option_validation": Path("outputs/research/autonomous_alpha/option_validation.json"),
     "error_research": Path("outputs/research/error_research.json"),
     "feature_discovery_v3": Path("outputs/research/feature_discovery_v3/status.json"),
+    "feature_director_v1": Path("outputs/research/feature_discovery_v3/director_plan.json"),
     "alpha_data_quality": Path("outputs/research/autonomous_alpha/data_quality.json"),
 }
 # Fehlergetriebene Forschung (research_director.error_research) -> Memory-Status. PENDING_FORWARD ist weder Erfolg
@@ -274,6 +275,21 @@ def collect(sources: dict | None = None) -> list[dict]:
                           reasons=["stock-only shadow diagnostics; option-economic alpha not established"],
                           data_kind="stock_forward_diagnostic_unconfirmed"))
 
+    # Phase 3: selected next investigation tasks are NOT alpha hypotheses.
+    # They are recorded so similar untested work is not presented as
+    # previously falsified / confirmed by the canonical Research Memory.
+    for proposal in (src.get("feature_director_v1") or {}).get("selected") or []:
+        action = proposal.get("action")
+        status = "DATA_GAP" if action == "COLLECT_PIT" else "PENDING_FORWARD"
+        out.append(_entry("feature_director_v1", proposal.get("decision_key"), status,
+                          {"signal": proposal.get("feature"), "domain": "pit_external_stock",
+                           "family": proposal.get("source"), "title": action},
+                          source=proposal.get("source"),
+                          evidence={"n_forward_windows": proposal.get("forward_independent_windows"),
+                                    "coverage": proposal.get("coverage"),
+                                    "priority_proxy": proposal.get("priority")},
+                          reasons=[proposal.get("reason"), "Requires independent owner-reviewed preregistration"],
+                          data_kind="research_planning_only"))
     # P1 research feedback uses existing Research Memory; quality gaps are not
     # hypotheses, training labels, or successful trials.
     for g in (src.get("alpha_data_quality") or {}).get("data_gaps") or []:
