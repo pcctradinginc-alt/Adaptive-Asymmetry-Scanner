@@ -118,6 +118,11 @@ def test_missing_or_stale_source_metrics_never_become_zero():
     assert stale["status"] == "DATA_GAP"
     assert all(s["estimated_raw_bytes_per_day"] is None for s in stale["sources"])
     assert stale["sources"][0]["health_status"] == "UNKNOWN"
+    partial = sources.inventory({"fred_liquidity": {"status": "PASS"}}, {
+        "measured_at": "2026-11-08T10:00:00+00:00",
+        "per_source": {"fred_liquidity": {"rows": 2, "raw_bytes_per_day": 1}}}, "2026-11-08")
+    assert partial["status"] == "DATA_GAP"
+    assert sum(s["data_completeness"] == "MEASURED_TELEMETRY" for s in partial["sources"]) == 1
     future = sources.inventory({}, {"measured_at": "2026-11-10", "per_source": {}}, "2026-11-08")
     assert future["status"] == "DATA_GAP"
 
