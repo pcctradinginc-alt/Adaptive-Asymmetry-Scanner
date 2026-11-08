@@ -6,10 +6,12 @@ on:
       - modules/research_feature_store.py
       - modules/research_feature_discovery.py
       - modules/research_feature_validation.py
+      - modules/research_feature_director.py
       - modules/research_memory.py
       - config/research_feature_discovery_v3.yaml
-      - tests/test_research_feature_discovery_v3.py tests/test_research_feature_validation.py
+      - tests/test_research_feature_discovery_v3.py tests/test_research_feature_validation.py tests/test_research_feature_director.py
       - tests/test_research_feature_validation.py
+      - tests/test_research_feature_director.py
       - .github/workflows/feature_discovery_tests.yml
   workflow_dispatch:
 
