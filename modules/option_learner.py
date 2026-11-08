@@ -1360,6 +1360,296 @@ def _acq_pred(model: dict, x: dict) -> float:
     return float(model["intercept"] + z @ np.array(model["coef"]))
 
 
+# ── Options-native Ziele: Zerlegung der Options-Rendite und Strukturwahl nach Erwartungswert (nur Research) ──────
+# Die Options-Rendite (Mid zu Mid) wird exakt zerlegt (Black-Scholes, implizite Volatilität je Leg aus dem Entry-Mid,
+# Underlying zum Mark-Tag aus ret_{h}d_at_mark):
+#   delta = Δ0·(S1−S0)/V0                     Richtung
+#   gamma = [V(S1,σ0,T1) − V(S0,σ0,T1) − Δ0(S1−S0)]/V0   Konvexität (realisierte gegen implizite Bewegung)
+#   theta = [V(S0,σ0,T1) − V0]/V0              Zeitwert
+#   vega  = [V1 − V(S1,σ0,T1)]/V0              Änderung der impliziten Volatilität
+#   delta + gamma + theta + vega = Mid-Rendite (exakt); cost = ausführbar − Mid (Spread, Kommission).
+# Strukturunabhängige Ziele (Underlying-Bewegung, IV-Verschiebung) werden gelernt und auf jede erfasste Struktur
+# umgerechnet; gewählt wird die Struktur mit dem höchsten ausführbaren Erwartungswert (sonst ABSTAIN). Prospektiv in
+# einem eigenen Journal (nie im Basis-Journal), keine Produktionswirkung.
+
+NATIVE_POLICY = "ev-decomposed-v1"
+NATIVE_JOURNAL = "options_native.jsonl"
+NATIVE_RATE = 0.04                     # wie bs_pricing (konstant; Dividenden nicht modelliert)
+NATIVE_COMPONENTS = ("delta", "gamma", "theta", "vega", "cost")
+NATIVE_MOVE_PARAMS = {"drop": list(CONTRACT_FEATURES)}   # Underlying-Bewegung: nur Signal-Merkmale, je Signal einmal
+
+
+def _occ_strike(symbol) -> float | None:
+    s = str(symbol or "")
+    try:
+        return int(s[-8:]) / 1000.0 if len(s) > 15 and s[-9] in "CP" else None
+    except ValueError:
+        return None
+
+
+def _native_legs(rs: dict, legs: list[dict] | None = None) -> list[dict] | None:
+    out = []
+    for g in legs if legs is not None else _legs_at_decision(rs):
+        k, right = _num(g.get("strike")) or _occ_strike(g.get("symbol")), _right(g.get("symbol"))
+        mid, ask, bid = _num(g.get("mid")), _num(g.get("ask")), _num(g.get("bid"))
+        if not k or right not in ("C", "P") or mid is None or mid <= 0 or ask is None or bid is None:
+            return None
+        out.append({"sign": 1.0 if g.get("side") == "long" else -1.0, "K": k,
+                    "kind": "call" if right == "C" else "put", "mid": mid, "ask": ask, "bid": bid})
+    return out or None
+
+
+def _value(legs: list[dict], s: float, t: float, vols: list[float]) -> float:
+    from modules.bs_pricing import bs_price
+    return sum(g["sign"] * bs_price(s, g["K"], t, v, NATIVE_RATE, g["kind"]) for g, v in zip(legs, vols))
+
+
+def _years(a, b) -> float | None:
+    try:
+        return (date.fromisoformat(str(b)[:10]) - date.fromisoformat(str(a)[:10])).days / 365.0
+    except ValueError:
+        return None
+
+
+def _iv_shift(legs: list[dict], s1: float, t1: float, vols: list[float], v1: float) -> float | None:
+    """Parallele IV-Verschiebung, unter der die Struktur am Mark-Tag V1 kostet. Spreads sind in der Volatilität nicht
+    monoton (mehrere Lösungen möglich): gewählt wird die betragskleinste Nullstelle eines festen Rasters, verfeinert
+    per Bisektion; ohne Vorzeichenwechsel None."""
+    grid = np.linspace(-min(vols) + 1e-4, 2.0, 401)
+    f = [_value(legs, s1, t1, [v + x for v in vols]) - v1 for x in grid]
+    brackets = [(grid[i], grid[i + 1], f[i]) for i in range(len(grid) - 1) if f[i] == 0 or f[i] * f[i + 1] < 0]
+    if not brackets:
+        return None
+    lo, hi, flo = min(brackets, key=lambda b: abs(b[0] + b[1]))
+    if flo == 0:
+        return float(lo)
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        fm = _value(legs, s1, t1, [v + mid for v in vols]) - v1
+        lo, hi, flo = (mid, hi, fm) if flo * fm > 0 else (lo, mid, flo)
+    return float((lo + hi) / 2)
+
+
+def decompose(row: dict, pseudo: dict, horizon: int) -> tuple[dict | None, str]:
+    """Exakte Zerlegung einer Ausdrucksform (Pseudo-Zeile aus expressions) -> (Komponenten, Grund)."""
+    from modules.bs_pricing import bs_delta, implied_vol
+    rs, oc, o0 = pseudo.get("real_strategy") or {}, pseudo.get("outcomes") or {}, row.get("outcomes") or {}
+    mid_ret, exec_ret = _num(oc.get(f"real_strat_ret_mid_{horizon}d")), net_label(pseudo, horizon)
+    mark = oc.get(f"real_strat_mark_date_{horizon}d")
+    adj, adj_day = _num(o0.get(f"ret_{horizon}d_at_mark")), o0.get(f"ret_{horizon}d_at_mark_date")
+    s0 = _num(row.get("entry_price"))
+    if mid_ret is None or exec_ret is None or not mark:
+        return None, "NO_LABEL"
+    if adj is None or str(adj_day)[:10] != str(mark)[:10]:
+        return None, "NO_UNDERLYING_AT_MARK"                     # Underlying nur am selben Mark-Tag zulässig
+    legs = _native_legs(rs, rs.get("legs"))
+    t0, t1 = _years(rs.get("entry_date") or row.get("date"), rs.get("expiry")), _years(mark, rs.get("expiry"))
+    if not legs or not s0 or s0 <= 0 or not t0 or not t1 or t1 <= 0:
+        return None, "INCOMPLETE_CONTRACT"
+    v0 = _num(rs.get("net_mid_entry")) or sum(g["sign"] * g["mid"] for g in legs)
+    vols = [implied_vol(g["mid"], s0, g["K"], t0, NATIVE_RATE, g["kind"]) for g in legs]
+    if not v0 or v0 <= 0 or any(v is None for v in vols):
+        return None, "NO_IMPLIED_VOL"
+    raw = -adj if str(row.get("direction") or "").upper() == "BEARISH" else adj
+    s1, v1 = s0 * (1 + raw), v0 * (1 + mid_ret)
+    d0 = sum(g["sign"] * (bs_delta(s0, g["K"], t0, v, NATIVE_RATE, g["kind"]) or 0.0) for g, v in zip(legs, vols))
+    v_time, v_move = _value(legs, s0, t1, vols), _value(legs, s1, t1, vols)
+    comp = {"delta": d0 * (s1 - s0) / v0, "gamma": (v_move - v_time - d0 * (s1 - s0)) / v0,
+            "theta": (v_time - v0) / v0, "vega": (v1 - v_move) / v0, "cost": exec_ret - mid_ret}
+    dvol = _iv_shift(legs, s1, t1, vols, v1)
+    return ({**{k: round(v, 6) for k, v in comp.items()}, "mid_ret": round(mid_ret, 6),
+             "exec_ret": round(exec_ret, 6), "move": round(raw, 6), "sigma0": round(vols[0], 6),
+             "dvol": None if dvol is None else round(dvol, 6), "legs": len(legs),
+             "check": round(comp["delta"] + comp["gamma"] + comp["theta"] + comp["vega"] - mid_ret, 9)}, "OK")
+
+
+def native_dataset(rows: list[dict], cands: list[dict], as_of: date, horizon: int) -> tuple[list[dict], Counter]:
+    """Zerlegte, geprüfte Labels (nur VERIFIED, Mark-Tag <= as_of) mit Merkmalen zum Entscheidungszeitpunkt."""
+    ok = {(str(c["date"])[:10], str(c["signal_id"]), e["expression"]): (e, c) for c in cands for e in c["exprs"]
+          if e["status"] == "VERIFIED" and e["label_day"] and e["label_day"] <= as_of}
+    out, reasons, seen = [], Counter(), set()
+    for r in rows:
+        if not isinstance(r, dict) or not r.get("date"):
+            continue
+        for ex in expressions(r):
+            key = (str(r["date"])[:10], str(r.get("signal_id")), ex["expression"])
+            if key not in ok or key in seen:
+                continue
+            seen.add(key)
+            comp, why = decompose(r, ex["row"], horizon)
+            reasons[why] += 1
+            if comp is not None:
+                e, _c = ok[key]
+                out.append({**comp, "date": key[0], "signal_id": key[1], "expression": key[2],
+                            "label_day": e["label_day"], "x": e["x"]})
+    return out, reasons
+
+
+def _native_models(data: list[dict], before: date) -> dict:
+    """Strukturunabhängige Ziele, nur aus Labels mit Mark-Tag vor `before`: Underlying-Bewegung und IV-Verschiebung
+    (vorhandene Ridge-Pipeline fit())."""
+    tr = [d for d in data if d["label_day"] < before]
+    per_signal = {(d["date"], d["signal_id"]): d for d in tr}           # Bewegung ist je Signal ein Label
+    return {"move": fit([{"x": d["x"], "y": d["move"]} for d in per_signal.values()], NATIVE_MOVE_PARAMS),
+            "dvol": fit([{"x": d["x"], "y": d["dvol"]} for d in tr if d["dvol"] is not None])}
+
+
+def native_ev(pseudo: dict, x: dict, models: dict, horizon: int) -> float | None:
+    """Ausführbarer Erwartungswert einer Struktur zum Entscheidungszeitpunkt: Neubewertung unter prognostizierter
+    Bewegung und IV-Verschiebung nach dem Haltefenster; Einstieg zum Ask, Ausstieg Mid − halber Spread, Kommission."""
+    from modules.bs_pricing import implied_vol
+    from modules.research_lab import hold_days
+    rs, row = pseudo.get("real_strategy") or {}, pseudo
+    legs, s0 = _native_legs(rs), _num(row.get("entry_price"))
+    t0 = _years(row.get("date"), rs.get("expiry"))
+    if not legs or not s0 or not t0 or models.get("move") is None:
+        return None
+    t1 = t0 - hold_days(horizon) / 365.0
+    vols = [implied_vol(g["mid"], s0, g["K"], t0, NATIVE_RATE, g["kind"]) for g in legs]
+    if t1 <= 0 or any(v is None for v in vols):
+        return None
+    move = float(models["move"].predict([x])[0])
+    dv = float(models["dvol"].predict([x])[0]) if models.get("dvol") is not None else 0.0
+    ask = sum(g["ask"] if g["sign"] > 0 else -g["bid"] for g in legs)
+    half = sum((g["ask"] - g["bid"]) / 2 for g in legs)
+    if ask <= 0:
+        return None
+    v1 = _value(legs, s0 * (1 + move), t1, [max(1e-4, v + dv) for v in vols])
+    return (v1 - half - ask - 2 * len(legs) * COMMISSION_PER_LEG_SIDE / 100) / ask
+
+
+def native_choice(row: dict, models: dict, horizon: int) -> dict:
+    """Struktur mit höchstem ausführbarem Erwartungswert, sonst ABSTAIN."""
+    evs = []
+    for ex in expressions(row):
+        ev = native_ev(ex["row"], features(ex["row"]), models, horizon)
+        if ev is not None:
+            evs.append((ev, ex["expression"], ex["contract"]))
+    if not evs:
+        return {"action": "ABSTAIN", "reason": "keine bewertbare Struktur", "evs": {}}
+    best = max(evs)
+    return {"action": "TRADE" if best[0] > 0 else "ABSTAIN", "expression": best[1], "contract": best[2],
+            "ev": round(best[0], 6), "evs": {e[1]: round(e[0], 6) for e in evs},
+            "reason": "höchster Erwartungswert" if best[0] > 0 else "kein positiver Erwartungswert"}
+
+
+def native_decisions(out: Path, rows: list[dict], cands: list[dict], day: date, horizon: int,
+                     now: datetime) -> int:
+    """Prospektive Schatten-Entscheidungen des Tages ins eigene Journal (append-only, je Signal einmal)."""
+    data, _ = native_dataset(rows, cands, day, horizon)
+    models = _native_models(data, day)
+    if models["move"] is None:
+        return 0
+    path = out / NATIVE_JOURNAL
+    done = {(j.get("date"), j.get("signal_id"), j.get("horizon")) for j in (read_jsonl(path) if path.exists() else [])}
+    new = []
+    for r in rows:
+        if not isinstance(r, dict) or str(r.get("date"))[:10] != day.isoformat():
+            continue
+        key = (day.isoformat(), r.get("signal_id"), horizon)
+        if key in done:
+            continue
+        ch = native_choice(r, models, horizon)
+        if not ch["evs"]:
+            continue
+        done.add(key)
+        new.append({"date": key[0], "signal_id": key[1], "ticker": r.get("ticker"), "horizon": horizon,
+                    "policy": NATIVE_POLICY, "train_cutoff": day.isoformat(), "n_train": len(data),
+                    "created_at": now.isoformat(timespec="seconds"), **ch})
+    if new:
+        append_jsonl(path, new)
+    return len(new)
+
+
+def options_native_report(rows: list[dict], cands: list[dict], as_of: date, horizon: int,
+                          out: Path = OUT) -> dict:
+    """Woher kommt die Options-Rendite (Komponenten mit Block-Bootstrap), was davon ist vorhersagbar (Walk-Forward-
+    IC je Komponente), und schlägt die Strukturwahl nach Erwartungswert 'nie handeln' und 'immer Einzeloption' –
+    retrospektiv (Walk-Forward) und prospektiv (eigenes Journal). Beschreibende Research-Evidenz, keine Freigabe."""
+    data, reasons = native_dataset(rows, cands, as_of, horizon)
+    comps = {}
+    for k in (*NATIVE_COMPONENTS, "mid_ret", "exec_ret"):
+        by = defaultdict(list)
+        for d in data:
+            by[d["date"]].append(d[k])
+        comps[k] = _paired(by, horizon) if by else None
+    var = float(np.var([d["mid_ret"] for d in data])) if len(data) > 1 else None
+    shares = ({k: round(float(np.var([d[k] for d in data])) / var, 4) for k in NATIVE_COMPONENTS[:4]}
+              if var else None)
+    ic, wf, by_day = defaultdict(list), defaultdict(list), defaultdict(list)
+    rows_by = defaultdict(list)
+    for r in rows:
+        if isinstance(r, dict) and r.get("date"):
+            rows_by[str(r["date"])[:10]].append(r)
+    for d in sorted({d["date"] for d in data}):
+        day = date.fromisoformat(d)
+        test = [x for x in data if x["date"] == d]
+        tr = [x for x in data if x["label_day"] < day]
+        for k in ("delta", "gamma", "theta", "vega", "move", "dvol"):
+            m = fit([{"x": x["x"], "y": x[k]} for x in tr if x[k] is not None],
+                    NATIVE_MOVE_PARAMS if k == "move" else None)
+            pts = [(float(m.predict([x["x"]])[0]), x[k]) for x in test if m is not None and x[k] is not None]
+            if len(pts) >= 5:
+                s = _spearman([p for p, _ in pts], [y for _, y in pts])
+                if s is not None:
+                    ic[k].append(s)
+        models = _native_models(data, day)
+        if models["move"] is None:
+            continue
+        realized = {(x["signal_id"], x["expression"]): x["exec_ret"] for x in test}
+        for r in rows_by[d]:
+            ch = native_choice(r, models, horizon)
+            sid = str(r.get("signal_id"))
+            single = realized.get((sid, "single"))
+            if ch["action"] == "TRADE" and (sid, ch["expression"]) not in realized:
+                continue                                         # Ergebnis der gewählten Form fehlt: Lücke
+            val = realized.get((sid, ch.get("expression"))) if ch["action"] == "TRADE" else 0.0
+            if single is not None:
+                wf[d].append(val - single)
+            by_day[d].append(val)
+    prospective = _native_forward(out, data, as_of, horizon)
+    return {"policy": NATIVE_POLICY, "decomposed": len(data), "reasons": dict(sorted(reasons.items())),
+            "components": comps, "variance_share": shares,
+            "predictability_ic": {k: {"dates": len(v), "mean_ic": round(float(np.mean(v)), 4),
+                                      "t": round(float(np.mean(v) / (np.std(v, ddof=1) / math.sqrt(len(v)))), 3)
+                                      if len(v) > 1 and np.std(v, ddof=1) > 0 else None}
+                                  for k, v in sorted(ic.items())},
+            "ev_choice_walk_forward": {"value_vs_never": _paired(by_day, horizon) if by_day else None,
+                                       "minus_always_single": _paired(wf, horizon) if wf else None},
+            "ev_choice_prospective": prospective, "production_influence": "NONE",
+            "note": ("Zerlegung exakt (Summe = Mid-Rendite), Black-Scholes mit konstantem Zins ohne Dividenden; "
+                     "Walk-Forward ist auf gesehenen Daten und nie eine Bestätigung.")}
+
+
+def _safe_native(rows, cands, as_of, horizon, out) -> dict:
+    try:
+        return options_native_report(rows, cands, as_of, horizon, out)
+    except Exception as exc:  # noqa: BLE001 – Bericht darf die Auswertung nie stören
+        log.warning("option_learner: options-nativer Bericht fehlgeschlagen (%s)", exc)
+        return {"policy": NATIVE_POLICY, "error": str(exc)}
+
+
+def _native_forward(out: Path, data: list[dict], as_of: date, horizon: int) -> dict:
+    path = out / NATIVE_JOURNAL
+    js = [j for j in (read_jsonl(path) if path.exists() else []) if j.get("horizon") == horizon]
+    realized = {(d["date"], d["signal_id"], d["expression"]): d["exec_ret"] for d in data}
+    by, gaps, pending = defaultdict(list), 0, 0
+    for j in js:
+        if not _due(j["date"], as_of, horizon):
+            pending += 1
+            continue
+        if j.get("action") != "TRADE":
+            by[j["date"]].append(0.0)
+            continue
+        y = realized.get((j["date"], str(j["signal_id"]), j.get("expression")))
+        if y is None:
+            gaps += 1
+            continue
+        by[j["date"]].append(y)
+    return {"decisions": len(js), "pending": pending, "missing_outcomes": gaps,
+            "value_vs_never": _paired(by, horizon) if by else None}
+
+
 def _label_ids(data: list[dict]) -> list[str]:
     return sorted(f"{d['date']}|{d['signal_id']}|{'/'.join(d['contract'])}|{d['label_day']}" for d in data)
 
@@ -2254,6 +2544,7 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "manifest": manifest(data, as_of), "feature_coverage": feature_coverage(data),
               "variant_feature_coverage": variant_feature_coverage(data), "walk_forward": wf,
               "acquisition": _safe_acquisition(rows, cands, as_of, horizon),
+              "options_native": _safe_native(rows, cands, as_of, horizon, out),
               "baselines": _baselines(wf.get("vs_reference") or {}),
               "by_gate": by_gate(data),
               "forward": forward(journal, cands, horizon, instances, as_of),
@@ -2300,6 +2591,10 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
             write_acquisition_model(out, cands, day, now)
         except Exception as exc:  # noqa: BLE001 – ohne Modell erfasst der Scanner gleichverteilt
             log.warning("option_learner: Erfassungsmodell nicht geschrieben (%s)", exc)
+    try:                                         # options-native Schatten-Entscheidungen (eigenes Journal)
+        native_decisions(out, _rows, cands, day, horizon, now)
+    except Exception as exc:  # noqa: BLE001 – Research-Journal, nie Einfluss auf Prognosen
+        log.warning("option_learner: options-native Entscheidungen nicht geschrieben (%s)", exc)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
     instances = read_jsonl(out / INSTANCES) if (out / INSTANCES).exists() else []
     wf, fw = walk_forward(cands, day, horizon), forward(journal, cands, horizon, instances, day)
