@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-07T15:06:55+00:00",
+ "generated": "2026-11-08T00:54:25+00:00",
  "last_runs": {
   "weekly": {
    "generated": "2026-11-07T15:06:55+00:00",
@@ -25,7 +25,7 @@
    ]
   },
   "critical": {
-   "generated": "2026-11-07T01:08:13+00:00",
+   "generated": "2026-11-08T00:54:25+00:00",
    "mail_status": "nothing_to_send",
    "pending": [],
    "deferred_by_weekly_limit": [],
@@ -36,44 +36,27 @@
  },
  "tasks": {
   "IMP-4a0d2d31": {
-   "task_id": "IMP-4a0d2d31",
-   "kind": "empty_feature",
-   "subject": "news_novelty",
-   "priority": "P1",
+   "acceptance": [
+    "Abdeckung von news_novelty in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
+    "keine Änderung an Prognosen anderer Merkmale"
+   ],
+   "benefit": "Das Merkmal wird tatsächlich nutzbar oder die Spezifikation ehrlich. Ob es die Prognose verbessert, ist offen und wird erst prospektiv gemessen – kein Renditeversprechen.",
    "category": "data",
-   "short": "Merkmal news_novelty im Options-Lernmodell leer",
-   "fingerprint": "a96dd5591046",
-   "material": {
-    "priority": "P1",
-    "coverage": {
-     "20": "leer",
-     "5": "leer"
-    },
-    "format": [
-     "dict"
-    ],
-    "top_level": false
+   "cause": "Das Ledger speichert news_novelty als dict statt als Zahl; option_learner.features() liest nur Zahlen (_num) und verwirft den Wert vollständig.",
+   "change": "Entweder einen numerischen Wert von news_novelty dort ablegen bzw. auslesen, wo das Lernmodell ihn erwartet (eine klar dokumentierte Größe), oder das Merkmal bewusst aus LEDGER_FEATURES streichen.",
+   "costs": {
+    "api_calls": 0,
+    "compute": "vernachlässigbar",
+    "llm_calls": 0,
+    "paid_data": false
    },
-   "scope": {
-    "feature": "news_novelty",
-    "horizons": [
-     5,
-     20
-    ]
-   },
-   "finding": "Das Merkmal news_novelty ist in den geprüften Options-Labels leer: 5 T 0% von 495 Labels, 20 T 0% von 130 Labels.",
-   "problem": "Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: Information, die erfasst wird, geht verloren, und Varianten mit dieser Merkmalsgruppe testen etwas anderes als beabsichtigt.",
-   "severity_reason": "Merkmal vollständig leer – betrifft jede Prognose des Options-Lernmodells.",
+   "data_as_of": "2026-11-07",
+   "effort": "klein (eine Lese- bzw. Erfassungsstelle, Tests)",
    "evidence": [
     "5 T: news_novelty in 0% der 495 geprüften Options-Labels befüllt (Schwelle 50%) – das Modell verwirft das Merkmal",
     "20 T: news_novelty in 0% der 130 geprüften Options-Labels befüllt (Schwelle 50%) – das Modell verwirft das Merkmal",
     "Kandidaten-Ledger: news_novelty in 5478 von 8995 Zeilen unter 'features', davon 0 als Zahl; als eigenes Feld außerhalb von 'features': 0",
     "Format der übrigen Werte: {'dict': 5478}; Zahlen je Schlüssel des Objekts: {'n_history': 5478, 'n_today': 5478, 'novelty_max': 5019, 'novelty_mean': 5019, 'novelty_status': 0, 'novelty_version': 0}"
-   ],
-   "sources": [
-    "outputs/research/option_learner/improvement.json",
-    "outputs/research/option_learner/status_<h>d.json",
-    "outputs/candidate_ledger/"
    ],
    "files": [
     "modules/option_learner.py (LEDGER_FEATURES, features)",
@@ -84,27 +67,44 @@
     "modules/research_director.py:329",
     "modules/research_director.py:330"
    ],
-   "cause": "Das Ledger speichert news_novelty als dict statt als Zahl; option_learner.features() liest nur Zahlen (_num) und verwirft den Wert vollständig.",
-   "verify": "In outputs/candidate_ledger/ Format und Speicherort von news_novelty auszählen und mit option_learner.features() vergleichen.",
-   "change": "Entweder einen numerischen Wert von news_novelty dort ablegen bzw. auslesen, wo das Lernmodell ihn erwartet (eine klar dokumentierte Größe), oder das Merkmal bewusst aus LEDGER_FEATURES streichen.",
-   "benefit": "Das Merkmal wird tatsächlich nutzbar oder die Spezifikation ehrlich. Ob es die Prognose verbessert, ist offen und wird erst prospektiv gemessen – kein Renditeversprechen.",
-   "risks": "Eine Änderung der Merkmale ergibt eine neue Experimentversion: Forward-Evidenz, Referenz und Varianten beginnen für diese Version neu.",
-   "effort": "klein (eine Lese- bzw. Erfassungsstelle, Tests)",
-   "costs": {
-    "api_calls": 0,
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "vernachlässigbar"
+   "finding": "Das Merkmal news_novelty ist in den geprüften Options-Labels leer: 5 T 0% von 495 Labels, 20 T 0% von 130 Labels.",
+   "fingerprint": "a96dd5591046",
+   "kind": "empty_feature",
+   "material": {
+    "coverage": {
+     "5": "leer",
+     "20": "leer"
+    },
+    "format": [
+     "dict"
+    ],
+    "priority": "P1",
+    "top_level": false
    },
-   "acceptance": [
-    "Abdeckung von news_novelty in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
-    "keine Änderung an Prognosen anderer Merkmale"
+   "priority": "P1",
+   "problem": "Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: Information, die erfasst wird, geht verloren, und Varianten mit dieser Merkmalsgruppe testen etwas anderes als beabsichtigt.",
+   "risks": "Eine Änderung der Merkmale ergibt eine neue Experimentversion: Forward-Evidenz, Referenz und Varianten beginnen für diese Version neu.",
+   "scope": {
+    "feature": "news_novelty",
+    "horizons": [
+     5,
+     20
+    ]
+   },
+   "severity_reason": "Merkmal vollständig leer – betrifft jede Prognose des Options-Lernmodells.",
+   "short": "Merkmal news_novelty im Options-Lernmodell leer",
+   "sources": [
+    "outputs/research/option_learner/improvement.json",
+    "outputs/research/option_learner/status_<h>d.json",
+    "outputs/candidate_ledger/"
    ],
+   "subject": "news_novelty",
+   "task_id": "IMP-4a0d2d31",
    "tests": [
     "Test: option_learner.features() liefert für eine Ledger-Zeile im tatsächlichen Format von news_novelty den erwarteten Zahlenwert",
     "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
    ],
-   "data_as_of": "2026-11-07",
+   "verify": "In outputs/candidate_ledger/ Format und Speicherort von news_novelty auszählen und mit option_learner.features() vergleichen.",
    "status": "NOTIFIED",
    "decision_note": null,
    "first_detected": "2026-10-31T14:50:02+00:00",
@@ -200,56 +200,56 @@
    "last_send_error": null
   },
   "IMP-ce5d574e": {
-   "task_id": "IMP-ce5d574e",
-   "kind": "source_failure",
-   "subject": "imf_portwatch_ports",
-   "priority": "P2",
+   "acceptance": [
+    "Quelle wieder HEALTHY oder bewusst deaktiviert"
+   ],
+   "benefit": "aktuelle Merkmale statt Fallback; kein Renditeversprechen.",
    "category": "infrastructure",
-   "short": "Datenquelle imf_portwatch_ports seit 7 Tagen BROKEN",
-   "fingerprint": "1e9d6beb88bb",
-   "material": {
-    "priority": "P2",
-    "status": "BROKEN",
-    "weeks": 1
+   "cause": "Format- oder Endpunktänderung der Quelle bzw. ausbleibende Veröffentlichung.",
+   "change": "Ingest an die Quelle anpassen oder die Quelle bewusst deaktivieren (status_override).",
+   "costs": {
+    "api_calls": 0,
+    "compute": "vernachlässigbar",
+    "llm_calls": 0,
+    "paid_data": false
    },
-   "scope": {
-    "source_id": "imf_portwatch_ports"
-   },
-   "finding": "Die IMPORTANT-Quelle imf_portwatch_ports ist seit 2026-10-30 (7 Tage, 14 Prüfungen) durchgehend BROKEN.",
-   "problem": "Merkmale aus dieser Quelle fehlen oder veralten; nachgelagerte Modelle arbeiten mit Fallbacks.",
-   "severity_reason": "IMPORTANT-Quelle, länger als 7 Tage gestört.",
+   "data_as_of": "2026-11-07",
+   "effort": "mittel",
    "evidence": [
     "letzter Erfolg 2026-10-28T12:59:51+00:00, letzte Beobachtung 2026-10-23T00:00:00+00:00, Datenalter 14.82 Tage, erwartet daily: Beobachtung <= 21 T, Ingest täglich",
     "letzte Prüfung 2026-11-06T19:40:19+00:00: BROKEN, Fehler Ingest FAIL: [Isolation basis=FAIL(429) where=FAIL(429) outFields=FAIL(429) orderByFields=FAIL(429) paging=FAIL(429)] ArcGIS-Query-Fehler: {'code': 429, 'message': 'Unable to perform query. Too many r"
-   ],
-   "sources": [
-    "outputs/health/source_health_snapshot.json",
-    "outputs/health/source_health_history.jsonl"
    ],
    "files": [
     "modules/external/context.py:54",
     "modules/external/context.py:307",
     "modules/external/sources/maritime.py:1303"
    ],
-   "cause": "Format- oder Endpunktänderung der Quelle bzw. ausbleibende Veröffentlichung.",
-   "verify": "Ingest der Quelle lokal ausführen und Fehlermeldung bzw. Datenstand prüfen.",
-   "change": "Ingest an die Quelle anpassen oder die Quelle bewusst deaktivieren (status_override).",
-   "benefit": "aktuelle Merkmale statt Fallback; kein Renditeversprechen.",
-   "risks": "gering",
-   "effort": "mittel",
-   "costs": {
-    "api_calls": 0,
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "vernachlässigbar"
+   "finding": "Die IMPORTANT-Quelle imf_portwatch_ports ist seit 2026-10-30 (7 Tage, 14 Prüfungen) durchgehend BROKEN.",
+   "fingerprint": "1e9d6beb88bb",
+   "kind": "source_failure",
+   "material": {
+    "priority": "P2",
+    "status": "BROKEN",
+    "weeks": 1
    },
-   "acceptance": [
-    "Quelle wieder HEALTHY oder bewusst deaktiviert"
+   "priority": "P2",
+   "problem": "Merkmale aus dieser Quelle fehlen oder veralten; nachgelagerte Modelle arbeiten mit Fallbacks.",
+   "risks": "gering",
+   "scope": {
+    "source_id": "imf_portwatch_ports"
+   },
+   "severity_reason": "IMPORTANT-Quelle, länger als 7 Tage gestört.",
+   "short": "Datenquelle imf_portwatch_ports seit 7 Tagen BROKEN",
+   "sources": [
+    "outputs/health/source_health_snapshot.json",
+    "outputs/health/source_health_history.jsonl"
    ],
+   "subject": "imf_portwatch_ports",
+   "task_id": "IMP-ce5d574e",
    "tests": [
     "Regressionstest des Parsers mit dem aktuellen Antwortformat"
    ],
-   "data_as_of": "2026-11-07",
+   "verify": "Ingest der Quelle lokal ausführen und Fehlermeldung bzw. Datenstand prüfen.",
    "status": "NOTIFIED",
    "decision_note": null,
    "first_detected": "2026-11-07T15:06:55+00:00",
