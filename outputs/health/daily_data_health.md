@@ -4,20 +4,11 @@
 
 Status: HEALTHY 51 · DEGRADED 1 · STALE 1 · BROKEN 1 · UNVALIDATED 9
 
-## Neue Änderungen
-
-- recovery: imf_portwatch_ports DEGRADED → HEALTHY
-- recovery: imf_portwatch_chokepoints DEGRADED → HEALTHY
-- degradation: destatis_truck_toll DEGRADED → BROKEN (Ingest FAIL: GENESIS meldet Status 7000: Für die Teiltabelle mit der Metadatenkombination:
-Indizes aus der Lkw-Mauterhebung (42191)
-Lkw-Maut-Fahrleistungsindex )
-- recovery: bts_open_data_tsi DEGRADED → HEALTHY
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| destatis_truck_toll | BROKEN | IMPORTANT | 3 | 2026-09-01 | – | Ingest FAIL: GENESIS meldet Status 7000: Für die Teiltabelle mit der Metadatenkombination:
+| destatis_truck_toll | BROKEN | IMPORTANT | 4 | 2026-09-01 | – | Ingest FAIL: GENESIS meldet Status 7000: Für die Teiltabelle mit der Metadatenkombination:
 Indizes aus der Lkw-Mauterhebung (42191)
 Lkw-Maut |
 | estat_jp_truck | STALE | NON_CRITICAL | 0 | 2026-03-01 | – | veraltet (Frequenz-Grenze der Registry) |
