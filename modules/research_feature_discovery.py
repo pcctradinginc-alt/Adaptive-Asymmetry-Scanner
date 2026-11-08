@@ -25,6 +25,7 @@ from modules.research_feature_store import PITResearchStore
 PROTOCOL = Path("config/research_feature_discovery_v3.yaml")
 OUT = Path("outputs/research/feature_discovery_v3")
 JOURNAL = "predictions.jsonl"
+OUTCOMES = "outcomes.jsonl"
 REPORT = "status.json"
 
 
@@ -174,8 +175,11 @@ def freeze_latest(panel: pd.DataFrame, p: dict, digest: str, journal: Path, now:
             if key in keys:
                 continue
             additions.append({
-                "protocol_sha256": digest, "hypothesis_id": h["id"],
+                "protocol_sha256": digest, "protocol_version": p["version"],
+                "hypothesis_id": h["id"],
                 "date": str(latest.date()), "ticker": ticker,
+                "signal_asof": str(latest.date()) + "T23:59:59Z",
+                "feature_value": float(getattr(row, feature)),
                 "frozen_at": now.isoformat(), "baseline_pred": float(b),
                 "challenger_pred": float(c), "feature": feature,
                 "label": "FUTURE_UNOBSERVED", "research_only": True,
@@ -188,27 +192,84 @@ def freeze_latest(panel: pd.DataFrame, p: dict, digest: str, journal: Path, now:
     return len(additions)
 
 
-def prospective(panel: pd.DataFrame, h: dict, p: dict, digest: str, journal: Path, as_of: date):
+def freeze_matured_outcomes(panel: pd.DataFrame, p: dict, digest: str,
+                           journal: Path, out: Path, as_of: date) -> int:
+    """Freeze first observed mature stock label, instead of rewriting past outcomes.
+
+    The source is the existing yfinance-backed ML panel, NOT an option fill.
+    Locked stock labels are reused by every challenger on the same cohort.
+    """
+    prior = _read_jsonl(out)
+    seen = {(r["date"], r["ticker"]) for r in prior if r.get("protocol_sha256") == digest}
+    source = panel.set_index(["date", "ticker"])
+    additions = []
+    for row in _read_jsonl(journal):
+        if row.get("protocol_sha256") != digest:
+            continue
+        key = (row["date"], row["ticker"])
+        if key in seen:
+            continue
+        idx = (pd.Timestamp(row["date"]), row["ticker"])
+        if idx not in source.index:
+            continue
+        data = source.loc[idx]
+        last = pd.to_datetime(data[p["label_end"]], errors="coerce")
+        if pd.isna(last) or last.date() >= as_of:
+            continue
+        if datetime.fromisoformat(row["frozen_at"]).date() >= last.date():
+            continue
+        y = data[p["target"]]
+        if pd.isna(y) or not np.isfinite(float(y)):
+            continue
+        additions.append({"protocol_sha256": digest, "date": key[0], "ticker": key[1],
+                          "label_end": str(last.date()), "fwd_xs_20": float(y),
+                          "recorded_at": as_of.isoformat(),
+                          "provenance": "ML_PANEL_YFINANCE_STOCK_LABEL_NOT_OPTION_EXECUTION"})
+        seen.add(key)
+    if additions:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with out.open("a", encoding="utf8") as f:
+            for row in additions:
+                f.write(json.dumps(row, sort_keys=True) + "\n")
+    return len(additions)
+
+
+def prospective(panel: pd.DataFrame, h: dict, p: dict, digest: str, journal: Path, as_of: date,
+                frozen_outcomes: Path | None = None):
     preds = [r for r in _read_jsonl(journal)
              if r.get("protocol_sha256") == digest and r.get("hypothesis_id") == h["id"]]
-    outcomes = panel[["date", "ticker", p["target"], p["label_end"]]].copy()
-    outcomes["date"] = outcomes["date"].dt.strftime("%Y-%m-%d")
     grouped = {}
-    observed = outcomes.set_index(["date", "ticker"])
-    for row in preds:
-        key = (row["date"], row["ticker"])
-        if key not in observed.index:
-            continue
-        outcome = observed.loc[key]
-        end = pd.to_datetime(outcome[p["label_end"]], errors="coerce")
-        if pd.isna(end) or end.date() >= as_of:
-            continue
-        if datetime.fromisoformat(row["frozen_at"]).date() >= end.date():
-            continue  # prediction was not frozen before maturity
-        y = outcome[p["target"]]
-        if pd.isna(y):
-            continue
-        grouped.setdefault(row["date"], []).append((float(y), row["baseline_pred"], row["challenger_pred"]))
+    if frozen_outcomes is not None:
+        labels = {(r["date"], r["ticker"]): r for r in _read_jsonl(frozen_outcomes)
+                  if r.get("protocol_sha256") == digest}
+        for row in preds:
+            label = labels.get((row["date"], row["ticker"]))
+            if label is None or date.fromisoformat(label["label_end"]) >= as_of:
+                continue
+            if datetime.fromisoformat(row["frozen_at"]).date() >= date.fromisoformat(label["label_end"]):
+                continue
+            grouped.setdefault(row["date"], []).append(
+                (float(label["fwd_xs_20"]), row["baseline_pred"], row["challenger_pred"]))
+    else:
+        # For deterministic unit tests only; operational run uses the locked
+        # append-only outcomes journal above.
+        outcomes = panel[["date", "ticker", p["target"], p["label_end"]]].copy()
+        outcomes["date"] = outcomes["date"].dt.strftime("%Y-%m-%d")
+        observed = outcomes.set_index(["date", "ticker"])
+        for row in preds:
+            key = (row["date"], row["ticker"])
+            if key not in observed.index:
+                continue
+            outcome = observed.loc[key]
+            end = pd.to_datetime(outcome[p["label_end"]], errors="coerce")
+            if pd.isna(end) or end.date() >= as_of:
+                continue
+            if datetime.fromisoformat(row["frozen_at"]).date() >= end.date():
+                continue
+            y = outcome[p["target"]]
+            if pd.isna(y):
+                continue
+            grouped.setdefault(row["date"], []).append((float(y), row["baseline_pred"], row["challenger_pred"]))
     metrics = []
     for day, rows in sorted(grouped.items()):
         if len(rows) < p["evaluation"]["min_cross_section"]:
@@ -225,7 +286,17 @@ def run(panel: pd.DataFrame, *, archive=None, protocol_path: Path = PROTOCOL,
     now = now or datetime.now(timezone.utc)
     p, digest = load_protocol(protocol_path)
     archive = archive or ExternalArchive()
-    enhanced = PITResearchStore(archive).enrich_panel(panel)
+    # A protocol is immutable once the first forecast has been frozen.
+    previous = out / REPORT
+    if previous.exists():
+        prior = json.loads(previous.read_text(encoding="utf8"))
+        if prior.get("protocol_version") == p["version"] and prior.get("protocol_sha256") != digest:
+            raise ValueError("FD3 protocol changed without version bump: refusing contaminated experiment")
+    for row in _read_jsonl(out / JOURNAL):
+        if row.get("protocol_version") == p["version"] and row["protocol_sha256"] != digest:
+            raise ValueError("FD3 immutable journal version/hash mismatch")
+    store = PITResearchStore(archive)
+    enhanced = store.enrich_panel(panel)
     out.mkdir(parents=True, exist_ok=True)
     report = {"protocol_version": p["version"], "protocol_sha256": digest,
               "as_of": now.date().isoformat(), "research_only": True,
@@ -239,10 +310,12 @@ def run(panel: pd.DataFrame, *, archive=None, protocol_path: Path = PROTOCOL,
         }
     report["new_frozen_predictions"] = freeze_latest(
         enhanced, p, digest, out / JOURNAL, now)
+    report["new_frozen_stock_outcomes"] = freeze_matured_outcomes(
+        enhanced, p, digest, out / JOURNAL, out / OUTCOMES, now.date())
     for h in p["hypotheses"]:
         f = h["feature"]
         retro = retrospective(enhanced, h, p, now.date())
-        forward = prospective(enhanced, h, p, digest, out / JOURNAL, now.date())
+        forward = prospective(enhanced, h, p, digest, out / JOURNAL, now.date(), out / OUTCOMES)
         report["hypotheses"][h["id"]] = {
             "source": h["source"], "feature": f, "premise": h["premise"],
             "retrospective": retro, "prospective": forward,
