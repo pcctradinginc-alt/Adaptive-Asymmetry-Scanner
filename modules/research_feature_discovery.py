@@ -164,7 +164,10 @@ def _read_jsonl(path: Path) -> list[dict]:
 def freeze_latest(panel: pd.DataFrame, p: dict, digest: str, journal: Path, now: datetime):
     """Freeze once per (experiment, date, ticker), only BEFORE label maturation."""
     latest = pd.Timestamp(panel["date"].max())
-    if not 0 <= (now.date() - latest.date()).days <= 10:
+    # Freeze after observing the weekly panel close but before the first
+    # possible next-open execution. A stale/replayed panel MUST NOT create
+    # hindsight-tinged "forward" forecasts.
+    if not signal_time(latest.date()) <= now <= signal_time(latest.date()) + timedelta(hours=36):
         return 0
     recorded = _read_jsonl(journal)
     keys = {(r["protocol_sha256"], r["hypothesis_id"], r["date"], r["ticker"]) for r in recorded}
