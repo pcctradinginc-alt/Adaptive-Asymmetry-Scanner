@@ -1,0 +1,26 @@
+name: FD3 PIT Research Tests
+
+on:
+  pull_request:
+    paths:
+      - modules/research_feature_store.py
+      - modules/research_feature_discovery.py
+      - modules/research_memory.py
+      - config/research_feature_discovery_v3.yaml
+      - tests/test_research_feature_discovery_v3.py
+      - .github/workflows/feature_discovery_tests.yml
+  workflow_dispatch:
+
+jobs:
+  pit-feature-regression:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install minimal offline test dependencies
+        run: python -m pip install -r requirements.txt pytest
+      - name: PIT availability, frozen learning and memory regression
+        run: python -m pytest -q -p no:cacheprovider tests/test_research_feature_discovery_v3.py
