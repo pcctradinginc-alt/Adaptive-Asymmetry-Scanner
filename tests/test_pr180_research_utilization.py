@@ -78,6 +78,9 @@ def test_weekly_missing_month_or_missing_or_future_provenance_fails_closed(tmp_p
     bad = evidence()
     bad["no_option_proxy"] = False
     assert census.quote_evidence_summary(bad, "2026-11-08")["status"].startswith("MISSING")
+    inconsistent = evidence(verified=7, unverified=2)
+    inconsistent["provenance_counts"]["VERIFIED"] = 5
+    assert census.quote_evidence_summary(inconsistent, "2026-11-08")["global_verified_option_labels"] is None
     assert census.main(["--as-of", "2026-11-02", "--ledger", str(ledger),
                         "--evidence-dir", str(evidence_dir), "--output", str(tmp_path / "out")]) == 2
 
