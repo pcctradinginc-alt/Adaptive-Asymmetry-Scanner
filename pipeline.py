@@ -668,9 +668,60 @@ def directional_move(move_pct: float, direction: str | None) -> float:
     return -move_pct if direction == "BEARISH" else move_pct
 
 
-def attach_external_context_stage(candidates: list[dict]) -> tuple[list[dict], dict]:
-    """Baut GENAU EINEN externen Snapshot pro Lauf und hängt ihn an jeden
-    Kandidaten als candidate["external_context"] an. Reine Observability:
+def build_external_snapshot_stage() -> tuple[dict | None, dict]:
+    """Baut GENAU EINEN externen Snapshot pro Lauf -> (snapshot | None, summary).
+    Ein Fehler (Netzwerk, Archiv, Config) darf die Pipeline NIE unterbrechen:
+    snapshot bleibt None, die Summary vermerkt den Fehler."""
+    ext_cfg = getattr(cfg, "external_context", None)
+    enabled = bool(getattr(ext_cfg, "enabled", False))
+    mode = str(getattr(ext_cfg, "mode", "off") or "off")
+
+    if not enabled or mode == "off":
+        return None, {"enabled": enabled, "mode": mode, "snapshot_id": None, "sources": {}}
+
+    try:
+        snapshot = build_external_context(datetime.now(timezone.utc))
+    except Exception as e:  # noqa: BLE001 - darf die Pipeline nie stoppen
+        log.warning(f"External-Context-Snapshot fehlgeschlagen (ignoriert): {e}")
+        return None, {"enabled": enabled, "mode": mode, "snapshot_id": None,
+                      "error": repr(e), "sources": {}}
+    if snapshot is None:
+        return None, {"enabled": enabled, "mode": mode, "snapshot_id": None, "sources": {}}
+    return snapshot, {
+        "enabled": enabled, "mode": mode,
+        "snapshot_id": snapshot.get("snapshot_id"),
+        "as_of": snapshot.get("as_of"),
+        "sources": {sid: info.get("status") for sid, info in (snapshot.get("sources") or {}).items()},
+        "quality": snapshot.get("quality", {}),
+    }
+
+
+def note_external_context_ledger(candidates: list[dict], snapshot: dict | None, summary: dict) -> dict[str, dict]:
+    """Nur Candidate Ledger: friert den externen Kontext für JEDEN angereicherten Kandidaten ein, BEVOR
+    Sektor-Check und economics-first die Kohorte verkleinern (seit 28.10. erreichte er sonst nur noch 1–4
+    Ledger-Zeilen je Tag). Der Kandidat selbst bleibt unverändert (kein candidate["external_context"]), damit
+    nichts davon in Prescreener-/LLM-Eingaben gelangen kann. Rückgabe: {ticker: notierter Kontext} – Stufe 2b-ext
+    hängt genau dieses Objekt an, damit spätere Shadow-Ergebnisse (relation) wie bisher im Ledger-Eintrag ankommen."""
+    if snapshot is None:
+        return {}
+    noted: dict[str, dict] = {}
+    for c in candidates:
+        try:
+            ctx = attach_candidate_context(c, snapshot)
+            if ctx is not None and isinstance(c.get("ticker"), str):
+                ctx["policy"]["mode"] = summary.get("mode")
+                candidate_ledger.note(c["ticker"], external=ctx)
+                noted.setdefault(c["ticker"], ctx)
+        except Exception as e:  # noqa: BLE001
+            log.warning(f"external ledger note Fehler ({c.get('ticker')}, ignoriert): {e}")
+    return noted
+
+
+def attach_external_context_stage(candidates: list[dict], prebuilt: tuple[dict | None, dict] | None = None,
+                                  noted: dict[str, dict] | None = None) -> tuple[list[dict], dict]:
+    """Hängt den Snapshot des Laufs an jeden Kandidaten als candidate["external_context"] an
+    (prebuilt = Ergebnis von build_external_snapshot_stage(), sonst wird er hier gebaut; noted = bereits ins
+    Ledger notierte Kontexte je Ticker, die unverändert übernommen werden). Reine Observability:
     - Wird nie aufgerufen/gelesen von Produktions-Entscheidungspfaden.
     - Ein Fehler beim Snapshot-Bau (Netzwerk, Archiv, Config) darf die
       Pipeline NIE unterbrechen -> Kandidaten kommen unverändert zurück,
@@ -678,47 +729,23 @@ def attach_external_context_stage(candidates: list[dict]) -> tuple[list[dict], d
     Gibt (candidates, summary_dict) zurück -- summary_dict landet 1:1 in
     stats["external_context"] der Daily-JSON.
     """
-    ext_cfg = getattr(cfg, "external_context", None)
-    enabled = bool(getattr(ext_cfg, "enabled", False))
-    mode = str(getattr(ext_cfg, "mode", "off") or "off")
-
-    if not enabled or mode == "off":
-        return candidates, {"enabled": enabled, "mode": mode, "snapshot_id": None,
-                            "sources": {}}
-
-    now = datetime.now(timezone.utc)
-    try:
-        snapshot = build_external_context(now)
-    except Exception as e:  # noqa: BLE001 - darf die Pipeline nie stoppen
-        log.warning(f"External-Context-Snapshot fehlgeschlagen (ignoriert): {e}")
-        return candidates, {"enabled": enabled, "mode": mode, "snapshot_id": None,
-                            "error": repr(e), "sources": {}}
+    snapshot, summary = prebuilt if prebuilt is not None else build_external_snapshot_stage()
+    if snapshot is None:
+        return candidates, summary
 
     for c in candidates:
         try:
-            ctx = attach_candidate_context(c, snapshot)
+            ctx = (noted or {}).get(c.get("ticker")) or attach_candidate_context(c, snapshot)
             if ctx is not None:
-                ctx["policy"]["mode"] = mode
+                ctx["policy"]["mode"] = summary.get("mode")
                 c["external_context"] = ctx
-                # EIN note()-Aufruf je Kandidat für diese Stufe — der Ledger
-                # friert row["external"] beim ersten Setzen ein (siehe
-                # candidate_ledger.note(): key "external") und aktualisiert
-                # es nie wieder, auch wenn spätere Läufe einen neuen Snapshot
-                # für denselben Signal-Key bauen.
+                # Der Ledger friert row["external"] beim ersten Setzen ein (siehe
+                # candidate_ledger.note(): key "external"). Wurde der Kandidat schon vor
+                # dem Sektor-Check notiert, ist ctx dasselbe Objekt wie im Ledger und
+                # dieser Aufruf ein No-op.
                 candidate_ledger.note(c.get("ticker"), external=ctx)
         except Exception as e:  # noqa: BLE001
             log.warning(f"attach_candidate_context Fehler ({c.get('ticker')}, ignoriert): {e}")
-
-    source_status = {
-        sid: info.get("status") for sid, info in (snapshot.get("sources") or {}).items()
-    }
-    summary = {
-        "enabled": enabled, "mode": mode,
-        "snapshot_id": snapshot.get("snapshot_id"),
-        "as_of": snapshot.get("as_of"),
-        "sources": source_status,
-        "quality": snapshot.get("quality", {}),
-    }
     return candidates, summary
 
 
@@ -945,6 +972,17 @@ def main() -> None:
         enriched.append(c)
     candidates = enriched
 
+    # ── STUFE 1b-ext: externer Kontext für ALLE angereicherten Kandidaten (nur Ledger, SHADOW) ─
+    # Vor Sektor-Check und economics-first, die die Kohorte vor Stufe 2b-ext stark verkleinern; der Snapshot wird
+    # einmal gebaut und in 2b-ext wiederverwendet. Kandidaten bleiben unverändert (kein Prompt-Leck).
+    _t_ext = time.monotonic()
+    _ext_pre = build_external_snapshot_stage()
+    _ext_ctx = note_external_context_ledger(candidates, *_ext_pre)
+    _ext_noted = len(_ext_ctx)
+    stats["external_context"] = {**_ext_pre[1], "ledger_noted": _ext_noted}
+    log.info(f"Stufe 1b-ext External Context (Ledger): {_ext_noted}/{len(candidates)} notiert, "
+             f"{time.monotonic() - _t_ext:.0f}s")
+
     # ── STUFE 1c: Sector-Momentum-Check (VOR Haiku — spart ~35% LLM-Calls) ───
     # Billiger yfinance-Check (~0.5s/Ticker) wird vorgezogen um teure Haiku-Calls
     # auf Ticker zu sparen die durch Sektor-Schwäche ohnehin blockiert würden.
@@ -1108,9 +1146,9 @@ def main() -> None:
     # — daher kann dieses Feld nie in einen LLM-Prompt "durchsickern"). Ein
     # Fehler hier darf die Pipeline nie beeinflussen: try/except → None.
     _t_ext = time.monotonic()
-    shortlist, _ext_summary = attach_external_context_stage(shortlist)
+    shortlist, _ext_summary = attach_external_context_stage(shortlist, _ext_pre, _ext_ctx)
     log.info(f"Stufe 2b-ext External Context: {time.monotonic() - _t_ext:.0f}s")
-    stats["external_context"] = _ext_summary
+    stats["external_context"] = {**_ext_summary, "ledger_noted": _ext_noted}
 
     # ── STUFE 3: ROI Pre-Check (Fail Fast) ───────────────────────────────────
     log.info("Stufe 3: ROI Pre-Check (Fail Fast)")

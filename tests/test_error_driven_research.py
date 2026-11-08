@@ -475,3 +475,74 @@ def test_cli_exit_code_is_two_on_critical(monkeypatch):
     monkeypatch.setattr(rd, "run_errors", lambda: {"summary": {}, "decisions": [], "hypotheses": [],
                                                    "health": {"status": "OK", "problems": []}})
     assert rd.main(["--errors"]) == 0
+
+
+# ── Mitteilung: abschließende Ergebnisse erreichen den bestehenden Mail-Weg (research_director --notify) ─────────
+
+def _notify(rep, tmp, mode="weekly", sent=None):
+    now = datetime.fromisoformat(rep["generated"])
+    inputs = {"error_research": json.loads(json.dumps(rep, default=str)), "problems": {}}
+    tasks, _issues = rd.improvement_tasks(inputs, now)
+    mails = [] if sent is None else sent
+    out = rd.notify_tasks(tasks, now, mode=mode, path=tmp / "tasks.jsonl", state_path=tmp / "tasks.json",
+                          send=lambda s, h, t: mails.append((s, t)) or {"status": "sent"}, decisions={},
+                          resolve=lambda t: rd.resolution(t, inputs, now))
+    return tasks, out, mails
+
+
+def test_final_error_results_are_mailed_once_pending_never(world, tmp_path):
+    """Forward bestätigt -> P1-Ergebnis-Mail mit den 10 Abschnitten; falsifiziert -> P3; laufende Prüfungen nie.
+    Unveränderte Ergebnisse werden nie erneut gemeldet; der tägliche P0-Lauf meldet sie nicht."""
+    r1 = _run(world, date(2026, 11, 7), tmp_path)
+    assert not [t for t in _notify(r1, tmp_path / "n1")[0] if t["kind"].startswith("error_")]   # nichts final
+    _run(world, date(2027, 1, 12), tmp_path)
+    r3 = _run(world, date(2027, 3, 15), tmp_path)
+    n = tmp_path / "n3"
+    n.mkdir()
+    tasks, out, mails = _notify(r3, n)
+    kinds = {t["scope"]["hypothesis_id"]: (t["kind"], t["priority"]) for t in tasks if t["kind"].startswith("error_")}
+    st = {h["spec"]["feature"]: h for h in r3["hypotheses"]}
+    assert kinds[st["sentiment_score"]["id"]] == ("error_hypothesis_confirmed", "P1")
+    assert kinds[st["sentiment_drift"]["id"]] == ("error_hypothesis_result", "P3")
+    assert st["rel_volume"]["id"] not in kinds                                   # REJECTED_WF: kein Forward-Test
+    assert out["mail_status"] == "sent" and len(mails) == 1
+    subject, text = mails[0]
+    assert subject.startswith("[Scanner] Alpha-to-Options Forschungsergebnis") and st["sentiment_score"]["id"] in subject
+    for i, title in enumerate(rd.ALPHA_SECTIONS, 1):
+        assert f"{i}. {title}" in text
+    assert "für menschliche Prüfung qualifiziert (keine Freigabe)" in text and "BEGIN CLAUDE CODE TASK" in text
+    assert "nicht bestätigt (FORWARD_REJECTED)" in text and "Keine automatisch freigegebenen Trades" in text
+    assert _notify(r3, n)[2] == []                                               # unverändert: keine zweite Mail
+    assert _notify(r3, n, mode="critical")[2] == []                              # P1/P3 nicht im P0-Lauf
+
+
+def test_error_research_integrity_is_a_daily_critical_mail(world, tmp_path):
+    _run(world, date(2026, 11, 7), tmp_path)
+    j = tmp_path / "journal.jsonl"
+    lines = j.read_text().splitlines()
+    ev = json.loads(lines[1])
+    ev["slot_alpha"] = 0.05                                                      # nachträglich gelockert
+    j.write_text("\n".join([lines[0], json.dumps(ev)] + lines[2:]) + "\n")
+    bad = _run(world, date(2027, 1, 12), tmp_path)
+    n = tmp_path / "n"
+    n.mkdir()
+    assert _notify(bad, n)[2] == []                                              # Wochen-Digest: nur P1–P3
+    tasks, _out, mails = _notify(bad, n, mode="critical")
+    crit = [t for t in tasks if t["kind"] == "error_research_integrity"]
+    assert len(crit) == 1 and crit[0]["priority"] == "P0" and rd._is_critical(crit[0])
+    assert len(mails) == 1 and "Integrität der fehlergetriebenen Forschung" in mails[0][0] and "Hash-Kette" in mails[0][1]
+    assert _notify(bad, n, mode="critical")[2] == []                             # gemeldet: nicht wiederholen
+    ok = {**bad, "health": {"status": "OK", "problems": []}}
+    _notify(ok, n, mode="critical")
+    state = rd.task_state([json.loads(x) for x in (n / "tasks.jsonl").read_text().splitlines()])
+    assert state[crit[0]["task_id"]]["status"] == "RESOLVED"                     # nur mit aktuellem OK-Beleg
+
+
+def test_stale_or_missing_error_report_creates_no_result_mail():
+    now = datetime(2027, 3, 30, tzinfo=datetime.fromisoformat("2027-03-15T00:00:00+00:00").tzinfo)
+    rep = {"generated": "2027-03-15T08:00:00+00:00", "hypotheses": [
+        {"id": "ERR-x", "status": "FORWARD_CONFIRMED", "spec": {}, "forward": {"looks": []}, "option_check": {}}],
+        "health": {"status": "CRITICAL", "problems": ["x"]}}
+    tasks, issues = rd.improvement_tasks({"error_research": rep, "problems": {}}, now)
+    assert not [t for t in tasks if t["kind"].startswith("error_")] and any("error_research.json" in i for i in issues)
+    assert rd.input_quality({"problems": {}}, now)["error_research"] == ("unknown", "fehlt")
