@@ -203,3 +203,14 @@ def test_fd3_in_canonical_research_memory_never_claims_success(tmp_path):
     assert matches[0]["status"] == "PENDING_FORWARD"
     assert matches[0]["prospective"] is False
     assert matches[0]["status"] not in rm.SUCCESS
+
+
+def test_independent_forward_windows_use_actual_horizon_end():
+    p, _ = fd.load_protocol()
+    observations = [
+        {"date": "2026-01-02", "window_end": "2026-02-06"},
+        {"date": "2026-01-30", "window_end": "2026-02-27"},
+        {"date": "2026-02-09", "window_end": "2026-03-09"},
+    ]
+    accepted = fd.independent(observations, p)
+    assert [r["date"] for r in accepted] == ["2026-01-02", "2026-02-09"]
