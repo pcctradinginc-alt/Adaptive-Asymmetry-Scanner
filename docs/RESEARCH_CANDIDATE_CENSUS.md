@@ -1,5 +1,30 @@
 # LLM-free candidate census (research-only)
 
+## Weekly integration (PR #180)
+
+The existing Saturday \`ml_research\` workflow now executes:
+
+\`\`\`bash
+python -m modules.research_candidate_census --as-of "$(date -u +%Y-%m-%d)"
+\`\`\`
+
+The resulting \`outputs/research/candidate_census/<date>.json\` covers the
+**preceding 7 calendar days**, including economics-first and other rejected
+rows. Its daily-unique ticker sample is **not** an option quote request or a
+trade. Numeric option marks here are **UNVERIFIED**; zero is never imputed for
+missing marks. The **separate** \`quote_provenance\` summary references
+\`evidence_discovery/<date>.json\` and counts **all historically eligible
+candidates**, not just this week's candidates. It is generated only by the
+existing archived-executable-RTH-quote verifier. Missing or inconsistent
+provenance yields \`DATA_GAP\` and a degraded workflow stage.
+
+This is strictly read-only; it adds no market calls, no new training loop,
+no statistical retests, no extra research samples and no order. To inspect
+unused source expenses, the same weekly workflow also runs
+\`modules.research_source_utilization\`; see
+\`docs/PR180_RESEARCH_HYGIENE.md\`.
+
+
 Run `python -m modules.research_candidate_census --date 2026-10-29` to
 audit **all existing candidate-ledger rows** for that date without LLM calls.
 Produces a deterministic 40-ticker audit sample, counts budget deferrals,
