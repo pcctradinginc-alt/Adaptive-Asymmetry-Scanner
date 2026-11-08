@@ -312,7 +312,10 @@ def test_b5_10_learning_loop_has_no_production_influence(monkeypatch, tmp_path):
                                                      "recommendations", "forward_plans", "forward_looks",
                                                      f"status_{h}d.json", f"status_history_{h}d.jsonl",
                                                      "report_card.json", "report_card.md", "look_reports",
-                                                     "variants.jsonl", "variants"}
+                                                     "variants.jsonl", "variants",
+                                                     # Research-only (08.11.): Erfassungsmodell der Stichprobe OHNE
+                                                     # Richtung und eigenes Schatten-Journal der Strukturwahl
+                                                     ol.ACQ_MODEL, ol.NATIVE_JOURNAL}
     src = (ROOT / "modules" / "option_learner.py").read_text(encoding="utf-8")
     for forbidden in ("send_order", "place_order", "champion", "risk_limits", "position_size"):
         assert forbidden not in src

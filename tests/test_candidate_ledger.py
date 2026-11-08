@@ -1115,6 +1115,43 @@ def test_flush_research_sample_fills_unused_snapshot_budget(monkeypatch, ledger_
     for t, r in rows.items():
         if t != "AAA" and r.get("option_sample") is None:       # nicht gezogen: keine Snapshot-Felder
             assert "real_option" not in r and "real_option_skip_reason" not in r
+    pool = [r for t, r in rows.items() if t != "AAA"]           # Design je Pool-Zeile (ohne Erfassungsmodell)
+    assert {r["option_sample_policy"] for r in pool} == {"uniform-hash"} and "option_sample_policy" not in rows["AAA"]
+    assert sum(r["option_sample_propensity"] for r in pool) == pytest.approx(2) and all(
+        r["snapshot_eligible_n"] == 4 for r in pool)
+
+
+def test_flush_research_sample_uses_fresh_acquisition_model(monkeypatch, ledger_root):
+    """Mit frischem Erfassungsmodell (option_learner.write_acquisition_model) zieht der Bandit genau das Budget und
+    protokolliert π je Pool-Zeile; höhere Prognose -> höhere Einschlusswahrscheinlichkeit, nie unter ε·B/N."""
+    from modules import option_learner as ol
+    monkeypatch.setenv("TRADIER_API_KEY", "test")
+    monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes", _underlying_quotes)
+    monkeypatch.setattr(cl, "_max_option_snapshots", lambda: 3)
+    calls = []
+    monkeypatch.setattr(cl.market_snapshot, "select_contract", _fake_select(calls))
+    mdir = ledger_root.parent / "research" / "option_learner"
+    mdir.mkdir(parents=True)
+    (mdir / ol.ACQ_MODEL).write_text(json.dumps({
+        "policy": ol.ACQ_POLICY, "horizon": 5, "label_cutoff": "2026-09-25", "n": 200, "names": ["rel_volume"],
+        "median": [0.0], "mu": [0.0], "sd": [1.0], "intercept": 0.0, "coef": [1.0], "cov": [[1e-6]],
+        "sigma2": 0.04, "model_id": "m1"}))
+
+    cl.start_run("2026-09-26")
+    cl.note("AAA", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    for i, t in enumerate(["BBB", "CCC", "DDD", "EEE"]):
+        cl.note(t, stage="universe", rel_volume=float(i))
+    cl.flush(reports_dir_root=ledger_root)
+
+    rows = {r["ticker"]: r for r in _read_jsonl(ledger_root / "2026-09.jsonl")}
+    pool = {t: r for t, r in rows.items() if t != "AAA"}
+    assert {r["option_sample_policy"] for r in pool.values()} == {ol.ACQ_POLICY}
+    assert {r["option_sample_model"] for r in pool.values()} == {"m1"}
+    pis = {t: r["option_sample_propensity"] for t, r in pool.items()}
+    assert sum(pis.values()) == pytest.approx(2) and pis["EEE"] == pytest.approx(0.75)
+    assert pis["BBB"] == pytest.approx(ol.ACQ_EPSILON * 2 / 4)
+    assert sum(1 for r in pool.values() if r.get("option_sample") == "research_census") == 2
+    assert len(calls) == 3                                      # nie mehr API-Calls als das Budget
 
 
 def test_flush_research_sample_needs_key_and_leftover_budget(monkeypatch, ledger_root):
@@ -1130,6 +1167,7 @@ def test_flush_research_sample_needs_key_and_leftover_budget(monkeypatch, ledger
     cl.flush(reports_dir_root=ledger_root)
     rows = {r["ticker"]: r for r in _read_jsonl(ledger_root / "2026-09.jsonl")}
     assert "option_sample" not in rows["BBB"] and calls == [("AAA", "BULLISH")]
+    assert "option_sample_policy" not in rows["BBB"]           # ohne Budget kein (Schein-)Design
 
     monkeypatch.setenv("TRADIER_API_KEY", "test")
     calls.clear()
@@ -1140,6 +1178,7 @@ def test_flush_research_sample_needs_key_and_leftover_budget(monkeypatch, ledger
     cl.flush(reports_dir_root=ledger_root)
     rows = {r["ticker"]: r for r in _read_jsonl(ledger_root / "2026-09.jsonl") if r["date"] == "2026-09-27"}
     assert "option_sample" not in rows["EEE"]                   # Budget vollständig von Richtungs-Snapshots belegt
+    assert "option_sample_policy" not in rows["EEE"]
     assert sorted(calls) == [("CCC", "BULLISH"), ("DDD", "BULLISH")]
 
 

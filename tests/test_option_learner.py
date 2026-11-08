@@ -1073,8 +1073,13 @@ def _close_all(out, status="FALSIFIED_NO_EFFECT", keep=()):
                                       "closed_at": "2027-01-01"} for vid in open_])
 
 
+def _legacy(cfg):
+    """Alte Bonferroni-Slot-Mechanik (gilt weiter für die vor dem globalen Ledger registrierten Varianten)."""
+    return {**cfg, "test_budget": {k: v for k, v in cfg["test_budget"].items() if k != "alpha_ledger"}}
+
+
 def test_error_budget_is_persistent_over_months_and_never_exceeds_the_total(tmp_path):
-    cfg = ol.variant_config()
+    cfg = _legacy(ol.variant_config())
     slots = []
     for month in range(12):                                      # ein Jahr monatlicher Registrierungsrunden
         now = datetime(2026, 11, 7, tzinfo=timezone.utc) + timedelta(days=30 * month)
@@ -1089,7 +1094,7 @@ def test_error_budget_is_persistent_over_months_and_never_exceeds_the_total(tmp_
 
 
 def test_budget_is_not_reset_by_base_change_reregistration_or_config(tmp_path, monkeypatch):
-    cfg = ol.variant_config()
+    cfg = _legacy(ol.variant_config())
     now = datetime(2026, 11, 7, tzinfo=timezone.utc)
     first = ol.register_variants(tmp_path, [_proposal({"ridge_alpha": 30.0}), _proposal({"min_pred": 0.02})], now, cfg)
     assert [v["alpha_slot"] for v in first] == [1, 2]
@@ -1124,9 +1129,10 @@ def test_later_registrations_never_change_an_earlier_result(tmp_path):
     now = datetime(2026, 4, 25, tzinfo=timezone.utc)
     for month in range(3):
         ol.register_variants(tmp_path, [_proposal(c, 20) for c in ALL_CHANGES], now + timedelta(days=30 * month),
-                             ol.variant_config())
+                             _legacy(ol.variant_config()))
         _close_all(tmp_path, keep=("OLV-1",))      # nur die neuen Varianten der Runde schließen
-    assert ol.test_budget(tmp_path)["used"] == 9 and not ol.variant_registry(tmp_path)["OLV-1"].get("closed_at")
+    assert ol.test_budget(tmp_path, _legacy(ol.variant_config()))["used"] == 9
+    assert not ol.variant_registry(tmp_path)["OLV-1"].get("closed_at")
     _res, after = _eval_variant(tmp_path, LOOK1, case=case)
     for k in ("alpha_slot", "slot_alpha", "alpha_look", "relative_verdict", "economic_verdict", "look_report"):
         assert before[k] == after[k], k

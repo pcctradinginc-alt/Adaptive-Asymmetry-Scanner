@@ -42,7 +42,7 @@ import json
 import logging
 import math
 import random
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from statistics import NormalDist
@@ -1156,6 +1156,500 @@ def _load(as_of: date, horizon: int, ledger: Path, quotes: Path, counts: dict | 
     return rows, cands, _verified(cands)
 
 
+# ── Erfassungs-Bandit: welche Kandidaten ohne Richtung echte Options-Daten erhalten (nur Research) ─────────────────
+# Das Snapshot-Budget je Lauf (ledger.max_option_snapshots) reicht für 9–27 % der Kandidaten ohne Richtung. Welche
+# Kandidaten erfasst werden, bestimmt, welche Ergebnisse überhaupt beobachtbar sind (teilweise Rückmeldung). Statt
+# gleichverteilt wählt ein Thompson-Sampling auf einem bayesschen Ridge (nur Merkmale VOR der Erfassung) – mit
+# Gleichverteilungsanteil ACQ_EPSILON, exakten Einschlusswahrscheinlichkeiten (systematische Stichprobe) und deren
+# Protokoll je Zeile. Damit sind Populationswerte jeder Policy über den ganzen Pool erwartungstreu schätzbar
+# (Horvitz-Thompson, SNIPS) – auch rückwirkend für die gleichverteilten Altzeilen (π = Budget / Pool).
+
+ACQ_POLICY = "ts-acq-v1"
+ACQ_MODEL = "acquisition_model.json"
+ACQ_HORIZON = 5                        # meiste geprüfte Labels, schnellste Rückmeldung
+ACQ_EPSILON = 0.5                      # Gleichverteilungsanteil: Gewichte <= 1 / (ε·B/N) = 2N/B
+ACQ_DRAWS = 400                        # Posterior-Ziehungen für die Einschlusswahrscheinlichkeit
+ACQ_MAX_AGE_DAYS = 7                   # älteres Modell -> gleichverteilt (fail safe)
+
+
+def acquisition_features(row: dict) -> dict:
+    """Nur Merkmale, die VOR dem Options-Snapshot feststehen (keine Kontraktmerkmale)."""
+    x = features(row)
+    return {k: x[k] for k in LEDGER_FEATURES if k in x}
+
+
+def acquisition_fit(cands: list[dict], as_of: date) -> dict | None:
+    """Bayesscher Ridge je Kandidat: y = geprüftes Netto-Label der Einzeloption (sonst der ersten geprüften Form),
+    x = Merkmale vor der Erfassung; Posterior N(coef, σ²(XᵀX + αI)⁻¹) im standardisierten Raum. Nur Labels mit
+    Mark-Tag vor as_of (prospektiv nutzbar)."""
+    rows = []
+    for c in cands:
+        ok = [e for e in c["exprs"] if e["status"] == "VERIFIED" and e["label_day"] and e["label_day"] < as_of]
+        if not ok:
+            continue
+        e = next((e for e in ok if e["expression"] == "single"), ok[0])
+        rows.append(({k: e["x"][k] for k in LEDGER_FEATURES if k in e["x"]}, float(e["y"])))
+    if len(rows) < MIN_TRAIN_ROWS:
+        return None
+    names = [n for n in LEDGER_FEATURES if sum(n in x for x, _ in rows) >= MIN_FEATURE_COVERAGE * len(rows)]
+    if not names:
+        return None
+    med = [float(np.median([x[n] for x, _ in rows if n in x])) for n in names]
+    raw = np.array([[x.get(n, med[i]) for i, n in enumerate(names)] for x, _ in rows], dtype=float)
+    mu, sd = raw.mean(axis=0), raw.std(axis=0)
+    sd[sd == 0] = 1.0
+    X = (raw - mu) / sd
+    y = np.array([v for _, v in rows], dtype=float)
+    lo, hi = np.quantile(y, WINSOR)
+    y = np.clip(y, lo, hi)
+    b0 = float(y.mean())
+    A = X.T @ X + RIDGE_ALPHA * np.eye(len(names))
+    coef = np.linalg.solve(A, X.T @ (y - b0))
+    resid = y - b0 - X @ coef
+    sigma2 = float(resid @ resid / max(1, len(y) - len(names) - 1))
+    cov = sigma2 * np.linalg.inv(A)
+    return {"policy": ACQ_POLICY, "horizon": ACQ_HORIZON, "label_cutoff": as_of.isoformat(), "n": len(rows),
+            "names": names, "median": med, "mu": mu.tolist(), "sd": sd.tolist(), "intercept": b0,
+            "coef": coef.tolist(), "cov": cov.tolist(), "sigma2": sigma2,
+            "model_id": hashlib.sha256(json.dumps([names, coef.tolist(), as_of.isoformat()]).encode()).hexdigest()[:12]}
+
+
+def write_acquisition_model(out: Path, cands: list[dict], day: date, now: datetime) -> dict | None:
+    model = acquisition_fit(cands, day)
+    if model is not None:
+        atomic_write_json(out / ACQ_MODEL, {**model, "fitted_at": now.isoformat(timespec="seconds")}, indent=1)
+    return model
+
+
+def load_acquisition_model(day: date, out: Path = OUT) -> dict | None:
+    """Gültiges, höchstens ACQ_MAX_AGE_DAYS altes Modell mit Label-Stichtag vor `day` – sonst None (gleichverteilt)."""
+    try:
+        m = json.loads((out / ACQ_MODEL).read_text(encoding="utf-8"))
+        cut = date.fromisoformat(m["label_cutoff"])
+        k = len(m["names"])
+        if m.get("policy") != ACQ_POLICY or not 0 <= (day - cut).days <= ACQ_MAX_AGE_DAYS or k == 0 \
+                or len(m["coef"]) != k or len(m["cov"]) != k:
+            return None
+        return m
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def acquisition_propensities(xs: list[dict], budget: int, model: dict | None, seed: str) -> list[float]:
+    """Einschlusswahrscheinlichkeiten π_i (Σ π = min(B, N), jedes π <= 1): ε·B/N + (1−ε)·P(i unter den Top-B einer
+    Posterior-Ziehung). Ohne Modell gleichverteilt B/N. Deterministisch über `seed` (Datum), ergebnisunabhängig."""
+    n = len(xs)
+    b = max(0, min(int(budget), n))
+    if not n or not b:
+        return [0.0] * n
+    uni = b / n
+    if model is None:
+        return [uni] * n
+    names, med = model["names"], model["median"]
+    raw = np.array([[x.get(k, med[i]) for i, k in enumerate(names)] for x in xs], dtype=float)
+    X = (raw - np.array(model["mu"])) / np.array(model["sd"])
+    rng = np.random.default_rng(int(hashlib.sha256(seed.encode()).hexdigest()[:12], 16))
+    theta = rng.multivariate_normal(np.array(model["coef"]), np.array(model["cov"]), size=ACQ_DRAWS,
+                                    check_valid="ignore", method="eigh")
+    scores = X @ theta.T                                              # N × Ziehungen
+    top = np.argsort(-scores, axis=0)[:b, :]
+    hits = np.zeros(n)
+    np.add.at(hits, top.ravel(), 1.0)
+    return [float(ACQ_EPSILON * uni + (1 - ACQ_EPSILON) * h / ACQ_DRAWS) for h in hits]
+
+
+def systematic_sample(keys: list[str], pis: list[float], seed: str) -> set[int]:
+    """Systematische Stichprobe (Madow) in zufälliger, ergebnisunabhängiger Reihenfolge: P(i gezogen) = π_i exakt,
+    Umfang = Σ π (ganzzahlig). Gibt die Indizes zurück."""
+    order = sorted(range(len(keys)), key=lambda i: hashlib.sha1(f"{seed}:{keys[i]}".encode()).hexdigest())
+    u = int(hashlib.sha256(f"{seed}:start".encode()).hexdigest()[:12], 16) / float(16 ** 12)
+    picks, cum, nxt = set(), 0.0, u
+    for i in order:
+        cum += pis[i]
+        while nxt < cum - 1e-12:
+            picks.add(i)
+            nxt += 1.0
+    return picks
+
+
+def _pool_design(rows: list[dict]) -> dict:
+    """Je Signal der Kandidaten ohne Richtung: (Tag, π, Poolgröße, Policy). Altzeilen: π = Budget / Pool."""
+    out = {}
+    for r in rows:
+        if not isinstance(r, dict) or r.get("option_sample") not in ("research_census", None) or r.get("direction"):
+            continue
+        pi, n = _num(r.get("option_sample_propensity")), _num(r.get("snapshot_eligible_n"))
+        if pi is None and r.get("option_sample") == "research_census":
+            b = _num(r.get("snapshot_budget"))
+            pi = min(1.0, b / n) if b and n else None
+        if pi and pi > 0 and n:
+            out[str(r.get("signal_id"))] = {"date": str(r["date"])[:10], "pi": pi, "pool": int(n),
+                                            "policy": r.get("option_sample_policy") or "uniform-hash",
+                                            "sampled": r.get("option_sample") == "research_census"}
+    return out
+
+
+def acquisition_report(rows: list[dict], cands: list[dict], as_of: date, horizon: int) -> dict:
+    """Erwartungstreue Populationswerte je Policy über ALLE Kandidaten ohne Richtung (nicht nur die erfassten):
+    Horvitz-Thompson je Tag V_d = (1/N_d) Σ a_i·y_i/π_i und selbstnormiert (SNIPS), Block-Bootstrap über
+    unabhängige Haltefenster. Policies: alle handeln; nur Kandidaten mit positiver Prognose des Erfassungsmodells
+    (Walk-Forward: Modell nur aus Labels vor dem Tag); nie handeln = 0. Fehlende Labels gezogener Kandidaten sind
+    Coverage-Lücken (berichtet, nie ersetzt)."""
+    design = _pool_design(rows)
+    by_sig = {str(c["signal_id"]): c for c in cands}
+    days: dict[str, list] = defaultdict(list)
+    sampled, labelled = 0, 0
+    for sid, dsg in design.items():
+        c = by_sig.get(sid)
+        if not dsg["sampled"] or c is None or not _due(dsg["date"], as_of, horizon):
+            continue
+        sampled += 1
+        ok = [e for e in c["exprs"] if e["status"] == "VERIFIED"]
+        if not ok:
+            continue
+        labelled += 1
+        e = next((e for e in ok if e["expression"] == "single"), ok[0])
+        days[dsg["date"]].append({"y": float(e["y"]), "pi": dsg["pi"], "pool": dsg["pool"],
+                                  "x": {k: e["x"][k] for k in LEDGER_FEATURES if k in e["x"]}})
+    pols = {"trade_all": {}, "acq_model_positive": {}}
+    snips = {"trade_all": {}, "acq_model_positive": {}}
+    weights = []
+    models = {}
+    for d in sorted(days):
+        day = date.fromisoformat(d)
+        if day not in models:
+            models[day] = acquisition_fit([c for c in cands if c["date"] < d], day)
+        m = models[day]
+        units = days[d]
+        w = [1.0 / u["pi"] for u in units]
+        weights += w
+        acts = {"trade_all": [1.0] * len(units),
+                "acq_model_positive": ([1.0 if _acq_pred(m, u["x"]) > 0 else 0.0 for u in units] if m else None)}
+        for name, a in acts.items():
+            if a is None:
+                continue
+            ht = sum(ai * u["y"] * wi for ai, u, wi in zip(a, units, w)) / units[0]["pool"]
+            sn = sum(ai * u["y"] * wi for ai, u, wi in zip(a, units, w)) / sum(w)
+            pols[name][d], snips[name][d] = [ht], [sn]
+    ess = (sum(weights) ** 2 / sum(x * x for x in weights)) if weights else 0.0
+    return {"policy": ACQ_POLICY, "estimator": "Horvitz-Thompson je Tag (Block-Bootstrap über Haltefenster) + SNIPS",
+            "sampled_due": sampled, "labelled": labelled,
+            "coverage": round(labelled / sampled, 4) if sampled else None,
+            "propensity_sources": dict(sorted(Counter(v["policy"] for v in design.values()).items())),
+            "max_weight": round(max(weights), 3) if weights else None, "effective_n": round(ess, 1),
+            "values": {name: {"ht": _paired(pols[name], horizon) if pols[name] else None,
+                              "snips": _paired(snips[name], horizon) if snips[name] else None}
+                       for name in pols},
+            "never_trade": 0.0, "production_influence": "NONE",
+            "note": ("Populationswert je Kandidat ohne Richtung; Coverage < 1 heißt: fehlende Labels gezogener "
+                     "Kandidaten sind ausgeschlossen (berichtet). Beschreibende Research-Evidenz, keine Freigabe.")}
+
+
+def _safe_acquisition(rows, cands, as_of, horizon) -> dict:
+    try:
+        return acquisition_report(rows, cands, as_of, horizon)
+    except Exception as exc:  # noqa: BLE001 – Bericht darf die Auswertung nie stören
+        log.warning("option_learner: Erfassungsbericht fehlgeschlagen (%s)", exc)
+        return {"policy": ACQ_POLICY, "error": str(exc)}
+
+
+def _acq_pred(model: dict, x: dict) -> float:
+    names, med = model["names"], model["median"]
+    z = (np.array([x.get(k, med[i]) for i, k in enumerate(names)], dtype=float) - np.array(model["mu"])) \
+        / np.array(model["sd"])
+    return float(model["intercept"] + z @ np.array(model["coef"]))
+
+
+# ── Options-native Ziele: Zerlegung der Options-Rendite und Strukturwahl nach Erwartungswert (nur Research) ──────
+# Die Options-Rendite (Mid zu Mid) wird exakt zerlegt (Black-Scholes, implizite Volatilität je Leg aus dem Entry-Mid,
+# Underlying zum Mark-Tag aus ret_{h}d_at_mark):
+#   delta = Δ0·(S1−S0)/V0                     Richtung
+#   gamma = [V(S1,σ0,T1) − V(S0,σ0,T1) − Δ0(S1−S0)]/V0   Konvexität (realisierte gegen implizite Bewegung)
+#   theta = [V(S0,σ0,T1) − V0]/V0              Zeitwert
+#   vega  = [V1 − V(S1,σ0,T1)]/V0              Änderung der impliziten Volatilität
+#   delta + gamma + theta + vega = Mid-Rendite (exakt); cost = ausführbar − Mid (Spread, Kommission).
+# Strukturunabhängige Ziele (Underlying-Bewegung, IV-Verschiebung) werden gelernt und auf jede erfasste Struktur
+# umgerechnet; gewählt wird die Struktur mit dem höchsten ausführbaren Erwartungswert (sonst ABSTAIN). Prospektiv in
+# einem eigenen Journal (nie im Basis-Journal), keine Produktionswirkung.
+
+NATIVE_POLICY = "ev-decomposed-v1"
+NATIVE_JOURNAL = "options_native.jsonl"
+NATIVE_RATE = 0.04                     # wie bs_pricing (konstant; Dividenden nicht modelliert)
+NATIVE_COMPONENTS = ("delta", "gamma", "theta", "vega", "cost")
+NATIVE_MOVE_PARAMS = {"drop": list(CONTRACT_FEATURES)}   # Underlying-Bewegung: nur Signal-Merkmale, je Signal einmal
+
+
+def _occ_strike(symbol) -> float | None:
+    s = str(symbol or "")
+    try:
+        return int(s[-8:]) / 1000.0 if len(s) > 15 and s[-9] in "CP" else None
+    except ValueError:
+        return None
+
+
+def _native_legs(rs: dict, legs: list[dict] | None = None) -> list[dict] | None:
+    out = []
+    for g in legs if legs is not None else _legs_at_decision(rs):
+        k, right = _num(g.get("strike")) or _occ_strike(g.get("symbol")), _right(g.get("symbol"))
+        mid, ask, bid = _num(g.get("mid")), _num(g.get("ask")), _num(g.get("bid"))
+        if not k or right not in ("C", "P") or mid is None or mid <= 0 or ask is None or bid is None:
+            return None
+        out.append({"sign": 1.0 if g.get("side") == "long" else -1.0, "K": k,
+                    "kind": "call" if right == "C" else "put", "mid": mid, "ask": ask, "bid": bid})
+    return out or None
+
+
+def _value(legs: list[dict], s: float, t: float, vols: list[float]) -> float:
+    from modules.bs_pricing import bs_price
+    return sum(g["sign"] * bs_price(s, g["K"], t, v, NATIVE_RATE, g["kind"]) for g, v in zip(legs, vols))
+
+
+def _years(a, b) -> float | None:
+    try:
+        return (date.fromisoformat(str(b)[:10]) - date.fromisoformat(str(a)[:10])).days / 365.0
+    except ValueError:
+        return None
+
+
+def _iv_shift(legs: list[dict], s1: float, t1: float, vols: list[float], v1: float) -> float | None:
+    """Parallele IV-Verschiebung, unter der die Struktur am Mark-Tag V1 kostet. Spreads sind in der Volatilität nicht
+    monoton (mehrere Lösungen möglich): gewählt wird die betragskleinste Nullstelle eines festen Rasters, verfeinert
+    per Bisektion; ohne Vorzeichenwechsel None."""
+    grid = np.linspace(-min(vols) + 1e-4, 2.0, 401)
+    f = [_value(legs, s1, t1, [v + x for v in vols]) - v1 for x in grid]
+    brackets = [(grid[i], grid[i + 1], f[i]) for i in range(len(grid) - 1) if f[i] == 0 or f[i] * f[i + 1] < 0]
+    if not brackets:
+        return None
+    lo, hi, flo = min(brackets, key=lambda b: abs(b[0] + b[1]))
+    if flo == 0:
+        return float(lo)
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        fm = _value(legs, s1, t1, [v + mid for v in vols]) - v1
+        lo, hi, flo = (mid, hi, fm) if flo * fm > 0 else (lo, mid, flo)
+    return float((lo + hi) / 2)
+
+
+def decompose(row: dict, pseudo: dict, horizon: int) -> tuple[dict | None, str]:
+    """Exakte Zerlegung einer Ausdrucksform (Pseudo-Zeile aus expressions) -> (Komponenten, Grund)."""
+    from modules.bs_pricing import bs_delta, implied_vol
+    rs, oc, o0 = pseudo.get("real_strategy") or {}, pseudo.get("outcomes") or {}, row.get("outcomes") or {}
+    mid_ret, exec_ret = _num(oc.get(f"real_strat_ret_mid_{horizon}d")), net_label(pseudo, horizon)
+    mark = oc.get(f"real_strat_mark_date_{horizon}d")
+    adj, adj_day = _num(o0.get(f"ret_{horizon}d_at_mark")), o0.get(f"ret_{horizon}d_at_mark_date")
+    s0 = _num(row.get("entry_price"))
+    if mid_ret is None or exec_ret is None or not mark:
+        return None, "NO_LABEL"
+    if adj is None or str(adj_day)[:10] != str(mark)[:10]:
+        return None, "NO_UNDERLYING_AT_MARK"                     # Underlying nur am selben Mark-Tag zulässig
+    legs = _native_legs(rs, rs.get("legs"))
+    t0, t1 = _years(rs.get("entry_date") or row.get("date"), rs.get("expiry")), _years(mark, rs.get("expiry"))
+    if not legs or not s0 or s0 <= 0 or not t0 or not t1 or t1 <= 0:
+        return None, "INCOMPLETE_CONTRACT"
+    v0 = _num(rs.get("net_mid_entry")) or sum(g["sign"] * g["mid"] for g in legs)
+    vols = [implied_vol(g["mid"], s0, g["K"], t0, NATIVE_RATE, g["kind"]) for g in legs]
+    if not v0 or v0 <= 0 or any(v is None for v in vols):
+        return None, "NO_IMPLIED_VOL"
+    raw = -adj if str(row.get("direction") or "").upper() == "BEARISH" else adj
+    s1, v1 = s0 * (1 + raw), v0 * (1 + mid_ret)
+    d0 = sum(g["sign"] * (bs_delta(s0, g["K"], t0, v, NATIVE_RATE, g["kind"]) or 0.0) for g, v in zip(legs, vols))
+    v_time, v_move = _value(legs, s0, t1, vols), _value(legs, s1, t1, vols)
+    comp = {"delta": d0 * (s1 - s0) / v0, "gamma": (v_move - v_time - d0 * (s1 - s0)) / v0,
+            "theta": (v_time - v0) / v0, "vega": (v1 - v_move) / v0, "cost": exec_ret - mid_ret}
+    dvol = _iv_shift(legs, s1, t1, vols, v1)
+    return ({**{k: round(v, 6) for k, v in comp.items()}, "mid_ret": round(mid_ret, 6),
+             "exec_ret": round(exec_ret, 6), "move": round(raw, 6), "sigma0": round(vols[0], 6),
+             "dvol": None if dvol is None else round(dvol, 6), "legs": len(legs),
+             "check": round(comp["delta"] + comp["gamma"] + comp["theta"] + comp["vega"] - mid_ret, 9)}, "OK")
+
+
+def native_dataset(rows: list[dict], cands: list[dict], as_of: date, horizon: int) -> tuple[list[dict], Counter]:
+    """Zerlegte, geprüfte Labels (nur VERIFIED, Mark-Tag <= as_of) mit Merkmalen zum Entscheidungszeitpunkt."""
+    ok = {(str(c["date"])[:10], str(c["signal_id"]), e["expression"]): (e, c) for c in cands for e in c["exprs"]
+          if e["status"] == "VERIFIED" and e["label_day"] and e["label_day"] <= as_of}
+    out, reasons, seen = [], Counter(), set()
+    for r in rows:
+        if not isinstance(r, dict) or not r.get("date"):
+            continue
+        for ex in expressions(r):
+            key = (str(r["date"])[:10], str(r.get("signal_id")), ex["expression"])
+            if key not in ok or key in seen:
+                continue
+            seen.add(key)
+            comp, why = decompose(r, ex["row"], horizon)
+            reasons[why] += 1
+            if comp is not None:
+                e, _c = ok[key]
+                out.append({**comp, "date": key[0], "signal_id": key[1], "expression": key[2],
+                            "label_day": e["label_day"], "x": e["x"]})
+    return out, reasons
+
+
+def _native_models(data: list[dict], before: date) -> dict:
+    """Strukturunabhängige Ziele, nur aus Labels mit Mark-Tag vor `before`: Underlying-Bewegung und IV-Verschiebung
+    (vorhandene Ridge-Pipeline fit())."""
+    tr = [d for d in data if d["label_day"] < before]
+    per_signal = {(d["date"], d["signal_id"]): d for d in tr}           # Bewegung ist je Signal ein Label
+    return {"move": fit([{"x": d["x"], "y": d["move"]} for d in per_signal.values()], NATIVE_MOVE_PARAMS),
+            "dvol": fit([{"x": d["x"], "y": d["dvol"]} for d in tr if d["dvol"] is not None])}
+
+
+def native_ev(pseudo: dict, x: dict, models: dict, horizon: int) -> float | None:
+    """Ausführbarer Erwartungswert einer Struktur zum Entscheidungszeitpunkt: Neubewertung unter prognostizierter
+    Bewegung und IV-Verschiebung nach dem Haltefenster; Einstieg zum Ask, Ausstieg Mid − halber Spread, Kommission."""
+    from modules.bs_pricing import implied_vol
+    from modules.research_lab import hold_days
+    rs, row = pseudo.get("real_strategy") or {}, pseudo
+    legs, s0 = _native_legs(rs), _num(row.get("entry_price"))
+    t0 = _years(row.get("date"), rs.get("expiry"))
+    if not legs or not s0 or not t0 or models.get("move") is None:
+        return None
+    t1 = t0 - hold_days(horizon) / 365.0
+    vols = [implied_vol(g["mid"], s0, g["K"], t0, NATIVE_RATE, g["kind"]) for g in legs]
+    if t1 <= 0 or any(v is None for v in vols):
+        return None
+    move = float(models["move"].predict([x])[0])
+    dv = float(models["dvol"].predict([x])[0]) if models.get("dvol") is not None else 0.0
+    ask = sum(g["ask"] if g["sign"] > 0 else -g["bid"] for g in legs)
+    half = sum((g["ask"] - g["bid"]) / 2 for g in legs)
+    if ask <= 0:
+        return None
+    v1 = _value(legs, s0 * (1 + move), t1, [max(1e-4, v + dv) for v in vols])
+    return (v1 - half - ask - 2 * len(legs) * COMMISSION_PER_LEG_SIDE / 100) / ask
+
+
+def native_choice(row: dict, models: dict, horizon: int) -> dict:
+    """Struktur mit höchstem ausführbarem Erwartungswert, sonst ABSTAIN."""
+    evs = []
+    for ex in expressions(row):
+        ev = native_ev(ex["row"], features(ex["row"]), models, horizon)
+        if ev is not None:
+            evs.append((ev, ex["expression"], ex["contract"]))
+    if not evs:
+        return {"action": "ABSTAIN", "reason": "keine bewertbare Struktur", "evs": {}}
+    best = max(evs)
+    return {"action": "TRADE" if best[0] > 0 else "ABSTAIN", "expression": best[1], "contract": best[2],
+            "ev": round(best[0], 6), "evs": {e[1]: round(e[0], 6) for e in evs},
+            "reason": "höchster Erwartungswert" if best[0] > 0 else "kein positiver Erwartungswert"}
+
+
+def native_decisions(out: Path, rows: list[dict], cands: list[dict], day: date, horizon: int,
+                     now: datetime) -> int:
+    """Prospektive Schatten-Entscheidungen des Tages ins eigene Journal (append-only, je Signal einmal)."""
+    data, _ = native_dataset(rows, cands, day, horizon)
+    models = _native_models(data, day)
+    if models["move"] is None:
+        return 0
+    path = out / NATIVE_JOURNAL
+    done = {(j.get("date"), j.get("signal_id"), j.get("horizon")) for j in (read_jsonl(path) if path.exists() else [])}
+    new = []
+    for r in rows:
+        if not isinstance(r, dict) or str(r.get("date"))[:10] != day.isoformat():
+            continue
+        key = (day.isoformat(), r.get("signal_id"), horizon)
+        if key in done:
+            continue
+        ch = native_choice(r, models, horizon)
+        if not ch["evs"]:
+            continue
+        done.add(key)
+        new.append({"date": key[0], "signal_id": key[1], "ticker": r.get("ticker"), "horizon": horizon,
+                    "policy": NATIVE_POLICY, "train_cutoff": day.isoformat(), "n_train": len(data),
+                    "created_at": now.isoformat(timespec="seconds"), **ch})
+    if new:
+        append_jsonl(path, new)
+    return len(new)
+
+
+def options_native_report(rows: list[dict], cands: list[dict], as_of: date, horizon: int,
+                          out: Path = OUT) -> dict:
+    """Woher kommt die Options-Rendite (Komponenten mit Block-Bootstrap), was davon ist vorhersagbar (Walk-Forward-
+    IC je Komponente), und schlägt die Strukturwahl nach Erwartungswert 'nie handeln' und 'immer Einzeloption' –
+    retrospektiv (Walk-Forward) und prospektiv (eigenes Journal). Beschreibende Research-Evidenz, keine Freigabe."""
+    data, reasons = native_dataset(rows, cands, as_of, horizon)
+    comps = {}
+    for k in (*NATIVE_COMPONENTS, "mid_ret", "exec_ret"):
+        by = defaultdict(list)
+        for d in data:
+            by[d["date"]].append(d[k])
+        comps[k] = _paired(by, horizon) if by else None
+    var = float(np.var([d["mid_ret"] for d in data])) if len(data) > 1 else None
+    shares = ({k: round(float(np.var([d[k] for d in data])) / var, 4) for k in NATIVE_COMPONENTS[:4]}
+              if var else None)
+    ic, wf, by_day = defaultdict(list), defaultdict(list), defaultdict(list)
+    rows_by = defaultdict(list)
+    for r in rows:
+        if isinstance(r, dict) and r.get("date"):
+            rows_by[str(r["date"])[:10]].append(r)
+    for d in sorted({d["date"] for d in data}):
+        day = date.fromisoformat(d)
+        test = [x for x in data if x["date"] == d]
+        tr = [x for x in data if x["label_day"] < day]
+        for k in ("delta", "gamma", "theta", "vega", "move", "dvol"):
+            m = fit([{"x": x["x"], "y": x[k]} for x in tr if x[k] is not None],
+                    NATIVE_MOVE_PARAMS if k == "move" else None)
+            pts = [(float(m.predict([x["x"]])[0]), x[k]) for x in test if m is not None and x[k] is not None]
+            if len(pts) >= 5:
+                s = _spearman([p for p, _ in pts], [y for _, y in pts])
+                if s is not None:
+                    ic[k].append(s)
+        models = _native_models(data, day)
+        if models["move"] is None:
+            continue
+        realized = {(x["signal_id"], x["expression"]): x["exec_ret"] for x in test}
+        for r in rows_by[d]:
+            ch = native_choice(r, models, horizon)
+            sid = str(r.get("signal_id"))
+            single = realized.get((sid, "single"))
+            if ch["action"] == "TRADE" and (sid, ch["expression"]) not in realized:
+                continue                                         # Ergebnis der gewählten Form fehlt: Lücke
+            val = realized.get((sid, ch.get("expression"))) if ch["action"] == "TRADE" else 0.0
+            if single is not None:
+                wf[d].append(val - single)
+            by_day[d].append(val)
+    prospective = _native_forward(out, data, as_of, horizon)
+    return {"policy": NATIVE_POLICY, "decomposed": len(data), "reasons": dict(sorted(reasons.items())),
+            "components": comps, "variance_share": shares,
+            "predictability_ic": {k: {"dates": len(v), "mean_ic": round(float(np.mean(v)), 4),
+                                      "t": round(float(np.mean(v) / (np.std(v, ddof=1) / math.sqrt(len(v)))), 3)
+                                      if len(v) > 1 and np.std(v, ddof=1) > 0 else None}
+                                  for k, v in sorted(ic.items())},
+            "ev_choice_walk_forward": {"value_vs_never": _paired(by_day, horizon) if by_day else None,
+                                       "minus_always_single": _paired(wf, horizon) if wf else None},
+            "ev_choice_prospective": prospective, "production_influence": "NONE",
+            "note": ("Zerlegung exakt (Summe = Mid-Rendite), Black-Scholes mit konstantem Zins ohne Dividenden; "
+                     "Walk-Forward ist auf gesehenen Daten und nie eine Bestätigung.")}
+
+
+def _safe_native(rows, cands, as_of, horizon, out) -> dict:
+    try:
+        return options_native_report(rows, cands, as_of, horizon, out)
+    except Exception as exc:  # noqa: BLE001 – Bericht darf die Auswertung nie stören
+        log.warning("option_learner: options-nativer Bericht fehlgeschlagen (%s)", exc)
+        return {"policy": NATIVE_POLICY, "error": str(exc)}
+
+
+def _native_forward(out: Path, data: list[dict], as_of: date, horizon: int) -> dict:
+    path = out / NATIVE_JOURNAL
+    js = [j for j in (read_jsonl(path) if path.exists() else []) if j.get("horizon") == horizon]
+    realized = {(d["date"], d["signal_id"], d["expression"]): d["exec_ret"] for d in data}
+    by, gaps, pending = defaultdict(list), 0, 0
+    for j in js:
+        if not _due(j["date"], as_of, horizon):
+            pending += 1
+            continue
+        if j.get("action") != "TRADE":
+            by[j["date"]].append(0.0)
+            continue
+        y = realized.get((j["date"], str(j["signal_id"]), j.get("expression")))
+        if y is None:
+            gaps += 1
+            continue
+        by[j["date"]].append(y)
+    return {"decisions": len(js), "pending": pending, "missing_outcomes": gaps,
+            "value_vs_never": _paired(by, horizon) if by else None}
+
+
 def _label_ids(data: list[dict]) -> list[str]:
     return sorted(f"{d['date']}|{d['signal_id']}|{'/'.join(d['contract'])}|{d['label_day']}" for d in data)
 
@@ -1219,10 +1713,11 @@ def register_variants(out: Path, proposals: list[dict], now: datetime, cfg: dict
     reg, base, new = variant_registry(out), experiment_id(), []
     max_active = int(cfg.get("max_active_per_horizon") or 0)
     budget = test_budget(out, cfg)
+    use_ledger = bool((cfg.get("test_budget") or {}).get("alpha_ledger"))   # globales Fehlerbudget (alpha_ledger)
     for p in proposals:
         if not p.get("auto_experiment"):
             continue
-        if budget["used"] >= budget["max_tests"]:           # Fehlerbudget erschöpft: keine neuen Tests
+        if not use_ledger and budget["used"] >= budget["max_tests"]:   # Fehlerbudget erschöpft: keine neuen Tests
             break
         try:
             change, params = validate_overrides(p["change"], cfg), variant_params(p["change"], cfg)
@@ -1237,12 +1732,20 @@ def register_variants(out: Path, proposals: list[dict], now: datetime, cfg: dict
         if len(open_) >= max_active or any(next(iter(v["overrides"])) == next(iter(change)) for v in open_):
             continue
         max_days = int((p.get("falsification") or {}).get("max_days") or 4 * h + 60)
+        if use_ledger:
+            alloc = alpha_allocate(vid, "option_learner_variant", vexp, now, path=ledger_path(out))
+            if alloc is None:                                # kein Budget oder Ledger verletzt: nichts registrieren
+                break
+            tb = {"ledger": LEDGER_VERSION, "total_alpha": budget["total_alpha"], "max_tests": alloc["class_max"],
+                  "class": alloc["class"]}
+            slot, slot_alpha = alloc["class_index"], alloc["alpha"]
+        else:
+            tb = {"total_alpha": budget["total_alpha"], "max_tests": budget["max_tests"]}
+            slot, slot_alpha = budget["used"] + 1, budget["slot_alpha"]
         ev = {"event": "registered", "variant_id": vid, "horizon": h, "base_experiment_id": base,
               "experiment_id": vexp, "overrides": change, "params": params, "proposal_id": p.get("proposal_id"),
               "gap_ids": p.get("gap_ids"), "falsification": p.get("falsification"),
-              "look_days": look_days(max_days),
-              "test_budget": {"total_alpha": budget["total_alpha"], "max_tests": budget["max_tests"]},
-              "alpha_slot": budget["used"] + 1, "slot_alpha": budget["slot_alpha"],
+              "look_days": look_days(max_days), "test_budget": tb, "alpha_slot": slot, "slot_alpha": slot_alpha,
               "registered_at": now.isoformat(timespec="seconds"),
               "start_date": (now.date() + timedelta(days=1)).isoformat()}
         append_jsonl(out / VARIANTS, [ev])
@@ -1334,15 +1837,182 @@ def test_budget(out: Path = OUT, cfg: dict | None = None) -> dict:
     Basisversionen. Ein Neustart oder Modellwechsel setzt nichts zurück."""
     path = out / VARIANTS
     events = [e for e in (read_jsonl(path) if path.exists() else []) if e.get("event") == "registered"]
-    frozen = next((e["test_budget"] for e in events if isinstance(e.get("test_budget"), dict)), None)
+    legacy = [e for e in events if not (e.get("test_budget") or {}).get("ledger")]   # alte Bonferroni-Slots
+    frozen = next((e["test_budget"] for e in legacy if isinstance(e.get("test_budget"), dict)), None)
     conf = (cfg if cfg is not None else variant_config()).get("test_budget") or {}
     budget = frozen or {"total_alpha": float(conf.get("total_alpha", 0.05)),
                         "max_tests": int(conf.get("max_tests", 20))}
-    used = len(events)
-    return {"total_alpha": float(budget["total_alpha"]), "max_tests": int(budget["max_tests"]),
-            "slot_alpha": float(budget["total_alpha"]) / int(budget["max_tests"]), "used": used,
-            "remaining": max(0, int(budget["max_tests"]) - used), "exhausted": used >= int(budget["max_tests"]),
-            "frozen_by_registry": frozen is not None}
+    used = len(legacy)
+    res = {"total_alpha": float(budget["total_alpha"]), "max_tests": int(budget["max_tests"]),
+           "slot_alpha": float(budget["total_alpha"]) / int(budget["max_tests"]), "used": used,
+           "remaining": max(0, int(budget["max_tests"]) - used), "exhausted": used >= int(budget["max_tests"]),
+           "frozen_by_registry": frozen is not None}
+    if conf.get("alpha_ledger"):                     # neue Tests nur noch aus dem globalen Ledger
+        nxt = alpha_allocate("__preview__", "option_learner_variant", "", datetime.now(timezone.utc),
+                             path=ledger_path(out), preview=True)
+        res.update(source=LEDGER_VERSION, ledger_registered=len(events) - len(legacy),
+                   next_alpha=nxt["alpha"] if nxt else None, exhausted=nxt is None)
+    return res
+
+
+# ── Globales Fehlerbudget (config/alpha_ledger.yaml) ─────────────────────────────────────────────────────────────
+# Ein append-only Ledger mit Hash-Kette für ALLE prospektiven Bestätigungstests der Teilsysteme (Varianten dieses
+# Moduls, Alpha-to-Options-Prüfpläne, fehlergetriebene Forschung). Online-Bonferroni mit fester Folge: gültig bei
+# beliebiger Abhängigkeit; bereits vergebene Slots der alten Teilbudgets werden als Altlast abgezogen.
+
+ALPHA_LEDGER_CONFIG = Path("config/alpha_ledger.yaml")
+ALPHA_LEDGER = OUT.parent / "alpha_ledger.jsonl"
+LEDGER_VERSION = "alpha-ledger-v1"
+
+
+def alpha_ledger_config(path: Path | None = None) -> dict:
+    """Ledger-Konfiguration mit Prüfung der Invarianten (Summe der Anteile <= 1, Exponent > 1, eindeutige
+    Teilsysteme) und SHA-256 der Datei; jede Verletzung ist ein ValueError (fail closed)."""
+    raw = (path or ALPHA_LEDGER_CONFIG).read_bytes()
+    cfg = yaml.safe_load(raw) or {}
+    if cfg.get("version") != LEDGER_VERSION:
+        raise ValueError(f"alpha_ledger: Version {cfg.get('version')!r} statt {LEDGER_VERSION}")
+    classes = cfg.get("classes") or {}
+    subs = [s for c in classes.values() for s in c.get("subsystems") or []]
+    if not 0 < float(cfg.get("total_alpha", 0)) <= 0.05:
+        raise ValueError("alpha_ledger: total_alpha muss in (0, 0.05] liegen")
+    if float(cfg.get("gamma_exponent", 0)) <= 1:
+        raise ValueError("alpha_ledger: gamma_exponent <= 1 – die Folge wäre nicht summierbar")
+    if not classes or sum(float(c["share"]) for c in classes.values()) > 1 + 1e-12 or len(subs) != len(set(subs)):
+        raise ValueError("alpha_ledger: Klassenanteile > 1 oder Teilsystem mehrfach zugeordnet")
+    return {**cfg, "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def ledger_path(out: Path) -> Path:
+    """Ledger neben dem Ausgabeverzeichnis …/option_learner (Produktion: outputs/research/alpha_ledger.jsonl, gemeinsam
+    mit Alpha-to-Options und der fehlergetriebenen Forschung); andere Verzeichnisse erhalten ein eigenes (isoliert)."""
+    out = Path(out)
+    return out.parent / "alpha_ledger.jsonl" if out.name == OUT.name else out / "alpha_ledger.jsonl"
+
+
+def ledger_gamma(k: int, exponent: float) -> float:
+    """k-tes Glied der festen Folge k^(−s) / ζ(s); Summe über alle k = 1."""
+    from scipy.special import zeta
+    return float(k ** (-exponent) / zeta(exponent, 1))
+
+
+def _ledger_canon(ev: dict) -> str:
+    return json.dumps(ev, sort_keys=True, ensure_ascii=False, default=str, separators=(",", ":"))
+
+
+def _ledger_read(path: Path) -> tuple[list[dict], list[str]]:
+    if not path.exists():
+        return [], []
+    events, prev = [], ""
+    for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            e = json.loads(line)
+        except ValueError:
+            return events, [f"{path.name} Zeile {i}: kein JSON"]
+        body = {k: v for k, v in e.items() if k != "hash"}
+        if e.get("prev") != prev or hashlib.sha256(_ledger_canon(body).encode()).hexdigest() != e.get("hash"):
+            return events, [f"{path.name} Zeile {i}: Hash-Kette verletzt (nachträglich geändert oder entfernt)"]
+        events.append(e)
+        prev = e["hash"]
+    return events, []
+
+
+def _ledger_append(path: Path, events: list[dict], ev: dict) -> dict:
+    ev = {**ev, "prev": events[-1]["hash"] if events else ""}
+    ev["hash"] = hashlib.sha256(_ledger_canon(ev).encode()).hexdigest()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(ev, ensure_ascii=False, sort_keys=True, default=str) + "\n")
+    events.append(ev)
+    return ev
+
+
+def legacy_allocations(research_dir: Path, cfg: dict) -> list[dict]:
+    """Vor dem Ledger vergebene Slots der alten Teilbudgets (aus deren Registern gelesen, je Test einmal)."""
+    out, seen = [], set()
+    for sub, spec in sorted((cfg.get("legacy") or {}).items()):
+        p = Path(research_dir) / spec["path"]
+        for e in read_jsonl(p) if p.exists() else []:
+            a, tid = e.get(spec["alpha"]), e.get(spec["id"])
+            if e.get("event") != spec["event"] or not tid or (sub, tid) in seen:
+                continue
+            if isinstance(a, (int, float)) and not isinstance(a, bool) and math.isfinite(a) and a > 0:
+                seen.add((sub, tid))
+                out.append({"subsystem": sub, "test_id": tid, "alpha": float(a)})
+    return out
+
+
+def alpha_ledger_state(path: Path = ALPHA_LEDGER, cfg: dict | None = None, now: datetime | None = None,
+                       persist: bool = True, research_dir: Path | None = None) -> dict:
+    """Zustand des Ledgers. Beim ersten Aufruf wird es eingerichtet: Altlast aus den alten Registern lesen und
+    einfrieren, W0 = total_alpha − Altlast auf die Klassen verteilen. Danach gilt nur noch der eingefrorene Stand
+    (eine Konfigurationsänderung wirkt nicht rückwirkend; eine abweichende Konfiguration ist ein Befund)."""
+    cfg = cfg or alpha_ledger_config()
+    events, problems = _ledger_read(path)
+    init = next((e for e in events if e.get("event") == "init"), None)
+    if init is None and not problems:
+        legacy = legacy_allocations(research_dir or path.parent, cfg)
+        legacy_alpha = sum(x["alpha"] for x in legacy)
+        w0 = float(cfg["total_alpha"]) - legacy_alpha
+        if w0 <= 0:
+            problems.append(f"Altlast {legacy_alpha:.6f} >= total_alpha – kein Budget für neue Tests")
+        init = {"event": "init", "version": LEDGER_VERSION, "config_sha256": cfg["sha256"],
+                "total_alpha": float(cfg["total_alpha"]), "procedure": cfg["procedure"],
+                "gamma_exponent": float(cfg["gamma_exponent"]), "legacy": legacy,
+                "legacy_alpha": round(legacy_alpha, 12), "w0": round(max(w0, 0.0), 12),
+                "classes": {n: {"share": float(c["share"]), "wealth": round(max(w0, 0.0) * float(c["share"]), 12),
+                                "max_registrations": int(c["max_registrations"]),
+                                "subsystems": list(c["subsystems"])} for n, c in sorted(cfg["classes"].items())},
+                "created_at": (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")}
+        if persist and not problems:
+            init = _ledger_append(path, events, init)
+    allocs = {e["test_id"]: e for e in events if e.get("event") == "allocate"}
+    if init and init.get("hash"):                    # Umgehung: Slot in einem alten Register ohne Ledger-Zuteilung
+        known = {(x["subsystem"], x["test_id"]) for x in init["legacy"]}
+        stray = [x for x in legacy_allocations(research_dir or path.parent, cfg)
+                 if (x["subsystem"], x["test_id"]) not in known and x["test_id"] not in allocs]
+        if stray:
+            problems.append(f"{len(stray)} Registrierung(en) ohne Ledger-Zuteilung, z. B. {stray[0]['test_id']}")
+    spent = {n: sum(a["alpha"] for a in allocs.values() if a["class"] == n) for n in (init or {}).get("classes", {})}
+    if init and any(spent[n] > c["wealth"] + 1e-12 for n, c in init["classes"].items()):
+        problems.append("Zuteilungen übersteigen das Klassenbudget")
+    return {"path": str(path), "init": init, "allocations": allocs, "events": events, "spent": spent,
+            "problems": problems,
+            "summary": {"version": LEDGER_VERSION, "total_alpha": (init or {}).get("total_alpha"),
+                        "legacy_alpha": (init or {}).get("legacy_alpha"), "w0": (init or {}).get("w0"),
+                        "allocated": len(allocs), "spent": {n: round(v, 10) for n, v in spent.items()},
+                        "status": "CRITICAL" if problems else "OK"}}
+
+
+def alpha_allocate(test_id: str, subsystem: str, spec_hash: str, now: datetime, *, path: Path = ALPHA_LEDGER,
+                   cfg: dict | None = None, persist: bool = True, preview: bool = False,
+                   research_dir: Path | None = None) -> dict | None:
+    """Alpha eines neuen Tests aus dem globalen Ledger (idempotent je test_id; die Zuteilung ist endgültig).
+    k-ter Test der Klasse: alpha = Klassenbudget · k^(−s)/ζ(s). preview: nur berechnen, nichts schreiben (für das
+    Power-Gate vor der Registrierung). None = keine Zuteilung (verletzte Kette, unbekanntes Teilsystem,
+    Registrierungsgrenze erreicht oder kein Budget) – der Aufrufer registriert dann nichts (fail closed)."""
+    st = alpha_ledger_state(path, cfg, now, persist=persist and not preview, research_dir=research_dir)
+    if st["problems"] or not st["init"]:
+        return None
+    old = st["allocations"].get(test_id)
+    if old is not None:
+        return old if old["subsystem"] == subsystem else None
+    cls = next((n for n, c in st["init"]["classes"].items() if subsystem in c["subsystems"]), None)
+    if cls is None:
+        return None
+    k = sum(1 for a in st["allocations"].values() if a["class"] == cls) + 1
+    c = st["init"]["classes"][cls]
+    if k > c["max_registrations"] or c["wealth"] <= 0:
+        return None
+    ev = {"event": "allocate", "ledger": LEDGER_VERSION, "test_id": test_id, "subsystem": subsystem, "class": cls,
+          "class_index": k, "class_max": c["max_registrations"],
+          "alpha": c["wealth"] * ledger_gamma(k, st["init"]["gamma_exponent"]),
+          "spec_hash": spec_hash, "allocated_at": now.isoformat(timespec="seconds")}
+    if preview or not persist:
+        return ev
+    return _ledger_append(Path(st["path"]), st["events"], ev)
 
 
 def _economic(cmp: dict) -> str:
@@ -1873,6 +2543,8 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "option_snapshots_7d": sum(1 for r in recent if isinstance(r.get("real_option"), dict)),
               "manifest": manifest(data, as_of), "feature_coverage": feature_coverage(data),
               "variant_feature_coverage": variant_feature_coverage(data), "walk_forward": wf,
+              "acquisition": _safe_acquisition(rows, cands, as_of, horizon),
+              "options_native": _safe_native(rows, cands, as_of, horizon, out),
               "baselines": _baselines(wf.get("vs_reference") or {}),
               "by_gate": by_gate(data),
               "forward": forward(journal, cands, horizon, instances, as_of),
@@ -1914,6 +2586,15 @@ def recommend(day: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, q
     Prüfberichte werden nur hier geschrieben (ein Schreiber); Prognosen und Entscheidungen hängen nie davon ab."""
     now = now or datetime.now(timezone.utc)
     _rows, cands, data = _load(day, horizon, ledger, quotes)
+    if horizon == ACQ_HORIZON:                   # Erfassungsmodell für den nächsten Scanner-Lauf (nur Research)
+        try:
+            write_acquisition_model(out, cands, day, now)
+        except Exception as exc:  # noqa: BLE001 – ohne Modell erfasst der Scanner gleichverteilt
+            log.warning("option_learner: Erfassungsmodell nicht geschrieben (%s)", exc)
+    try:                                         # options-native Schatten-Entscheidungen (eigenes Journal)
+        native_decisions(out, _rows, cands, day, horizon, now)
+    except Exception as exc:  # noqa: BLE001 – Research-Journal, nie Einfluss auf Prognosen
+        log.warning("option_learner: options-native Entscheidungen nicht geschrieben (%s)", exc)
     journal = read_jsonl(out / JOURNAL) if (out / JOURNAL).exists() else []
     instances = read_jsonl(out / INSTANCES) if (out / INSTANCES).exists() else []
     wf, fw = walk_forward(cands, day, horizon), forward(journal, cands, horizon, instances, day)

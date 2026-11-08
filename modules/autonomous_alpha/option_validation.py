@@ -83,6 +83,21 @@ def _budget(root: Path, cfg: dict) -> dict:
     return ol.test_budget(_out(root), {"test_budget": cfg["test_budget"]})
 
 
+LEDGER_REL = Path("outputs/research/alpha_ledger.jsonl")    # globales Fehlerbudget (config/alpha_ledger.yaml)
+
+
+def _ledger_alpha(root: Path, cfg: dict, plan_id: str, key: dict, now: datetime) -> tuple[float | None, dict | None]:
+    """Slot-Alpha eines neuen Plans: aus dem globalen Ledger (Klasse alpha_hypothesis), sonst aus dem alten
+    Teilbudget. None = keine Zuteilung -> der Plan bleibt RESEARCH und kann nie qualifizieren."""
+    from modules import option_learner as ol
+    if (cfg.get("test_budget") or {}).get("alpha_ledger"):
+        alloc = ol.alpha_allocate(plan_id, "alpha_option_validation", digest(key), now,
+                                  path=Path(root) / LEDGER_REL)
+        return (alloc["alpha"], alloc) if alloc else (None, None)
+    budget = _budget(root, cfg)
+    return (None if budget["exhausted"] else budget["slot_alpha"]), None
+
+
 def load_plan(path: Path) -> dict:
     from modules import option_learner as ol
     plan = ol._read_json(path)
@@ -123,7 +138,7 @@ def register_plans(root: Path, econ: dict, *, now: datetime | None = None) -> li
         if path.exists():
             continue
         budget = _budget(root, cfg)
-        slot = None if budget["exhausted"] else budget["slot_alpha"]
+        slot, alloc = _ledger_alpha(root, cfg, plan_id, key, now)
         start = now.date() + timedelta(days=1)            # only signals AFTER registration count
         days = ol.look_days(int(cfg["max_days"]))
         src = (link["sources"].get(sig["hypothesis_source"]) or {}) if sig["hypothesis_source"] != "control" else {}
@@ -161,7 +176,9 @@ def register_plans(root: Path, econ: dict, *, now: datetime | None = None) -> li
             "max_days": int(cfg["max_days"]), "look_days": days,
             "look_cutoffs": [(start + timedelta(days=d)).isoformat() for d in days],
             "alpha_slot": slot, "look_alpha": ol.alpha_spending(slot) if slot else None,
-            "test_budget": {k: budget[k] for k in ("total_alpha", "max_tests", "used")},
+            "test_budget": ({"ledger": alloc["ledger"], "class": alloc["class"], "class_index": alloc["class_index"],
+                             "total_alpha": budget["total_alpha"]} if alloc
+                            else {k: budget[k] for k in ("total_alpha", "max_tests", "used")}),
             "ci_method": "block_bootstrap_t_non_overlapping_windows",
             "stop_rules": {"CONFIRMED": "CI(H-no trade), CI(H-random control) and CI(H-frozen ML benchmark) "
                                         "entirely > 0 at the look alpha on comparable data with >= "
@@ -177,7 +194,7 @@ def register_plans(root: Path, econ: dict, *, now: datetime | None = None) -> li
         atomic_write_json(path, plan, indent=1)
         append_jsonl(_out(root) / ol.VARIANTS, [{"event": "registered", "plan_id": plan_id,
                                                   "registered_at": plan["registered_at"],
-                                                  "test_budget": cfg["test_budget"], "alpha_slot": slot}])
+                                                  "test_budget": plan["test_budget"], "alpha_slot": slot}])
         created.append(plan_id)
     return created
 

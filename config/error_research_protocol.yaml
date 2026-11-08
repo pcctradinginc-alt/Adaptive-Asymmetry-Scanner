@@ -31,10 +31,23 @@
 #  * Optionen: Auswahl zum Signalzeitpunkt unter ALLEN handelbaren Kandidaten je Struktur, fehlende Quotes =
 #    Coverage-Lücke; LONG_CALL und BULL_CALL_SPREAD getrennt.
 #
+# Version 3 (2026-11-08, vor jeder v3-Registrierung; ERR-d6695229 und ihr Altlast-Slot bleiben unverändert):
+#  * Globales Fehlerbudget: neue Registrierungen erhalten ihr Alpha aus config/alpha_ledger.yaml (Klasse
+#    alpha_hypothesis, Online-Bonferroni mit fester Folge über ALLE prospektiven Tests von option_learner,
+#    Alpha-to-Options und dieser Forschung; Altlast abgezogen). Systemweit sinkt die familienweise Fehlerrate von
+#    bis zu 0,15 (drei getrennte Budgets) auf <= 0,05; das erste Alpha einer Klasse ist größer, spätere kleiner.
+#  * Power-Gate vor der Registrierung: der feste Prüfplan (looks, O'Brien-Fleming aus der Ledger-Zuteilung) wird
+#    simuliert; registriert wird nur bei Power >= min_power für effect_shrinkage · Entdeckungsmittel bei der auf
+#    gesehenen Fenstern geschätzten Streuung. Unterpowerte Hypothesen verbrauchen kein Alpha (Datenlücke
+#    "underpowered"). Im Walk-Forward verworfene Hypothesen erhalten kein Alpha mehr (v2 vergab dafür Slots).
+#  * Die Alternierung (jedes zweite Fenster) bleibt: Simulationen unter überlappenden Labels zeigen, dass ein
+#    HAC-Test über alle Fenster bei df = n−1 bis 2,4-fach zu oft bestätigt und die gültige Schranken-Variante weniger
+#    Power hat als die Alternierung (docs/STATISTICAL_POWER_2026-11-08.md). Schwellen unverändert.
+#
 # Hash gepinnt in tests/test_error_driven_research.py. Nur strenger oder bei belegtem Fehler ändern – nie, um ein
 # Ergebnis zu schönen. Suchraum, Schwellen und Budgets sind fest; neue Merkmale = neue Protokollversion.
 
-version: "error-research-v2"
+version: "error-research-v3"
 registered_at: "2026-11-07"
 seen_until: "2026-11-06"
 
@@ -109,6 +122,12 @@ forward:                            # einzige Bestätigung: prospektiv, eingefro
   test_budget:                      # Testfamilie = alle Registrierungen; Slot-Alpha = 0,05 / 24 ≈ 0,00208 (einseitig)
     total_alpha: 0.05
     max_tests: 24                   # >= budget.max_lifetime (sonst Ladefehler)
+  alpha_ledger: true                # v3: Alpha neuer Registrierungen aus config/alpha_ledger.yaml
+  power_gate:                       # v3: Registrierung nur bei ausreichender Trennschärfe (nur gesehene Daten)
+    min_power: 0.5                  # Bestätigung mindestens so wahrscheinlich wie Nicht-Bestätigung
+    effect_shrinkage: 0.5           # Gewinnerfluch: Entdeckungseffekt halbiert
+    min_windows: 3                  # gesehene unabhängige Fenster für die Streuungsschätzung
+    n_sims: 4000
   looks: [4, 8, 12]                 # Prüfungen bei so vielen unabhängigen Forward-Fenstern (1/3, 2/3, 1 –
                                     # option_learner.LOOK_FRACTIONS); Mittel <= 0 an einer Prüfung = falsifiziert
                                     # v1-Registrierungen: eine Prüfung bei min_periods mit min(alpha, Slot-Alpha)

@@ -324,7 +324,8 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
          error_gaps: list[dict] | None = None, memory: list[dict] | None = None,
          data_quality: dict | None = None, forward_budget: dict | None = None,
          now: datetime | None = None) -> dict:
-    from modules import research_memory as rmem, hypothesis_selection as selector
+    from modules import hypothesis_selection as selector
+    from modules import research_memory as rmem
     from modules.research_lab import SignalError, validate_expr
     now = now or datetime.now(timezone.utc)
     tested = hyp_db.get("hypotheses") or {}
@@ -2096,6 +2097,11 @@ def error_protocol(path: Path | None = None) -> dict:
         raise ValueError("error_research_protocol: mehr Registrierungen als Slots im Testbudget")
     if len(p["forward"]["looks"]) != 3:
         raise ValueError("error_research_protocol: drei Prüfzeitpunkte (option_learner.LOOK_FRACTIONS) erwartet")
+    if p["forward"].get("alpha_ledger"):
+        g = p["forward"].get("power_gate") or {}
+        if not (0 < float(g.get("min_power", 0)) < 1 and 0 < float(g.get("effect_shrinkage", 0)) <= 1
+                and int(g.get("min_windows", 0)) >= 3):
+            raise ValueError("error_research_protocol: Power-Gate (min_power, effect_shrinkage, min_windows) fehlt")
     return p
 
 
@@ -2431,9 +2437,11 @@ def error_spec(c: dict, horizon: int, disc: dict, proto: dict, registered_at: st
             "failure_condition": (f"Walk-Forward: Mittel <= 0 ab {proto['validation']['min_periods']} unabhängigen "
                                   "Fenstern; Forward: Mittel <= 0 an einer Prüfung (falsifiziert) oder an keiner der "
                                   f"Prüfungen bei {proto['forward']['looks']} unabhängigen Fenstern einseitig p < "
-                                  "Teil-Alpha des zugeteilten Slots (Budget "
-                                  f"{proto['forward']['test_budget']['total_alpha']} / "
-                                  f"{proto['forward']['test_budget']['max_tests']}, O'Brien-Fleming)"),
+                                  "Teil-Alpha des zugeteilten Slots ("
+                                  + ("globales Fehlerbudget alpha-ledger-v1, O'Brien-Fleming)"
+                                     if proto["forward"].get("alpha_ledger") else
+                                     f"Budget {proto['forward']['test_budget']['total_alpha']} / "
+                                     f"{proto['forward']['test_budget']['max_tests']}, O'Brien-Fleming)")),
             "window_method": "alternierende Haltefenster mit Purging (v2)",
             "mechanism": ERROR_MECHANISM.get(c["families"][0], "gemessener Befund"),
             "discovery": {"start": disc["start"], "end": disc["end"], "periods": disc["periods"],
@@ -2441,6 +2449,9 @@ def error_spec(c: dict, horizon: int, disc: dict, proto: dict, registered_at: st
                           "control_size_t": (c.get("control_size") or {}).get("t")},
             "forward": {"start_after": start_after, "looks": list(proto["forward"]["looks"]),
                         "test_budget": dict(proto["forward"]["test_budget"]),
+                        **({"alpha_source": "alpha-ledger-v1",
+                            "power_gate": dict(proto["forward"]["power_gate"])}
+                           if proto["forward"].get("alpha_ledger") else {}),
                         "max_days": (2 * int(proto["forward"]["looks"][-1]) + 2) * math.ceil(int(horizon) * 7 / 5)
                         + 14}}
 
@@ -2555,6 +2566,10 @@ def _gap_sources(dims: list[str], catalog: list[dict]) -> list[dict]:
 
 
 ERROR_JOURNAL = OUT / "error_forward_journal.jsonl"      # append-only, Hash-Kette: Budget, Slots, Prüfungen, Audits
+LEDGER_CORRECTION = ("Globales Fehlerbudget (config/alpha_ledger.yaml, Klasse alpha_hypothesis): Online-Bonferroni "
+                     "mit fester Folge alpha_k = W · k^-1,5/ζ(1,5) über alle prospektiven Tests der Teilsysteme "
+                     "inkl. Altlast; Teil-Alphas je Prüfzeitpunkt nach O'Brien-Fleming; familienweise Fehlerrate "
+                     "<= total_alpha bei beliebiger Abhängigkeit; Entscheidungen unwiderruflich")
 FORWARD_CORRECTION = ("Bonferroni-Slots über die Testfamilie aller Registrierungen (wie option_learner.test_budget): "
                       "Slot-Alpha = total_alpha / max_tests, bei der ersten Auswertung eingefroren; Teil-Alphas je "
                       "Prüfzeitpunkt nach O'Brien-Fleming (option_learner.alpha_spending), Union-Bound -> "
@@ -2633,6 +2648,57 @@ def forward_plan(entry: dict, slot: int, budget: dict) -> dict:
                                                        "nachträglich veränderlich) – ersetzt vor der ersten Prüfung"}
 
 
+def _utc_day(day) -> datetime:
+    return datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
+
+
+def ledger_plan(entry: dict, alloc: dict) -> dict:
+    """Prüfplan einer v3-Registrierung: Alpha aus dem globalen Ledger, drei Prüfungen nach O'Brien-Fleming."""
+    from modules import option_learner as ol
+    fw = entry["spec"]["forward"]
+    return {"slot": alloc["class_index"], "slot_alpha": alloc["alpha"], "looks": list(fw["looks"]),
+            "look_alpha": [float(a) for a in ol.alpha_spending(alloc["alpha"])], "max_days": int(fw["max_days"]),
+            "correction": LEDGER_CORRECTION, "ledger": {k: alloc.get(k) for k in ("ledger", "class", "class_index",
+                                                                                "allocated_at", "hash")},
+            "supersedes": None}
+
+
+def power_gate(spec: dict, dblocks: list[dict], wf: dict, proto: dict, hid: str, ledger: Path, as_of) -> dict:
+    """Trennschärfe vor der Registrierung (nur gesehene Daten, nie Bestätigung): Streuung der unabhängigen
+    Fenstermittel aus Entdeckung und Walk-Forward-Screen, Effekt = Schrumpfungsfaktor · Entdeckungsmittel
+    (Gewinnerfluch), Teil-Alphas aus der Zuteilung, die die Hypothese im Ledger erhielte. PASS nur, wenn der
+    feste Prüfplan den Effekt mit mindestens min_power bestätigen würde – sonst kein Alpha verbrauchen."""
+    import numpy as np
+
+    from modules import option_learner as ol
+    from modules import research_lab as rl
+    g = proto["forward"]["power_gate"]
+    seen = [b["mean_ic"] for b in dblocks] + [b["mean_ic"] for b in (wf.get("blocks") or [])]
+    disc = [b["mean_ic"] for b in dblocks]
+    out = {"min_power": float(g["min_power"]), "effect_shrinkage": float(g["effect_shrinkage"]),
+           "windows_seen": len(seen), "method": "Simulation des festen Prüfplans (research_lab.design_power)"}
+    if len(seen) < int(g["min_windows"]):
+        return {**out, "decision": "INSUFFICIENT", "power": None, "mde": None, "effect": None, "sd": None,
+                "reason": f"nur {len(seen)} gesehene Fenster (< {g['min_windows']}) – Streuung nicht schätzbar"}
+    sd = float(np.std(seen, ddof=1))
+    effect = float(g["effect_shrinkage"]) * max(float(np.mean(disc)) if disc else 0.0, 0.0)
+    alloc = ol.alpha_allocate(hid, "error_research", "", _utc_day(as_of), path=ledger, preview=True)
+    if alloc is None:
+        return {**out, "decision": "NO_BUDGET", "power": None, "mde": None, "effect": effect, "sd": sd,
+                "reason": "keine Zuteilung im globalen Ledger möglich"}
+    looks, la = list(spec["forward"]["looks"]), ol.alpha_spending(alloc["alpha"])
+    n = int(g.get("n_sims", 4000))
+    power = rl.design_power(effect, sd, looks, la, n)
+    mde = rl.min_detectable_effect(sd, looks, la, float(g["min_power"]), n)
+    ok = power >= float(g["min_power"])
+    return {**out, "decision": "PASS" if ok else "UNDERPOWERED", "power": round(power, 4),
+            "mde": None if mde is None else round(mde, 6), "effect": round(effect, 6), "sd": round(sd, 6),
+            "alpha_preview": alloc["alpha"], "class_index_preview": alloc["class_index"],
+            "reason": (f"Power {power:.2f} >= {g['min_power']}" if ok else
+                       f"Power {power:.2f} < {g['min_power']}: Effekt {effect:.4f} (geschrumpft) < MDE "
+                       f"{'n/a' if mde is None else f'{mde:.4f}'} bei Fenster-Streuung {sd:.4f}")}
+
+
 def _option_cands(as_of, horizon: int) -> list[dict]:
     """Ledger-Kandidaten mit allen zum Signalzeitpunkt erfassten Optionsformen und deren Label-Status (option_learner:
     VERIFIED gegen das Quote-Archiv, sonst Prüf-Grund oder NO_LABEL)."""
@@ -2653,6 +2719,7 @@ def option_check(spec: dict, vals: dict, cands: list[dict], proto: dict, window:
        unabhängige (alternierende, gepurgte) Haltefenster. Unter Coverage/Fenster-Minimum: INSUFFICIENT_DATA;
        explorative Evidenz ist nie ein Alpha-Nachweis."""
     from collections import Counter
+
     from modules import option_learner as ol
     from modules import research_lab as rl
     oc, h = proto["options"], int(spec["horizon"])
@@ -2744,7 +2811,9 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
     """Ein Lauf des fehlergetriebenen Kreislaufs (deterministisch). Schreibt nur Bericht, Registrierungen und das
     append-only Journal; abgeschlossene Prüfungen werden gelesen, nie neu entschieden."""
     from collections import defaultdict
+
     from modules import ml_research as ml
+    from modules import option_learner as ol
     from modules import research_lab as rl
     from modules import research_memory as rm
     proto = proto or error_protocol()
@@ -2851,6 +2920,12 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
     b = proto["budget"]
     cap = min(b["max_lifetime"], int((budget or proto["forward"]["test_budget"])["max_tests"]))
     left = max(0, min(b["max_new_per_run"], cap - len(reg))) if not frozen_only else 0
+    use_ledger = bool(proto["forward"].get("alpha_ledger"))
+    ledger = journal.parent / "alpha_ledger.jsonl"           # global: outputs/research/alpha_ledger.jsonl
+    if use_ledger:
+        lst = ol.alpha_ledger_state(ledger, persist=False)
+        problems += [f"alpha_ledger: {x}" for x in lst["problems"]]
+        rep["alpha_ledger"] = lst["summary"]
     for h, disc, c, pr in sorted(cands, key=lambda x: -x[3]["priority"]):
         d = {"subject": f"{c['id']} ({h} T)", "priority": pr}
         if pr["memory_hit"]:
@@ -2867,6 +2942,26 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
                      "spec_hash": _spec_hash(spec), "walk_forward": wf, "priority": pr,
                      "discovery_data_ref": _inputs_ref(errs_by_h[h], vals, {**c, "feature": c["id"]}, dblocks,
                                                        as_of, code_sha)}
+            alloc = None
+            if use_ledger and wf["status"] != "REJECTED_WF":       # verworfen: nie ein Forward-Test, kein Alpha
+                gate = power_gate(spec, dblocks, wf, proto, hid, ledger, as_of)
+                entry["power_gate"] = gate
+                if gate["decision"] != "PASS":
+                    d.update(decision="underpowered", because=gate["reason"])
+                    rep["data_gaps"].append({
+                        "gap_id": f"error:power:{c['id']}:{h}d", "kind": "underpowered", "horizon": h,
+                        "finding": gate["reason"], "decision": "nicht registriert (kein Alpha verbraucht); mehr "
+                        "unabhängige Fenster, breiterer Querschnitt oder kürzerer Horizont nötig",
+                        **{k: gate.get(k) for k in ("power", "mde", "effect", "sd", "windows_seen")}})
+                    rep["decisions"].append(d)
+                    continue
+                if not frozen_only and persist:
+                    alloc = ol.alpha_allocate(hid, "error_research", entry["spec_hash"], _utc_day(as_of),
+                                              path=ledger)
+                    if alloc is None:
+                        d.update(decision="defer", because="kein Budget im globalen Ledger (oder Ledger verletzt)")
+                        rep["decisions"].append(d)
+                        continue
             reg.append(entry)
             tested[pr["key"]] = hid
             left -= 1
@@ -2876,6 +2971,9 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
                 registry.parent.mkdir(parents=True, exist_ok=True)
                 with open(registry, "a", encoding="utf-8") as fh:
                     fh.write(json.dumps(entry, ensure_ascii=False, sort_keys=True, default=str) + "\n")
+            if alloc is not None:                                  # Prüfplan aus dem Ledger sofort einfrieren
+                slots[hid] = jappend({"event": "slot_assigned", "hypothesis_id": hid, "spec_hash": entry["spec_hash"],
+                                      "assigned_at": as_of.isoformat(), **ledger_plan(entry, alloc)})
         rep["decisions"].append(d)
     # Prüfung aller registrierten Hypothesen in Registrierungsreihenfolge (Slot = Reihenfolge, eingefroren)
     cand_cache: dict[int, list] = dict(option_cands or {})
@@ -2890,7 +2988,8 @@ def error_research(rows: list[dict], preds: list[dict], as_of, *, archive=None, 
             problems.append(f"{hid}: Registrierung nachträglich geändert (INVALID_MODIFIED)")
             continue
         slot_ev = slots.get(hid)
-        if slot_ev is None and budget is not None and not frozen_only and len(slots) < int(budget["max_tests"]):
+        if slot_ev is None and budget is not None and not frozen_only and len(slots) < int(budget["max_tests"]) \
+                and not sp["forward"].get("alpha_source"):         # v3: Alpha nur aus dem Ledger (bei Registrierung)
             plan = forward_plan(e, len(slots) + 1, budget)
             slot_ev = jappend({"event": "slot_assigned", "hypothesis_id": hid, "spec_hash": e["spec_hash"],
                                "assigned_at": as_of.isoformat(), **plan})
