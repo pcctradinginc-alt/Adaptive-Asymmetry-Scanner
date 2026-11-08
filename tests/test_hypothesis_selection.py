@@ -113,3 +113,23 @@ def test_research_director_reuses_selector_without_extra_tests():
                for h in rep["hypotheses"])
     assert all(h["research_dossier"]["promotion"] == "NEVER_AUTOMATIC"
                for h in rep["hypotheses"])
+
+
+
+def test_director_does_not_use_future_memory_in_historical_replay():
+    from tests.test_research_director import META, NEXTV, WORLD, HYP_DB, CATALOG
+    past = rd.plan(META, NEXTV, WORLD, HYP_DB, CATALOG, max_new=3, now=NOW)
+    assert past["selected"]
+    first = next(h for h in past["hypotheses"] if h["signal"])
+    record = rm._entry("research", "FORWARD-FUTURE", "REJECTED",
+                       {"signal": first["signal"], "direction": first["direction"]})
+    record["recorded_at"] = (NOW + timedelta(days=2)).isoformat()
+    replay = rd.plan(META, NEXTV, WORLD, HYP_DB, CATALOG, max_new=3,
+                     now=NOW, memory=[record])
+    assert replay["selected"] == past["selected"]
+    assert replay["memory_entries_considered"] == 0
+    record["recorded_at"] = (NOW - timedelta(days=2)).isoformat()
+    historical = rd.plan(META, NEXTV, WORLD, HYP_DB, CATALOG, max_new=3,
+                         now=NOW, memory=[record])
+    assert historical["memory_entries_considered"] == 1
+    assert first["id"] not in historical["selected"]
