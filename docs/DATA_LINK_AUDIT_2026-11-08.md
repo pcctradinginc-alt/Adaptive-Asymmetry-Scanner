@@ -38,6 +38,10 @@ Folgen für die Auswertungen:
 - Die Population der Auswertungen über `external` wird ab dem ersten Lauf mit diesem Fix breiter. Ergebnisse vor und nach dem 28.10. bzw. nach dem Fix sind deshalb getrennt zu lesen.
 - Die Shadow-Relation (`external.relation`, LLM-Shadow) gibt es weiterhin nur für die Shortlist. Alle übrigen Zeilen tragen `source: skipped`, wie bisher.
 - Stufe 2b-ext hängt genau das bereits notierte Objekt an. Die Shadow-Relation kommt deshalb wie vor dem 28.10. im Ledger-Eintrag an. Das war vorher nur über eine geteilte Referenz gesichert und ist jetzt per Test abgesichert.
+- Kosten:
+  - Laufzeit vernachlässigbar (400 Kandidaten in 0,03 s; der Snapshot wird wie bisher einmal gebaut).
+  - Ledger-Größe: Ein `external`-Eintrag hat im Schnitt etwa 3,6 KB (Oktober 2026). Bei etwa 320 zusätzlichen Zeilen je Tag sind das etwa 1,1 MB Rohdaten mehr pro Tag. In Git fällt das komprimiert deutlich kleiner aus.
+  - Wird das zu groß, wäre die Abhilfe, die laufgleichen Snapshot-Primitive einmal je Lauf abzulegen und je Zeile nur `snapshot_id` und die tickerspezifischen Teile zu speichern (neue Ledger-Version).
 
 **Tests** (`tests/test_external_context_integration.py`):
 - ganze Kohorte im Ledger, Kandidaten byte-gleich;
