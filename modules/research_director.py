@@ -322,11 +322,13 @@ def active_learning(world: dict, blind: list[dict], catalog: list[dict],
 
 def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict], max_new: int = MAX_NEW_PER_RUN,
          error_gaps: list[dict] | None = None, memory: list[dict] | None = None,
-         data_quality: dict | None = None, forward_budget: dict | None = None) -> dict:
+         data_quality: dict | None = None, forward_budget: dict | None = None,
+         now: datetime | None = None) -> dict:
     from modules import research_memory as rmem, hypothesis_selection as selector
     from modules.research_lab import SignalError, validate_expr
+    now = now or datetime.now(timezone.utc)
     tested = hyp_db.get("hypotheses") or {}
-    memory = memory or []
+    memory = selector.memory_as_of(memory or [], now)
     data_quality = data_quality or {}
     forward_budget = forward_budget or {}
     sparse = set()
@@ -398,7 +400,7 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
     chosen, choice = selector.select(eligible, slots=max_new, exploratory_slots=0, max_per_family=2)
     hyps = [{"id": c["research_id"], "title": c["title"], "statement": c["statement"], "signal": c["signal"],
              "direction": c["direction"], "rationale": c["economic_rationale"],
-             "created_at": datetime.now(timezone.utc).date().isoformat(),
+             "created_at": now.date().isoformat(),
              "research_dossier": {
                  "observed_relationship": c.get("source_finding"),
                  "economic_mechanism": c["economic_rationale"],
@@ -416,7 +418,7 @@ def plan(meta: dict, nextv: dict, world: dict, hyp_db: dict, catalog: list[dict]
                  "promotion": "NEVER_AUTOMATIC",
                  "selection_audit": c["selection_audit"],
              }} for c in chosen]
-    return {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    return {"generated": now.isoformat(timespec="seconds"),
             "n_candidates": len(cands), "n_selected_for_testing": len(hyps), "max_new_per_run": max_new,
             "candidates": cands, "selection": choice,
             "selected": [c["research_id"] for c in chosen], "hypotheses": hyps,
