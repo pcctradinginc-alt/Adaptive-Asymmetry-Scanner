@@ -1429,7 +1429,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             # Zufallsauswahl statt "erste N", siehe oben).
             signal_id = e["signal_id"]
             directional = e.get("direction") in ("BULLISH", "BEARISH")
-            if not directional and signal_id in research_design:      # Design jeder Zeile des Pools (auch ungezogen)
+            if not directional and research_budget > 0 and signal_id in research_design:   # Design je Pool-Zeile
                 row["option_sample_policy"]     = research_design[signal_id]["policy"]
                 row["option_sample_propensity"] = research_design[signal_id]["pi"]
                 row["option_sample_model"]      = research_design[signal_id]["model_id"]
