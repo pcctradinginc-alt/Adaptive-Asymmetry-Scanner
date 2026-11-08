@@ -8,7 +8,7 @@ must be re-reviewed if the analysis pipeline changes.
 from __future__ import annotations
 
 import argparse
-from datetime import date, timedelta
+from datetime import date
 import json
 from pathlib import Path
 
@@ -82,7 +82,9 @@ def inventory(health: dict | None, telemetry: dict | None, as_of: date) -> dict:
         "measured_at": measured,
         "telemetry_age_days": age,
         "telemetry_max_age_days": MAX_TELEMETRY_AGE_DAYS,
-        "status": "MEASURED" if telemetry_ok and isinstance(health, dict) else "DATA_GAP",
+        "status": ("MEASURED" if telemetry_ok and all(
+            row["data_completeness"] == "MEASURED_TELEMETRY" and row["health_status"] != "UNKNOWN"
+            for row in result) else "DATA_GAP"),
         "source_count": len(result),
         "sources": result,
         "research_protocol_modified": False,
