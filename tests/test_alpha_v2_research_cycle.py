@@ -85,7 +85,10 @@ def test_synthetic_full_research_registration_memory_and_followup(tmp_path, monk
     monkeypatch.setattr(director, "candidates_from_blind_spots", lambda *a: [same])
     monkeypatch.setattr(director, "candidates_from_regimes", lambda *a: [])
     monkeypatch.setattr(director, "candidates_from_drift", lambda *a: [])
-    choice = director.plan({}, {}, {}, {"hypotheses": {}}, [], memory=entries)
+    # Replay at the SYNTHETIC test clock: the registered memory event is dated
+    # 2026-11-09, intentionally later than the actual CI clock (2026-11-08).
+    # Do not relax the new PIT/as-of memory gate to make this test pass.
+    choice = director.plan({}, {}, {}, {"hypotheses": {}}, [], memory=entries, now=now)
     assert choice["n_selected_for_testing"] == 0
     assert choice["deferred"][0]["reason"] == "RESEARCH_MEMORY_SIMILAR_PREVIOUSLY_TESTED"
 
