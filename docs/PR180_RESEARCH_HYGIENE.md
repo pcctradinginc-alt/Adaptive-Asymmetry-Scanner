@@ -18,11 +18,11 @@ not to start more models or falsely improve historical backtests.
 
 Every Saturday ML research run (MODE=weekly), **after the existing quote
 provenance stage**, two read-only tools generate dated JSON outputs under
-\`outputs/research/\`. These are included in the existing research commit.
+`outputs/research/`. These are included in the existing research commit.
 
 ### Candidate census
 
-\`python -m modules.research_candidate_census --as-of YYYY-MM-DD\`
+`python -m modules.research_candidate_census --as-of YYYY-MM-DD`
 
 - Counts **all** candidate-ledger rows in the preceding seven calendar days,
   including those filtered out by economics-first. These rows cannot be
@@ -31,8 +31,8 @@ provenance stage**, two read-only tools generate dated JSON outputs under
   **not verified** option-return fields, reason for rejection, directional vs
   research-only option sampling and a deterministic 40-ticker audit sample.
 - The separate historical verification summary uses ONLY
-  \`outputs/research/evidence_discovery/<as_of>.json\`, produced by the existing
-  \`modules.research_evidence_discovery\`. Its genuinely verified labels are
+  `outputs/research/evidence_discovery/<as_of>.json`, produced by the existing
+  `modules.research_evidence_discovery`. Its genuinely verified labels are
   checked against actual entry and exit option quotes, appropriate timestamps
   and contract identities. The census never verifies a quote itself or
   recomputes returns.
@@ -40,26 +40,26 @@ provenance stage**, two read-only tools generate dated JSON outputs under
   candidates**, NOT the seven-day census cohort. A seven-day marked return is
   not inferred to be one of the verified outcomes.
 - Missing monthly ledger partitions, a missing/future/malformed evidence
-  report, or mismatched as-of dates give \`DATA_GAP\` and a nonzero process exit.
+  report, or mismatched as-of dates give `DATA_GAP` and a nonzero process exit.
   No fake zero outcomes; no automatic backfill or unregistered hypotheses.
-- Existing \`--date\` command remains backward compatible for manual checks;
+- Existing `--date` command remains backward compatible for manual checks;
   it never triggers additional quote capture.
 
 ### Source-utilization inventory
 
-\`python -m modules.research_source_utilization --as-of YYYY-MM-DD\`
+`python -m modules.research_source_utilization --as-of YYYY-MM-DD`
 
-- Reads **only existing** \`outputs/external_data/health/source_health.json\`
-  and \`outputs/external_data/health/storage_telemetry.json\` on disk.
+- Reads **only existing** `outputs/external_data/health/source_health.json`
+  and `outputs/external_data/health/storage_telemetry.json` on disk.
 - Reports PASS / UNKNOWN source health and recorded archive-row count,
   retrieval days, estimated raw and normalized bytes/day and one-off
   backfill bytes, **when all data are available and recent**. Missing/stale
-  fields are null, not zero, and the report is marked \`DATA_GAP\`.
+  fields are null, not zero, and the report is marked `DATA_GAP`.
 - The "unused by analysis" status was verified in the code review on
   **2026-11-08**. It is a **dated manual assessment**, not a continuously
   recomputed dependency graph. An analyst must refresh this classification
   whenever source consumers change.
-- Both new weekly stages are \`DEGRADED\` in the existing stage check if they
+- Both new weekly stages are `DEGRADED` in the existing stage check if they
   fail. A failure is visible and **does not block the earlier alpha forward
   evaluation** or cause a spurious success.
 
@@ -77,7 +77,7 @@ provenance stage**, two read-only tools generate dated JSON outputs under
 | NOAA Storm Events | PASS, backfill only | 1,849 rows, ~13.2 MB one-off backfill | Low: no PIT firm exposure; already throttled, not every day |
 
 These counts come from the repository's
-\`outputs/external_data/health/{source_health,storage_telemetry}.json\`
+`outputs/external_data/health/{source_health,storage_telemetry}.json`
 and may change. "PASS" is only **source health**, not economic utility or
 quote verifiability. The daily footprint fields use storage telemetry estimates,
 not monetary invoices. NOAA is already in a low-frequency backfill regime;
@@ -86,7 +86,7 @@ not monetary invoices. NOAA is already in a low-frequency backfill regime;
 ## Candidate for a future, **separately approved and preregistered** study
 
 The first candidates worth considering are FRED liquidity and public economic
-release calendars. Do not change today's \`error_research v2\` search space or
+release calendars. Do not change today's `error_research v2` search space or
 train on these new fields inside this PR.
 
 A proposed **new** version must explicitly fix, before the first data-driven
@@ -115,13 +115,13 @@ proposals, not new production features.
 
 ## Change inventory
 
-- \`modules/research_candidate_census.py\` — weekly as-of report reusing
+- `modules/research_candidate_census.py` — weekly as-of report reusing
   pre-existing quote provenance, old daily CLI retained
-- \`modules/research_source_utilization.py\` — new source health/cost inventory
-- \`.github/workflows/ml_research.yml\` — two bounded weekly steps, degraded
+- `modules/research_source_utilization.py` — new source health/cost inventory
+- `.github/workflows/ml_research.yml` — two bounded weekly steps, degraded
   checks; **no new workflow schedule**
-- \`tests/test_pr180_research_utilization.py\` — offline synthetic evidence,
+- `tests/test_pr180_research_utilization.py` — offline synthetic evidence,
   leak/fail-closed and CI wiring checks
-- This document and \`docs/RESEARCH_CANDIDATE_CENSUS.md\`
+- This document and `docs/RESEARCH_CANDIDATE_CENSUS.md`
 
 No generated historic research output is committed as evidence of new alpha.
