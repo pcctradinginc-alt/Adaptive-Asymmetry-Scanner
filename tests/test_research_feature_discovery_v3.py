@@ -88,7 +88,7 @@ def test_schedule_unknown_before_first_snapshot_and_revisions():
     new = snap("2026-11-10T12:00:00", ["fomc|2026-11-19T19:00:00+00:00|1"])
     store = PITResearchStore(Archive([old, new]))
     assert store.event_distance("fomc_calendar", dt("2026-11-04T20:00:00")) is None
-    assert store.event_distance("fomc_calendar", dt("2026-11-09T20:00:00")) == pytest.approx(3.9583333)
+    assert store.event_distance("fomc_calendar", dt("2026-11-09T20:00:00")) == pytest.approx(2.9583333)
     assert store.event_distance("fomc_calendar", dt("2026-11-11T20:00:00")) == pytest.approx(7.9583333)
 
 
