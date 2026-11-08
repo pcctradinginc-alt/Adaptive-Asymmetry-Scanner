@@ -691,6 +691,67 @@ def test_pipeline_stage_never_raises_when_snapshot_build_fails(monkeypatch):
     assert "error" in summary
 
 
+def test_external_context_reaches_ledger_for_whole_cohort_without_touching_candidates(monkeypatch):
+    """Regression 28.10.: economics-first verkleinerte die Kohorte VOR Stufe 2b-ext, der externe Kontext erreichte
+    nur noch 1–4 Ledger-Zeilen je Tag. Jetzt: ein Snapshot je Lauf, vor dem Sektor-Check für alle Kandidaten nur
+    ins Ledger notiert (Kandidaten unverändert), in 2b-ext wiederverwendet (kein zweiter Bau)."""
+    import modules.candidate_ledger as cl
+    import pipeline
+    from modules.config import cfg
+
+    monkeypatch.setitem(cfg, "external_context", {"enabled": True, "mode": "shadow"})
+    builds = []
+    monkeypatch.setattr(pipeline, "build_external_context",
+                        lambda now: builds.append(now) or {"snapshot_id": "snap-1", "primitives": {"x": 1.0},
+                                                           "sources": {"s": {"status": "OK"}}})
+    ledger = {}
+    monkeypatch.setattr(cl, "note", lambda ticker, **f: ledger.setdefault(ticker, f["external"]))   # friert ein
+    candidates = _base_candidates()
+    before = copy.deepcopy(candidates)
+
+    pre = pipeline.build_external_snapshot_stage()
+    ctxs = pipeline.note_external_context_ledger(candidates, *pre)
+    assert sorted(ctxs) == sorted(ledger) == ["AAA", "BBB"]
+    assert candidates == before                                     # kein candidate["external_context"]
+    assert {t: e["snapshot_id"] for t, e in ledger.items()} == {"AAA": "snap-1", "BBB": "snap-1"}
+    out, summary = pipeline.attach_external_context_stage(candidates[:1], pre, ctxs)   # nur die Shortlist
+    assert len(builds) == 1 and summary["snapshot_id"] == "snap-1" and summary["sources"] == {"s": "OK"}
+    assert "external_context" not in candidates[1]
+    # Dasselbe Objekt wie im Ledger: spätere Shadow-Ergebnisse (relation) erreichen den Ledger-Eintrag wie bisher
+    assert out[0]["external_context"] is ledger["AAA"]
+    out[0]["external_context"]["relation"] = {"relation": "SUPPORTS", "source": "llm_shadow"}
+    assert ledger["AAA"]["relation"]["source"] == "llm_shadow"
+
+
+def test_external_ledger_note_never_raises_and_is_off_when_disabled(monkeypatch):
+    import pipeline
+    from modules.config import cfg
+
+    monkeypatch.setitem(cfg, "external_context", {"enabled": True, "mode": "shadow"})
+    monkeypatch.setattr(pipeline, "build_external_context",
+                        lambda now: (_ for _ in ()).throw(RuntimeError("boom")))
+    snap, summary = pipeline.build_external_snapshot_stage()
+    assert snap is None and "error" in summary
+    assert pipeline.note_external_context_ledger(_base_candidates(), snap, summary) == {}
+    monkeypatch.setitem(cfg, "external_context", {"enabled": True, "mode": "off"})
+    assert pipeline.build_external_snapshot_stage() == (None, {"enabled": True, "mode": "off", "snapshot_id": None,
+                                                               "sources": {}})
+
+
+def test_pipeline_notes_external_context_before_cohort_is_reduced():
+    """Struktureller Guard: die Ledger-Notiz steht vor Sektor-Check und economics-first, Stufe 2b-ext nutzt den
+    vorab gebauten Snapshot."""
+    import inspect
+
+    import pipeline
+
+    src = inspect.getsource(pipeline.main)
+    i_note = src.index("note_external_context_ledger(candidates")
+    assert i_note < src.index("_sector_momentum_ok(") < src.index("select_before_haiku(")
+    assert "attach_external_context_stage(shortlist, _ext_pre, _ext_ctx)" in src
+    assert src.count("build_external_snapshot_stage()") == 1
+
+
 def test_no_production_module_reads_external_context_key():
     """Statischer Guard: kein Produktions-Entscheidungsmodul darf
     candidate["external_context"] lesen (siehe Aufgabenstellung Punkt 4)."""

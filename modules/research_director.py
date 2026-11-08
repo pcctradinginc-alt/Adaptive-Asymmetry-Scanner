@@ -719,13 +719,17 @@ TASK_INPUTS = {"option_root": OPTION_OUT, "source_history": Path("outputs/health
                "source_snapshot": Path("outputs/health/source_health_snapshot.json"),
                "workflow_status": Path("outputs/state/workflow_status.json"),
                "ledger": Path("outputs/candidate_ledger"),
-               "alpha_validation": Path("outputs/research/autonomous_alpha/option_validation.json")}
+               "alpha_validation": Path("outputs/research/autonomous_alpha/option_validation.json"),
+               "error_research": Path("outputs/research/error_research.json")}
 INPUT_LABEL = {"improvement": "option_learner/improvement.json", "source_snapshot": "source_health_snapshot.json",
                "workflow_status": "workflow_status.json",
-               "alpha_validation": "autonomous_alpha/option_validation.json"}
+               "alpha_validation": "autonomous_alpha/option_validation.json",
+               "error_research": "error_research.json"}
 DIGEST_MAX = 3                                   # höchstens so viele neue/geänderte Aufgaben je Kalenderwoche
-CRITICAL_KINDS = ("withdrawn_success", "release_integrity")   # P0: täglicher Lauf (--critical), sonst Wochen-Digest
-FRESH_DAYS = {"option": 10, "seq": 10, "health": 2, "workflow": 2}   # ältere Daten sind nicht beurteilbar
+CRITICAL_KINDS = ("withdrawn_success", "release_integrity",   # P0: täglicher Lauf (--critical), sonst Wochen-Digest
+                  "error_research_integrity")
+FRESH_DAYS = {"option": 10, "seq": 10, "health": 2, "workflow": 2,   # ältere Daten sind nicht beurteilbar
+              "error": 10}                                         # error_research: wöchentlich (Samstag)
 MODES = ("weekly", "critical")
 SUBJECT = "[Scanner] Technischer Verbesserungsvorschlag – {}"
 PRIORITY_TEXT = {"P0": "kritisch", "P1": "hoch", "P2": "mittel", "P3": "niedrig"}
@@ -1278,6 +1282,143 @@ def _tasks_alpha_options(rep: dict) -> list[dict]:
     return out
 
 
+ERROR_FALSIFIED = ("FORWARD_REJECTED", "FORWARD_NOT_CONFIRMED")
+ERROR_RESULT_KINDS = ("error_hypothesis_confirmed", "error_hypothesis_result")
+
+
+def _error_final_look(h: dict) -> dict:
+    return next((v for v in ((h.get("forward") or {}).get("looks") or []) if v.get("final")), {})
+
+
+def _error_class(h: dict) -> str:
+    oc = (h.get("option_check") or {}).get("status")
+    if h.get("status") in ERROR_FALSIFIED:
+        return ALPHA_CLASS_TEXT["NOT_CONFIRMED"] + f" ({h['status']})"
+    if oc == "OPTION_EDGE":
+        return ALPHA_CLASS_TEXT["QUALIFIED_FOR_HUMAN_REVIEW"]
+    return (f"Aktienhypothese forward bestätigt; Optionsprüfung {oc} – kein Options-Alpha-Nachweis nach Kosten, "
+            "keine Freigabe")
+
+
+def _error_sections(h: dict, rep: dict) -> list:
+    """Die 10 Abschnitte der Ergebnis-Mail für eine abschließend geprüfte Hypothese der fehlergetriebenen Forschung –
+    ausschließlich aus dem eingefrorenen Bericht (error_research.json), keine eigene Rechnung."""
+    sp, look, plan = h.get("spec") or {}, _error_final_look(h), h.get("forward_plan") or {}
+    st, ref, oc = look.get("stats") or {}, look.get("data_ref") or {}, h.get("option_check") or {}
+    structs = sorted((oc.get("structures") or {}).items())
+
+    def per(fn) -> list:
+        return [fn(n, s) for n, s in structs] or [(f"Optionsprüfung {oc.get('status')}: "
+                                                   f"{oc.get('reason') or 'keine Struktur ausgewertet'}")]
+    return [
+        [(f"Hypothese {h.get('id')} (Spezifikation {str(h.get('spec_hash'))[:12]}, registriert "
+          f"{h.get('registered_at')}): Signal {sp.get('signal')} erklärt das Residuum der Ensemble-Prognose über "
+          f"{sp.get('horizon')} Handelstage; Quelle {', '.join(sp.get('sources') or []) or 'n/a'}. Herkunft: "
+          "fehlergetriebene Forschung (gegen das Archiv geprüfte Forward-Prognosefehler).")],
+        [(f"Mechanismus laut Registrierung (Hypothese, nicht geprüft): {str(sp.get('mechanism')).rstrip('.')}. "
+          "Belegt ist nur, was die prospektiven Zahlen unten zeigen.")],
+        [(f"{oc.get('selection') or 'nur bei bestätigter Aktienhypothese ausgewertet'}; LONG_CALL und "
+          f"BULL_CALL_SPREAD getrennt, identische Regel; Labels: {oc.get('labels') or 'n/a'}. Evidenz "
+          f"{oc.get('evidence') or 'n/a'}, Status {oc.get('status')}"
+          + (f", eingefroren {oc['frozen_at']}" if oc.get("frozen_at") else ", noch nicht eingefroren") + ".")],
+        [(f"Forward ab {(h.get('forward') or {}).get('start_after')}: {st.get('n_periods')} unabhängige Haltefenster "
+          f"(alternierend, gepurgt), {ref.get('n_dates')} Stichtage, {ref.get('n_rows')} Zeilen von "
+          f"{ref.get('first')} bis {ref.get('last')}, Datenstand {str(ref.get('inputs_sha256'))[:12]}; jede "
+          "Prognose gegen das ml_predictions-Archiv geprüft.")],
+        per(lambda n, s: (f"{n}: mittlere Netto-Rendite je gewählter Position {_pct(s.get('mean_net_selected'))} "
+                          f"(Kauf Ask, Verkauf Bid, Kommission), {s.get('selected_verified')} von {s.get('selected')} "
+                          f"gewählten Kontrakten geprüft, Haltedauer Median {s.get('holding_days_median')} Tage. "
+                          "Profit Factor wird in dieser Prüfung nicht erhoben.")),
+        per(lambda n, s: (f"{n}: gegen 'alle geeigneten Signale handeln' "
+                          f"{_pct((s.get('vs_trade_all') or {}).get('mean_diff'))}, KI "
+                          f"{(s.get('vs_trade_all') or {}).get('ci95')}; gegen Nicht-Handeln "
+                          f"{_pct((s.get('vs_never_trade') or {}).get('mean_diff'))}, KI "
+                          f"{(s.get('vs_never_trade') or {}).get('ci95')}.")),
+        [(f"Prüfung {look.get('look')} am {look.get('decided_at')}: Forward-IC {st.get('mean')}, t={st.get('t')}, "
+          f"einseitig p={st.get('p_one_sided')} gegen Teil-Alpha {look.get('alpha')} (Slot {plan.get('slot')}, "
+          f"Slot-Alpha {plan.get('slot_alpha')}; {(rep.get('forward_budget') or {}).get('method')}). Eingefroren, "
+          "wird nie neu entschieden."),
+         (f"Unsicherheiten: kurze Forward-Historie, Regimewechsel; ein Aktien-IC ist kein Optionsgewinn nach Kosten. "
+          f"Datenänderungen nach der Prüfung (Audits): {len(h.get('audits') or [])}.")],
+        [("Maximaler Verlust je Position: strukturell auf die gezahlte Netto-Prämie plus Kommission begrenzt "
+          "(LONG_CALL: Prämie, BULL_CALL_SPREAD: Netto-Debit).")]
+        + per(lambda n, s: (f"{n}: Coverage gewählt {_pct(s.get('coverage_selected'))}, alle "
+                            f"{_pct(s.get('coverage_all'))}, Lücken {s.get('coverage_gaps')}, ausstehende Labels "
+                            f"{s.get('pending_labels')}, unabhängige Fenster {s.get('independent_periods')}.")),
+        [_error_class(h)],
+    ]
+
+
+def _tasks_error_research(rep: dict) -> list[dict]:
+    """Fehlergetriebene Forschung (research_director --errors): abschließende Forward-Entscheidungen als
+    Ergebnis-Mail (bestätigt P1, falsifiziert P3) und eine kritische Integritätsverletzung (Journal, Prognosen,
+    Registrierung) als P0. Laufende Prüfungen (PENDING_FORWARD), INCONCLUSIVE und Datenlücken erzeugen nie eine
+    Mail. Der Fingerabdruck enthält den Optionsstatus: wird die Optionsprüfung später eingefroren, folgt genau eine
+    weitere Mail."""
+    out = []
+    if not isinstance(rep, dict) or not rep:
+        return out
+    common = {"sources": ["outputs/research/error_research.json", "outputs/research/error_forward_journal.jsonl",
+                          "outputs/research/error_hypotheses.jsonl"], "costs": NO_COST,
+              "data_as_of": str(rep.get("as_of") or rep.get("generated") or "")[:10] or None}
+    for h in rep.get("hypotheses") or []:
+        status = (h or {}).get("status")
+        if not isinstance(h, dict) or not h.get("id") or status not in ("FORWARD_CONFIRMED", *ERROR_FALSIFIED):
+            continue
+        confirmed, oc, look = status == "FORWARD_CONFIRMED", h.get("option_check") or {}, _error_final_look(h)
+        qualified = confirmed and oc.get("status") == "OPTION_EDGE"
+        out.append(_task(
+            "error_hypothesis_confirmed" if confirmed else "error_hypothesis_result", h["id"],
+            "P1" if confirmed else "P3", "research_result",
+            (f"{h['id']}: forward bestätigt, Optionsprüfung {oc.get('status')}" if confirmed
+             else f"{h['id']}: nicht bestätigt ({status})"),
+            scope={"hypothesis_id": h["id"], "status": status},
+            report_sections=_error_sections(h, rep), technical_change_needed=qualified,
+            finding=(f"Hypothese {h['id']} ({(h.get('spec') or {}).get('signal')}, "
+                     f"{(h.get('spec') or {}).get('horizon')} T) endet an Prüfung {look.get('look')} mit {status}; "
+                     f"Optionsprüfung {oc.get('status')}."),
+            problem="Ergebnis eines vorab registrierten, prospektiven Tests.", severity_reason="Forschungsergebnis.",
+            evidence=[f"Prüfung: {json.dumps({k: look.get(k) for k in ('look', 'outcome', 'alpha', 'decided_at', 'stats')}, default=str)}",
+                      f"Bericht vom {rep.get('as_of')} (Protokoll {rep.get('protocol')})"],
+            files=["modules/research_director.py (error_research, option_check)",
+                   "config/error_research_protocol.yaml"],
+            cause="Prospektiver Nachweis gemäß Protokoll (kein Defekt).",
+            verify=(f"Eingefrorene Prüfung im error_forward_journal.jsonl (Hash-Kette) und den Datenstand "
+                    f"{str((look.get('data_ref') or {}).get('inputs_sha256'))[:12]} nachrechnen."),
+            change=("Nach deiner Entscheidung: die Strategie ausschließlich als Paper-/Shadow-Kandidat neben der "
+                    "Produktion führen (eigene Konfiguration, keine Orders, keine Änderung an Champion, Gates, "
+                    "Positionsgrößen oder Risikolimits) und weiter prospektiv messen."),
+            benefit="kontrollierte, menschlich entschiedene Weiterführung", risks="Paper ≠ Ausführung",
+            effort="mittel", acceptance=["keine Order-, Champion- oder Risikolimit-Änderung im Diff",
+                                         "neue Paper-Ergebnisse weiterhin quote-verifiziert"],
+            tests=["Regressionstest: Shadow-Kandidat erzeugt nie eine Order"],
+            material={"status": status, "option_status": oc.get("status")},
+            **common))
+    health = rep.get("health") or {}
+    problems = [str(p) for p in health.get("problems") or []]
+    if health.get("status") == "CRITICAL":
+        out.append(_task(
+            "error_research_integrity", "error_research", "P0", "critical",
+            "WARNUNG: Integrität der fehlergetriebenen Forschung verletzt",
+            scope={"component": "error_research"},
+            finding=f"research_director --errors meldet KRITISCH (Bericht vom {rep.get('as_of')}): {'; '.join(problems)}",
+            problem=("Ein verletztes Journal, abweichende Prognosen oder eine geänderte Registrierung machen jede "
+                     "Forward-Entscheidung unprüfbar; bis zur Klärung wird nichts angehängt oder entschieden."),
+            severity_reason="kritischer Evidenzwiderspruch – sofortige Prüfung.",
+            evidence=problems[:8] or ["health.status = CRITICAL ohne Einzelbefund"],
+            files=["modules/research_director.py (read_journal, verified_forecasts, error_research)",
+                   "outputs/research/error_forward_journal.jsonl", "outputs/research/error_hypotheses.jsonl"],
+            cause="Nachträgliche Änderung an append-only Dateien oder Prognose-/Ledger-Abweichung.",
+            verify="git log/diff der betroffenen Dateien seit dem letzten OK-Lauf; Hash-Kette Zeile für Zeile prüfen.",
+            change="Ursache dokumentieren; Historie nie umschreiben – betroffene Prüfungen als ungültig kennzeichnen.",
+            benefit="verhindert Entscheidungen auf manipulierten oder beschädigten Daten.",
+            risks="keine", effort="klein",
+            acceptance=["research_director --errors meldet wieder OK, ohne Änderung eingefrorener Einträge"],
+            tests=["Regressionstest für die gefundene Ursache"],
+            material={"problems": sorted(p[:120] for p in problems)}, **common))
+    return out
+
+
 def _tasks_infrastructure(history: list[dict], snapshot: dict, wf_status: dict, now: datetime) -> list[dict]:
     """Dauerhaft ausgefallene wichtige Datenquellen und Workflows, die regelmäßig nachgestartet werden müssen."""
     out, sources = [], (snapshot or {}).get("sources") or {}
@@ -1411,6 +1552,9 @@ def input_quality(inputs: dict, now: datetime) -> dict[str, tuple[str, str]]:
     q["alpha_validation"] = _fresh(av.get("generated_at") if isinstance(av, dict) else None, FRESH_DAYS["option"], now,
                                    problems.get("alpha_validation") or (None if isinstance(av, dict) and av
                                                                         else "fehlt"))
+    er = inputs.get("error_research")
+    q["error_research"] = _fresh(er.get("generated") if isinstance(er, dict) else None, FRESH_DAYS["error"], now,
+                                 problems.get("error_research") or (None if isinstance(er, dict) and er else "fehlt"))
     wf = inputs.get("workflow_status")
     days = [d for d in ((wf or {}).get("days") or {}) if _ts(d)] if isinstance(wf, dict) else []
     q["workflow_status"] = _fresh(max(days) if days else None, FRESH_DAYS["workflow"], now,
@@ -1453,12 +1597,13 @@ def improvement_tasks(inputs: dict, now: datetime | None = None) -> tuple[list[d
              + _tasks_infrastructure(inputs.get("source_history") if q["source_snapshot"][0] == "ok" else [],
                                      inputs.get("source_snapshot") if q["source_snapshot"][0] == "ok" else {},
                                      inputs.get("workflow_status") if q["workflow_status"][0] == "ok" else {}, now)
-             + _tasks_alpha_options(inputs.get("alpha_validation") if q["alpha_validation"][0] == "ok" else {}))
+             + _tasks_alpha_options(inputs.get("alpha_validation") if q["alpha_validation"][0] == "ok" else {})
+             + _tasks_error_research(inputs.get("error_research") if q["error_research"][0] == "ok" else {}))
     as_of = max([str(st.get("as_of")) for st in status.values() if st.get("as_of")]
                 + [str((imp or {}).get("generated", ""))[:10]])
     unique = {}
     for t in tasks:
-        unique.setdefault(t["task_id"], {**t, "data_as_of": as_of or now.date().isoformat()})
+        unique.setdefault(t["task_id"], {**t, "data_as_of": t.get("data_as_of") or as_of or now.date().isoformat()})
     return sorted(unique.values(), key=lambda t: (t["priority"], t["task_id"])), issues
 
 
@@ -1590,6 +1735,19 @@ def resolution(task: dict, inputs: dict, now: datetime | None = None) -> tuple[s
             return "UNKNOWN", "Prüfplan nicht im aktuellen Bericht"
         return ("OPEN", plan.get("classification")) if plan.get("classification") == sc.get("classification") else \
             ("RESOLVED", f"Einstufung jetzt {plan.get('classification')}")
+    if kind in (*ERROR_RESULT_KINDS, "error_research_integrity"):
+        if why := missing("error_research"):
+            return "UNKNOWN", why
+        rep = inputs.get("error_research") or {}
+        if kind == "error_research_integrity":
+            hs = (rep.get("health") or {}).get("status")
+            return ("OPEN", "KRITISCH") if hs == "CRITICAL" else \
+                (("RESOLVED", f"Gesundheit {hs}") if hs == "OK" else ("UNKNOWN", f"Gesundheit {hs}"))
+        hyp = next((x for x in rep.get("hypotheses") or [] if (x or {}).get("id") == sc.get("hypothesis_id")), None)
+        if hyp is None:
+            return "UNKNOWN", "Hypothese nicht im aktuellen Bericht"
+        return ("OPEN", hyp.get("status")) if hyp.get("status") == sc.get("status") else \
+            ("RESOLVED", f"Status jetzt {hyp.get('status')}")
     return "UNKNOWN", f"unbekannte Aufgabenart {kind}"
 
 
@@ -1626,6 +1784,7 @@ def load_task_inputs(paths: dict | None = None, now: datetime | None = None) -> 
     snapshot, problems["source_snapshot"] = _load_checked(Path(p["source_snapshot"]))
     wf, problems["workflow_status"] = _load_checked(Path(p["workflow_status"]))
     alpha, problems["alpha_validation"] = _load_checked(Path(p["alpha_validation"]))
+    errors, problems["error_research"] = _load_checked(Path(p["error_research"]))
     ledger = None
     try:
         from modules import research_evidence_discovery as red
@@ -1635,7 +1794,7 @@ def load_task_inputs(paths: dict | None = None, now: datetime | None = None) -> 
     return {"improvement": imp, "status": status, "daily_seq": daily,
             "source_history": read_jsonl(p["source_history"]) if Path(p["source_history"]).exists() else [],
             "source_snapshot": snapshot, "workflow_status": wf, "ledger": ledger, "alpha_validation": alpha,
-            "problems": {k: v for k, v in problems.items() if v}}
+            "error_research": errors, "problems": {k: v for k, v in problems.items() if v}}
 
 
 # ── Vorlagen (deterministisch) ──

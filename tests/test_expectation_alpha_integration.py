@@ -101,7 +101,8 @@ def _run_pipeline(tmp_path, monkeypatch, mode: str) -> dict:
     monkeypatch.setattr(pipeline, "Prescreener", _Pre)
     monkeypatch.setattr(pipeline, "enrich_with_alpha_sources", lambda c: c)
     monkeypatch.setattr(pipeline, "validate_candidate_data", lambda c: c)
-    monkeypatch.setattr(pipeline, "attach_external_context_stage", lambda s: (s, {}))
+    monkeypatch.setattr(pipeline, "build_external_snapshot_stage", lambda: (None, {}))
+    monkeypatch.setattr(pipeline, "attach_external_context_stage", lambda s, *_a: (s, {}))
 
     class _Miro:
         def _get_market_params(self, t):
