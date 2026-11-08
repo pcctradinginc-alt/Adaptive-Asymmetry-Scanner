@@ -178,3 +178,28 @@ def test_workflow_shadow_not_production():
     assert workflow.index("modules.ml_research --mode") < workflow.index("modules.research_feature_discovery")
     source = (root / "pipeline.py").read_text()
     assert "research_feature_discovery" not in source
+
+
+def test_fd3_in_canonical_research_memory_never_claims_success(tmp_path):
+    import json
+    from modules import research_memory as rm
+    report = tmp_path / "fd3.json"
+    report.write_text(json.dumps({
+        "protocol_sha256": "a" * 64,
+        "features": {"fd3_liquidity_x_beta": {"dates_available": 31}},
+        "hypotheses": {
+            "liq_beta_v1": {
+                "feature": "fd3_liquidity_x_beta", "source": "fred_liquidity",
+                "premise": "net liquidity research",
+                "prospective": {"independent_dates": 9,
+                                "mean_paired_top_xs_delta": 0.03,
+                                "mean_paired_rank_ic_delta": 0.07},
+            }
+        }
+    }))
+    entries = rm.collect({"feature_discovery_v3": report})
+    matches = [e for e in entries if e["kind"] == "feature_discovery_v3"]
+    assert len(matches) == 1
+    assert matches[0]["status"] == "PENDING_FORWARD"
+    assert matches[0]["prospective"] is False
+    assert matches[0]["status"] not in rm.SUCCESS
