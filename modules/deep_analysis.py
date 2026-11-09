@@ -204,7 +204,8 @@ class DeepAnalysis:
                 g = getattr(cfg, "gates", None)
                 cost_telemetry.record(model_routing.prefilter_pair(
                     candidate.get("ticker"), candidate.get("prescreen_direction"), analysis,
-                    impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3))))
+                    impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3)),
+                    prompt_version=model_routing.current_version("prefilter_pair")))
             if not analysis:
                 continue
 
@@ -339,7 +340,7 @@ class DeepAnalysis:
     def _routing(self) -> dict:
         """Aktives Modell (A/B-validiert) + Gegenmodell für die Stichprobe dieses Laufs."""
         champion = cfg.models.deep_analysis
-        dec = model_routing.decision("deep_analysis", champion)
+        dec = model_routing.decision("deep_analysis", champion, prompt_version=PROMPT_VERSION)
         self._active_model = dec.get("active", champion)
         s = model_routing.settings("deep_analysis") or {}
         if not s:
@@ -362,7 +363,7 @@ class DeepAnalysis:
             "deep_analysis", ctx["ticker"], ctx["params"]["model"], routing["other"], ref, other,
             impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3)),
             ref_stop_reason=getattr(ref_msg, "stop_reason", None),         # TRUNCATED -> nicht vergleichbar
-            other_stop_reason=getattr(other_msg, "stop_reason", None)))
+            other_stop_reason=getattr(other_msg, "stop_reason", None), prompt_version=PROMPT_VERSION))
 
     def _prepare(self, candidate: dict) -> dict:
         """Baut Prompt, Cache-Schlüssel und Kontext (ohne LLM-Call)."""

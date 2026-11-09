@@ -120,3 +120,29 @@ def test_prescreener_batch_requests_temperature_and_audit():
     assert audit["prompt_version"] == ps.PROMPT_VERSION and audit["temperature"] == 0
     assert ps.PROMPT_VERSION == analysis_cache.prompt_version(
         ps.SYSTEM_PROMPT, ps.USER_TEMPLATE, ps.USER_TEMPLATE_COMPACT, "temperature=0")
+
+
+# ── Regime-Trennung der A/B-Paare (Temperatur/Vorlagen) ─────────────────────
+def test_routing_decisions_count_only_pairs_of_the_current_prompt_regime():
+    from modules import model_routing as mr
+    pol = {"model_routing": {"deep_analysis": {"challenger": "H", "mode": "auto", "min_pairs": 4, "min_days": 2,
+                                               "min_gate_agreement": 0.9, "min_pass_recall": 0.9,
+                                               "min_direction_agreement": 0.9}},
+           "bearish_prefilter": {"mode": "auto", "min_pass_n": 4, "min_days": 2, "max_pass_loss": 0.05}}
+    same = {"impact": 7, "surprise": 6, "direction": "BULLISH"}
+    rows = [{**mr.pair_row("deep_analysis", f"T{i}", "S", "H", same, same, prompt_version=v),
+             "ts": f"2026-11-{10 + i % 2}"} for i, v in enumerate(["old"] * 6 + ["new"] * 2)]
+    assert mr.decision("deep_analysis", "S", rows, pol)["status"] == "VALIDATED"           # ohne Filter: gemischt
+    d = mr.decision("deep_analysis", "S", rows, pol, prompt_version="new")
+    assert d["status"] == "AB_RUNNING" and d["ab"]["pairs"] == 2 and d["pairs_other_regimes"] == 6
+    assert d["active"] == "S"                                                               # Champion bleibt
+    pf = [{**mr.prefilter_pair(f"T{i}", "BULLISH", same, prompt_version="old"), "ts": f"2026-11-{10 + i % 2}"}
+          for i in range(6)]
+    assert mr.prefilter_decision(pf, pol)["active"] is True
+    assert mr.prefilter_decision(pf, pol, prompt_version="new")["active"] is False
+    pp = mr.prescreen_pair([{"ticker": "A", "decision": "[YES]"}], [{"ticker": "A", "decision": "[YES]"}],
+                           False, prompt_version="x")
+    assert pp["prompt_version"] == "x"
+    assert mr.current_version("route_pair") == deep_analysis.PROMPT_VERSION
+    assert mr.current_version("prefilter_pair") == f"{ps.PROMPT_VERSION}+{deep_analysis.PROMPT_VERSION}"
+    assert mr.current_version("unknown_kind") == "unavailable"                             # fail closed

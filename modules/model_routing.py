@@ -30,6 +30,35 @@ from modules import cost_telemetry as ct
 log = logging.getLogger(__name__)
 
 
+# ── Prompt-Regime (Aktionsplan 2026-11-09, Punkt 8) ─────────────────────────
+# Vergleichspaare gelten nur innerhalb EINES Regimes (Vorlagen + Temperatur): mit temperature=0 sinkt das
+# Stichprobenrauschen, Paare aus dem alten Regime (API-Default 1.0) würden die Übereinstimmung verfälschen.
+# Entscheidungen zählen daher nur Paare der aktuellen Version (fail closed: unbekannt -> keine Paare).
+def current_version(kind: str) -> str:
+    try:
+        if kind == "route_pair":
+            from modules.deep_analysis import PROMPT_VERSION as da
+            return da
+        if kind == "prescreen_pair":
+            from modules.prescreener import PROMPT_VERSION as ps
+            return ps
+        if kind == "prefilter_pair":
+            from modules.deep_analysis import PROMPT_VERSION as da
+            from modules.prescreener import PROMPT_VERSION as ps
+            return f"{ps}+{da}"
+    except Exception as e:  # noqa: BLE001 – unbekanntes Regime zählt nichts
+        log.warning(f"model_routing: Prompt-Version für {kind} nicht ermittelbar ({e}) – keine Paare")
+    return "unavailable"
+
+
+def _in_regime(rows: list[dict], prompt_version: str | None) -> tuple[list[dict], int]:
+    """(Zeilen der Version, Zahl ausgeschlossener). prompt_version=None -> ungefiltert (Altaufrufer/Tests)."""
+    if prompt_version is None:
+        return rows, 0
+    keep = [r for r in rows if r.get("prompt_version") == prompt_version]
+    return keep, len(rows) - len(keep)
+
+
 def settings(workflow: str, pol: dict | None = None) -> dict | None:
     s = ((pol or ct.policy()).get("model_routing") or {}).get(workflow)
     if not s or str(s.get("mode", "off")) == "off" or not s.get("challenger"):
@@ -58,7 +87,8 @@ def max_tokens_for(workflow: str, model: str, pol: dict | None = None, default: 
 
 def pair_row(workflow: str, ticker: str | None, reference_model: str, other_model: str,
              ref: dict | None, other: dict | None, impact_min: int = 4, surprise_min: int = 3,
-             ref_stop_reason: str | None = None, other_stop_reason: str | None = None) -> dict:
+             ref_stop_reason: str | None = None, other_stop_reason: str | None = None,
+             prompt_version: str | None = None) -> dict:
     gr, go = gate_pass(ref, impact_min, surprise_min), gate_pass(other, impact_min, surprise_min)
     truncated = "max_tokens" in (ref_stop_reason, other_stop_reason)
 
@@ -75,6 +105,7 @@ def pair_row(workflow: str, ticker: str | None, reference_model: str, other_mode
                                 and isinstance(g(other, "impact"), (int, float)) else None),
             "other_parse_ok": isinstance(other, dict),
             "ref_stop_reason": ref_stop_reason, "other_stop_reason": other_stop_reason,
+            "prompt_version": prompt_version,
             # TRUNCATED = INVALID_FOR_MODEL_COMPARISON: abgeschnittene Antworten sind keine Modellleistung
             "comparison_status": "TRUNCATED" if truncated else "VALID"}
 
@@ -145,20 +176,24 @@ def _meets(m: dict, s: dict, min_pairs: int, min_days: int) -> bool:
             and m.get("parse_ok", 0) >= 0.95)
 
 
-def decision(workflow: str, champion: str, rows: list[dict] | None = None, pol: dict | None = None) -> dict:
-    """Aktives Modell + Begründung. Wirft nie: im Zweifel Champion."""
+def decision(workflow: str, champion: str, rows: list[dict] | None = None, pol: dict | None = None,
+             prompt_version: str | None = None) -> dict:
+    """Aktives Modell + Begründung. Wirft nie: im Zweifel Champion. prompt_version: nur Paare dieses Regimes."""
     try:
         s = settings(workflow, pol)
         if s is None:
             return {"active": champion, "status": "OFF"}
         chal = s["challenger"]
         rows = rows if rows is not None else ct.load_ledger()
-        pairs = valid_pairs(annotate_truncation(
-            [r for r in rows if r.get("kind") == "route_pair" and r.get("workflow") == workflow], rows))
+        regime, excluded = _in_regime(
+            [r for r in rows if r.get("kind") == "route_pair" and r.get("workflow") == workflow], prompt_version)
+        pairs = valid_pairs(annotate_truncation(regime, rows))
         # A/B: Champion als Referenz, Challenger als "other"
         ab = [p for p in pairs if p.get("reference_model") == champion and p.get("other_model") == chal]
         m = metrics(ab)
         out = {"active": champion, "challenger": chal, "ab": m, "mode": s.get("mode")}
+        if prompt_version is not None:
+            out.update(prompt_version=prompt_version, pairs_other_regimes=excluded)
         validated = _meets(m, s, int(s.get("min_pairs", 80)), int(s.get("min_days", 10)))
         if not validated:
             out["status"] = "AB_RUNNING"
@@ -196,14 +231,15 @@ def summary(champion_by_workflow: dict[str, str], rows: list[dict] | None = None
 
 # ── Bearish-Vorfilter (Prescreen-Richtung vor der teuren Deep Analysis) ─────
 def prefilter_pair(ticker: str | None, prescreen_direction: str | None, analysis: dict | None,
-                   impact_min: int = 4, surprise_min: int = 3) -> dict:
+                   impact_min: int = 4, surprise_min: int = 3, prompt_version: str | None = None) -> dict:
     return {"kind": "prefilter_pair", "workflow": "deep_analysis", "ticker": ticker,
             "prescreen_direction": prescreen_direction,
             "da_direction": (analysis or {}).get("direction") if isinstance(analysis, dict) else None,
-            "gate_pass": gate_pass(analysis, impact_min, surprise_min)}
+            "gate_pass": gate_pass(analysis, impact_min, surprise_min), "prompt_version": prompt_version}
 
 
-def prefilter_decision(rows: list[dict] | None = None, pol: dict | None = None) -> dict:
+def prefilter_decision(rows: list[dict] | None = None, pol: dict | None = None,
+                       prompt_version: str | None = None) -> dict:
     """Aktiv nur, wenn die Prescreen-Richtung BEARISH praktisch nie einen Kandidaten trifft, den
     die Deep Analysis bestehen lässt: Verlust = Anteil der Gate-bestandenen Kandidaten mit
     Prescreen-BEARISH <= max_pass_loss (bei >= min_pass_n bestandenen an >= min_days Tagen)."""
@@ -213,7 +249,8 @@ def prefilter_decision(rows: list[dict] | None = None, pol: dict | None = None) 
         if mode == "off":
             return {"active": False, "status": "OFF"}
         rows = rows if rows is not None else ct.load_ledger()
-        pairs = [r for r in rows if r.get("kind") == "prefilter_pair" and r.get("prescreen_direction")]
+        pairs, excluded = _in_regime(
+            [r for r in rows if r.get("kind") == "prefilter_pair" and r.get("prescreen_direction")], prompt_version)
         passed = [p for p in pairs if p.get("gate_pass")]
         bear = [p for p in pairs if p.get("prescreen_direction") == "BEARISH"]
         days = len({str(p.get("ts", ""))[:10] for p in pairs})
@@ -221,6 +258,8 @@ def prefilter_decision(rows: list[dict] | None = None, pol: dict | None = None) 
         out = {"pairs": len(pairs), "days": days, "pass_n": len(passed), "pass_loss": None if loss is None
                else round(loss, 3), "bearish_share": round(len(bear) / len(pairs), 3) if pairs else None,
                "mode": mode, "active": False}
+        if prompt_version is not None:
+            out.update(prompt_version=prompt_version, pairs_other_regimes=excluded)
         ok = (len(passed) >= int(s.get("min_pass_n", 40)) and days >= int(s.get("min_days", 10))
               and loss is not None and loss <= float(s.get("max_pass_loss", 0.05)))
         out["status"] = "VALIDATED" if ok else "AB_RUNNING"
@@ -237,7 +276,7 @@ def apply_bearish_prefilter(candidates: list[dict], allow_bearish: bool, decisio
     UND der Vorfilter validiert ist. Eine kleine Hash-Stichprobe läuft zur Überwachung weiter."""
     if allow_bearish:
         return candidates, []
-    d = decision_ if decision_ is not None else prefilter_decision()
+    d = decision_ if decision_ is not None else prefilter_decision(prompt_version=current_version("prefilter_pair"))
     if not d.get("active"):
         return candidates, []
     s = (ct.policy().get("bearish_prefilter") or {})
@@ -253,15 +292,18 @@ def _decisions(results: list) -> dict:
     return {r.get("ticker"): r.get("decision") for r in results or [] if isinstance(r, dict) and r.get("ticker")}
 
 
-def prescreen_pair(ref_results: list, other_results: list, compact_is_reference: bool) -> dict:
+def prescreen_pair(ref_results: list, other_results: list, compact_is_reference: bool,
+                   prompt_version: str | None = None) -> dict:
     a, b = _decisions(ref_results), _decisions(other_results)
     common = [t for t in a if t in b]
     return {"kind": "prescreen_pair", "workflow": "prescreening", "compact_is_reference": compact_is_reference,
             "n": len(a), "n_common": len(common), "agree": sum(1 for t in common if a[t] == b[t]),
-            "yes_ref": sum(1 for t in a if a[t] == "[YES]"), "yes_other": sum(1 for t in b if b[t] == "[YES]")}
+            "yes_ref": sum(1 for t in a if a[t] == "[YES]"), "yes_other": sum(1 for t in b if b[t] == "[YES]"),
+            "prompt_version": prompt_version}
 
 
-def compact_decision(rows: list[dict] | None = None, pol: dict | None = None) -> dict:
+def compact_decision(rows: list[dict] | None = None, pol: dict | None = None,
+                     prompt_version: str | None = None) -> dict:
     """Aktiv, wenn die YES/NO-Entscheidungen beider Vorlagen auf denselben Batches zu
     >= min_agreement übereinstimmen (>= min_decisions Ticker an >= min_days Tagen) und die
     YES-Zahl nicht systematisch sinkt (Recall >= min_yes_ratio)."""
@@ -270,7 +312,7 @@ def compact_decision(rows: list[dict] | None = None, pol: dict | None = None) ->
     if mode == "off":
         return {"active": False, "status": "OFF"}
     rows = rows if rows is not None else ct.load_ledger()
-    pairs = [r for r in rows if r.get("kind") == "prescreen_pair"]
+    pairs, excluded = _in_regime([r for r in rows if r.get("kind") == "prescreen_pair"], prompt_version)
     n = sum(int(r.get("n_common") or 0) for r in pairs)
     # Paare vereinheitlichen: Referenz = bewährte Vorlage
     yes_legacy = sum(int(r.get("yes_other" if r.get("compact_is_reference") else "yes_ref") or 0) for r in pairs)
@@ -280,6 +322,8 @@ def compact_decision(rows: list[dict] | None = None, pol: dict | None = None) ->
     days = len({str(r.get("ts", ""))[:10] for r in pairs})
     out = {"decisions": n, "days": days, "agreement": round(agree / n, 3) if n else None,
            "yes_legacy": yes_legacy, "yes_compact": yes_compact, "missing": missing, "mode": mode}
+    if prompt_version is not None:
+        out.update(prompt_version=prompt_version, pairs_other_regimes=excluded)
     ok = (n >= int(s.get("min_decisions", 200)) and days >= int(s.get("min_days", 5))
           and out["agreement"] is not None and out["agreement"] >= float(s.get("min_agreement", 0.95))
           and (yes_legacy == 0 or yes_compact / yes_legacy >= float(s.get("min_yes_ratio", 0.9)))
