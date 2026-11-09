@@ -1,5 +1,20 @@
 {
- "at": "2026-11-08T18:04:30+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-11-09T16:42:28+00:00",
+ "changes": [
+  {
+   "source_id": "entsoe_power",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: SourceTimeout('Zeitbudget 420s überschritten')"
+  },
+  {
+   "source_id": "finra_short_interest",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "STALE",
+   "error": "veraltet (Frequenz-Grenze der Registry)"
+  }
+ ],
+ "mail": "sent"
 }
