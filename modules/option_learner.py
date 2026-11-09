@@ -1457,9 +1457,15 @@ def decompose(row: dict, pseudo: dict, horizon: int) -> tuple[dict | None, str]:
     comp = {"delta": d0 * (s1 - s0) / v0, "gamma": (v_move - v_time - d0 * (s1 - s0)) / v0,
             "theta": (v_time - v0) / v0, "vega": (v1 - v_move) / v0, "cost": exec_ret - mid_ret}
     dvol = _iv_shift(legs, s1, t1, vols, v1)
+    debit = _num(rs.get("net_debit_entry"))
+    n_comm = max(1, len(rs.get("legs") or []))
     return ({**{k: round(v, 6) for k, v in comp.items()}, "mid_ret": round(mid_ret, 6),
              "exec_ret": round(exec_ret, 6), "move": round(raw, 6), "sigma0": round(vols[0], 6),
              "dvol": None if dvol is None else round(dvol, 6), "legs": len(legs),
+             # Ausführungsgrößen (Punkt 5): Netto-Mid/-Ask zum Einstieg, Kommission als Rendite, Einstiegs-Spread
+             "v0_mid": round(v0, 6), "v0_ask": round(debit, 6) if debit else None, "n_comm_legs": n_comm,
+             "comm": round(2 * n_comm * COMMISSION_PER_LEG_SIDE / (debit * 100), 8) if debit else None,
+             "entry_spread": round(debit / v0 - 1, 6) if debit else None,
              "check": round(comp["delta"] + comp["gamma"] + comp["theta"] + comp["vega"] - mid_ret, 9)}, "OK")
 
 
@@ -1609,6 +1615,7 @@ def options_native_report(rows: list[dict], cands: list[dict], as_of: date, hori
             by_day[d].append(val)
     prospective = _native_forward(out, data, as_of, horizon)
     return {"policy": NATIVE_POLICY, "decomposed": len(data), "reasons": dict(sorted(reasons.items())),
+            "execution": execution_report(data, horizon),
             "components": comps, "variance_share": shares,
             "predictability_ic": {k: {"dates": len(v), "mean_ic": round(float(np.mean(v)), 4),
                                       "t": round(float(np.mean(v) / (np.std(v, ddof=1) / math.sqrt(len(v)))), 3)
@@ -1619,6 +1626,81 @@ def options_native_report(rows: list[dict], cands: list[dict], as_of: date, hori
             "ev_choice_prospective": prospective, "production_influence": "NONE",
             "note": ("Zerlegung exakt (Summe = Mid-Rendite), Black-Scholes mit konstantem Zins ohne Dividenden; "
                      "Walk-Forward ist auf gesehenen Daten und nie eine Bestätigung.")}
+
+
+# ── Ausführungskosten zuerst (Aktionsplan 2026-11-09, Punkt 5; nur Messung) ─────────────────────────────────────
+# Befund 09.11.: auf 492 geprüften 5-T-Labels Mid-Rendite +5,2 %, ausführbar −9,3 %, Kosten −14,4 % je Trade. Bevor
+# Signale weiter verfeinert werden, wird gemessen, wo die Kosten entstehen und was sie senken würde:
+#  * nach Einstiegs-Spread (Ask/Mid − 1, feste Klassen),
+#  * nach Haltedauer (gleiche Kontrakte mit 5- und 20-T-Label, gepaart),
+#  * SZENARIO Limit-Order: Einstieg Mid + k·halber Spread, Ausstieg Mid − k·halber Spread (k vorab fest 0,5).
+#    Das Szenario ist NICHT durch Fills verifiziert und wird nie als Ergebnis ausgewiesen, nur als Spanne.
+EXEC_LIMIT_FRACTION = 0.5
+SPREAD_BUCKETS = (0.02, 0.05, 0.10)
+
+
+def _spread_bucket(x) -> str:
+    if x is None:
+        return "unbekannt"
+    lo = 0.0
+    for b in SPREAD_BUCKETS:
+        if x < b:
+            return f"{lo:.0%}–{b:.0%}"
+        lo = b
+    return f">={SPREAD_BUCKETS[-1]:.0%}"
+
+
+def limit_scenario(d: dict, k: float = EXEC_LIMIT_FRACTION) -> float | None:
+    """Szenario-Rendite bei Limit-Fills k·halber Spread vom Mid (k = 1 ergibt exakt die ausführbare Rendite)."""
+    v0, ask0, comm = d.get("v0_mid"), d.get("v0_ask"), d.get("comm")
+    if not v0 or not ask0 or comm is None:
+        return None
+    v1 = v0 * (1 + d["mid_ret"])
+    bid1 = (d["exec_ret"] + comm + 1) * ask0
+    entry, exit_ = v0 + k * (ask0 - v0), v1 - k * (v1 - bid1)
+    if entry <= 0:
+        return None
+    return exit_ / entry - 1 - 2 * d.get("n_comm_legs", d.get("legs", 1)) * COMMISSION_PER_LEG_SIDE / (entry * 100)
+
+
+def execution_report(data: list[dict], horizon: int) -> dict:
+    """Kosten und ausführbare Rendite nach Spread-Klasse plus Limit-Szenario (beschreibend, Block-Bootstrap)."""
+    def block(ds, key):
+        by = defaultdict(list)
+        for d in ds:
+            v = d.get(key) if key != "limit" else limit_scenario(d)
+            if v is not None:
+                by[d["date"]].append(v)
+        return _paired(by, horizon) if by else None
+    buckets = defaultdict(list)
+    for d in data:
+        buckets[_spread_bucket(d.get("entry_spread"))].append(d)
+    order = [_spread_bucket(0.0), *[_spread_bucket(b) for b in SPREAD_BUCKETS], "unbekannt"]
+    return {"limit_fraction": EXEC_LIMIT_FRACTION, "n": len(data),
+            "overall": {"cost": block(data, "cost"), "exec_ret": block(data, "exec_ret"),
+                        "limit_scenario": block(data, "limit")},
+            "by_entry_spread": {b: {"n": len(buckets[b]), "cost": block(buckets[b], "cost"),
+                                    "exec_ret": block(buckets[b], "exec_ret"),
+                                    "limit_scenario": block(buckets[b], "limit")}
+                                for b in order if buckets.get(b)},
+            "note": ("Spread-Klassen nach Ask/Mid − 1 zum Einstieg; Limit-Szenario NICHT durch Fills verifiziert "
+                     "(nur Spanne zwischen Mid und Ask/Bid); beschreibend, keine Bestätigung.")}
+
+
+def holding_comparison(short: list[dict], long: list[dict], h_long: int) -> dict:
+    """Gleiche Kontrakte mit kurzem und langem Label (Tag, Signal, Form): ausführbare Rendite und Kosten lang − kurz,
+    gepaart je Signaltag (Block-Bootstrap über die lange Haltedauer)."""
+    idx = {(d["date"], d["signal_id"], d["expression"]): d for d in short}
+    ex, co = defaultdict(list), defaultdict(list)
+    for d in long:
+        s = idx.get((d["date"], d["signal_id"], d["expression"]))
+        if s is not None:
+            ex[d["date"]].append(d["exec_ret"] - s["exec_ret"])
+            co[d["date"]].append(d["cost"] - s["cost"])
+    return {"pairs": sum(len(v) for v in ex.values()),
+            "exec_ret_long_minus_short": _paired(ex, h_long) if ex else None,
+            "cost_long_minus_short": _paired(co, h_long) if co else None,
+            "note": "Gleiche Kontrakte, nur die Haltedauer unterscheidet sich; beschreibend, keine Bestätigung."}
 
 
 def _safe_native(rows, cands, as_of, horizon, out) -> dict:
@@ -2552,6 +2634,14 @@ def evaluate(as_of: date, *, horizon: int = HORIZON, ledger: Path = red.LEDGER, 
               "forward_sequential": forward_sequential(out, journal, cands, horizon, instances, as_of),
               "model": model.describe() if model else None,
               "production_influence": "NONE", "orders_created": 0}
+    if horizon != ACQ_HORIZON and isinstance(status.get("options_native"), dict):
+        try:                                     # Punkt 5: gleiche Kontrakte, kurze gegen lange Haltedauer
+            r5, c5, _ = _load(as_of, ACQ_HORIZON, ledger, quotes)
+            status["options_native"]["holding_vs_5d"] = holding_comparison(
+                native_dataset(r5, c5, as_of, ACQ_HORIZON)[0], native_dataset(rows, cands, as_of, horizon)[0],
+                horizon)
+        except Exception as exc:  # noqa: BLE001 – Bericht darf die Auswertung nie stören
+            log.warning("option_learner: Haltedauer-Vergleich fehlgeschlagen (%s)", exc)
     status["label_pipeline"] = label_pipeline(cands, as_of, horizon, archive_start(quotes))
     status["learning_status"] = learning_status(status["label_pipeline"], wf, status["forward"])
     mine = [i for i in instances if i.get("horizon") == horizon and i.get("experiment_id") == status["experiment_id"]]
