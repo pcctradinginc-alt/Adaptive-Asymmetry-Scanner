@@ -94,6 +94,8 @@ def test_state_versioned_history_and_fail_closed(tmp_path):
               "promotion_state", "updated_at", "code_version"):
         assert k in s1
     assert s1["champion_version"]["version"].startswith("scanner_rules@")
+    assert s1["safe_mode_scope"] == "intelligence_adapter_only"
+    assert s1["safe_mode_effect"] == ss.SAFE_MODE_EFFECT and "Champion-Entscheidungen" in s1["safe_mode_effect"]
     s2 = ss.current(inputs=inp, now=NOW, state_path=sp, history_path=hp)
     assert s2["state_version"] == 1 and len(hp.read_text().splitlines()) == 1     # unverändert: keine neue Version
     world(tmp_path, data_reasons=["kritische Pflichtdaten fehlen"])

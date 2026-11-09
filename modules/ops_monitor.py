@@ -763,15 +763,6 @@ ETA_HORIZON_DAYS = 365                      # weiter wird nicht projiziert ("nic
 ETA_RATE_DAYS = 14                          # Zulauf-Rate aus den letzten N Tagen
 
 
-def _rl_cfg() -> tuple[int, str]:
-    try:
-        import yaml
-        rl = (yaml.safe_load(Path("config.yaml").read_text(encoding="utf-8")) or {}).get("rl", {}) or {}
-        return int(rl.get("arm_threshold", 30)), str(rl.get("arm_since", "2026-06-11"))
-    except Exception:  # noqa: BLE001
-        return 30, "2026-06-11"
-
-
 def _eta(have: int, need: int, per_day: float, today: date) -> str | None:
     """Lineare Projektion: Datum, an dem `need` bei `per_day` Zuwachs erreicht ist (None = nicht absehbar)."""
     if have >= need:
@@ -824,14 +815,6 @@ def learning_eta(hist: dict, P: dict, now: datetime) -> dict:
                          "new_rows_per_day": round(per_day, 2), "eta": eta_ml,
                          "basis": f"Zielpopulation {sorted(stages)}, Horizont {h} T; offene Labels reifen an "
                                   f"label_available_at, Zulauf aus den letzten {ETA_RATE_DAYS} T"}
-
-    # RL-Arming
-    thr, since = _rl_cfg()
-    closed = hist.get("closed_trades") or []
-    rl = [t for t in closed if t.get("outcome") is not None and str(t.get("entry_date", ""))[:10] >= since]
-    last30 = [t for t in rl if (_day(t.get("close_date")) or date.min) >= today - timedelta(days=30)]
-    out["rl_arming"] = {"have": len(rl), "need": thr, "closes_per_day_30d": round(len(last30) / 30, 3),
-                        "eta": _eta(len(rl), thr, len(last30) / 30, today), "since": since}
 
     # Champion-Evidenz (wie forward_performance: nur Bewertung OK)
     champ = [r for r in el.from_champion_trades(hist)

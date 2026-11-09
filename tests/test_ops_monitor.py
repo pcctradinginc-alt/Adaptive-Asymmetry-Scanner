@@ -1684,7 +1684,7 @@ def test_learning_eta_without_inflow_is_not_projected(env, small_spec, monkeypat
     assert ml["eta"] is None and ml["new_rows_per_day"] == 0 and ml["have"] == 1
 
 
-def test_learning_eta_rl_arming_and_champion_evidence(env, cwd, monkeypatch):
+def test_learning_eta_champion_evidence_without_rl(env, cwd, monkeypatch):
     (cwd / "config.yaml").write_text("learning:\n  close_after_days: 10\nrl:\n  arm_threshold: 4\n"
                                      "  arm_since: '2026-06-11'\n", encoding="utf-8")
     monkeypatch.setattr(om, "MIN_N", 4)
@@ -1696,9 +1696,7 @@ def test_learning_eta_rl_arming_and_champion_evidence(env, cwd, monkeypatch):
         closed_trade("R03", "2026-09-05", "2026-10-02", 0.3, method="delta_approx"),               # nicht bewertbar
     ])
     le = env.collect()["learning_eta"]
-    rl = le["rl_arming"]
-    assert (rl["have"], rl["need"], rl["since"]) == (3, 4, "2026-06-11")
-    assert rl["closes_per_day_30d"] == round(2 / 30, 3) and rl["eta"] == "2026-10-29"     # 1 fehlt, 15 Tage
+    assert "rl_arming" not in le                                                        # RL entfernt (2026-11-09)
     ce = le["champion_evidence"]
     assert (ce["have"], ce["have_days"], ce["need"], ce["need_days"]) == (3, 3, 4, 3)
     assert ce["evaluable_per_day_30d"] == round(1 / 30, 3) and ce["eta"] == "2026-11-13"   # 1 fehlt, 30 Tage

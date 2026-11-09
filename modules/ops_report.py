@@ -112,7 +112,7 @@ def history_row(status: dict) -> dict:
     wf = s.get("workflows") if isinstance(s.get("workflows"), dict) else {}
     row["workflows.failed_runs"] = len(wf["failed"]) if wf.get("status") == "OK" else None
     row["data.nasdaq100_mismatch"] = _g(s, "data_health", "nasdaq100_source_check", "mismatch")
-    for k in ("meta_label", "rl_arming", "champion_evidence"):
+    for k in ("meta_label", "champion_evidence"):
         row[f"learning.{k}.have"] = _g(s, "learning_eta", k, "have")
     row["run.report_is_today"] = _g(s, "run", "report_is_today")
     qc = s.get("quote_coverage")
@@ -665,7 +665,6 @@ def _document(status: dict, row: dict, d: dict, al: list[dict]) -> tuple[str, li
         rows = []
         for key, label, rate, days in (
                 ("meta_label", "Meta-Label-Training", "new_rows_per_day", ("have_dates", "need_dates")),
-                ("rl_arming", "RL-Freischaltung (closed trades)", "closes_per_day_30d", None),
                 ("champion_evidence", "Champion-Evidenz", "evaluable_per_day_30d", ("have_days", "need_days"))):
             v = le.get(key) or {}
             stand = _f(v.get("have")) + (f" · Tage {_f(v.get(days[0]))}" if days else "")
