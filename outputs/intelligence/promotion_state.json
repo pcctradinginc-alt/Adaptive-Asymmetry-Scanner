@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-06T23:46:41+00:00",
+ "generated": "2026-11-09T23:50:26+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "d2939eab2df5",
+ "code_version": "e77a5d525b63",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -252,7 +252,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Financial Services",
+    "dominant_sector_fired": "Technology",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -2398,8 +2398,7 @@
  "safe_mode": {
   "active": true,
   "reasons": [
-   "DATA: 2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']",
-   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.19"
+   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.33"
   ]
  },
  "multiple_testing": {
@@ -2486,5 +2485,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "580bcdff28da207191192a19f6a619154eb04d9b1f9e5bcf9d9951b4e302b348"
+ "state_hash": "6837af70095874486c2783b0c7ac4c70ff280c9e8e1a183f3fd4a7afb2d6da00"
 }
