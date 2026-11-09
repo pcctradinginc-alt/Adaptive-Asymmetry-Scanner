@@ -20,7 +20,7 @@ import os
 import time
 import anthropic
 
-from modules import cost_telemetry, model_routing
+from modules import analysis_cache, cost_telemetry, model_routing
 from modules.config import cfg
 
 log = logging.getLogger(__name__)
@@ -30,6 +30,8 @@ BACKOFF_BASE  = 2
 BATCH_SIZE    = 20
 MAX_HEADLINES = 3
 
+# Temperatur 0 = reproduzierbare YES/NO-Entscheidungen; API-Default wäre 1.0.
+TEMPERATURE = 0
 SYSTEM_PROMPT = """Du bist ein Options-Analyst mit Fokus auf Informations-Asymmetrie.
 
 KERNFRAGE fuer jeden Ticker: "Enthaelt diese Nachricht eine Information, die der breite
@@ -94,6 +96,11 @@ Antworte NUR mit diesem JSON:
 
 Richtwert: ~15% YES bei vorhandenen Signalen. Vergib [YES] NUR bei echtem Signal.
 An nachrichtenarmen Tagen ist 0% YES korrekt — erzwinge keine Quote."""
+
+
+# Prompt-Version fürs Audit (Vorlagen + Temperatur); das Prescreening hat keinen Cache.
+PROMPT_VERSION = analysis_cache.prompt_version(
+    SYSTEM_PROMPT, USER_TEMPLATE, USER_TEMPLATE_COMPACT, f"temperature={TEMPERATURE}")
 
 
 def _compact_mode() -> str:
@@ -175,6 +182,7 @@ class Prescreener:
                         "reason":    r.get("reason", ""),
                         "category":  r.get("category", ""),
                         "direction": r.get("direction") if r.get("direction") in ("BULLISH", "BEARISH") else None,
+                        "llm_audit": r.get("llm_audit"),
                     }
                     yes_count += 1
                 else:
@@ -193,6 +201,7 @@ class Prescreener:
                 c["prescreen_reason"]   = prescreen_data.get("reason", "")
                 c["prescreen_category"] = prescreen_data.get("category", "")
                 c["prescreen_direction"] = prescreen_data.get("direction")
+                c["prescreen_llm_audit"] = prescreen_data.get("llm_audit")
                 shortlist.append(c)
                 log.info(f"  [YES] {c['ticker']}: {prescreen_data.get('reason','')} [{prescreen_data.get('category','')}]")
 
@@ -228,8 +237,18 @@ class Prescreener:
             ticker_news = ticker_news_str,
             min_yes     = min_yes,
         )
-        return {"model": cfg.models.prescreener, "max_tokens": 4096, "system": SYSTEM_PROMPT,
+        return {"model": cfg.models.prescreener, "max_tokens": 4096, "temperature": TEMPERATURE,
+                "system": SYSTEM_PROMPT,
                 "messages": [{"role": "user", "content": prompt}]}
+
+    @staticmethod
+    def _with_audit(results: list, params: dict, response) -> list:
+        """Hängt je Ergebnis das Audit-Feld llm_audit (Hashes der Batch-Anfrage/-Antwort) an."""
+        audit = analysis_cache.llm_audit(params, response, version=PROMPT_VERSION)
+        for r in results:
+            if isinstance(r, dict):
+                r["llm_audit"] = dict(audit)
+        return results
 
     @staticmethod
     def _parse(response) -> list:
@@ -269,7 +288,7 @@ class Prescreener:
                 continue
             i = int(cid.split("-", 1)[1])
             try:
-                out[i] = self._parse(msg)
+                out[i] = self._with_audit(self._parse(msg), requests[cid], msg)
             except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
                 log.warning(f"    Batch-Antwort {i + 1} unlesbar ({e}) → synchroner Retry")
         for cid in checks:
@@ -290,7 +309,7 @@ class Prescreener:
             try:
                 response = cost_telemetry.tracked_create(
                     self.client, workflow="prescreening", **params)
-                results = self._parse(response)
+                results = self._with_audit(self._parse(response), params, response)
                 log.info(
                     f"    Batch OK (Versuch {attempt}): "
                     f"{len(results)} Ticker bewertet"

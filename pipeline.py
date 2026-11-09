@@ -1281,6 +1281,7 @@ def main() -> None:
                 a.get("ticker"), stage="deep_analysis",
                 direction=_da.get("direction"), impact=_da.get("impact"),
                 surprise=_da.get("surprise"), ttm=_da.get("time_to_materialization"),
+                llm_audit=_da.get("llm_audit"),
                 # P2 Signal-Identität (candidate_ledger.py): Katalysator-Text
                 # als event_key → event_id = sha1(ticker + event_key)[:12].
                 # Dedup beim Ledger-Flush wird dadurch (date, ticker, event_id)
