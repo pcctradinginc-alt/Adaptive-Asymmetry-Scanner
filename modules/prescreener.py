@@ -114,8 +114,7 @@ def _active_template() -> str:
     """Kompakte Vorlage nur nach bestandenem gepaarten Vergleich (Kostenoptimierung); einmal je Prozess."""
     try:
         if "active" not in _TEMPLATE_DECISION:
-            _TEMPLATE_DECISION["active"] = bool(
-                model_routing.compact_decision(prompt_version=PROMPT_VERSION).get("active"))
+            _TEMPLATE_DECISION["active"] = bool(model_routing.compact_decision().get("active"))
         return USER_TEMPLATE_COMPACT if _TEMPLATE_DECISION["active"] else USER_TEMPLATE
     except Exception as e:  # noqa: BLE001 – im Zweifel bewährte Vorlage
         log.debug(f"prescreen compact: Entscheidung nicht verfügbar: {e}")
@@ -300,7 +299,7 @@ class Prescreener:
                 except (json.JSONDecodeError, KeyError, AttributeError, IndexError):
                     alt = []
                 cost_telemetry.record(model_routing.prescreen_pair(out[i], alt, compact_is_reference=(
-                    active is USER_TEMPLATE_COMPACT), prompt_version=PROMPT_VERSION))
+                    active is USER_TEMPLATE_COMPACT)))
         return out
 
     def _call_with_retry(self, batch: list[dict]) -> list | None:
