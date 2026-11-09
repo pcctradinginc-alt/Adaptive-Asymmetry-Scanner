@@ -1,5 +1,5 @@
 {
- "n_spreads": 94,
+ "n_spreads": 95,
  "buckets": {
   "<5%": {
    "n_candidates": 2,
@@ -13,11 +13,11 @@
   },
   "5-10%": {
    "n_candidates": 11,
-   "n_with_outcome": 10,
-   "n_reliable": 0,
+   "n_with_outcome": 11,
+   "n_reliable": 1,
    "status": "NEED_MORE_DATA",
-   "mean_outcome_exploratory": -0.0086,
-   "stop_frequency": 0.2,
+   "mean_outcome_exploratory": -0.0509,
+   "stop_frequency": 0.182,
    "false_stop_frequency": 0.0,
    "median_dte": 86
   },
@@ -33,41 +33,166 @@
   },
   "15-20%": {
    "n_candidates": 6,
-   "n_with_outcome": 5,
-   "n_reliable": 0,
+   "n_with_outcome": 6,
+   "n_reliable": 1,
    "status": "NEED_MORE_DATA",
-   "mean_outcome_exploratory": 0.1229,
-   "stop_frequency": 0.2,
+   "mean_outcome_exploratory": -0.0457,
+   "stop_frequency": 0.167,
    "false_stop_frequency": 0.0,
    "median_dte": 58.5
   },
   "20-30%": {
-   "n_candidates": 15,
+   "n_candidates": 16,
    "n_with_outcome": 10,
    "n_reliable": 2,
    "status": "NEED_MORE_DATA",
    "mean_outcome_exploratory": -0.2147,
    "stop_frequency": 0.3,
    "false_stop_frequency": 0.333,
-   "median_dte": 160
+   "median_dte": 160.0
   },
   ">=30%": {
    "n_candidates": 50,
-   "n_with_outcome": 21,
-   "n_reliable": 5,
+   "n_with_outcome": 23,
+   "n_reliable": 7,
    "status": "NEED_MORE_DATA",
-   "mean_outcome_exploratory": -0.4687,
-   "stop_frequency": 0.19,
+   "mean_outcome_exploratory": -0.505,
+   "stop_frequency": 0.174,
    "false_stop_frequency": 0.5,
    "median_dte": 167.0
   }
  },
  "label": "EXPLORATORY (überwiegend NON_RELIABLE Outcomes)",
  "note": "Keine automatische Schwellenoptimierung; n < min_n je Bucket -> NEED_MORE_DATA.",
+ "census_structure_comparison": {
+  "label": "SHADOW_ONLY – keine Produktionsentscheidung, keine Schwellensuche",
+  "ivrv_spread_min": 1.0,
+  "iv_rank_vs_contract_iv": {
+   "n": 873,
+   "rank_corr": 0.0487,
+   "note": "Rangkorrelation 'IV-Rank' (Produktionsformel) gegen die IV des Kontrakts"
+  },
+  "entry_cost_vs_mid_median": {
+   "spread": 0.2209,
+   "long": 0.0407
+  },
+  "rows_with_ivrv": 0,
+  "rows_with_spread_counterfactual": 0,
+  "horizons": {
+   "5d": {
+    "executable": {
+     "production_minus_long_only": {
+      "n": 688,
+      "days": 21,
+      "mean_daily_diff": -0.052,
+      "ci95": [
+       -0.0794,
+       -0.0321
+      ],
+      "t": -4.15,
+      "days_negative": 19,
+      "verdict": "A_WORSE"
+     },
+     "ivrv_minus_long_only": {
+      "n": 0,
+      "days": 0,
+      "mean_daily_diff": null,
+      "verdict": "NEED_MORE_DATA"
+     },
+     "ivrv_minus_production": {
+      "n": 0,
+      "days": 0,
+      "mean_daily_diff": null,
+      "verdict": "NEED_MORE_DATA"
+     }
+    },
+    "mid": {
+     "production_minus_long_only": {
+      "n": 688,
+      "days": 21,
+      "mean_daily_diff": -0.0027,
+      "ci95": [
+       -0.011,
+       0.0047
+      ],
+      "t": -0.64,
+      "days_negative": 12,
+      "verdict": "NO_SIGNIFICANT_DIFFERENCE"
+     },
+     "ivrv_minus_long_only": {
+      "n": 0,
+      "days": 0,
+      "mean_daily_diff": null,
+      "verdict": "NEED_MORE_DATA"
+     },
+     "ivrv_minus_production": {
+      "n": 0,
+      "days": 0,
+      "mean_daily_diff": null,
+      "verdict": "NEED_MORE_DATA"
+     }
+    }
+   },
+   "20d": {
+    "executable": {
+     "production_minus_long_only": {
+      "n": 381,
+      "days": 11,
+      "mean_daily_diff": -0.0398,
+      "ci95": [
+       -0.0541,
+       -0.0258
+      ],
+      "t": -5.14,
+      "days_negative": 11,
+      "verdict": "A_WORSE"
+     },
+     "ivrv_minus_long_only": {
+      "n": 0,
+      "days": 0,
+      "mean_daily_diff": null,
+      "verdict": "NEED_MORE_DATA"
+     },
+     "ivrv_minus_production": {
+      "n": 0,
+      "days": 0,
+      "mean_daily_diff": null,
+      "verdict": "NEED_MORE_DATA"
+     }
+    },
+    "mid": {
+     "production_minus_long_only": {
+      "n": 381,
+      "days": 11,
+      "mean_daily_diff": -0.0017,
+      "ci95": [
+       -0.0079,
+       0.005
+      ],
+      "t": -0.47,
+      "days_negative": 7,
+      "verdict": "NO_SIGNIFICANT_DIFFERENCE"
+     },
+     "ivrv_minus_long_only": {
+      "n": 0,
+      "days": 0,
+      "mean_daily_diff": null,
+      "verdict": "NEED_MORE_DATA"
+     },
+     "ivrv_minus_production": {
+      "n": 0,
+      "days": 0,
+      "mean_daily_diff": null,
+      "verdict": "NEED_MORE_DATA"
+     }
+    }
+   }
+  }
+ },
  "sources": {
-  "closed": 117,
-  "active": 3,
-  "shadow_view": 399,
+  "closed": 118,
+  "active": 2,
+  "shadow_view": 372,
   "archive": true
  }
 }

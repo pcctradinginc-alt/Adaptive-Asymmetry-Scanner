@@ -1,7 +1,7 @@
 {
-  "calibration_coverage": 0.6582,
+  "calibration_coverage": 0.6691,
   "champion": null,
-  "date": "2026-11-02",
+  "date": "2026-11-09",
   "hypotheses": {
     "ALT-SEC-001": "rejected",
     "ALT-SEC-002": "rejected",
@@ -13,9 +13,12 @@
     "ALT-XBRL-002": "rejected",
     "ALT-XBRL-003": "rejected",
     "ALT-XBRL-004": "rejected",
+    "AUTO-9F3C98A8BD0B": "blocked_similar_to_rejected",
+    "AUTO-F34E5C6BBF7D": "rejected",
     "FAC-01660B09": "blocked_similar_to_rejected",
     "FAC-195425A4": "rejected",
     "FAC-1A196936": "rejected",
+    "FAC-261A6848": "rejected",
     "FAC-3A0A8178": "blocked_similar_to_rejected",
     "FAC-44EA5A4F": "rejected",
     "FAC-5F1C6869": "rejected",
@@ -65,12 +68,12 @@
   },
   "meta_verdict": "NEED_MORE_DATA",
   "meta_weights": {
-    "enet_xs20_v1": 0.0,
-    "hgb_asym20_v1": 0.1128,
+    "enet_xs20_v1": 0.0755,
+    "hgb_asym20_v1": 0.1972,
     "hgb_xs20_momentum_v1": 0.0,
-    "hgb_xs20_risk_regime_v1": 0.307,
-    "hgb_xs20_v1": 0.3959,
-    "momentum_12_1": 0.1842
+    "hgb_xs20_risk_regime_v1": 0.2821,
+    "hgb_xs20_v1": 0.2561,
+    "momentum_12_1": 0.1891
   },
   "model_verdicts": {
     "enet_xs20_v1": "rejected_so_far",
@@ -79,5 +82,5 @@
     "hgb_xs20_risk_regime_v1": "rejected_so_far",
     "hgb_xs20_v1": "rejected_so_far"
   },
-  "safe_mode": false
+  "safe_mode": true
 }

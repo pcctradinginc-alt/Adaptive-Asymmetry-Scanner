@@ -1,64 +1,6 @@
 {
   "version": "wf-sched-v1",
   "days": {
-    "2026-10-18": {
-      "external_data": {
-        "file": "external_data.yml",
-        "expected": "2026-10-18T06:17+00:00",
-        "actual_last_run": "2026-10-18T11:09:32Z",
-        "conclusion": "success",
-        "delay_hours": 4.9,
-        "runs_today": 1,
-        "recovered": false,
-        "recoveries_today": 0,
-        "artifact_ok": true,
-        "action": null,
-        "stale_upstream": [],
-        "state": "OK"
-      },
-      "source_health": {
-        "file": "source_health.yml",
-        "expected": "2026-10-18T12:41+00:00",
-        "actual_last_run": "2026-10-18T16:06:26Z",
-        "conclusion": "success",
-        "delay_hours": 3.4,
-        "runs_today": 1,
-        "recovered": false,
-        "recoveries_today": 0,
-        "artifact_ok": true,
-        "action": null,
-        "stale_upstream": [],
-        "state": "OK"
-      },
-      "scanner": {
-        "file": "scanner.yml",
-        "expected": "2026-10-18T13:30+00:00",
-        "actual_last_run": "2026-10-18T16:07:48Z",
-        "conclusion": "success",
-        "delay_hours": 2.6,
-        "runs_today": 1,
-        "recovered": false,
-        "recoveries_today": 0,
-        "artifact_ok": false,
-        "action": null,
-        "stale_upstream": [],
-        "state": "NOT_SCHEDULED"
-      },
-      "feedback": {
-        "file": "feedback.yml",
-        "expected": "2026-10-18T15:30+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
-        "recovered": false,
-        "recoveries_today": 0,
-        "artifact_ok": null,
-        "action": null,
-        "stale_upstream": [],
-        "state": "NOT_SCHEDULED"
-      }
-    },
     "2026-10-19": {
       "external_data": {
         "file": "external_data.yml",
@@ -1400,33 +1342,31 @@
         "file": "source_health.yml",
         "expected": "2026-11-08T12:41+00:00",
         "deadline": "2026-11-08T15:41+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-11-08T18:03:03Z",
+        "conclusion": "success",
+        "delay_hours": 4.0,
+        "runs_today": 2,
         "recovered": true,
         "recoveries_today": 1,
-        "artifact_ok": false,
-        "action": "DISPATCH",
+        "artifact_ok": true,
+        "action": null,
         "stale_upstream": [],
-        "reason": "Frist 2026-11-08T15:41+00:00 \u00fcberschritten, Tag nicht versorgt",
-        "state": "RECOVERY_TRIGGERED"
+        "reason": null,
+        "state": "OK"
       },
       "scanner": {
         "file": "scanner.yml",
         "expected": "2026-11-08T13:30+00:00",
         "deadline": "2026-11-08T17:30+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-11-08T18:04:44Z",
+        "conclusion": "success",
+        "delay_hours": 4.6,
+        "runs_today": 1,
         "recovered": false,
         "recoveries_today": 0,
         "artifact_ok": false,
         "action": null,
-        "stale_upstream": [
-          "source_health"
-        ],
+        "stale_upstream": [],
         "reason": null,
         "state": "NOT_SCHEDULED"
       },
@@ -1445,6 +1385,74 @@
         "stale_upstream": [],
         "reason": null,
         "state": "NOT_SCHEDULED"
+      }
+    },
+    "2026-11-09": {
+      "external_data": {
+        "file": "external_data.yml",
+        "expected": "2026-11-09T06:17+00:00",
+        "deadline": "2026-11-09T16:17+00:00",
+        "actual_last_run": "2026-11-09T16:25:14Z",
+        "conclusion": "success",
+        "delay_hours": 10.1,
+        "runs_today": 1,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": true,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "OK"
+      },
+      "source_health": {
+        "file": "source_health.yml",
+        "expected": "2026-11-09T12:41+00:00",
+        "deadline": "2026-11-09T15:41+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": true,
+        "recoveries_today": 1,
+        "artifact_ok": false,
+        "action": "DISPATCH",
+        "stale_upstream": [],
+        "reason": "Frist 2026-11-09T15:41+00:00 \u00fcberschritten, Tag nicht versorgt",
+        "state": "RECOVERY_TRIGGERED"
+      },
+      "scanner": {
+        "file": "scanner.yml",
+        "expected": "2026-11-09T13:30+00:00",
+        "deadline": "2026-11-09T17:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [
+          "source_health"
+        ],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "feedback": {
+        "file": "feedback.yml",
+        "expected": "2026-11-09T15:30+00:00",
+        "deadline": "2026-11-09T23:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": null,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "PENDING"
       }
     }
   },
@@ -1501,6 +1509,9 @@
       "source_health": 1
     },
     "2026-11-08": {
+      "source_health": 1
+    },
+    "2026-11-09": {
       "source_health": 1
     }
   }

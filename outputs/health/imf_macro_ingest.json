@@ -1,83 +1,34 @@
 {
-  "run_id": "20261105T084246Z-86046320",
-  "now": "2026-11-05T08:42:46+00:00",
+  "run_id": "20261108T212332Z-7956de22",
+  "now": "2026-11-08T21:23:32+00:00",
   "sources": {
     "imf_fsi": {
       "status": "PASS",
-      "counts": {
-        "new": 0,
-        "duplicate": 337,
-        "revision": 0
-      },
-      "pit_errors": 0,
-      "archive_error": "",
-      "dq_issues": []
+      "skipped": "min_refetch_days"
     },
     "imf_weo": {
       "status": "PASS",
-      "counts": {
-        "new": 510,
-        "duplicate": 201,
-        "revision": 249
-      },
-      "pit_errors": 0,
-      "archive_error": "",
-      "dq_issues": []
+      "skipped": "min_refetch_days"
     },
     "imf_mfs": {
       "status": "PASS",
-      "counts": {
-        "new": 0,
-        "duplicate": 281,
-        "revision": 39
-      },
-      "pit_errors": 0,
-      "archive_error": "",
-      "dq_issues": []
+      "skipped": "min_refetch_days"
     },
     "imf_gdd": {
       "status": "PASS",
-      "counts": {
-        "new": 0,
-        "duplicate": 189,
-        "revision": 0
-      },
-      "pit_errors": 0,
-      "archive_error": "",
-      "dq_issues": []
+      "skipped": "min_refetch_days"
     },
     "imf_fiscal_monitor": {
       "status": "PASS",
-      "counts": {
-        "new": 198,
-        "duplicate": 91,
-        "revision": 89
-      },
-      "pit_errors": 0,
-      "archive_error": "",
-      "dq_issues": []
+      "skipped": "min_refetch_days"
     },
     "imf_climate": {
       "status": "PASS",
-      "counts": {
-        "new": 0,
-        "duplicate": 109,
-        "revision": 0
-      },
-      "pit_errors": 0,
-      "archive_error": "",
-      "dq_issues": []
+      "skipped": "min_refetch_days"
     },
     "imf_fas": {
       "status": "PASS",
-      "counts": {
-        "new": 0,
-        "duplicate": 79,
-        "revision": 0
-      },
-      "pit_errors": 0,
-      "archive_error": "",
-      "dq_issues": []
+      "skipped": "min_refetch_days"
     },
     "imf_aipi": {
       "status": "DEFERRED",
@@ -97,11 +48,5 @@
     "bytes_after": 0,
     "failures": 0
   },
-  "alerts": [
-    {
-      "source_id": "imf_portwatch_ports",
-      "type": "SCHEMA_CHANGED",
-      "message": "Layer-Metadaten ohne 'fields': https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/0"
-    }
-  ]
+  "alerts": []
 }

@@ -52,6 +52,9 @@ SOURCES = {
     "alpha_option_economics": Path("outputs/research/autonomous_alpha/option_economics.json"),
     "alpha_option_validation": Path("outputs/research/autonomous_alpha/option_validation.json"),
     "error_research": Path("outputs/research/error_research.json"),
+    "feature_discovery_v3": Path("outputs/research/feature_discovery_v3/status.json"),
+    "feature_director_v1": Path("outputs/research/feature_discovery_v3/director_plan.json"),
+    "feature_option_economics": Path("outputs/research/feature_discovery_v3/options_economics.json"),
     "alpha_data_quality": Path("outputs/research/autonomous_alpha/data_quality.json"),
 }
 # Fehlergetriebene Forschung (research_director.error_research) -> Memory-Status. PENDING_FORWARD ist weder Erfolg
@@ -250,6 +253,61 @@ def collect(sources: dict | None = None) -> list[dict]:
     out += task_entries(src.get("improvement_tasks"))
     out += alpha_option_entries(src.get("alpha_option_economics"), src.get("alpha_option_validation"))
     out += error_entries(src.get("error_research"))
+    # FD3: stock-only PIT shadow evidence, never treated as a confirmed alpha
+    # or permitted to promote a production decision. This lets the existing
+    # research memory remember data gaps and forward diagnostics without
+    # inventing success from exploratory results.
+    fd3 = src.get("feature_discovery_v3") or {}
+    for hid, trial in (fd3.get("hypotheses") or {}).items():
+        fut = trial.get("prospective") or {}
+        feature = trial.get("feature") or ""
+        coverage = (fd3.get("features") or {}).get(feature) or {}
+        status = ("DATA_GAP" if coverage.get("dates_available", 0) < 26
+                  else "PENDING_FORWARD")
+        out.append(_entry("feature_discovery_v3", hid, status,
+                          {"signal": feature, "domain": "pit_external_stock",
+                           "family": trial.get("source"), "title": trial.get("premise")},
+                          source=trial.get("source"),
+                          evidence={"protocol_sha256": fd3.get("protocol_sha256"),
+                                    "independent_forward_dates": fut.get("independent_dates"),
+                                    "paired_stock_top_xs_delta": fut.get("mean_paired_top_xs_delta"),
+                                    "stock_rank_ic_delta": fut.get("mean_paired_rank_ic_delta"),
+                                    "data_dates": coverage.get("dates_available")},
+                          reasons=["stock-only shadow diagnostics; option-economic alpha not established"],
+                          data_kind="stock_forward_diagnostic_unconfirmed"))
+
+    # Phase 3: selected next investigation tasks are NOT alpha hypotheses.
+    # They are recorded so similar untested work is not presented as
+    # previously falsified / confirmed by the canonical Research Memory.
+    for proposal in (src.get("feature_director_v1") or {}).get("selected") or []:
+        action = proposal.get("action")
+        status = "DATA_GAP" if action == "COLLECT_PIT" else "PENDING_FORWARD"
+        out.append(_entry("feature_director_v1", proposal.get("decision_key"), status,
+                          {"signal": proposal.get("feature"), "domain": "pit_external_stock",
+                           "family": proposal.get("source"), "title": action},
+                          source=proposal.get("source"),
+                          evidence={"n_forward_windows": proposal.get("forward_independent_windows"),
+                                    "coverage": proposal.get("coverage"),
+                                    "priority_proxy": proposal.get("priority")},
+                          reasons=[proposal.get("reason"), "Requires independent owner-reviewed preregistration"],
+                          data_kind="research_planning_only"))
+    # Phase 4: quote-verified, paired economics remain an observational
+    # shadow diagnostic. No outcome can bypass the global alpha ledger.
+    for hid, row in ((src.get("feature_option_economics") or {}).get("hypotheses") or {}).items():
+        for structure, econ in (row.get("structures") or {}).items():
+            n = int(econ.get("independent_quote_verified_windows") or 0)
+            out.append(_entry("feature_option_economics", f"{hid}:{structure}",
+                              "DATA_GAP" if n < 8 else "PENDING_FORWARD",
+                              {"signal": f"{hid}:{structure}", "family": row.get("source"),
+                               "domain": "options_quote_verified_shadow"},
+                              source="alpha_option_link",
+                              evidence={"n_independent": n,
+                                        "paired_net_roi_delta": econ.get("mean_net_roi_delta"),
+                                        "adverse_net_roi_delta": econ.get("mean_adverse_net_roi_delta"),
+                                        "bootstrap_ci": econ.get("bootstrap_95pct_ci"),
+                                        "source_status": econ.get("status")},
+                              reasons=["Research-only options diagnostics; no global confirmatory slot"],
+                              data_kind="quote_verified_paper_options_unconfirmed"))
     # P1 research feedback uses existing Research Memory; quality gaps are not
     # hypotheses, training labels, or successful trials.
     for g in (src.get("alpha_data_quality") or {}).get("data_gaps") or []:

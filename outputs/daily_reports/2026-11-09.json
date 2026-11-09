@@ -1,0 +1,492 @@
+{
+  "date": "2026-11-09",
+  "stats": {
+    "vix": 20.950000762939453,
+    "universe": 518,
+    "candidates": 174,
+    "prescreened": 3,
+    "sector_ok": 145,
+    "pre_mc": 3,
+    "roi_precheck": 3,
+    "analyzed": 3,
+    "mismatch_ok": 1,
+    "quick_mc": 1,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "rl_scored": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle durch Intraday-Delta-Filter verworfen (>7% Bewegung).",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 0.0,
+      "month_usd": 0.2435,
+      "warnings": [],
+      "projected_month_usd": 2.75,
+      "monthly_api_budget_usd": 10.0,
+      "soft_pressure": false,
+      "deferred_tiers": []
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.952,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 108,
+      "active": true,
+      "reasons": [
+        "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.33"
+      ],
+      "drift_level": "MILD",
+      "known": true
+    },
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "b9906f5d80aa3a91",
+      "as_of": "2026-11-09T16:50:25+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      },
+      "ledger_noted": 174
+    },
+    "economics_first": {
+      "mode": "active",
+      "input": 145,
+      "probed": 8,
+      "quoted_pass": 5,
+      "unknown_selected": 1,
+      "haiku": 6,
+      "audit_haiku": 2,
+      "deferred": 139
+    },
+    "economics_first_candidates": 6,
+    "economics_first_sonnet_input": 3,
+    "economics_first_sonnet_deferred": 0,
+    "direction_conflicts": 1,
+    "after_isf": 2,
+    "expectation_alpha": {
+      "mode": "shadow",
+      "enabled": true,
+      "production_influence": "NONE",
+      "candidate_count": 3,
+      "date": "2026-11-09",
+      "context_id": "a0a3d80789800f26",
+      "enriched_count": 3,
+      "recorded": 3,
+      "status_counts": {
+        "TRADE": 0,
+        "WAIT": 0,
+        "ABSTAIN": 3,
+        "ERROR": 0
+      },
+      "shadow_trade_count": 0,
+      "wait_count": 0,
+      "abstain_count": 3,
+      "error_count": 0,
+      "missing_counts": {
+        "credit": "UNAVAILABLE",
+        "equity_earnings": "UNAVAILABLE"
+      },
+      "stale_components": [],
+      "gap_z": {
+        "inflation": 0.1389,
+        "policy_rates": -0.4793,
+        "growth": 1.6303,
+        "oil": -0.3513,
+        "credit": null,
+        "equity_earnings": null
+      },
+      "confirmation_ratio": {
+        "n": 3,
+        "min": 0.3333,
+        "median": 0.5714,
+        "max": 0.6667
+      },
+      "effective_vs_raw_confirmation": {
+        "raw": 13,
+        "effective": 12.5,
+        "ratio": 0.9615
+      },
+      "claims": {
+        "extraction_status_counts": {
+          "OK": 3
+        },
+        "n_claims": 7,
+        "n_verified": 0,
+        "n_unverified": 7,
+        "n_contradicted": 0,
+        "verified_claim_fraction": {
+          "n": 3,
+          "min": 0.0,
+          "median": 0.0,
+          "max": 0.0
+        }
+      },
+      "insufficient_history_count": {
+        "gaps": 0,
+        "roc_fields": 3,
+        "regime": 0,
+        "signals": 0,
+        "total": 3
+      },
+      "family_diversity": {
+        "n": 3,
+        "min": 7.0,
+        "median": 8.0,
+        "max": 8.0
+      },
+      "regime_uncertainty": 0.553,
+      "groups": {
+        "A": 0,
+        "B": 0,
+        "C": 3,
+        "D": 0,
+        "E": 0,
+        "X": 0
+      },
+      "errors": [],
+      "run_errors": [],
+      "runtime_seconds": 33.36
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 29,
+      "tickers": [
+        "VRT",
+        "LITE",
+        "AXON",
+        "ALAB",
+        "SNDK",
+        "CAT",
+        "BE",
+        "GLW",
+        "ETN",
+        "COIN"
+      ]
+    },
+    "economics_first_quote_probe_budget": {
+      "count": 137,
+      "tickers": [
+        "TTWO",
+        "PANW",
+        "V",
+        "ICE",
+        "FIS",
+        "XOM",
+        "KKR",
+        "NWS",
+        "MAR",
+        "CRWD"
+      ]
+    },
+    "economics_first_earnings_gate": {
+      "count": 2,
+      "tickers": [
+        "NVDA",
+        "FERG"
+      ]
+    },
+    "prescreen_no": {
+      "count": 3,
+      "tickers": [
+        "AMZN",
+        "SPCX",
+        "CTAS"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "AMD"
+      ]
+    },
+    "mismatch_below_min": {
+      "count": 1,
+      "tickers": [
+        "HUM"
+      ]
+    },
+    "intraday_too_late": {
+      "count": 1,
+      "tickers": [
+        "COHR"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "D\u00fcrre-Streak: 16 Tage ohne Trade in Folge (dominanter Killer: roi_ok, 8x). Durchsatz: \u00d8 21.0 LLM-Analysen/Tag im Streak (letzte 5: 2.0) vs. \u00d8 33.1 in den 30 Tagen davor; bei deren Quote (1.11% Trades je Analyse) w\u00e4ren 3.7 Trades zu erwarten, P(0 Trades) = 2%. Durchsatz seit 2026-10-28 unter 25% der Basis (seitdem erwartet 0.2 Trades): bei so wenigen Analysen ist der Killer-Befund dieser Tage kein Beleg f\u00fcr ein zu scharfes Gate.",
+      "PPO-Policy kollabiert: 100% BOOST \u00fcber 8 geschlossene Trades (in-sample) -> keine unterscheidende Policy; Veto nicht scharfschalten."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 16,
+        "streak_capped": false,
+        "killer_counts": {
+          "intraday_ok": 1,
+          "roi_ok": 8,
+          "mismatch_ok": 6,
+          "quick_mc": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-11-09",
+            "trades": 0,
+            "killer": "intraday_ok"
+          },
+          {
+            "date": "2026-11-06",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-05",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-04",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-03",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-02",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-10-30",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-10-29",
+            "trades": 0,
+            "killer": "quick_mc"
+          },
+          {
+            "date": "2026-10-28",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-10-27",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ],
+        "throughput": {
+          "baseline_days": 30,
+          "baseline_from": "2026-09-02",
+          "baseline_to": "2026-10-16",
+          "baseline_analyzed_per_day": 33.1,
+          "baseline_trades_per_analysis": 0.01108,
+          "streak_analyzed": 336,
+          "streak_analyzed_per_day": 21.0,
+          "recent_analyzed_per_day": 2.0,
+          "expected_trades": 3.72,
+          "p_zero_trades": 0.0242,
+          "throughput_collapsed_since": "2026-10-28",
+          "expected_trades_since_collapse": 0.19
+        }
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "final_mc_survivor": {
+            "total": 247,
+            "evaluated": 0,
+            "ready_in_14d": 144,
+            "next_eval_date": "2026-11-07"
+          },
+          "roi_gate": {
+            "total": 119,
+            "evaluated": 0,
+            "ready_in_14d": 94,
+            "next_eval_date": "2026-11-07"
+          },
+          "score_48": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-12"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-16"
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-20"
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_47": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-12-03"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 2,
+          "avg_delta": -0.5492
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": false,
+        "feature_corr": {},
+        "n_reliable": 8,
+        "n_non_reliable": 110,
+        "min_reliable_for_weight_update": 5,
+        "feature_corr_exploratory": {
+          "impact": -0.008,
+          "mismatch": -0.043,
+          "eps_drift": -0.046
+        },
+        "weight_update_status": "ELIGIBLE"
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          },
+          "suez_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          },
+          "panama_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          },
+          "malacca_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 763
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      },
+      "rl_policy": {
+        "n": 8,
+        "counts": {
+          "SKIP": 0,
+          "NORMAL": 0,
+          "BOOST": 8
+        },
+        "max_share": 1.0
+      }
+    }
+  }
+}
