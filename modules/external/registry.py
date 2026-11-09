@@ -134,6 +134,53 @@ def gate_source(source_cfg: dict) -> tuple[bool, str]:
     return True, "ok"
 
 
+# ── Registrierte Nutzer (Aktionsplan 2026-11-09, Punkt 8) ────────────────────
+
+CONSUMERS_PATH = Path("config/external_consumers.yaml")
+
+
+def load_consumers(path: str | Path = CONSUMERS_PATH) -> dict[str, dict]:
+    """source_id -> {consumers: [...], pit_archive: str|None}. Fehlt die Datei -> {} (dann ist keine Quelle
+    registriert; die Prüfung unten meldet jede aktive Quelle)."""
+    try:
+        raw = yaml.safe_load(Path(path).read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        return {}
+    return {str(k): dict(v or {}) for k, v in (raw.get("sources") or {}).items()}
+
+
+def consumer_problems(sources: dict[str, dict], consumers: dict[str, dict],
+                      root: str | Path = ".") -> list[str]:
+    """Befunde zur Regel "Aufnahme nur mit registriertem Nutzer". Geprüft wird jede Quelle, die der Orchestrator
+    abrufen würde (gate ok) oder mit Schlüssel abrufen würde (AUTH_MISSING):
+      * kein Eintrag bzw. weder consumers noch pit_archive -> Befund;
+      * jeder Nutzer muss als Datei existieren und die source_id oder ihre Familie nennen (Beleg, nicht Behauptung);
+      * pit_archive nur bei Quellen ohne nachholbare Historie (supports_history: false)."""
+    root = Path(root)
+    out = []
+    for sid, cfg in sorted(sources.items()):
+        fetchable, reason = gate_source(cfg)
+        if not fetchable and reason != "AUTH_MISSING":
+            continue
+        entry = consumers.get(sid) or {}
+        users, pit = list(entry.get("consumers") or []), entry.get("pit_archive")
+        if not users and not pit:
+            out.append(f"{sid}: aktiv ohne registrierten Nutzer (config/external_consumers.yaml)")
+            continue
+        if pit and cfg.get("supports_history"):
+            out.append(f"{sid}: pit_archive nur ohne nachholbare Historie (supports_history: true)")
+        for u in users:
+            p = root / str(u)
+            try:
+                text = p.read_text(encoding="utf-8")
+            except OSError:
+                out.append(f"{sid}: Nutzer {u} existiert nicht")
+                continue
+            if sid not in text and str(cfg.get("family") or "\0") not in text:
+                out.append(f"{sid}: Nutzer {u} nennt weder die Quelle noch ihre Familie")
+    return out
+
+
 # ── SourceHealth ─────────────────────────────────────────────────────────────
 
 @dataclass

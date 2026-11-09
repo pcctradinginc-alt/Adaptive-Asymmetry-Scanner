@@ -234,6 +234,7 @@ sources:
   supports_vintages: false
   supports_release_time: false
   enabled: true
+  status_override: DEFERRED   # Aktionsplan 2026-11-09 P8: kein registrierter Nutzer (config/external_consumers.yaml); Historie nachholbar, Archiv bleibt
   criticality: low
   license_status: OK
   role: RESEARCH_SHADOW
@@ -264,6 +265,7 @@ sources:
   supports_vintages: false
   supports_release_time: false
   enabled: true
+  status_override: DEFERRED   # Aktionsplan 2026-11-09 P8: kein registrierter Nutzer (config/external_consumers.yaml); Historie nachholbar, Archiv bleibt
   criticality: low
   license_status: OK
   role: RESEARCH_SHADOW
@@ -295,6 +297,7 @@ sources:
   supports_vintages: false
   supports_release_time: true
   enabled: true
+  status_override: DEFERRED   # Aktionsplan 2026-11-09 P8: kein registrierter Nutzer (config/external_consumers.yaml); Historie nachholbar, Archiv bleibt
   criticality: low
   license_status: OK
   role: RESEARCH_SHADOW

@@ -1,0 +1,64 @@
+# config/external_consumers.yaml – Wer nutzt welche externe Quelle? (Aktionsplan 2026-11-09, Punkt 8)
+#
+# Regel: Eine externe Quelle wird nur abgerufen/archiviert, wenn hier ein registrierter Nutzer steht:
+#   * consumers: Modul (modules/…py) oder vorregistriertes Protokoll (config/…yaml), das die Quelle tatsächlich
+#     liest. Die Datei muss existieren und die source_id oder ihre Familie nennen (geprüft in
+#     tests/test_external_consumers.py – nicht nur behauptet).
+#   * pit_archive: nur für Quellen OHNE nachholbare Historie (supports_history: false). Begründung Pflicht:
+#     ohne laufendes Archiv wäre die Point-in-Time-Historie unwiederbringlich verloren.
+# Quellen ohne Eintrag stehen in config/external_sources/*.yaml auf status_override: DEFERRED (kein Abruf,
+# archivierte Daten bleiben unverändert). Wiederaufnahme = Hypothese registrieren + Eintrag hier, per PR.
+# Neue Quellen ohne Eintrag lassen den Test rot werden (keine Datenaufnahme ohne Hypothese).
+version: external-consumers-v1
+registered_on: "2026-11-09"
+sources:
+  # ── Real-Economy-Kontext (Hypothesen H1–H12, config/external_hypotheses.yaml) ──
+  bts_freight_tsi: {consumers: [modules/external/context.py, modules/macro_context.py, modules/world_model.py]}
+  bts_open_data_tsi: {consumers: [modules/external/context.py]}
+  destatis_truck_toll: {consumers: [modules/external/context.py]}
+  estat_jp_truck: {consumers: [modules/external/context.py]}
+  eurostat_road_freight: {consumers: [modules/external/context.py]}
+  eurostat_road_freight_quarterly: {consumers: [modules/external/context.py]}
+  eurostat_industrial_production: {consumers: [modules/external/context.py]}
+  eurostat_sentiment: {consumers: [modules/external/context.py]}
+  entsoe_power: {consumers: [modules/external/regime.py, modules/external/context.py]}
+  imf_portwatch_ports: {consumers: [modules/external/context.py]}
+  imf_portwatch_chokepoints: {consumers: [modules/external/context.py]}
+  imf_portwatch_disruptions: {consumers: [modules/external/context.py]}
+  nws_forecast: {consumers: [modules/external/context.py]}
+  nws_alerts: {consumers: [modules/external/context.py]}
+  ncei_normals: {consumers: [modules/external/context.py]}
+  nhc_storms: {consumers: [modules/external/context.py]}
+  # ── Makro/Regime ──
+  fred_us_macro: {consumers: [modules/world_model.py, modules/factor_monitor.py, modules/external/context.py]}
+  fred_regime_macro: {consumers: [modules/external/regime.py, modules/commodity_intelligence.py,
+                                  modules/research_feature_store.py, modules/expectation_alpha/expectation_gap.py]}
+  fred_world_macro: {consumers: [modules/world_model.py]}
+  fred_market_expectations: {consumers: [modules/expectation_alpha/expectation_gap.py]}
+  fred_liquidity: {consumers: [modules/research_feature_store.py]}
+  fomc_calendar: {consumers: [modules/research_feature_store.py]}
+  bls_release_calendar: {consumers: [modules/research_feature_store.py]}
+  bea_release_calendar: {consumers: [modules/research_feature_store.py]}
+  # ── Rohstoffe ──
+  eia_petroleum_weekly: {consumers: [modules/commodity_intelligence.py]}
+  eia_natural_gas: {consumers: [modules/commodity_intelligence.py]}
+  fred_commodities: {consumers: [modules/commodity_intelligence.py]}
+  cftc_cot: {consumers: [modules/commodity_intelligence.py]}
+  # ── IMF-Makro (Familienleser) ──
+  imf_fsi: {consumers: [modules/imf_macro_research.py]}
+  imf_weo: {consumers: [modules/imf_macro_research.py]}
+  imf_mfs: {consumers: [modules/imf_macro_research.py]}
+  imf_gdd: {consumers: [modules/imf_macro_research.py]}
+  imf_fiscal_monitor: {consumers: [modules/imf_macro_research.py]}
+  imf_climate: {consumers: [modules/imf_macro_research.py]}
+  imf_fas: {consumers: [modules/imf_macro_research.py]}
+  # ── Fehlerforschung (vorregistriertes Protokoll) ──
+  wikimedia_pageviews: {consumers: [config/error_research_protocol.yaml]}
+  finra_short_volume: {consumers: [config/error_research_protocol.yaml]}
+  finra_short_interest: {consumers: [config/error_research_protocol.yaml]}
+  # ── Universum ──
+  nasdaq100_members:
+    consumers: [modules/ops_monitor.py]
+    pit_archive: >
+      Offizielle Mitgliederliste ist nur als Tagesstand abrufbar (supports_history: false); ohne laufendes
+      Archiv fehlt die PIT-Mitgliederhistorie gegen Survivorship-Bias dauerhaft.

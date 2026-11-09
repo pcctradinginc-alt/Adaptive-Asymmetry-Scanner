@@ -330,6 +330,9 @@ class DataIngestion:
                     for k, v in ticker_stats.items():
                         stats[k] = stats.get(k, 0) + v
                     if result:
+                        # News-Zeitfenster hier anhängen, nicht in _evaluate_ticker: dessen Code ist Teil der
+                        # eingefrorenen UNIVERSE_V1-Definition (universe_v2.v1_unchanged).
+                        result.setdefault("news_ts", self.news_ts.get(result.get("ticker")))
                         candidates.append(result)
                 except Exception as e:
                     log.debug(f"Future-Fehler: {e}")
@@ -439,7 +442,6 @@ class DataIngestion:
                 "ticker":        ticker,
                 "info":          info,
                 "news":          news,
-                "news_ts":       self.news_ts.get(ticker),
                 "market_cap":    market_cap,
                 "avg_volume":    avg_vol,
                 "dollar_volume": dollar_volume,

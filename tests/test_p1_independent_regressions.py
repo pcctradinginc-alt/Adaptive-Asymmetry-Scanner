@@ -859,6 +859,9 @@ def test_source_health_dataclass_parser_version_roundtrip_and_legacy_dict():
 def test_noaa_storm_events_legacy_health_is_refetched_on_first_run_after_the_fix(tmp_path):
     """Produktion: Health ohne parser_version, letzter Erfolg vor 5 Tagen (< min_refetch_days=30), Manifest 'alt'."""
     cfg = dict(SourceRegistry().sources["noaa_storm_events"])
+    # Seit 2026-11-09 DEFERRED (kein registrierter Nutzer, tests/test_external_consumers.py); geprüft wird die
+    # Refetch-Mechanik der Quelle, wie sie bei einer Reaktivierung liefe.
+    assert cfg.pop("status_override") == "DEFERRED"
     assert cfg["min_refetch_days"] == 30 and wx.NoaaStormEventsConnector.parser_version == "storm-events-2"
     now = datetime(2026, 10, 16, 12, 0, tzinfo=UTC)
     reg.save_health(tmp_path, {"noaa_storm_events": {"source_id": "noaa_storm_events", "status": "WARN",
@@ -1153,6 +1156,7 @@ def test_13f_failed_set_leaves_no_marker_and_is_retried(tmp_path, monkeypatch):
 # FINDING (medium) der unabhängigen Prüfung – behoben 2026-10-16; bleibt als Regressionstest.
 def test_13f_steady_state_without_new_dataset_is_not_a_warning(tmp_path, monkeypatch):
     cfg = dict(SourceRegistry().sources["sec_13f_holdings"])
+    assert cfg.pop("status_override") == "DEFERRED"     # seit 2026-11-09 ohne Nutzer; Mechanik bei Reaktivierung
     monkeypatch.setattr(ce, "entity_index", lambda: IDX)
     html = _links("2026q3_form13f.zip")
     outs = []
