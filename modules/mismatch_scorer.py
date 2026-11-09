@@ -15,13 +15,27 @@ Fixes:
   v8.2 FIX-B: EPS-Drift wurde unter falschem Key gelesen.
         a.get("eps_drift", {}).get("drift", 0.0) → Feld existiert nie.
         Korrekter Pfad: a["data_validation"]["eps_cross_check"]["deviation_pct"]
+
+  2026-11-09 (SHADOW, Aktionsplan Punkt 4): Der Produktions-Mismatch nutzt |48h-Move| relativ zum Scan-Tag –
+        richtungsblind (eine bullische These nach −8 % gilt als "eingepreist") und nicht an der Nachricht
+        verankert. Zusätzlich protokolliert (für JEDE analysierte These, auch die gefilterten, ohne Gate-Wirkung):
+          mismatch_dir_48h  = impact − 5·max(0, s·move_48h)/σ          (s = +1 BULLISH, −1 BEARISH)
+          mismatch_dir_news = impact − 5·max(0, s·move_seit_news)/σ    (Basis: letzter Schluss VOR der
+                              ersten verwendeten Schlagzeile, NY-Börsenschluss 16:00; Ende wie Produktion)
+        Gleiche Skalierung wie die Produktion, damit nur Richtung und Anker getestet werden (Challenger
+        mismatch_directional_news in challengers.yaml).
 """
 
 import logging
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
 import numpy as np
 import yfinance as yf
 
 from modules.config import cfg
+
+_NY = ZoneInfo("America/New_York")
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +76,7 @@ class MismatchScorer:
 
     def __init__(self):
         self.data_missing: list[str] = []
+        self.shadow: dict[str, dict] = {}     # Ticker -> gerichtete/news-verankerte Varianten (ohne Gate-Wirkung)
 
     def run(self, analyses: list[dict]) -> list[dict]:
         scored = []
@@ -69,7 +84,60 @@ class MismatchScorer:
             result = self._score(a)
             if result:
                 scored.append(result)
+        self._note_shadow()
         return scored
+
+    def _note_shadow(self) -> None:
+        """Schattenwerte für ALLE analysierten Thesen in den Kandidaten-Ledger (auch Mismatch ≤ 0), damit der
+        Challenger beide Definitionen auf derselben Population vergleichen kann. Nie lauf-brechend."""
+        try:
+            from modules import candidate_ledger
+            for ticker, sh in self.shadow.items():
+                candidate_ledger.note(ticker, **sh)
+        except Exception as e:  # noqa: BLE001 – reine Observability
+            log.warning(f"Mismatch-Schattenwerte nicht notiert (ignoriert): {e}")
+
+    def _shadow_variants(self, a: dict, impact: float, move_signed: float, sigma: float, mismatch: float) -> dict:
+        direction = str((a.get("deep_analysis") or {}).get("direction") or "BULLISH").upper()
+        s = -1.0 if direction == "BEARISH" else 1.0
+        out = {"mismatch_raw": round(mismatch, 3),
+               "mismatch_dir_48h": round(impact - 5.0 * max(0.0, s * move_signed) / sigma, 3)}
+        first = (a.get("news_ts") or {}).get("first")
+        if first:
+            since = self._compute_move_since(a["ticker"], first)
+            if since is not None:
+                move, base_day, days = since
+                out.update({"move_since_news": round(move, 4), "news_anchor_close": base_day,
+                            "news_anchor_sessions": days,
+                            "mismatch_dir_news": round(impact - 5.0 * max(0.0, s * move) / sigma, 3)})
+        return out
+
+    def _compute_move_since(self, ticker: str, first_iso: str):
+        """(Rendite vom letzten Schluss VOR der Nachricht bis zum letzten abgeschlossenen Schluss, Basis-Tag,
+        Anzahl Sitzungen) oder None. Eine Nachricht nach 16:00 New York zählt zum Folgetag."""
+        try:
+            ts = datetime.fromisoformat(str(first_iso).replace("Z", "+00:00"))
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=timezone.utc)
+            local = ts.astimezone(_NY)
+            hist = yf.Ticker(ticker).history(period="15d")
+            close = hist["Close"]
+            if hasattr(close, "squeeze"):
+                close = close.squeeze()
+            if len(close) < 3:
+                return None
+            days = [d.date() if hasattr(d, "date") else d for d in close.index]
+            end = len(close) - 2                                   # wie Produktion: letzter abgeschlossener Tag
+            cutoff = local.date() if local.hour >= 16 else None
+            base = max((i for i, d in enumerate(days) if (d <= cutoff if cutoff else d < local.date())),
+                       default=None)
+            if base is None or base > end or not float(close.iloc[base]) > 0:
+                return None
+            move = float(close.iloc[end]) / float(close.iloc[base]) - 1.0
+            return move, str(days[base]), end - base
+        except Exception as e:  # noqa: BLE001 – Schattenwert, nie lauf-brechend
+            log.warning(f"  [{ticker}] Bewegung seit Nachricht nicht berechenbar: {e}")
+            return None
 
     def _score(self, a: dict) -> dict | None:
         ticker = a["ticker"]
@@ -99,6 +167,7 @@ class MismatchScorer:
 
         z_score  = r_2d / sigma
         mismatch = impact - (z_score * 5)
+        self.shadow[ticker] = self._shadow_variants(a, impact, move_signed, sigma, mismatch)
 
         # FIX H-03: Negative Mismatch explizit filtern.
         # Negatives Mismatch = Markt hat MEHR reagiert als die News rechtfertigen

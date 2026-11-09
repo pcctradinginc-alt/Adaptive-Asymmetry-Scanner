@@ -31,7 +31,7 @@ Reihenfolge v8.3:
   2.  Prescreening (Haiku)
   2b. Alpha Sources + Data Validation
   2c. Sector-Momentum-Check                                    ← NEU
-  3.  ROI Pre-Check (Fail Fast)
+  3.  (ROI Pre-Check entfernt 2026-11-09 – prüfte nicht gehandelte 21–45-DTE-Kontrakte)
   3b. Pre-MC Gate (1k Pfade, sigma-only)
   4.  Deep Analysis (Sonnet + Red Team) — jetzt auf weniger Kandidaten
   5.  Mismatch-Score
@@ -209,6 +209,8 @@ def note_base_features(c: dict) -> None:
             c.get("ticker"),
             sector=info.get("sector"), industry=info.get("industry"),
             rel_volume=c.get("rel_volume"), news_count=len(c.get("news") or []),
+            # Zeitfenster der verwendeten Schlagzeilen (Anker für die news-verankerte Reaktion, Punkt 4)
+            news_first_ts=(c.get("news_ts") or {}).get("first"), news_ts_source=(c.get("news_ts") or {}).get("source"),
             # Tagesrendite zum Scan-Zeitpunkt (PIT): naive Preis-Baseline für den
             # gepaarten LLM-Mehrwert-Test (factor_monitor.llm_value_add).
             scan_day_ret=_scan_day_ret(info),
@@ -763,7 +765,7 @@ def main() -> None:
 
     stats = {
         "vix": None, "universe": 0, "candidates": 0, "prescreened": 0,
-        "sector_ok": 0, "pre_mc": 0, "roi_precheck": 0, "analyzed": 0,
+        "sector_ok": 0, "pre_mc": 0, "analyzed": 0,
         "mismatch_ok": 0, "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
         "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
     }
@@ -1150,51 +1152,17 @@ def main() -> None:
     log.info(f"Stufe 2b-ext External Context: {time.monotonic() - _t_ext:.0f}s")
     stats["external_context"] = {**_ext_summary, "ledger_noted": _ext_noted}
 
-    # ── STUFE 3: ROI Pre-Check (Fail Fast) ───────────────────────────────────
-    log.info("Stufe 3: ROI Pre-Check (Fail Fast)")
-    roi_viable = []
-    for c in shortlist:
-        ticker = c["ticker"]
-        try:
-            _, current, _ = MirofishSimulation()._get_market_params(ticker)
-            if current <= 0:
-                roi_viable.append(c)
-                continue
-            iv_rank  = designer._get_iv_rank(ticker)
-            if iv_rank is None:
-                # Precheck kann ohne IV-Rank nicht urteilen -> nicht verwerfen;
-                # Stufe 10 überspringt den Kandidaten dann explizit.
-                roi_viable.append(c)
-                continue
-            strategy = designer._select_strategy(ticker, "BULLISH", iv_rank)
-            option   = designer._find_option_for_dte(ticker, strategy, current, 21, 45)
-            if option:
-                sim_fake = {"current_price": current, "target_price": current * 1.08, "iv_rank": iv_rank}
-                roi      = designer._compute_roi(
-                    option, sim_fake, iv_rank,
-                    {"label": "Short-Term", "dte_min": 21, "dte_max": 45, "min_roi": 0.15}
-                )
-                if roi["roi_net"] < -0.30:
-                    log.info(f"  [{ticker}] ROI-PRECHECK: {roi['roi_net']:.1%} → hoffnungslos")
-                    continue
-            roi_viable.append(c)
-            log.info(f"  [{ticker}] ROI-PRECHECK: viable")
-        except Exception:
-            reject("roi_error", c.get("ticker"))
-            continue
-
-    stats["roi_precheck"] = len(roi_viable)
-    log.info(f"  → {len(roi_viable)} nach ROI Pre-Check")
-    if not roi_viable:
-        stats["stop_reason"] = "Alle Optionsketten hoffnungslos (ROI Pre-Check)."
-        send_email()
-        return
+    # ── STUFE 3: ROI Pre-Check – entfernt 2026-11-09 ─────────────────────────
+    # Der Vorcheck bewertete einen 21–45-DTE-Kontrakt mit fixem +8-%-Ziel, gehandelt wird ab DTE 120
+    # (options.dte_floor): er verwarf Kandidaten anhand eines Kontrakts, der nie gehandelt würde. Die
+    # Langläufer-Quotes prüft economics-first VOR jedem LLM-Aufruf, das ROI-Gate in Stufe 10 den echten
+    # Kontrakt (docs/ACTION_PLAN_2026-11-09.md, Punkt 3).
 
     # ── STUFE 3b: Pre-MC Gate (sigma-only, vor Deep Analysis) ────────────────
     log.info(f"Stufe 3b: Pre-MC Gate ({PRE_MC_PATHS} Pfade, {PRE_MC_DAYS}d, sigma-only)")
     pre_mc_sim = MirofishSimulation()
     pre_mc_viable = []
-    for c in roi_viable:
+    for c in shortlist:
         ticker = c["ticker"]
         c_temp = {**c, "deep_analysis": {"impact": 5, "surprise": 5,
                   "time_to_materialization": "2-3 Monate"}}
@@ -1219,7 +1187,7 @@ def main() -> None:
             )
 
     stats["pre_mc"] = len(pre_mc_viable)
-    log.info(f"  → {len(pre_mc_viable)} nach Pre-MC Gate (eingespart: {len(roi_viable)-len(pre_mc_viable)} Sonnet-Calls)")
+    log.info(f"  → {len(pre_mc_viable)} nach Pre-MC Gate (eingespart: {len(shortlist)-len(pre_mc_viable)} Sonnet-Calls)")
     if not pre_mc_viable:
         stats["stop_reason"] = "Alle unter Pre-MC-Schwelle (zu wenig Volatilität)."
         save_history(history)

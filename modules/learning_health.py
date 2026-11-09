@@ -149,6 +149,11 @@ def assess(root: Path | None = None, now: datetime | None = None, data_health: d
 
     plan = _js(o / "research" / "factory_plan.json")
     st, dd = _fresh((plan or {}).get("generated") if isinstance(plan, dict) else None, "research_generation", now)
+    # Aktionsplan Punkt 7: eingefrorener Generator meldet FROZEN statt "veraltet"
+    from modules.research_scope import health_frozen
+    fz = health_frozen("research_generation")
+    if fz:
+        st, dd = "FROZEN", f"eingefroren seit {fz['since']} (config/research_scope.yaml), letztes Artefakt {dd}"
     put("research_generation", st, f"{(plan or {}).get('n_ideas') if isinstance(plan, dict) else 0} Ideen ({dd})")
     res = _js(o / "research" / "factory_results.json")
     db = _js(o / "research" / "hypothesis_db.json")
@@ -208,9 +213,9 @@ def assess(root: Path | None = None, now: datetime | None = None, data_health: d
     srcs = ((data_health or {}).get("commodity") or {})
     put("commodity_sources", srcs.get("overall", "UNVALIDATED"), str(srcs.get("sources") or "kein Health-Snapshot"))
 
-    rl = _js(o / "models" / "ppo_robust_shadow_meta.json")
-    st, dd = _fresh((rl or {}).get("trained_at") if isinstance(rl, dict) else None, "rl", now, "SHADOW")
-    put("rl", st, f"{(rl or {}).get('status') if isinstance(rl, dict) else 'kein Modell'}; Veto aus ({dd})")
+    # RL/PPO am 2026-11-09 aus dem Produktionspfad entfernt (Aktionsplan Punkt 2): kein Lernpfad mehr, nichts zu
+    # überwachen; Altdaten (outputs/models) bleiben unverändert erhalten.
+    put("rl", "REMOVED", "RL/PPO entfernt (2026-11-09) – kein Lernpfad, keine Entscheidungswirkung")
 
     mem = _jl(o / "research" / "research_memory.jsonl")
     st, dd = _fresh(max((str(e.get("recorded_at") or "") for e in mem), default=""), "research_memory", now, "ACTIVE")

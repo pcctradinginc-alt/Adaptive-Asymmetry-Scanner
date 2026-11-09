@@ -1,0 +1,66 @@
+# config/research_scope.yaml – eine Bewertungsachse, eingefrorene Generatoren (GESCHÜTZT, CODEOWNERS)
+#
+# Aktionsplan 2026-11-09, Punkt 7 (modules/research_scope.py). Befund: >= 12 parallele Lern-/Research-Engines,
+# 0 Promotions, Forschungs-Erfolgsquote 2026-Q4 0,0 (n = 100); mehr Generatoren = mehr Mehrfachtests, nicht mehr
+# Power. Eingefroren heißt: keine NEUEN Hypothesen (Workflow-Schritt übersprungen), bereits registrierte werden
+# unverändert weiter ausgewertet; Code kein Ausbau (SHA-256 gepinnt, tests/test_research_scope.py).
+# Aufheben nur per PR mit Begründung, wenn die Achse mindestens eine bestätigte Prüfung geliefert hat.
+
+version: "research-scope-v1"
+registered_on: "2026-11-09"
+spine:                                  # läuft weiter: einzige Quelle für Bestätigungen
+  - candidate_ledger + options_archive (Quote-Archiv)
+  - option_learner (vorab festgehaltene Prognosen, eingefrorene Referenz, O'Brien-Fleming-Prüfungen)
+  - alpha_ledger + ledger_registration (ein Fehlerbudget)
+  - challenger, promotion_controller, champion_protocol
+  - error_research (Power-Gate, Ledger)
+frozen_generators:                      # Workflow-Schritt (ml_research.yml) wird übersprungen
+  hypothesis_factory_plan:
+    step: factory_plan
+    health_keys: [research_generation]
+    reason: "Neue Hypothesen-Ideen ohne Forward-Bestätigung; 37/62 verworfen, 15 als Wiederholung blockiert."
+  autonomous_alpha_explore:
+    step: alpha_explore
+    reason: "Genetische Faktorsuche: 120 Experimente, 63 REJECTED, keine Forward-Bestätigung."
+  research_director_generate:
+    step: director
+    reason: "Allgemeine Forschungsfragen; die Achse erzeugt ihre Fragen selbst (Fehlerforschung, Lernmodell)."
+  feature_discovery_v3:
+    step: feature_discovery_v3
+    reason: "Neue Feature-Familien vor Bestätigung der bestehenden; nur Shadow."
+  feature_director_v1:
+    step: feature_director_v1
+    reason: "Priorisiert Feature-Discovery-Hypothesen (eingefroren mit ihr)."
+  causal_research:
+    step: causal
+    reason: "Kausalschicht und Knowledge Graph ohne Entscheidungswirkung."
+  next_intelligence:
+    step: next_intel
+    reason: "Gesamtvalidierung/Decision Intelligence ohne Entscheidungswirkung."
+frozen_code:                            # Pfad -> SHA-256 (kein Ausbau; Änderung nur bewusst per PR)
+  modules/world_model.py: "86317f1f77a59b7cdd185df5da88ea21a236e4d33e9566b475656429e90b17ae"
+  modules/meta_learning.py: "15f546c3f7eb685bd83d252a6d6728decf0b69be08c95ce64b43c812864815a2"
+  modules/next_intelligence.py: "ed65ea5b05342ed21966297f7d0e9e1fe8736c78c6705a36986f12a62c355b4d"
+  modules/commodity_intelligence.py: "f074fe81d5a622dace8041bc2663eae0fae4d4075aa72f31b73d1abd21159305"
+  modules/causal_research.py: "75e28737887d389b0e4e95c8d575aa5e8f8a5bb9f6bf312f798e1050cccc5ec4"
+  modules/alpha_discovery.py: "5a0e941e7024b3ba61e4e129ed6b53499890a99e26269371d42fc3610b391f31"
+  modules/hypothesis_factory.py: "dd5a9a44e2a774ad7bbab90ab72e20a2fbda9ae5c1f34e3d84cf1869795cbe71"
+  modules/research_feature_discovery.py: "a7ed2cf5bda38cf1dadf024fab3987446e26768111ca6be3d506f39f33fac8a7"
+  modules/research_feature_director.py: "62c53841bfc7c6124ad7b7dc08f4d153336ef1d2499e618be4fdf54eb7651e14"
+  modules/knowledge_graph.py: "d5b30cbe71af2634bf91c19bc4279d02e2a4a24dfeef4ef979e3cbb6c40c5778"
+  modules/expectation_alpha/__init__.py: "2bea3ce543f58c228b3849c66266259026cb405a2cdb968c940bbc93828128d4"
+  modules/expectation_alpha/claim_extraction.py: "c8df2b6898bccd288d370ad8ee4788e2b195c5cad0ce872e923b4d19df6d7988"
+  modules/expectation_alpha/claims.py: "97f729488a7dd19181920c5000d658924b8cf46851490de95d061a447c66ab8f"
+  modules/expectation_alpha/config.py: "d39efeea05824dad3661b0ef14ecd0b0e803fd725a23df46be450cbef2a8d3ad"
+  modules/expectation_alpha/cross_asset_confirmation.py: "3604dc27c6abbcbf04fca6ff605b6f14bc6c1bf7827ac922ef534aaa49f350bd"
+  modules/expectation_alpha/data.py: "353b09aacecc5812ec71da5e87b46485508a16adf363c0b65caf68adc4763873"
+  modules/expectation_alpha/evaluation.py: "842819ad199290747ca7f891e6c9623832bbd1638cd388d84b6ca2e3af49569f"
+  modules/expectation_alpha/expectation_gap.py: "1dd8af5c5160ab1d2331aee90005d95e9b11f2b7128c253063cfd6cbdf60db04"
+  modules/expectation_alpha/expression.py: "3ed3cdecec508ff9c0709c5044aa751f9cef75c3b8adeef7383ee9dde4bb90a4"
+  modules/expectation_alpha/future_state.py: "409a3873007f9d1e5062a43396c2c090f3b1fb80b8cdd6e6e94d3ee8a727b6a9"
+  modules/expectation_alpha/lead_lag.py: "d21daf64276f178925ef80ea384762930dc4ebf08cd55c214db28226a4058630"
+  modules/expectation_alpha/ledger.py: "73e5cd7c3c9424a022670123d48d9896556598e970621870a711a4c5da0a27a4"
+  modules/expectation_alpha/regime_change.py: "7857f7130329d61a10b3e8f05b2175941a0b992aefd2a6b10a395ed3650b7335"
+  modules/expectation_alpha/schemas.py: "d8f13f305a2966c543d43edb9993d970f509270f90358748dc6d07e0d48ac7fb"
+  modules/expectation_alpha/thesis.py: "9656e1f2995e516ad15720c6fffde6c28a4b390dcb330eaa270aaaf869f5aafa"
+  modules/expectation_alpha/timing.py: "07371b39d4b34726e1cc8596ce62335b3d67a9bfd9e435d3eed6a97d7c44b222"

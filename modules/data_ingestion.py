@@ -40,7 +40,7 @@ import random
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import requests
@@ -114,7 +114,8 @@ def newsapi_company_name(long_name: str) -> str | None:
     return name if len(name) >= 4 else None
 
 
-def parse_yfinance_news(items: list, since: datetime, limit: int = 5) -> list[str]:
+def parse_yfinance_news(items: list, since: datetime, limit: int = 5,
+                        published_out: list | None = None) -> list[str]:
     """Headlines der letzten Zeit aus yfinance .news -- altes Format
     (title/providerPublishTime) UND neues Format ab yfinance 0.2.5x
     (content.title/content.pubDate ISO-8601). Vorher las der Fallback nur das
@@ -140,7 +141,34 @@ def parse_yfinance_news(items: list, since: datetime, limit: int = 5) -> list[st
                 published = None
         if title and published is not None and published >= since:
             out.append(title)
+            if published_out is not None:
+                published_out.append(published)
     return out
+
+
+def _news_window(stamps: list, source: str) -> dict | None:
+    """Erster/letzter Veröffentlichungszeitpunkt (UTC, ISO) der verwendeten Schlagzeilen – Anker für die Messung
+    der Marktreaktion AB der Nachricht (Punkt 4, 2026-11-09). Ohne Zeitstempel None (nie geschätzt)."""
+    ts = sorted(t for t in stamps if isinstance(t, datetime))
+    if not ts:
+        return None
+    return {"first": ts[0].strftime("%Y-%m-%dT%H:%M:%SZ"), "last": ts[-1].strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "n": len(ts), "source": source}
+
+
+def _utc_from_epoch(v) -> datetime | None:
+    try:
+        return datetime.fromtimestamp(int(v), tz=timezone.utc).replace(tzinfo=None)
+    except (TypeError, ValueError, OSError, OverflowError):
+        return None
+
+
+def _utc_from_iso(v) -> datetime | None:
+    try:
+        dt = datetime.fromisoformat(str(v).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return dt.replace(tzinfo=None) - (dt.utcoffset() or timedelta(0))
 
 # v7.1: Short Interest Schwellenwerte
 SHORT_INTEREST_HIGH   = 0.15   # 15% Short Float → "high" (Squeeze-Potential)
@@ -243,6 +271,7 @@ class DataIngestion:
     def __init__(self, history: dict | None = None):
         self.history      = history or {}
         self.news_api_key = os.getenv("NEWS_API_KEY", "")
+        self.news_ts: dict[str, dict] = {}     # Ticker -> Zeitfenster der verwendeten Schlagzeilen (PIT)
 
     def _get_current_vix(self) -> float:
         """VIX einmal holen — nicht pro Ticker wiederholen."""
@@ -410,6 +439,7 @@ class DataIngestion:
                 "ticker":        ticker,
                 "info":          info,
                 "news":          news,
+                "news_ts":       self.news_ts.get(ticker),
                 "market_cap":    market_cap,
                 "avg_volume":    avg_vol,
                 "dollar_volume": dollar_volume,
@@ -464,6 +494,12 @@ class DataIngestion:
                 return news
         return self._fetch_yfinance_news(ticker)
 
+    def _note_news_ts(self, ticker: str, stamps: list, source: str) -> None:
+        win = _news_window(stamps, source)
+        if win is not None:
+            with _STATS_LOCK:
+                self.news_ts[ticker] = win
+
     def _count(self, key: str) -> None:
         st = getattr(self, "news_source_stats", None)
         if st is not None:
@@ -494,7 +530,9 @@ class DataIngestion:
                     return []
                 resp.raise_for_status()
                 articles = resp.json()
-                out = [a["headline"] for a in (articles or [])[:5] if a.get("headline")]
+                used = [a for a in (articles or [])[:5] if a.get("headline")]
+                out = [a["headline"] for a in used]
+                self._note_news_ts(ticker, [_utc_from_epoch(a.get("datetime")) for a in used], "finnhub")
                 self._count("finnhub_ok" if out else "finnhub_empty")
                 return out
             except Exception:
@@ -515,7 +553,9 @@ class DataIngestion:
                 timeout=8,
             )
             resp.raise_for_status()
-            out = [a["title"] for a in resp.json().get("articles", []) if a.get("title")]
+            used = [a for a in resp.json().get("articles", []) if a.get("title")]
+            out = [a["title"] for a in used]
+            self._note_news_ts(ticker, [_utc_from_iso(a.get("publishedAt")) for a in used], "newsapi")
             if out:
                 self._count("newsapi_ok")
             return out
@@ -526,7 +566,9 @@ class DataIngestion:
     def _fetch_yfinance_news(self, ticker: str) -> list[str]:
         try:
             news = yf.Ticker(ticker).news or []
-            out = parse_yfinance_news(news, datetime.utcnow() - timedelta(hours=48))
+            stamps: list = []
+            out = parse_yfinance_news(news, datetime.utcnow() - timedelta(hours=48), published_out=stamps)
+            self._note_news_ts(ticker, stamps, "yfinance")
             self._count("yfinance_ok" if out else "yfinance_empty")
             return out
         except Exception:

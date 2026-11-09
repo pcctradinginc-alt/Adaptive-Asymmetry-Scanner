@@ -1983,6 +1983,7 @@ def alpha_ledger_state(path: Path = ALPHA_LEDGER, cfg: dict | None = None, now: 
             "summary": {"version": LEDGER_VERSION, "total_alpha": (init or {}).get("total_alpha"),
                         "legacy_alpha": (init or {}).get("legacy_alpha"), "w0": (init or {}).get("w0"),
                         "allocated": len(allocs), "spent": {n: round(v, 10) for n, v in spent.items()},
+                        "legacy_families_outside_budget": cfg.get("legacy_families_outside_budget") or {},
                         "status": "CRITICAL" if problems else "OK"}}
 
 
