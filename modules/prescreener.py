@@ -30,8 +30,6 @@ BACKOFF_BASE  = 2
 BATCH_SIZE    = 20
 MAX_HEADLINES = 3
 
-# Temperatur 0 = reproduzierbare YES/NO-Entscheidungen; API-Default wäre 1.0.
-TEMPERATURE = 0
 SYSTEM_PROMPT = """Du bist ein Options-Analyst mit Fokus auf Informations-Asymmetrie.
 
 KERNFRAGE fuer jeden Ticker: "Enthaelt diese Nachricht eine Information, die der breite
@@ -98,9 +96,9 @@ Richtwert: ~15% YES bei vorhandenen Signalen. Vergib [YES] NUR bei echtem Signal
 An nachrichtenarmen Tagen ist 0% YES korrekt — erzwinge keine Quote."""
 
 
-# Prompt-Version fürs Audit (Vorlagen + Temperatur); das Prescreening hat keinen Cache.
-PROMPT_VERSION = analysis_cache.prompt_version(
-    SYSTEM_PROMPT, USER_TEMPLATE, USER_TEMPLATE_COMPACT, f"temperature={TEMPERATURE}")
+# Prompt-Version fürs Audit (Vorlagen); das Prescreening hat keinen Cache. Keine Sampling-Parameter: die
+# API-Version 2026-10-21 (anthropic>=2.0) lehnt temperature/top_p/top_k auf jedem Modell ab.
+PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, USER_TEMPLATE, USER_TEMPLATE_COMPACT)
 
 
 def _compact_mode() -> str:
@@ -237,8 +235,7 @@ class Prescreener:
             ticker_news = ticker_news_str,
             min_yes     = min_yes,
         )
-        return {"model": cfg.models.prescreener, "max_tokens": 4096, "temperature": TEMPERATURE,
-                "system": SYSTEM_PROMPT,
+        return {"model": cfg.models.prescreener, "max_tokens": 4096, "system": SYSTEM_PROMPT,
                 "messages": [{"role": "user", "content": prompt}]}
 
     @staticmethod

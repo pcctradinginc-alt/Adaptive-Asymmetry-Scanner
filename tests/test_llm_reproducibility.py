@@ -1,8 +1,16 @@
-"""Reproduzierbarkeit der LLM-Schritte: temperature=0, Audit-Hashes, Cache-Version."""
+"""Reproduzierbarkeit der LLM-Schritte (Aktionsplan P8): Audit-Hashes, Cache-Version, KEINE Sampling-Parameter.
+
+temperature=0 war geplant, ist aber nicht umsetzbar: anthropic>=2.0 sendet API-Version 2026-10-21, die
+temperature/top_p/top_k auf jedem Modell mit 400 ablehnt (Messages.create kennt den Parameter nicht mehr).
+Diese Tests schützen die Produktion davor, dass ein Sampling-Parameter wieder eingeführt wird.
+"""
 import hashlib
+import inspect
 import json
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
+
+import anthropic
 
 from modules import analysis_cache, deep_analysis
 from modules import prescreener as ps
@@ -28,11 +36,21 @@ def _da():
     return da
 
 
-def test_deep_analysis_params_temperature_zero():
-    assert _da()._prepare(CAND)["params"]["temperature"] == 0
+SAMPLING = {"temperature", "top_p", "top_k"}
 
 
-def test_deep_analysis_batch_and_ab_requests_temperature_zero():
+def test_installed_sdk_rejects_sampling_params_so_none_are_sent():
+    """Belegt die Begründung: das installierte SDK kennt temperature nicht (API 2026-10-21)."""
+    from anthropic.resources.messages import Messages
+    if int(anthropic.__version__.split(".")[0]) >= 2:
+        assert "temperature" not in inspect.signature(Messages.create).parameters
+
+
+def test_deep_analysis_params_have_no_sampling_params():
+    assert not SAMPLING & set(_da()._prepare(CAND)["params"])
+
+
+def test_deep_analysis_batch_and_ab_requests_have_no_sampling_params():
     da = _da()
     captured = {}
 
@@ -48,16 +66,12 @@ def test_deep_analysis_batch_and_ab_requests_temperature_zero():
          patch.object(deep_analysis.model_routing, "sample", side_effect=lambda ids, n: ids):
         da._prefetch_batch(shortlist, None, {"other": "claude-x", "n": 2})
     assert any(k.startswith("da-") for k in captured) and any(k.startswith("ab-") for k in captured)
-    assert all(p["temperature"] == 0 for p in captured.values())
+    assert all(not SAMPLING & set(p) for p in captured.values())
 
 
-def test_prompt_version_depends_on_temperature():
-    base = analysis_cache.prompt_version(deep_analysis.SYSTEM_PROMPT, deep_analysis.ANALYSIS_TEMPLATE)
-    assert deep_analysis.PROMPT_VERSION != base
+def test_prompt_version_is_unchanged_so_the_analysis_cache_stays_valid():
     assert deep_analysis.PROMPT_VERSION == analysis_cache.prompt_version(
-        deep_analysis.SYSTEM_PROMPT, deep_analysis.ANALYSIS_TEMPLATE, "temperature=0")
-    assert deep_analysis.PROMPT_VERSION != analysis_cache.prompt_version(
-        deep_analysis.SYSTEM_PROMPT, deep_analysis.ANALYSIS_TEMPLATE, "temperature=1")
+        deep_analysis.SYSTEM_PROMPT, deep_analysis.ANALYSIS_TEMPLATE)
 
 
 def test_deep_analysis_llm_audit_hashes():
@@ -69,7 +83,7 @@ def test_deep_analysis_llm_audit_hashes():
     p = ctx["params"]
     system, user = p["system"][0]["text"], p["messages"][0]["content"]
     assert res["llm_audit"] == {
-        "model": p["model"], "temperature": 0, "prompt_version": deep_analysis.PROMPT_VERSION,
+        "model": p["model"], "sampling": "api-default", "prompt_version": deep_analysis.PROMPT_VERSION,
         "prompt_sha256": _sha(system + user), "response_sha256": _sha(RAW)}
 
 
@@ -77,7 +91,7 @@ def test_deep_analysis_cache_hit_keeps_original_hashes():
     da = _da()
     ctx = da._prepare(CAND)
     stored = {"impact": 7, "surprise": 6, "direction": "BULLISH",
-              "llm_audit": {"model": "m", "temperature": 0, "prompt_version": "v",
+              "llm_audit": {"model": "m", "sampling": "api-default", "prompt_version": "v",
                             "prompt_sha256": "a", "response_sha256": "b"}}
     with patch.object(deep_analysis.analysis_cache, "lookup", return_value=stored):
         res = da._lookup_cache(ctx)
@@ -85,19 +99,19 @@ def test_deep_analysis_cache_hit_keeps_original_hashes():
 
 
 def test_audit_deterministic():
-    p = {"model": "m", "temperature": 0, "system": "S", "messages": [{"role": "user", "content": "U"}]}
+    p = {"model": "m", "system": "S", "messages": [{"role": "user", "content": "U"}]}
     a = analysis_cache.llm_audit(p, _resp("abc"), version="v1")
     assert a == analysis_cache.llm_audit(p, _resp("abc"), version="v1")
     assert a["prompt_sha256"] == _sha("SU") and a["response_sha256"] == _sha("abc")
 
 
-def test_prescreener_params_temperature_zero():
+def test_prescreener_params_have_no_sampling_params():
     batch = [{"ticker": "AAA", "news": ["n"]}]
-    assert ps.Prescreener._params(batch)["temperature"] == 0
-    assert ps.Prescreener._params(batch, ps.USER_TEMPLATE_COMPACT)["temperature"] == 0
+    assert not SAMPLING & set(ps.Prescreener._params(batch))
+    assert not SAMPLING & set(ps.Prescreener._params(batch, ps.USER_TEMPLATE_COMPACT))
 
 
-def test_prescreener_batch_requests_temperature_and_audit():
+def test_prescreener_batch_requests_without_sampling_and_with_audit():
     with patch.object(ps.anthropic, "Anthropic"):
         p = ps.Prescreener()
     batches = [[{"ticker": "AAA", "news": ["n"]}], [{"ticker": "BBB", "news": ["m"]}]]
@@ -112,11 +126,11 @@ def test_prescreener_batch_requests_temperature_and_audit():
                       return_value={"min_requests": 1, "max_wait_s": 1, "poll_s": 1}), \
          patch.object(ps.cost_telemetry, "run_batch", side_effect=fake_run_batch):
         out = p._prefetch_batch(batches)
-    assert seen and all(r["temperature"] == 0 for r in seen.values())
+    assert seen and all(not SAMPLING & set(r) for r in seen.values())
     audit = out[0][0]["llm_audit"]
     system, user = analysis_cache.request_texts(seen["ps-0"])
     assert audit["prompt_sha256"] == _sha(system + user)
     assert audit["response_sha256"] == _sha(text)
-    assert audit["prompt_version"] == ps.PROMPT_VERSION and audit["temperature"] == 0
+    assert audit["prompt_version"] == ps.PROMPT_VERSION and audit["sampling"] == "api-default"
     assert ps.PROMPT_VERSION == analysis_cache.prompt_version(
-        ps.SYSTEM_PROMPT, ps.USER_TEMPLATE, ps.USER_TEMPLATE_COMPACT, "temperature=0")
+        ps.SYSTEM_PROMPT, ps.USER_TEMPLATE, ps.USER_TEMPLATE_COMPACT)

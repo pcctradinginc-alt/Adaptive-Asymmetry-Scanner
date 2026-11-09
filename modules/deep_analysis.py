@@ -158,12 +158,10 @@ def _format_market_cap(market_cap: Optional[int]) -> str:
     return f"${market_cap/1_000_000:.0f} Mio."
 
 
-# Temperatur 0 = reproduzierbare Scores (impact/surprise/direction); API-Default wäre 1.0.
-TEMPERATURE = 0
-
-# Prompt-Version für den Analyse-Cache: jede Änderung an den Vorlagen ODER an der Temperatur
-# invalidiert alle Einträge (sonst würden Default-Temperatur-Antworten wiederverwendet).
-PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, ANALYSIS_TEMPLATE, f"temperature={TEMPERATURE}")
+# Prompt-Version für den Analyse-Cache: jede Änderung an den Vorlagen invalidiert alle Einträge.
+# Keine Sampling-Parameter (temperature/top_p/top_k): die API-Version 2026-10-21 (anthropic>=2.0) lehnt sie auf
+# jedem Modell mit 400 ab; Reproduzierbarkeit kommt aus dem Analyse-Cache + llm_audit-Hashes (Aktionsplan P8).
+PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, ANALYSIS_TEMPLATE)
 
 
 class DeepAnalysis:
@@ -314,8 +312,7 @@ class DeepAnalysis:
         if routing.get("other"):
             for cid in model_routing.sample(list(requests), routing["n"]):
                 ab["ab-" + cid.split("-", 1)[1]] = {**requests[cid], "model": routing["other"],
-                                                    "max_tokens": model_routing.max_tokens_for("deep_analysis", routing["other"]),
-                                                    "temperature": TEMPERATURE}
+                                                    "max_tokens": model_routing.max_tokens_for("deep_analysis", routing["other"])}
         results = cost_telemetry.run_batch(client, workflow="deep_analysis", requests={**requests, **ab},
                                            tickers={**tickers, **{k: tickers["da-" + k[3:]] for k in ab}},
                                            max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"], deadline=deadline)
@@ -468,7 +465,6 @@ class DeepAnalysis:
         params = {
             "model":      model,
             "max_tokens": model_routing.max_tokens_for("deep_analysis", model),   # Champion: 1600 (unverändert)
-            "temperature": TEMPERATURE,
             "system":     [{"type": "text", "text": SYSTEM_PROMPT.format(current_year=_today.year),
                             "cache_control": {"type": "ephemeral"}}],
             "messages":   [{"role": "user", "content": prompt}],
