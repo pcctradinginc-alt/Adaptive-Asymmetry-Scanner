@@ -46,6 +46,7 @@ Reihenfolge v8.3:
 import json
 import math
 import logging
+import os
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -798,6 +799,7 @@ def main() -> None:
 
     _proposals_ref = []
     _ea_input_ref: list = []       # Expectation Alpha (SHADOW): eingefrorene Stufe-4-Analysen (Auswertung am Laufende)
+    _census_ref: list = []         # LLM-Zensus (Research): Zufallsstichprobe der Hard-Filter-Überlebenden (Laufende)
     _health_ref    = []   # letzter Engine-Health-Report, für die Status-Mail wiederverwendet
 
     def _expectation_alpha_finalize():
@@ -827,11 +829,35 @@ def main() -> None:
             stats["expectation_alpha"] = {"mode": "shadow", "enabled": True, "status": "ERROR",
                                           "error": f"{type(e).__name__}: {str(e)[:200]}"}
 
+    def _llm_census_finalize():
+        """LLM-Zensus (Aktionsplan Punkt 6, nur Research) am Laufende: Deep Analysis + Mismatch der zufällig
+        gezogenen Kandidaten, nur census_*-Felder im Ledger. Nach allen Champion-Entscheidungen, eigenes
+        Zeitbudget; ohne API-Schlüssel übersprungen. Jeder Fehler ändert nichts an der Produktion."""
+        if not _census_ref:
+            return
+        _picks, _design = _census_ref.pop()
+        _census_ref.clear()
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            stats["llm_census"] = {"status": "no_api_key", **_design}
+            return
+        try:
+            from modules import llm_census as _lc
+            _p = getattr(cfg, "pipeline", None)
+            _reserve = float(getattr(_p, "finalize_reserve_minutes", 10) or 10) * 60
+            stats["llm_census"] = _lc.run(
+                _picks, _design,
+                _lc.deadline_for(_RUN_DEADLINE[0] if _RUN_DEADLINE else None, _reserve, _lc.settings()),
+                analyzer=DeepAnalysis(), scorer_cls=MismatchScorer)
+        except Exception as e:  # noqa: BLE001 – Research-Messung darf den Scan nie brechen
+            log.warning(f"LLM-Zensus Fehler (ignoriert): {type(e).__name__}: {e}")
+            stats["llm_census"] = {"status": "ERROR", "error": f"{type(e).__name__}: {str(e)[:200]}"}
+
     def save_stats_snapshot():
         """Persistiert Funnel-Stats + Reject-Gründe in die Daily-JSON.
         Läuft auf JEDEM Exit-Pfad — sonst ist bei 0-Trade-Tagen nicht
         nachvollziehbar, welches Gate blockiert hat."""
         _expectation_alpha_finalize()
+        _llm_census_finalize()
         try:
             REPORTS_DIR.mkdir(parents=True, exist_ok=True)
             path = REPORTS_DIR / f"{today}.json"
@@ -973,6 +999,16 @@ def main() -> None:
         _note_news_novelty(c, _novelty_t0)
         enriched.append(c)
     candidates = enriched
+
+    # ── LLM-Zensus (Aktionsplan Punkt 6, nur Research): Zufallsstichprobe ALLER Hard-Filter-Überlebenden vor jedem
+    # weiteren Gate; Auswertung erst am Laufende (_llm_census_finalize), nie im Trade-Pfad.
+    try:
+        from modules import llm_census as _lc
+        _lc_cfg = _lc.settings()
+        if _lc_cfg["enabled"]:
+            _census_ref[:] = [_lc.select(candidates, today, _lc_cfg["k"])]
+    except Exception as e:  # noqa: BLE001 – Research-Stichprobe, nie lauf-brechend
+        log.warning(f"LLM-Zensus-Auswahl Fehler (ignoriert): {e}")
 
     # ── STUFE 1b-ext: externer Kontext für ALLE angereicherten Kandidaten (nur Ledger, SHADOW) ─
     # Vor Sektor-Check und economics-first, die die Kohorte vor Stufe 2b-ext stark verkleinern; der Snapshot wird

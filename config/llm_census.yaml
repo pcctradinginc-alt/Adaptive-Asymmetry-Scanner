@@ -1,0 +1,10 @@
+# config/llm_census.yaml – LLM-Zensus (Aktionsplan 2026-11-09, Punkt 6; nur Research, modules/llm_census.py)
+#
+# k zufällige Hard-Filter-Überlebende je Lauf erhalten eine Deep Analysis OHNE vorgelagerte Gates, damit Impact,
+# Surprise und Mismatch auf der Population schätzbar werden (π = k/N je Zeile protokolliert). Ergebnisse nur als
+# census_*-Felder im Kandidaten-Ledger, nie im Trade-, Snapshot- oder Score-Pfad. Kosten: k Sonnet-Analysen je Lauf
+# (Cache, Temperatur 0), eigenes Zeitbudget am Laufende nach allen Champion-Entscheidungen.
+enabled: true
+k: 2
+budget_s: 240          # Zeitbudget der Zensus-Analysen am Laufende
+min_reserve_s: 120     # bleibt immer für Ledger, Bericht und Mail übrig
