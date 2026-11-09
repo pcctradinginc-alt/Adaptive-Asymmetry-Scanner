@@ -5,7 +5,7 @@ Geprüft:
     (neue Protokollversion nötig, kein Tuning auf gesehenen Daten);
   * Bewertung nur mit Ledger-Zuteilung, nur verlässliche Netto-Outcomes ab Start, Tagesmittel, eingefrorene Prüfungen;
   * neue Challenger/Verträge/Champion erhalten Alpha genau einmal aus dem Ledger (idempotent, fail closed),
-    Altbestände bleiben unverändert (Altfamilie, nie gelockert).
+    Altbestände laufen exakt nach ihrer registrierten Regel weiter (Altfamilie, außerhalb des Budgets ausgewiesen).
 """
 from __future__ import annotations
 
@@ -118,7 +118,7 @@ def test_ledger_registration_allocates_new_tests_once_and_keeps_legacy_untouched
     assert len(st["allocations"]) == 2 and st["summary"]["legacy_families_outside_budget"]
 
 
-def test_challenger_alpha_regimes_never_loosen_the_legacy_family(tmp_path):
+def test_challenger_alpha_regimes_keep_the_registered_legacy_rule(tmp_path):
     new = {"id": "new", "registered_on": "2026-11-09", "start_date": "2026-11-10", "rule": [], "metric": "m",
            "max_duration_days": 90}
     old = {**new, "id": "old", "registered_on": "2026-09-26", "start_date": "2026-09-28"}
@@ -129,8 +129,8 @@ def test_challenger_alpha_regimes_never_loosen_the_legacy_family(tmp_path):
     r = ch.evaluate(new, [], date(2026, 12, 1), 2, lp)
     alloc = lr.ledger_alpha(lr.challenger_test_id(new), lp)
     assert r["alpha_regime"] == "alpha-ledger-v1" and r["alpha"] == pytest.approx(alloc["alpha"] / 3)
-    r_old = ch.evaluate(old, [], date(2026, 12, 1), 2, lp)                     # nur noch 2 aktive Altfälle
-    assert r_old["alpha"] == pytest.approx(0.10 / (3 * 3)) and r_old["alpha_regime"].startswith("legacy")
+    r_old = ch.evaluate(old, [], date(2026, 12, 1), 2, lp)                     # registrierte Regel unverändert
+    assert r_old["alpha"] == pytest.approx(0.10 / (2 * 3)) and r_old["alpha_regime"].startswith("legacy")
 
 
 def test_new_promotion_contracts_get_ledger_alpha_only(tmp_path):

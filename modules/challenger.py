@@ -82,8 +82,7 @@ REGISTRY_PATH = Path("challengers.yaml")
 LEDGER_ROOT   = Path("outputs/candidate_ledger")
 
 MAX_ACTIVE           = 3     # gilt für die Altfamilie (vor 2026-11-09 registriert)
-ALPHA_BASE           = 0.10  # nur Altfamilie; neue Challenger: Alpha aus dem globalen Ledger (ledger_registration)
-LEGACY_N_ACTIVE      = 3     # eingefroren: das Alpha der Altfamilie wird durch Abgänge nie größer (nie lockern)
+ALPHA_BASE           = 0.10  # nur Altfamilie (registrierte Regel unverändert); neue Challenger: globaler Ledger
 N_BOOT               = 2000
 LOSS_FLOOR           = -0.95
 LOSS_MARGIN          = 0.02
@@ -422,7 +421,8 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int,
     n_clusters = len(set(clusters))
 
     # Alpha: ab 2026-11-09 registrierte Challenger ausschließlich aus dem globalen Ledger (Zuteilung / Looks,
-    # fail closed ohne Zuteilung); Altfamilie unverändert, n_aktiv nie unter LEGACY_N_ACTIVE (nie lockern).
+    # fail closed ohne Zuteilung). Altfamilie: exakt die registrierte Regel ALPHA_BASE/(n_aktiv·Looks), n_aktiv
+    # zählt nur die Altfamilie (neue Challenger gehören nicht mehr dazu).
     from modules import ledger_registration as lr
     if lr.uses_ledger(challenger.get("registered_on")):
         alloc = lr.ledger_alpha(lr.challenger_test_id(challenger), ledger_path)
@@ -431,7 +431,7 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int,
         if alloc and alloc.get("spec_hash") != lr.spec_hash(lr.challenger_spec(challenger)):
             alpha, alpha_regime = None, "spec_changed_after_allocation"
     else:
-        alpha = ALPHA_BASE / (max(n_active, LEGACY_N_ACTIVE, 1) * n_looks)
+        alpha = ALPHA_BASE / (max(n_active, 1) * n_looks)
         alpha_regime = "legacy_family_0.10_outside_global_budget"
 
     result = {

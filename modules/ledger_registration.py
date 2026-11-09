@@ -31,7 +31,7 @@ CHALLENGER_SUBSYSTEM = "challenger"
 PROMOTION_SUBSYSTEM = "promotion_contract"
 CHAMPION_SUBSYSTEM = "champion"
 LEGACY_FAMILIES = {
-    "challenger": {"alpha_family": 0.10, "rule": "0,10/(n_aktiv·Looks), n_aktiv eingefroren auf >= 3",
+    "challenger": {"alpha_family": 0.10, "rule": "0,10/(n_aktiv·Looks), n_aktiv zählt nur die Altfamilie",
                    "ends": "mit Ablauf der vor 2026-11-09 registrierten Challenger"},
     "promotion_contract": {"alpha_family": 0.05, "rule": "0,05/(Familiengröße·12 Looks)",
                            "ends": "mit Ablauf der vor 2026-11-09 registrierten Verträge"},

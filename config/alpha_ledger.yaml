@@ -49,5 +49,5 @@ legacy:                             # vor dem Ledger vergebene Slots; Pfade rela
   alpha_option_validation: {path: autonomous_alpha/option_validation/variants.jsonl, event: registered,
                             id: plan_id, alpha: alpha_slot}
 legacy_families_outside_budget:     # informativ, NICHT vom Budget abgezogen (vor dem Ledger registriert, unverändert)
-  challenger: {alpha_family: 0.10, registered_before: "2026-11-09", rule: "0,10/(n_aktiv·Looks), n_aktiv >= 3 eingefroren"}
+  challenger: {alpha_family: 0.10, registered_before: "2026-11-09", rule: "0,10/(n_aktiv·Looks), n_aktiv nur Altfamilie"}
   promotion_contract: {alpha_family: 0.05, registered_before: "2026-11-09", rule: "0,05/(Familiengröße·12 Looks)"}

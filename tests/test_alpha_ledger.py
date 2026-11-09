@@ -23,7 +23,7 @@ from modules import research_lab as rl
 from modules.atomic_io import append_jsonl
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG_SHA = "0f07178a0a9055584104a81beeec73fdc9b4e07175eb97e79e018d4205e17949"
+CONFIG_SHA = "9cc676b3bb463a9c409b1c718c29fdfff56192fc64db1e0f6a5e1fd4c07610a0"
 NOW = datetime(2026, 11, 9, tzinfo=timezone.utc)
 
 
