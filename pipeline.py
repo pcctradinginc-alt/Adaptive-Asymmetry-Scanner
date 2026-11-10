@@ -588,7 +588,8 @@ def load_history() -> dict:
             if not isinstance(data, dict):
                 raise ValueError("history.json ist kein dict")
             # NaN/ungültige Modell-Gewichte (z.B. aus Pearson auf konstanter
-            # Spalte) auf Defaults zurücksetzen, sonst ist QuasiML-Scoring NaN.
+            # Spalte) auf Defaults zurücksetzen. Seit 2026-11-09 scort nichts mehr damit; history.json
+            # behält das Feld nur für Altdaten und die Engine-Monitor-Diagnose.
             defaults = {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}
             weights  = data.get("model_weights")
             if not isinstance(weights, dict):
@@ -1177,7 +1178,7 @@ def main() -> None:
     # ── STUFE 2b-ext: External Context Snapshot (SHADOW, reine Observability) ─
     # WICHTIG: candidate["external_context"] wird an KEINER Stelle von einem
     # Produktions-Entscheidungspfad gelesen (Prescreener bereits gelaufen;
-    # Deep Analysis/MismatchScorer/MiroFish/QuasiML/RL/OptionsDesigner/
+    # Deep Analysis/MismatchScorer/MiroFish/OptionsDesigner/
     # TradeScorer bauen ihre Prompts/Features ausschließlich aus benannten
     # Feldern, nie aus einer vollständigen json.dumps(candidate)-Serialisierung
     # — daher kann dieses Feld nie in einen LLM-Prompt "durchsickern"). Ein

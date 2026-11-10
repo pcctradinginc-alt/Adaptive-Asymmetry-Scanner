@@ -86,7 +86,7 @@ def quarantine_duplicate_trades(state: dict, now: datetime | None = None) -> int
     """Exakte Duplikate in closed_trades (gleiche Trade-Identität, gleicher Close-Tag, gleicher Outcome) zählen nur
     einmal: Spätere Kopien wandern nach `closed_trades_quarantine` (nicht gelöscht, mit Grund). Idempotent.
     Hintergrund: Altbestand 2026-04-11 enthält mehrfach gebuchte, identische Trades. Jede Kopie floss bisher erneut
-    in Pearson-Gewichte, Robust-PPO-Training, Abstention-Vorschläge und Forward-Statistiken ein."""
+    in Pearson-Gewichte, Abstention-Vorschläge und Forward-Statistiken ein."""
     closed = state.get("closed_trades") or []
     seen: set = set()
     keep, moved = [], []

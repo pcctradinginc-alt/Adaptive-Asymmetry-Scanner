@@ -209,7 +209,7 @@ def enrich_with_sentiment_drift(
             f"trend={drift_data['trend']} drift={drift_data['drift']:+.3f}"
         )
 
-        # Drift in Features aufnehmen (für RL-Agent Observation-Vektor)
+        # Drift in Features aufnehmen (als Feature für Lern-/Forschungsauswertungen)
         features["sentiment_drift"]  = drift_data["drift"]
         features["sentiment_trend"]  = 1.0 if drift_data["trend"] == "rising" else (
             -1.0 if drift_data["trend"] == "falling" else 0.0

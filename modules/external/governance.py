@@ -2,7 +2,7 @@
 modules/external/governance.py – Lern-Governance für externe Features.
 
 Zweck: EXPLIZIT und versioniert festlegen, welche Features in
-Produktions-Lern-Pfaden (Pearson-Gewichte, QuasiML, RL-Observation) landen
+Produktions-Lern-Pfaden (z.B. Modell-Gewichte, Scoring-Features) landen
 dürfen. Alles, was nicht in dieser Liste steht, ist "unpromoted" und darf
 NIE in einen Produktions-Lernpfad einfließen — auch nicht versehentlich
 über **kwargs/dict-Merges.
@@ -63,8 +63,8 @@ def assert_no_unpromoted_in(features: "dict | list | set", context: str = "") ->
     Elemente einer Liste/Set) irgendein Feature enthält, das NICHT in
     production_learning_features() steht.
 
-    `context` ist nur für die Fehlermeldung (z.B. "QuasiML.weights",
-    "rl_environment.OBS_DIM", "feedback.compute_pearson_weights")."""
+    `context` ist nur für die Fehlermeldung (z.B. "scorer.weights",
+    "engine_monitor.weights")."""
     allowed = set(production_learning_features())
     names = set(features.keys()) if isinstance(features, dict) else set(features)
     unpromoted = names - allowed

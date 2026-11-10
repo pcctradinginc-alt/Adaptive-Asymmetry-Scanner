@@ -9,12 +9,13 @@ feedback.py – Adaptive Lern-Loop v5.0
     - get_current_option_price(): realisierbarer Preis (Verkauf=Bid), Tradier → yfinance
     - compute_outcome():          strategy-Parameter für saubere Call/Put-Erkennung
     - TRADIER_API_KEY via os.environ (bereits als GitHub Secret hinterlegt)
-    - Warum wichtig: RL-Agent trainiert auf Outcomes — falsche Preise (yfinance
-      ~15min delayed) führen zu fehlerhaften Lern-Signalen für den PPO-Agenten.
+    - Warum wichtig: Outcomes fließen in Lern-/Forschungsauswertungen — falsche
+      Preise (yfinance ~15min delayed) führen zu fehlerhaften Lern-Signalen.
+      (Seit 2026-11-09 gibt es kein RL-/PPO-Training mehr.)
 
 Änderungen v4.0:
-    - Nach Trade-Close: PPO-Agent wird auf neuem closed_trade nachtrainiert
-    - RL-Training: Inkrementelles Update (Continual Learning)
+    - Nach Trade-Close: closed_trade fließt in Lern-/Forschungsauswertungen
+      (historisch: inkrementelles PPO-Update; seit 2026-11-09 entfernt, kein RL/PPO-Training mehr)
     - Bestehende Fixes M-04, M-05 bleiben erhalten
 """
 
@@ -1008,9 +1009,8 @@ def update_bin(stats_dict: dict, feature: str, bin_label: str, outcome: float) -
 # Snapshot hätte sich bis dahin revidiert/weiterentwickelt; das würde die
 # Point-in-Time-Garantie des externen Kontexts verletzen).
 #
-# HARTE GARANTIE: Diese Stats fließen NIE in compute_pearson_weights(),
-# history["model_weights"], QuasiML-Scoring oder den RL-Agenten (Trainings-
-# Environment/Reward) ein. Sie sind ausschließlich deskriptiv für Menschen.
+# HARTE GARANTIE: Diese Stats fließen in keinen Produktions-Lernpfad
+# (Modell-Gewichte, Scoring, Entscheidungslogik) ein. Sie sind ausschließlich deskriptiv für Menschen.
 # (Siehe tests/test_feature_stats_external.py für den entsprechenden Guard-Test.)
 #
 # Streaming/Approximation: count und mean sind über ALLE Outcomes seit je exakt
@@ -1115,8 +1115,8 @@ def update_feature_stats_external(history: dict, trade: dict) -> None:
     älter als die External-Integration) oder kein Outcome vorliegt — bricht
     den Feedback-Loop nie (kein Raise).
 
-    WICHTIG: Siehe Modul-Docstring oben — diese Funktion füttert NIE
-    compute_pearson_weights()/history["model_weights"]/QuasiML/RL.
+    WICHTIG: Siehe Modul-Docstring oben — diese Funktion füttert keinen
+    Produktions-Lernpfad (Modell-Gewichte, Scoring, Entscheidungslogik).
     """
     ext = trade.get("external_context_entry")
     if not isinstance(ext, dict) or not ext:

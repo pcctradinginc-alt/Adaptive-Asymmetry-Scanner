@@ -21,8 +21,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOWS = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
 # pip-Name -> Import-Name (nur wo abweichend)
-IMPORT_NAME = {"pyyaml": "yaml", "scikit-learn": "sklearn", "python-box": "box", "stable-baselines3":
-               "stable_baselines3"}
+IMPORT_NAME = {"pyyaml": "yaml", "scikit-learn": "sklearn", "python-box": "box"}
 # kleinste Major-Version mit `runs.using: node24` (geprüft an den action.yml der Tags, 2026-10-15)
 NODE24_MIN = {"actions/checkout": 5, "actions/setup-python": 6, "actions/cache": 5, "actions/upload-artifact": 6,
               "actions/download-artifact": 7}
