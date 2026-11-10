@@ -45,10 +45,10 @@ def _sha(obj) -> str:
 
 
 def prompt_versions() -> dict:
-    """Versionen der LLM-Prompts (Inhalt + Parameter), die über die Kandidaten entscheiden."""
-    from modules import analysis_cache, deep_analysis, prescreener
-    return {"deep_analysis": deep_analysis.PROMPT_VERSION,
-            "prescreener": analysis_cache.prompt_version(prescreener.SYSTEM_PROMPT)}
+    """Versionen der LLM-Prompts (Vorlagen + Sampling temperature=0@2023-06-01), die über die Kandidaten
+    entscheiden. Ein Sampling-Fallback zur Laufzeit steht je Ergebnis in llm_audit.sampling."""
+    from modules import deep_analysis, prescreener
+    return {"deep_analysis": deep_analysis.PROMPT_VERSION, "prescreener": prescreener.PROMPT_VERSION}
 
 
 def decision_config(config: Path = CONFIG, economics_first: Path = ECONOMICS_FIRST) -> dict:

@@ -30,6 +30,9 @@ def _isolate_cost_telemetry(tmp_path_factory, monkeypatch):
     # Message Batches nur in Tests, die sie explizit einschalten (sonst würde ein Mock-Client
     # bis zur maximalen Wartezeit gepollt).
     monkeypatch.setattr(ct, "batch_settings", lambda *a, **k: None)
+    # Sampling-Override (temperature=0 @ API 2023-06-01) ist prozessweit; ein Fallback in einem Test darf nie in
+    # den nächsten durchschlagen.
+    ct.reset_sampling()
 
 
 @pytest.fixture(autouse=True)

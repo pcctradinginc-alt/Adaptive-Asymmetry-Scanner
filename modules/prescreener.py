@@ -96,9 +96,16 @@ Richtwert: ~15% YES bei vorhandenen Signalen. Vergib [YES] NUR bei echtem Signal
 An nachrichtenarmen Tagen ist 0% YES korrekt — erzwinge keine Quote."""
 
 
-# Prompt-Version fürs Audit (Vorlagen); das Prescreening hat keinen Cache. Keine Sampling-Parameter: die
-# API-Version 2026-10-21 (anthropic>=2.0) lehnt temperature/top_p/top_k auf jedem Modell ab.
-PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, USER_TEMPLATE, USER_TEMPLATE_COMPACT)
+# Prompt-Version fürs Audit und A/B-Regime (Vorlagen + Sampling); das Prescreening hat keinen Cache. Es läuft mit
+# temperature=0 über die API-Version 2023-06-01 (cost_telemetry, Aktionsplan P8); nach einem Fallback gilt die
+# Default-Version.
+PROMPT_VERSION_DEFAULT = analysis_cache.prompt_version(SYSTEM_PROMPT, USER_TEMPLATE, USER_TEMPLATE_COMPACT)
+PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, USER_TEMPLATE, USER_TEMPLATE_COMPACT,
+                                               cost_telemetry.SAMPLING_TAG)
+
+
+def prompt_version_now() -> str:
+    return PROMPT_VERSION if cost_telemetry.sampling_active() else PROMPT_VERSION_DEFAULT
 
 
 def _compact_mode() -> str:
@@ -112,7 +119,8 @@ def _active_template() -> str:
     """Kompakte Vorlage nur nach bestandenem gepaarten Vergleich (Kostenoptimierung); einmal je Prozess."""
     try:
         if "active" not in _TEMPLATE_DECISION:
-            _TEMPLATE_DECISION["active"] = bool(model_routing.compact_decision().get("active"))
+            _TEMPLATE_DECISION["active"] = bool(
+                model_routing.compact_decision(prompt_version=prompt_version_now()).get("active"))
         return USER_TEMPLATE_COMPACT if _TEMPLATE_DECISION["active"] else USER_TEMPLATE
     except Exception as e:  # noqa: BLE001 – im Zweifel bewährte Vorlage
         log.debug(f"prescreen compact: Entscheidung nicht verfügbar: {e}")
@@ -239,9 +247,10 @@ class Prescreener:
                 "messages": [{"role": "user", "content": prompt}]}
 
     @staticmethod
-    def _with_audit(results: list, params: dict, response) -> list:
-        """Hängt je Ergebnis das Audit-Feld llm_audit (Hashes der Batch-Anfrage/-Antwort) an."""
-        audit = analysis_cache.llm_audit(params, response, version=PROMPT_VERSION)
+    def _with_audit(results: list, params: dict, response, sampled: bool = False) -> list:
+        """Hängt je Ergebnis das Audit-Feld llm_audit (Hashes der Batch-Anfrage/-Antwort, Sampling) an."""
+        audit = analysis_cache.llm_audit(params, response, sampled=sampled,
+                                         version=PROMPT_VERSION if sampled else PROMPT_VERSION_DEFAULT)
         for r in results:
             if isinstance(r, dict):
                 r["llm_audit"] = dict(audit)
@@ -277,15 +286,17 @@ class Prescreener:
         n_check = int((cost_telemetry.policy().get("prescreen_compact") or {}).get("check_batches_per_run", 1))
         checks = {"pc-" + cid[3:]: self._params(batches[int(cid[3:])], other)
                   for cid in model_routing.sample(list(requests), n_check)} if _compact_mode() != "off" else {}
+        sampled: dict = {}
         msgs = cost_telemetry.run_batch(self.client, workflow="prescreening", requests={**requests, **checks},
-                                        max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"])
+                                        max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"],
+                                        sampling=True, sampling_out=sampled)
         out = {}
         for cid, msg in msgs.items():
             if not cid.startswith("ps-"):
                 continue
             i = int(cid.split("-", 1)[1])
             try:
-                out[i] = self._with_audit(self._parse(msg), requests[cid], msg)
+                out[i] = self._with_audit(self._parse(msg), requests[cid], msg, bool(sampled.get("used")))
             except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
                 log.warning(f"    Batch-Antwort {i + 1} unlesbar ({e}) → synchroner Retry")
         for cid in checks:
@@ -296,7 +307,8 @@ class Prescreener:
                 except (json.JSONDecodeError, KeyError, AttributeError, IndexError):
                     alt = []
                 cost_telemetry.record(model_routing.prescreen_pair(out[i], alt, compact_is_reference=(
-                    active is USER_TEMPLATE_COMPACT)))
+                    active is USER_TEMPLATE_COMPACT),
+                    prompt_version=PROMPT_VERSION if sampled.get("used") else PROMPT_VERSION_DEFAULT))
         return out
 
     def _call_with_retry(self, batch: list[dict]) -> list | None:
@@ -304,9 +316,10 @@ class Prescreener:
 
         for attempt in range(1, MAX_RETRIES + 1):
             try:
+                sampled: dict = {}
                 response = cost_telemetry.tracked_create(
-                    self.client, workflow="prescreening", **params)
-                results = self._with_audit(self._parse(response), params, response)
+                    self.client, workflow="prescreening", sampling=True, sampling_out=sampled, **params)
+                results = self._with_audit(self._parse(response), params, response, bool(sampled.get("used")))
                 log.info(
                     f"    Batch OK (Versuch {attempt}): "
                     f"{len(results)} Ticker bewertet"
