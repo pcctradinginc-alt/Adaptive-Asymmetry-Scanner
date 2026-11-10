@@ -138,3 +138,18 @@ def test_unapproved_snapshot_expansion_stays_at_champion_baseline(monkeypatch):
 def test_champion_rule_hash_and_trading_config_unchanged():
     assert cp.decision_config_sha() == cp.load_protocol()["decision_config_sha256"]
     assert lf.POLICY not in str(cp.decision_config())
+
+
+def test_delayed_census_cannot_touch_production_analysis_cache(monkeypatch):
+    import inspect
+    from modules.deep_analysis import DeepAnalysis
+    from modules import analysis_cache
+
+    da = object.__new__(DeepAnalysis)
+    da.cache_enabled = False
+    def forbidden(*args, **kwargs):
+        raise AssertionError("production cache accessed by research")
+    monkeypatch.setattr(analysis_cache, "lookup", forbidden)
+    assert da._lookup_cache({"cache_key": "x", "ticker": "AAA"}) is None
+    # Store is protected by the same per-instance guard as lookup.
+    assert 'and getattr(self, "cache_enabled", True)' in inspect.getsource(DeepAnalysis._complete)
