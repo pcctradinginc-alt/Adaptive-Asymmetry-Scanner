@@ -25,7 +25,7 @@ import statistics
 import sys
 from datetime import date as _date, datetime, timedelta, timezone
 from pathlib import Path
-from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED, calibration_status
+from modules.score_labels import TARGET_HIT_EXPLANATION, calibration_status
 from modules.outcomes import artifact_is_current, class_counts, is_reliable_outcome, outcome_class
 
 log = logging.getLogger(__name__)
@@ -44,6 +44,8 @@ NO_HC_TEXT = "No high-confidence candidates this week."
 FIRST_REPORT_TEXT = "Erster Bericht – keine Vergleichsbasis."
 NO_DATA = "keine Daten"
 NA = "n/a"
+TARGET_HIT_MC_LABEL = "Target-Hit-Score (MC, unkalibriert)"   # MC-Ausgabe, keine Gewinnwahrscheinlichkeit
+RL_REMOVED_TEXT = "RL/PPO: entfernt (2026-11-09) – kein Lernpfad mehr"
 META_METRICS = ("cagr", "sharpe", "sortino", "max_dd", "calmar", "profit_factor",
                 "hit_rate", "expectancy", "brier", "ece")
 # Montagsbericht: Hauptabschnitte und Detailanhang; Alpha-Lernen ohne Extra-Mail.
@@ -64,7 +66,7 @@ MONDAY_TITLES = {
 ROI_SUBGATE_MIN_N = 30          # darunter keine Schlussfolgerung je ROI-Teil-Gate
 NO_TRADE_TEXT = "NO HIGH-CONFIDENCE TRADE THIS WEEK."
 # Berichts-Label (kein Trade-Gate): HIGH-CONFIDENCE nur, wenn das Target-Hit-Score-Band des Kandidaten
-# auf echten Paper-Trades belegt ist (n >= 20, Expectancy > 0, Profit Factor >= 1,2) und kein Safe Mode gilt.
+# auf echten Paper-Trades belegt ist (n >= 20, Expectancy > 0, Profit Factor >= 1,2) und kein Research-Safe-Mode gilt.
 HC_BAND_MIN_N, HC_BAND_MIN_PF, CAL_MIN_N = 20, 1.2, 10
 SCOREBOARD_GROUPS = ("RESEARCH IDEA", "CHALLENGER", "FORWARD VALIDATED", "PROMOTED", "REJECTED")
 LEARN_DAYS = 7
@@ -394,7 +396,7 @@ def diff_snapshots(prev: dict | None, cur: dict) -> list[str] | None:
     a, b = prev.get("calibration_coverage"), cur["calibration_coverage"]
     if (a is None) != (b is None) or (a is not None and abs(a - b) > 1e-9):
         out.append(f"Kalibrierung coverage {_fv(a)}->{_fv(b)}")
-    for key, label in (("champion", "Champion"), ("safe_mode", "Safe Mode"), ("meta_verdict", "Meta-Verdikt")):
+    for key, label in (("champion", "Champion"), ("safe_mode", "Research-Safe-Mode"), ("meta_verdict", "Meta-Verdikt")):
         if prev.get(key) != cur.get(key):
             out.append(f"{label}: {_fv(prev.get(key))} -> {_fv(cur.get(key))}")
     return out
@@ -547,7 +549,6 @@ def collect(root, date, state_path=None) -> dict:
                                   and (_parse_date(r.get("date")) or _date.min) >= today - timedelta(days=7)] if _sel.is_dir() else []
     data["mc_calibration"] = (data["paper_perf"].get("mc_hit_rate_calibration")
                               if artifact_is_current(data["paper_perf"]) else None)
-    data["rl_status"] = _load_json(rs / "rl_promotion.json")
     try:                                              # API-Kosten: Projektion (rein lesend, Ledger)
         from modules import cost_telemetry as _ct
         data["api_cost"] = _ct.projection(_ct.load_ledger(today - timedelta(days=45), today + timedelta(days=1),
@@ -938,7 +939,7 @@ def compute_warnings(data: dict) -> list[dict]:
                 break
     active, _txt = safe_mode_status(data.get("safe"))        # kanonischer SystemState
     if active is not False:
-        add("SAFE MODE", "Safe Mode " + ("aktiv" if active else "UNBEKANNT") + " (keine HC-Alerts, stabiler Champion): "
+        add("SAFE MODE", "Research-Safe-Mode (sperrt Research-Einfluss; Champion-Gates unverändert) " + ("aktiv" if active else "UNBEKANNT") + " (keine HC-Alerts, stabiler Champion): "
             + "; ".join(map(str, _d(data.get("safe")).get("safe_mode_reason") or [])))
     wc = _d(_d(data.get("world")).get("current"))
     if _num(wc.get("uncertainty")) is not None and wc["uncertainty"] >= 0.6:
@@ -1065,7 +1066,7 @@ def detail_sections(data: dict) -> list[tuple[int, str, list]]:
             (HISTORICAL_WF_LABEL, ((" | ".join(cal_parts) + " – Walk-Forward-OOS/historisch, KEINE Forward-Evidenz")
                                    if cal_parts else NO_DATA)),
             (LIVE_FORWARD_LABEL, live_forward_text(data)),
-            ("Safe Mode", safe_mode_status(data.get("safe"))[1]
+            ("Research-Safe-Mode (sperrt Research-Einfluss; Champion-Gates unverändert)", safe_mode_status(data.get("safe"))[1]
              + (f" · aktives Ensemble {st.get('active_ensemble')}" if st.get("active_ensemble") else "")),
             ("Datenstand der Artefakte", data_stand(data)),
             ("Tägliche Scanner-Mail", "wird NICHT vom Research-/Intelligenz-Stack gesteuert (LLM-Pipeline, "
@@ -1356,7 +1357,7 @@ def _calibrated_p(mc_hit, calib) -> str:
 
 
 def is_high_confidence(p: dict, data: dict) -> bool:
-    """Berichts-Label: kalibriertes Band auf echten Paper-Trades belegt und kein Safe Mode."""
+    """Berichts-Label: kalibriertes Band auf echten Paper-Trades belegt und kein Research-Safe-Mode."""
     if safe_mode_status(data.get("safe"))[0] is not False:
         return False
     _, b = _band(p.get("mc_hit_rate") or _d(p.get("simulation")).get("hit_rate"), data.get("mc_calibration"))
@@ -1388,7 +1389,8 @@ def _candidate_blocks(p: dict, data: dict) -> list:
                                    f"{_f(lf.get('ml_q90_ret_60'), pct=True, sign=True)}] – ML-Research-Schätzung, "
                                    f"nicht produktiv validiert") if lf.get("ml_exp_ret_60") is not None else NA),
         ("Erwartete Rendite 120d", NA + " (kein Modell)"),
-        (f"{TARGET_HIT_LABEL} ({calibration_status(data.get('paper_perf'))})",
+        (TARGET_HIT_MC_LABEL if calibration_status(data.get('paper_perf')) == "uncalibrated"
+         else f"Target-Hit-Score (MC, {calibration_status(data.get('paper_perf'))})",
          _fv(p.get("mc_hit_rate") or sim.get("hit_rate")) + " – Ranking signal only"),
         ("Band-Win-Rate des Target-Hit Score (Paper-Trades, deskriptiv; Status siehe LIVE_FORWARD_CALIBRATION)", _calibrated_p(p.get("mc_hit_rate") or sim.get("hit_rate"), data.get("mc_calibration"))),
         ("Erwarteter Drawdown / MAE", (f"{_f(lf.get('ml_exp_dd_60'), pct=True, sign=True)} (60d, ML-Research)"
@@ -1460,7 +1462,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     cnt = _d(dh.get("counts"))
     secs.append((1, MONDAY_TITLES[1], [("kv", [
         ("Health", f"{dh.get('status', NA)} · Data Quality {_fv(dh.get('data_quality'))}" if dh else NO_DATA),
-        ("Safe Mode", safe_mode_status(st)[1]),
+        ("Research-Safe-Mode (sperrt Research-Einfluss; Champion-Gates unverändert)", safe_mode_status(st)[1]),
         ("Drift", f"{dr.get('level', NA)}" + (" – " + "; ".join(map(str, dr.get("reasons") or [])) if dr.get("reasons") else "")
                   + drift_input_text(dr)),
         ("Datenquellen", ", ".join(f"{k} {v}" for k, v in cnt.items()) if cnt else NO_DATA),
@@ -1579,10 +1581,10 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
                    f"{LEARN_DAYS} Tage). Research-/Backtest-Kandidaten erscheinen hier nie (siehe Anhang A6).")]
     active, _ = safe_mode_status(st)
     if active is not False:
-        b6.append(("para", "Safe Mode aktiv oder unbekannt: keine positiven Intelligence-Boosts; nur Champion-Entscheidungen."))
+        b6.append(("para", "Research-Safe-Mode aktiv oder unbekannt: keine positiven Intelligence-Boosts, Promotionen pausiert (Champion-Gates unverändert)."))
     hc = [p for p in props if is_high_confidence(p, data)]
     b6.append(("note", f"HIGH-CONFIDENCE (Berichts-Label, kein Gate): Target-Hit-Score-Band mit gemessener Win Rate auf echten Paper-Trades "
-                       f"mit n >= {HC_BAND_MIN_N}, Expectancy > 0, Profit Factor >= {HC_BAND_MIN_PF}; kein Safe Mode."))
+                       f"mit n >= {HC_BAND_MIN_N}, Expectancy > 0, Profit Factor >= {HC_BAND_MIN_PF}; kein Research-Safe-Mode."))
     if not hc:
         b6.append(("para", NO_TRADE_TEXT))
     for p in hc[:5]:
@@ -1614,9 +1616,9 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
     cal = _d(data.get("mc_calibration"))
     if cal:
         b7.append(("para", f"{LIVE_FORWARD_LABEL}: {live_forward_text(data)}. Deskriptive Band-Tabelle "
-                           f"(nur RELIABLE Paper-Trades, {TARGET_HIT_LABEL} ({UNCALIBRATED}) vs. realisierte Win Rate). "
+                           f"(nur RELIABLE Paper-Trades, {TARGET_HIT_MC_LABEL} vs. realisierte Win Rate). "
                            f"{TARGET_HIT_EXPLANATION}"))
-        b7.append(("table", ["Band", "n", f"Ø {TARGET_HIT_LABEL}", "realisierte Win Rate", "Expectancy", "PF"],
+        b7.append(("table", ["Band", "n", f"Ø {TARGET_HIT_MC_LABEL}", "realisierte Win Rate", "Expectancy", "PF"],
                    [[k, str(_d(v).get("n")), _f(_d(v).get("predicted_hit_rate"), pct=True), _f(_d(v).get("win_rate"), pct=True),
                      _f(_d(v).get("mean"), pct=True, sign=True), _fv(_d(v).get("profit_factor"))] for k, v in cal.items()], []))
     models = _d(ml.get("models"))
@@ -1636,8 +1638,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
         b7.append(("kv", [(k, _fv(mm.get(k))) for k in META_METRICS if k in mm] or [("Metriken", NO_DATA)]))
     else:
         b7.append(("para", NO_DATA))
-    rl = _d(data.get("rl_status"))
-    b7.append(("para", f"RL-Agent: {rl.get('status', 'keine Bewertung')}" + (f" – {rl.get('summary')}" if rl.get("summary") else "")))
+    b7.append(("para", RL_REMOVED_TEXT))
     secs.append((7, MONDAY_TITLES[7], b7))
     secs.append((8, MONDAY_TITLES[8], forward_evidence_blocks(data)))
     secs.append((9, MONDAY_TITLES[9], universe_blocks(data)))
@@ -1667,8 +1668,7 @@ def learning_progress_blocks(data: dict) -> list:
         out.append(("list", ["keine geschlossenen Trades in dieser Woche"]))
     le = _d(data.get("learning_eta"))
     if le:
-        lab = {"meta_label": "Meta-Label-Training", "rl_arming": "RL-Freischaltung",
-               "champion_evidence": "Champion-Evidenz"}
+        lab = {"meta_label": "Meta-Label-Training", "champion_evidence": "Champion-Evidenz"}
         out.append(("para", "Lern-Prognose (bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage):"))
         out.append(("list", [f"{lab[k]}: {_fv(_d(le.get(k)).get('have'))}/{_fv(_d(le.get(k)).get('need'))} – "
                              f"voraussichtlich ab {_d(le.get(k)).get('eta') or 'nicht absehbar'}"

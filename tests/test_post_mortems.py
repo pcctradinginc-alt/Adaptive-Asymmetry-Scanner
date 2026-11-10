@@ -51,13 +51,12 @@ def test_post_mortems_only_closed_trades_sorted_and_rendered():
 def test_weekly_learning_progress_block():
     data = {"post_mortems_week": [tm.post_mortem(case("a", "2026-10-01", "2026-10-06", -0.5, -0.06, "signal_wrong",
                                                       ["signal_wrong"]), [])],
-            "learning_eta": {"meta_label": {"have": 0, "need": 200, "eta": "2026-12-01"},
-                             "rl_arming": {"have": 9, "need": 30, "eta": None}}}
+            "learning_eta": {"meta_label": {"have": 0, "need": 200, "eta": "2026-12-01"}}}
     blocks = w.learning_progress_blocks(data)
     table = next(b for b in blocks if b[0] == "table")
     assert table[2][0][0] == "A" and table[2][0][2] == "LOSS" and table[3] == ["bad"]
     eta = next(b for b in blocks if b[0] == "list" and any("Meta-Label" in x for x in b[1]))
-    assert "voraussichtlich ab 2026-12-01" in eta[1][0] and "nicht absehbar" in eta[1][1]
+    assert "voraussichtlich ab 2026-12-01" in eta[1][0] and "RL" not in " ".join(eta[1])
     empty = w.learning_progress_blocks({"post_mortems_week": [], "learning_eta": {}})
     assert ("list", ["keine geschlossenen Trades in dieser Woche"]) in empty
     assert w._recent("2026-10-08", date(2026, 10, 12)) and not w._recent("2026-10-01", date(2026, 10, 12))
@@ -66,7 +65,7 @@ def test_weekly_learning_progress_block():
 def test_weekly_reads_learning_eta_from_real_ops_status_format(tmp_path):
     """ops_report legt die Abschnitte unter "status" ab (wie outputs/monitoring/ops_status.json)."""
     import json
-    eta = {"meta_label": {"have": 0, "need": 200, "eta": "2026-11-24"}, "rl_arming": {"have": 12, "need": 30}}
+    eta = {"meta_label": {"have": 0, "need": 200, "eta": "2026-11-24"}}
     real = tmp_path / "real.json"
     real.write_text(json.dumps({"schema": "ops-status-v1", "as_of": "2026-10-16", "status": {"learning_eta": eta},
                                 "row": {}, "alerts": []}))

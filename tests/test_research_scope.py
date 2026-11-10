@@ -52,8 +52,8 @@ def test_cli_writes_github_outputs(tmp_path, monkeypatch):
 def test_learning_health_reports_frozen_generation_and_removed_rl(tmp_path):
     rep = learning_health.assess(root=tmp_path, now=datetime(2026, 11, 10, tzinfo=timezone.utc))
     assert rep["paths"]["research_generation"]["status"] == "FROZEN"
-    assert rep["paths"]["rl"]["status"] == "REMOVED"
-    assert "research_generation" not in rep["stalled_or_broken"] and "rl" not in rep["stalled_or_broken"]
+    assert "rl" not in rep["paths"]                                     # RL/PPO entfernt: kein Pfad mehr
+    assert "research_generation" not in rep["stalled_or_broken"]
 
 
 def test_frozen_code_is_pinned_and_unchanged():

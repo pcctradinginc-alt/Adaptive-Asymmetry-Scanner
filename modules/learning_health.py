@@ -16,7 +16,7 @@ from pathlib import Path
 
 # Erwartete Kadenz je Pfad (Tage) – darüber ohne neues Artefakt: STALLED
 MAX_AGE = {"outcome_ingestion": 45, "shadow_lifecycle": 60, "research_generation": 40, "hypothesis_testing": 40,
-           "promotion_pipeline": 5, "universe_v2": 9, "commodity_intelligence": 40, "rl": 40, "research_memory": 40,
+           "promotion_pipeline": 5, "universe_v2": 9, "commodity_intelligence": 40, "research_memory": 40,
            "calibration": 10}
 OK_STATES = ("OK", "ACTIVE", "SHADOW", "RESEARCH", "NEED_MORE_DATA")
 
@@ -213,10 +213,6 @@ def assess(root: Path | None = None, now: datetime | None = None, data_health: d
     srcs = ((data_health or {}).get("commodity") or {})
     put("commodity_sources", srcs.get("overall", "UNVALIDATED"), str(srcs.get("sources") or "kein Health-Snapshot"))
 
-    # RL/PPO am 2026-11-09 aus dem Produktionspfad entfernt (Aktionsplan Punkt 2): kein Lernpfad mehr, nichts zu
-    # überwachen; Altdaten (outputs/models) bleiben unverändert erhalten.
-    put("rl", "REMOVED", "RL/PPO entfernt (2026-11-09) – kein Lernpfad, keine Entscheidungswirkung")
-
     mem = _jl(o / "research" / "research_memory.jsonl")
     st, dd = _fresh(max((str(e.get("recorded_at") or "") for e in mem), default=""), "research_memory", now, "ACTIVE")
     put("research_memory", st, f"{len(mem)} Einträge ({dd})")
@@ -232,5 +228,5 @@ def render_lines(lh: dict) -> list[tuple[str, str]]:
              "promotion_pipeline": "Promotion pipeline", "demotion_pipeline": "Demotion pipeline",
              "calibration": "Calibration", "universe_v1": "Universe V1", "universe_v2": "Universe V2",
              "commodity_intelligence": "Commodity Intelligence", "commodity_sources": "Commodity Sources",
-             "rl": "RL", "research_memory": "Research Memory"}
+             "research_memory": "Research Memory"}
     return [(names.get(k, k), f"{v['status']} – {v['detail']}") for k, v in (lh.get("paths") or {}).items()]
