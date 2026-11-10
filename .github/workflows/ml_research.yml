@@ -271,6 +271,20 @@ jobs:
         continue-on-error: true
         run: python -m modules.research_evidence_discovery --as-of "$(date -u +%Y-%m-%d)"
 
+      # Forensic entry-price audit. Never supplies synthetic historical quotes.
+      - name: Options-Labels – original missing entry-price evidence audit
+        id: label_forensics
+        if: env.MODE == 'weekly'
+        continue-on-error: true
+        run: python -m modules.option_label_forensics --as-of "$(date -u +%Y-%m-%d)"
+
+      # Compare a frozen no-LLM baseline on AFTER-decision RTH bid/ask.
+      - name: LLM-free options baseline – forward paper evidence
+        id: llm_free_evaluation
+        if: env.MODE == 'weekly'
+        continue-on-error: true
+        run: python -m modules.llm_free_challenger evaluate --date "$(date -u +%Y-%m-%d)"
+
       # PR #180: the existing quote-provenance discovery runs first. These
       # audits merely count observed rows / measured source cost, never fetch
       # new market data, issue quote requests, register hypotheses or alter caps.
@@ -299,7 +313,7 @@ jobs:
         id: llm_census
         if: env.MODE == 'weekly'
         continue-on-error: true
-        run: python -m modules.llm_census report --as-of "$(date -u +%Y-%m-%d)"
+        run: python -m modules.llm_census_external report --date "$(date -u +%Y-%m-%d)"
 
       - name: Options-Lernmodell – Walk-Forward und Forward-Auswertung (5 T / 20 T)
         id: option_learner
