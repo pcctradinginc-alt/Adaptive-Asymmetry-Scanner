@@ -5,6 +5,7 @@
 # census_*-Felder im Kandidaten-Ledger, nie im Trade-, Snapshot- oder Score-Pfad. Kosten: k Sonnet-Analysen je Lauf
 # (Cache, Temperatur 0), eigenes Zeitbudget am Laufende nach allen Champion-Entscheidungen.
 enabled: true
-k: 2
-budget_s: 240          # Zeitbudget der Zensus-Analysen am Laufende
+execution: external      # freeze on signal day, analyze only in separate post-scanner workflow
+k: 5                   # gradual expansion: 5 -> 10 only after measured cost/coverage
+budget_s: 420          # Zeitbudget der Zensus-Analysen am Laufende
 min_reserve_s: 120     # bleibt immer für Ledger, Bericht und Mail übrig
