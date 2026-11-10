@@ -3,8 +3,9 @@ modules/engine_monitor.py – Engine-Überwachung (reine Observability)
 
 Zweck:
   Der Scanner hat mehrere Paralleltests laufen (Schatten-Trades, Trailing-Sim),
-  eine mehrstufige Gate-Pipeline und einen Lern-Loop, der auf model_weights
-  schreibt. Bricht irgendwo etwas (Datenquelle tot, Gate zu scharf, NaN im
+  eine mehrstufige Gate-Pipeline und einen Lern-Loop (Feature-Bins/Outcomes;
+  das Pearson-Gewichts-Update auf model_weights ist seit 2026-11-09 entfernt).
+  Bricht irgendwo etwas (Datenquelle tot, Gate zu scharf, NaN im
   Lern-Loop), fällt das bisher nur auf, wenn jemand manuell in die JSONs
   schaut. Dieses Modul baut daraus einen Health-Report, der jeden Lauf
   automatisch mitprüft.
@@ -19,7 +20,7 @@ Checks in build_health_report():
   b) PARALLELTEST     – Reife-Übersicht der Schatten-Trades / Trailing-Sim
      -REIFE             (keine Warnung, nur Metrics für die Kalibrierung)
   c) LERN-LOOP-SANITY – NaN-/Null-Gewichte, verwaiste (überfällige) Trades,
-                        Feature-Korrelationen mit Outcome (Lern-Loop-Freeze)
+                        Feature-Korrelationen mit Outcome (nur Diagnose)
   d) DATA-HEALTH      – Läuft der Scanner noch? Kommen sinnvolle Daten rein?
 """
 
@@ -295,13 +296,23 @@ def _check_learn_loop_sanity(
 ) -> dict:
     """
     Prüft Sanity des Lern-Loops: verwaiste Trades,
-    und Feature-Korrelationen mit Outcome.
+    und Feature-Korrelationen mit Outcome (rein Diagnose).
+
+    Das Pearson-Gewichts-Update (feedback.compute_pearson_weights) wurde am
+    2026-11-09 zusammen mit QuasiML/RL entfernt; history["model_weights"] wird
+    weder aktualisiert noch zum Scoren verwendet.
 
     Returns dict mit:
-      - learn_loop_frozen: bool (True wenn >= 20 trades und alle Korrelationen <= 0)
-      - feature_corr: dict mit Korrelationswerten (oder {})
+      - weight_update_status: immer "REMOVED"
+      - weight_learning: Hinweistext zum entfernten Gewichts-Lernpfad
+      - learn_loop_frozen: immer False (kein Gewichts-Lernpfad, der einfrieren könnte)
+      - feature_corr: RELIABLE-Korrelationen ab 20 RELIABLE (Diagnose, oder {})
+      - feature_corr_exploratory, n_reliable, n_non_reliable: Diagnose
     """
-    metrics = {"learn_loop_frozen": False, "feature_corr": {}}
+    metrics = {"learn_loop_frozen": False, "feature_corr": {},
+               "weight_update_status": "REMOVED",
+               "weight_learning": ("REMOVED (2026-11-09: Pearson-Update mit QuasiML/RL entfernt; "
+                                   "Korrelationen nur Diagnose)")}
 
     stale_cutoff = close_after_days + 30
     stale = []
@@ -320,9 +331,8 @@ def _check_learn_loop_sanity(
             f"(sollte(n) längst geschlossen sein): {', '.join(stale[:5])}."
         )
 
-    # Lern-Loop-Status (Audit 2026-10-09): Die Gewichte (Pearson-Update, 2026-11-09 entfernt) lernten
-    # NUR aus RELIABLE-Outcomes und erst ab MIN_RELIABLE_FOR_WEIGHT_UPDATE. Der Hauptgrund für
-    # unveränderte Gewichte ist daher die RELIABLE-Anzahl, nicht eine Korrelation über alle Trades.
+    # Lern-Loop-Status: Das Pearson-Gewichts-Update wurde 2026-11-09 entfernt (weight_update_status
+    # = "REMOVED", nie "frozen"). Zählungen und Korrelationen bleiben als reine Diagnose erhalten;
     # Korrelationen über alle Trades (inkl. UNKNOWN/RECONSTRUCTED) sind nur EXPLORATORY.
     try:
         from modules.outcomes import MIN_RELIABLE_FOR_WEIGHT_UPDATE, is_reliable_outcome
@@ -335,34 +345,9 @@ def _check_learn_loop_sanity(
 
         exploratory = _feature_correlations(valid_trades) if len(valid_trades) >= 20 else {}
         metrics["feature_corr_exploratory"] = exploratory
-        expl_txt = ""
-        if exploratory:
-            corr_str = ", ".join(f"{feat}={val:.3g}" for feat, val in sorted(exploratory.items()))
-            expl_txt = (f" EXPLORATORY-Korrelation (nur Diagnose, keine Gewichtswirkung): n={len(valid_trades)}, "
-                        f"davon {n_rel} RELIABLE und {n_non} NON_RELIABLE – {corr_str}; "
-                        f"not eligible for production learning / weight update.")
-
-        if n_rel < MIN_RELIABLE_FOR_WEIGHT_UPDATE:
-            metrics["weight_update_status"] = "NEED_MORE_DATA"
-            metrics["learn_loop_frozen"] = True
-        if n_rel < MIN_RELIABLE_FOR_WEIGHT_UPDATE and len(valid_trades) >= 20:
-            # Warnung in denselben Situationen wie bisher (>= 20 geschlossene Trades), aber mit echtem Grund
-            warnings.append(
-                f"Gewichts-Update: NEED_MORE_DATA – zu wenig belastbare Trades: {n_rel} RELIABLE, "
-                f"mindestens {MIN_RELIABLE_FOR_WEIGHT_UPDATE} erforderlich. Gewichte bleiben unverändert."
-                + expl_txt)
-        if n_rel >= MIN_RELIABLE_FOR_WEIGHT_UPDATE:
-            metrics["weight_update_status"] = "ELIGIBLE"
-            # Freeze-Erkennung nur auf RELIABLE-Outcomes (ab 20, wie bisher)
-            rel_corr = _feature_correlations(reliable) if n_rel >= 20 else {}
-            metrics["feature_corr"] = rel_corr
-            if rel_corr and all(corr <= 0 for corr in rel_corr.values()):
-                metrics["learn_loop_frozen"] = True
-                corr_str = ", ".join(f"{feat}={val:.3g}" for feat, val in sorted(rel_corr.items()))
-                warnings.append(
-                    f"Lern-Loop eingefroren: alle RELIABLE-Feature-Korrelationen ≤ 0 (n={n_rel} RELIABLE; "
-                    f"{corr_str}) → kein positives Lernsignal, Gewichte ändern sich nicht."
-                    + expl_txt)
+        # Rein diagnostisch: RELIABLE-Korrelation ab 20 RELIABLE (wie bisher), keine Warnung,
+        # kein Freeze-Status – es gibt keinen Gewichts-Lernpfad mehr.
+        metrics["feature_corr"] = _feature_correlations(reliable) if n_rel >= 20 else {}
 
     except Exception as e:
         # Fehler in Korrelations-Berechnung → nur loggen, keine Warnung
@@ -537,10 +522,10 @@ def _check_feature_stats_external_reliability(history: dict, rows: list[dict],
 
 
 def _check_promoted_external_dominance(warnings: list[str]) -> dict:
-    """Placeholder-Check: sind externe Features promotet (learning.
-    promoted_external_features nicht leer) UND macht eine davon >50% des
-    model_weights-Gewichts aus? (Platzhalter — model_weights enthält heute
-    keine externen Features; wird relevant, sobald eine Promotion erfolgt.)"""
+    """Hinweis-Check: sind externe Features promotet (learning.
+    promoted_external_features nicht leer)? Seit 2026-11-09 gibt es keinen
+    Lern-Loop mehr, der model_weights schreibt; ein Gewichts-Dominanz-Check
+    ist daher nicht möglich. Die Warnung verweist auf die manuelle Prüfung."""
     try:
         from modules.config import cfg as _cfg
         learning = getattr(getattr(_cfg, "external_context", None), "learning", None)
@@ -551,9 +536,8 @@ def _check_promoted_external_dominance(warnings: list[str]) -> dict:
         return {"promoted_external_features": []}
     warnings.append(
         f"{len(promoted)} externe Feature(s) sind promotet "
-        f"({', '.join(promoted)}) — Gewichtsanteil im Lern-Loop manuell prüfen "
-        f"(automatischer Dominanz-Check greift erst, sobald model_weights "
-        f"externe Features führt)."
+        f"({', '.join(promoted)}) — Einfluss im Production Intelligence Adapter manuell prüfen "
+        f"(kein automatischer Dominanz-Check: model_weights wird nicht mehr gelernt)."
     )
     return {"promoted_external_features": promoted}
 

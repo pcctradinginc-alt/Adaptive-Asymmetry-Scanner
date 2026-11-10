@@ -295,14 +295,16 @@ class TestLearnLoopSanity:
         history = _empty_history(closed_trades=closed_trades)
         result = build_health_report(history=history, reports_dir=tmp_path, today=today)
 
-        # Warnung sollte Present sein und von "eingefroren" sprechen
-        assert result["status"] == "WARN"
-        frozen_warning = [w for w in result["warnings"] if "eingefroren" in w.lower()]
-        assert len(frozen_warning) > 0, f"Expected frozen warning, got: {result['warnings']}"
+        # Gewichts-Update ist entfernt: keine "eingefroren"-/"Gewichts-Update"-Warnung mehr
+        assert not [w for w in result["warnings"]
+                    if "eingefroren" in w.lower() or w.startswith("Gewichts-Update")], result["warnings"]
 
-        # Metrics sollten frozen=True enthalten
+        # Diagnose bleibt: Korrelationen vorhanden, aber nie "frozen"
         learn_loop = result["metrics"].get("learn_loop", {})
-        assert learn_loop.get("learn_loop_frozen") is True
+        assert learn_loop.get("learn_loop_frozen") is False
+        assert learn_loop.get("weight_update_status") == "REMOVED"
+        assert learn_loop.get("weight_learning", "").startswith("REMOVED (2026-11-09")
+        assert all(c <= 0 for c in learn_loop["feature_corr"].values())
         assert "feature_corr" in learn_loop
         assert len(learn_loop["feature_corr"]) == 3  # 3 Features
 
@@ -344,6 +346,7 @@ class TestLearnLoopSanity:
         # frozen sollte False sein
         learn_loop = result["metrics"].get("learn_loop", {})
         assert learn_loop.get("learn_loop_frozen") is False
+        assert learn_loop.get("weight_update_status") == "REMOVED"
         assert "feature_corr" in learn_loop
 
     def test_insufficient_trades_no_correlation_warning(self, tmp_path):
@@ -374,11 +377,13 @@ class TestLearnLoopSanity:
         frozen_warnings = [w for w in result["warnings"] if "eingefroren" in w.lower()]
         assert len(frozen_warnings) == 0
 
-        # 15 Trades ohne Preismethode = 0 RELIABLE -> Gewichte blockiert, Grund NEED_MORE_DATA
+        # 15 Trades ohne Preismethode = 0 RELIABLE; Gewichts-Lernpfad entfernt -> REMOVED, keine Warnung
         learn_loop = result["metrics"].get("learn_loop", {})
-        assert learn_loop.get("weight_update_status") == "NEED_MORE_DATA"
+        assert learn_loop.get("weight_update_status") == "REMOVED"
+        assert learn_loop.get("learn_loop_frozen") is False
+        assert learn_loop.get("n_reliable") == 0 and learn_loop.get("n_non_reliable") == 15
         assert learn_loop.get("feature_corr_exploratory") == {}          # < 20 Trades: keine Korrelation
-        assert not any("NEED_MORE_DATA" in w for w in result["warnings"])  # Warnung erst ab 20 Trades (wie bisher)
+        assert not any("NEED_MORE_DATA" in w or w.startswith("Gewichts-Update") for w in result["warnings"])
 
 
 # ── d) Data-Health ────────────────────────────────────────────────────────────
