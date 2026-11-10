@@ -501,8 +501,9 @@ def test_stale_model_health_is_unknown_fail_closed(tmp_path):
     assert st["safe_mode"] and any("veraltet" in r for r in st["safe_mode_reason"])
 
 
-def test_learning_health_detects_stalled_paths(tmp_path):
+def test_learning_health_detects_stalled_paths(tmp_path, monkeypatch):
     from modules import learning_health as lh
+    from modules import research_scope
     o = tmp_path / "outputs"
     (o / "research").mkdir(parents=True)
     (o / "intelligence").mkdir(parents=True)
@@ -511,6 +512,11 @@ def test_learning_health_detects_stalled_paths(tmp_path):
                                                                         "hypotheses": {}}))
     (o / "history.json").write_text(json.dumps({"closed_trades": [{"close_date": "2026-05-01", "outcome": 0.1}],
                                                 "active_trades": [{"ticker": "A"}], "shadow_trades": []}))
+    # Seit 2026-11-09 ist die Hypothesen-Generierung per config/research_scope.yaml eingefroren -> FROZEN, nicht STALLED.
+    frozen = lh.assess(tmp_path, datetime(2026, 10, 4, tzinfo=UTC))["paths"]["research_generation"]
+    assert frozen["status"] == "FROZEN" and "research_scope" in frozen["detail"]
+    # Die STALLED-Erkennung selbst bleibt geprüft: ohne Freeze ist der Pfad mit altem Artefakt STALLED.
+    monkeypatch.setattr(research_scope, "health_frozen", lambda key: None)
     r = lh.assess(tmp_path, datetime(2026, 10, 4, tzinfo=UTC))
     p = r["paths"]
     assert p["research_generation"]["status"] == "STALLED" and p["promotion_pipeline"]["status"] == "STALLED"
