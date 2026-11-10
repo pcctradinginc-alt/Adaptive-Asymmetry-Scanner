@@ -1,0 +1,647 @@
+{
+  "mode": "capture",
+  "window": "IN_WINDOW",
+  "session": "regular",
+  "skipped": false,
+  "alpha_link": {
+    "status": "OK",
+    "pending": 12,
+    "window_missed": 0,
+    "underlyings_observed": 8,
+    "underlyings_retry_later": [],
+    "n_new_decisions": 24,
+    "n_trade": 11
+  },
+  "targets": 147,
+  "already_captured": 0,
+  "requested": 147,
+  "quotes": 146,
+  "missing": [
+    "KVUE270219C00019000"
+  ],
+  "alpha_link_settlement": {
+    "status": "OK",
+    "n_new_outcomes": 0,
+    "n_pending_exit": 0,
+    "n_exit_missing": 0
+  },
+  "alpha_link_coverage": {
+    "schema": "alpha-option-link-coverage-v1",
+    "as_of": "2026-11-10",
+    "generated_at": "2026-11-10T17:15:40+00:00",
+    "link_version": "alpha-option-link-v1",
+    "link_start": "2026-11-02",
+    "rule_version": "alpha-option-rule-v1",
+    "rule_hash": "03f872d1d33961ec8075665ed67226a745c26af58ae32f32265640104ba953e0",
+    "status": "NEED_MORE_DATA",
+    "n_signals": 94,
+    "n_decisions": 104,
+    "n_outcomes": 0,
+    "decisions_by_class": {
+      "TRADE": 43,
+      "ABSTAIN": 61
+    },
+    "outcomes_by_evidence_class": {
+      "EXECUTED": 0,
+      "QUOTE_VERIFIED_PAPER": 0,
+      "UNVERIFIABLE": 0
+    },
+    "hypotheses": {
+      "AUTO-9F3C98A8BD0B": {
+        "hypothesis_source": "autonomous_factor",
+        "comparison_group": "TREATMENT",
+        "versions": [
+          "9f3c98a8bd0bd050d1617c7bfe703c3a6d2bfda880fd99202963e7024736978f"
+        ],
+        "signals": 6,
+        "distinct_signal_dates": 1,
+        "untradable": {
+          "NO_ALLOWED_STRUCTURE": 3
+        },
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 0,
+            "ABSTAIN": 3,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+              "LONG_SPREAD_TOO_WIDE": 2,
+              "NO_EXPIRY_IN_DTE_WINDOW": 1
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 0,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 0,
+            "ABSTAIN": 3,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+              "LONG_SPREAD_TOO_WIDE": 2,
+              "NO_EXPIRY_IN_DTE_WINDOW": 1,
+              "SHORT_BID_BELOW_MIN": 1,
+              "SHORT_OPEN_INTEREST_BELOW_MIN": 2,
+              "SHORT_QUOTE_NOT_USABLE_RTH": 1,
+              "SHORT_SPREAD_TOO_WIDE": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 0,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      },
+      "AUTO-F34E5C6BBF7D": {
+        "hypothesis_source": "autonomous_factor",
+        "comparison_group": "TREATMENT",
+        "versions": [
+          "f34e5c6bbf7d947e7f6961ab1b39904d5d1b04e686e16f739f337e54d60898fd"
+        ],
+        "signals": 6,
+        "distinct_signal_dates": 1,
+        "untradable": {
+          "NO_ALLOWED_STRUCTURE": 3
+        },
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 0,
+            "ABSTAIN": 3,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+              "NO_EXPIRY_IN_DTE_WINDOW": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 0,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 0,
+            "ABSTAIN": 3,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+              "NO_EXPIRY_IN_DTE_WINDOW": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 0,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      },
+      "CONTROL-UNIVERSE-RANDOM": {
+        "hypothesis_source": "control",
+        "comparison_group": "CONTROL",
+        "versions": [
+          "f88636597f2936ba"
+        ],
+        "signals": 10,
+        "distinct_signal_dates": 2,
+        "untradable": {},
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 6,
+            "ABSTAIN": 4,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 4,
+              "LONG_SPREAD_TOO_WIDE": 1
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 6,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 4,
+            "ABSTAIN": 6,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 4,
+              "LONG_SPREAD_TOO_WIDE": 1,
+              "SHORT_OPEN_INTEREST_BELOW_MIN": 4,
+              "SHORT_SPREAD_TOO_WIDE": 6
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 4,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      },
+      "enet_xs20_v1": {
+        "hypothesis_source": "ml_registry",
+        "comparison_group": "TREATMENT",
+        "versions": [
+          "8de25a33fe281eb9"
+        ],
+        "signals": 12,
+        "distinct_signal_dates": 2,
+        "untradable": {
+          "NO_ALLOWED_STRUCTURE": 6
+        },
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 1,
+            "ABSTAIN": 5,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 4,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 3
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 1,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 2,
+            "ABSTAIN": 4,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 1,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 3,
+              "SHORT_OPEN_INTEREST_BELOW_MIN": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 2,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      },
+      "hgb_asym20_v1": {
+        "hypothesis_source": "ml_registry",
+        "comparison_group": "TREATMENT",
+        "versions": [
+          "7422b09c3c93c911"
+        ],
+        "signals": 12,
+        "distinct_signal_dates": 2,
+        "untradable": {
+          "NO_ALLOWED_STRUCTURE": 6
+        },
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 5,
+            "ABSTAIN": 1,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 1
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 5,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 4,
+            "ABSTAIN": 2,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+              "SHORT_OPEN_INTEREST_BELOW_MIN": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 4,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      },
+      "hgb_xs20_momentum_v1": {
+        "hypothesis_source": "ml_registry",
+        "comparison_group": "TREATMENT",
+        "versions": [
+          "dbbebe4ad1475752"
+        ],
+        "signals": 12,
+        "distinct_signal_dates": 2,
+        "untradable": {
+          "NO_ALLOWED_STRUCTURE": 6
+        },
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 3,
+            "ABSTAIN": 3,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 2,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 1
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 3,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 5,
+            "ABSTAIN": 1,
+            "abstain_reasons": {
+              "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+              "SHORT_OPEN_INTEREST_BELOW_MIN": 1
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 5,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      },
+      "hgb_xs20_risk_regime_v1": {
+        "hypothesis_source": "ml_registry",
+        "comparison_group": "TREATMENT",
+        "versions": [
+          "bc68f4e5430f286f"
+        ],
+        "signals": 12,
+        "distinct_signal_dates": 2,
+        "untradable": {
+          "NO_ALLOWED_STRUCTURE": 6
+        },
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 2,
+            "ABSTAIN": 4,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 2,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 2,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 3,
+            "ABSTAIN": 3,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 1,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 3,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      },
+      "hgb_xs20_v1": {
+        "hypothesis_source": "ml_registry",
+        "comparison_group": "TREATMENT",
+        "versions": [
+          "1d342821148821bd"
+        ],
+        "signals": 12,
+        "distinct_signal_dates": 2,
+        "untradable": {
+          "NO_ALLOWED_STRUCTURE": 6
+        },
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 2,
+            "ABSTAIN": 4,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 3,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 2,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 3,
+            "ABSTAIN": 3,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 1,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 2,
+              "SHORT_OPEN_INTEREST_BELOW_MIN": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 3,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      },
+      "momentum_12_1": {
+        "hypothesis_source": "ml_registry",
+        "comparison_group": "REFERENCE",
+        "versions": [
+          "60f816ac9441b233"
+        ],
+        "signals": 12,
+        "distinct_signal_dates": 2,
+        "untradable": {
+          "NO_ALLOWED_STRUCTURE": 6
+        },
+        "pending_decision": 0,
+        "overdue_decision": 0,
+        "excluded_by_correction": 0,
+        "by_structure": {
+          "LONG_CALL": {
+            "TRADE": 1,
+            "ABSTAIN": 5,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 4,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 3
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 1,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          },
+          "BULL_CALL_SPREAD": {
+            "TRADE": 2,
+            "ABSTAIN": 4,
+            "abstain_reasons": {
+              "CAPITAL_ABOVE_MAX": 1,
+              "LONG_OPEN_INTEREST_BELOW_MIN": 3,
+              "SHORT_OPEN_INTEREST_BELOW_MIN": 2
+            },
+            "EXIT_OBSERVED": 0,
+            "EXIT_MISSING": 0,
+            "EXIT_PENDING": 2,
+            "evidence": {
+              "EXECUTED": 0,
+              "QUOTE_VERIFIED_PAPER": 0,
+              "UNVERIFIABLE": 0
+            },
+            "distinct_verified_signal_dates": 0,
+            "status": "NEED_MORE_DATA"
+          }
+        },
+        "status": "NEED_MORE_DATA"
+      }
+    },
+    "pre_link": {
+      "ml_prediction_rows": 48,
+      "prediction_dates": [
+        "2026-09-28",
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-09",
+        "2026-10-14",
+        "2026-10-16",
+        "2026-10-23",
+        "2026-10-30"
+      ],
+      "status": "NOT_LINKABLE_RETROACTIVELY",
+      "reason": "No option decision was observed when these predictions were made."
+    },
+    "source_stats": {
+      "status": "SKIPPED_CAPTURE_LIGHTWEIGHT"
+    },
+    "executed": {
+      "n_real_trades": 5,
+      "attribution": {
+        "NO_EX_ANTE_SIGNAL_ID": 5
+      },
+      "n_attributed_ex_ante": 0,
+      "broker_execution_checks": {
+        "NO_BROKER_EXECUTION_RECORD": 5
+      },
+      "n_documented_broker_executions": 0,
+      "n_executed_evidence": 0,
+      "note": "The trade outcomes are scanner paper trades valued from archived bid/ask quotes, without broker fills: they are never EXECUTED evidence. EXECUTED needs a documented broker execution AND an ex-ante alpha_signal_id (neither exists today; trading path unchanged)."
+    },
+    "integrity": {
+      "journals": {
+        "signals": {
+          "rows": 94,
+          "unique": 94,
+          "conflicting_duplicates": 0
+        },
+        "decisions": {
+          "rows": 104,
+          "unique": 104,
+          "conflicting_duplicates": 0
+        },
+        "outcomes": {
+          "rows": 0,
+          "unique": 0,
+          "conflicting_duplicates": 0
+        },
+        "corrections": {
+          "rows": 0,
+          "unique": 0,
+          "conflicting_duplicates": 0
+        }
+      },
+      "conflicting_duplicates": 0,
+      "corrections": 0,
+      "status": "OK"
+    },
+    "order_placed": false,
+    "production_influence": "NONE",
+    "llm_calls": 0,
+    "economic_result": "NOT_EVALUATED_IN_PHASE_A"
+  },
+  "capture_status": "PARTIAL_MISSING_QUOTES",
+  "paper_account": {
+    "schema": "github-paper-account-report-v1",
+    "status": "ACTIVE",
+    "generated_at": "2026-11-10T17:15:40+00:00",
+    "activated_at": "2026-11-09T20:00:47+00:00",
+    "starting_cash_usd": 100000.0,
+    "cash_usd": 100000.0,
+    "open_risk_usd": 0.0,
+    "open_cost_basis_usd": 0.0,
+    "open_market_value_usd": 0.0,
+    "nav_at_cost_usd": 100000.0,
+    "nav_market_usd": 100000.0,
+    "nav_market_status": "VERIFIED_MARKS",
+    "realized_pnl_usd": 0.0,
+    "unrealized_pnl_usd": 0.0,
+    "return_on_starting_capital_realized": 0.0,
+    "return_on_starting_capital_at_cost": 0.0,
+    "open_trades": 0,
+    "closed_trades": 0,
+    "account_skips": 10,
+    "winrate_closed": null,
+    "profit_factor_closed": null,
+    "max_drawdown_closed_book": 0.0,
+    "net_pnl_base_usd": 0.0,
+    "net_pnl_adverse_usd": 0.0,
+    "trades_by_structure": {},
+    "marks": {},
+    "research_source": "EXISTING_ALPHA_OPTION_LINK_AND_OPTION_VALIDATION",
+    "verified_outcome_count": 0,
+    "statistical_alpha_status": "NOT_ESTABLISHED_BY_ACCOUNT_PERFORMANCE",
+    "broker_orders": 0,
+    "broker_connection": "NONE",
+    "production_influence": "NONE",
+    "new_events": 10,
+    "new_open_or_skip": 10,
+    "new_close": 0
+  },
+  "observed_at": "2026-11-10T17:15:40.981852+00:00"
+}
