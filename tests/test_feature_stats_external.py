@@ -106,42 +106,6 @@ def test_update_feature_stats_external_never_recomputes_from_live_context():
     assert "EXPANSION" in history["feature_stats_external"]["freight_state"]
 
 
-def test_feature_stats_external_never_feeds_pearson_weights():
-    """HARTE GARANTIE: feature_stats_external darf compute_pearson_weights()
-    nicht beeinflussen — Kontrollgruppe mit/ohne extremen Werten liefert
-    identische model_weights."""
-    closed_trades = [
-        {
-            "outcome": 0.4,
-            "features": {"bin_impact": "high", "bin_mismatch": "strong", "bin_eps_drift": "massive"},
-        }
-        for _ in range(3)
-    ] + [
-        {
-            "outcome": -0.3,
-            "features": {"bin_impact": "low", "bin_mismatch": "weak", "bin_eps_drift": "noise"},
-        }
-        for _ in range(3)
-    ]
-
-    history_without = {"closed_trades": closed_trades}
-    history_with = {
-        "closed_trades": closed_trades,
-        "feature_stats_external": {
-            "freight_state": {
-                "STRONG_EXPANSION": {
-                    "count": 500, "mean": 5.0, "_m2": 0.0, "wins": 500,
-                    "outcomes": [5.0] * 200, "strat_ret_sum": 2500.0, "strat_ret_count": 500,
-                }
-            }
-        },
-    }
-
-    w_without = feedback.compute_pearson_weights(history_without)
-    w_with = feedback.compute_pearson_weights(history_with)
-    assert w_without == w_with
-
-
 def test_outcomes_cap_streaming_approximation():
     history = {}
     for i in range(feedback.EXTERNAL_BUCKET_OUTCOMES_CAP + 50):

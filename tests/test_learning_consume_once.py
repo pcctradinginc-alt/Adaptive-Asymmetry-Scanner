@@ -109,16 +109,6 @@ def test_quarantine_exact_duplicates_idempotent():
     assert ll.quarantine_duplicate_trades(state) == 0                                # idempotent
 
 
-def test_quarantine_removes_silent_multi_weighting_in_weights():
-    """Pearson-Gewichte (voll neu berechnet) sehen jeden Outcome nur einmal."""
-    base = [dict(_trade(f"T{i}", 100.0 + i, outcome=0.05 * (i % 5 - 2), close_date="2026-07-01"),
-                 features={"impact": i % 7, "mismatch": (i * 3) % 5, "eps_drift": i % 4}) for i in range(40)]
-    clean = {"closed_trades": copy.deepcopy(base)}
-    dup = {"closed_trades": copy.deepcopy(base) + [copy.deepcopy(base[0]) for _ in range(6)]}
-    ll.quarantine_duplicate_trades(dup)
-    assert feedback.compute_pearson_weights(dup) == feedback.compute_pearson_weights(clean)
-
-
 def test_already_closed_detects_duplicate_active_entry():
     state = {"closed_trades": [_trade(outcome=0.2)]}
     assert ll.already_closed(state, _trade()) and not ll.already_closed(state, _trade(strike=999.0))

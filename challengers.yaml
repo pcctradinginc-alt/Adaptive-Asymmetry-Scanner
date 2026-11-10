@@ -101,6 +101,10 @@ challengers:
     status: active
 
   - id: ppo_robust_shadow
+    # 2026-11-09: RL/PPO aus dem Produktionspfad entfernt -> ab dann keine neuen rl_robust_action-Zeilen. Der
+    # Challenger bleibt bewusst 'active' bis zu seinem registrierten Ende (max_duration_days): ein vorzeitiges
+    # Austragen würde n_aktiv der Altfamilie senken und damit das Alpha der übrigen Alt-Challenger lockern.
+    # Bewertet werden nur die bis dahin erfassten Zeilen (historische Daten unverändert).
     # Robuster PPO-Challenger (modules/rl_robust_shadow.py): Belohnung =
     # Log-Depotwachstum bei realem Positionsanteil (portfolio.max_position_pct)
     # statt Rendite; chronologisch trainiert, fester Seed, Walk-forward-

@@ -14,7 +14,7 @@ import json
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED
+from modules.score_labels import TARGET_HIT_EXPLANATION
 
 from modules.booking_labels import booking_text
 from modules.version import APP_VERSION
@@ -170,8 +170,6 @@ class Reporter:
                     f"## {i}. {p['ticker']} – {p.get('strategy', '')}",
                     "",
                     f"**Richtung:** {p.get('direction', '')}  ",
-                    f"**FinalScore (QuasiML, SHADOW – ohne Entscheidungswirkung; 27 Bin-Kombinationen, "
-                    f"Gleichstände möglich):** `{p.get('final_score', 0):.4f}`  ",
                     f"**IV-Rank:** {p.get('iv_rank', 'N/A')}  ",
                     f"**Trade-Score:** {ts.get('total', 'N/A')}/100 — {ts.get('grade', '')}  ",
                     f"**{booking_text(p)}**  ",
@@ -195,7 +193,7 @@ class Reporter:
                     f"**Severity:** {da.get('bear_case_severity', 'N/A')}/10",
                     "",
                     "### Monte-Carlo Simulation",
-                    f"- **{TARGET_HIT_LABEL} ({UNCALIBRATED}):** {sim.get('hit_rate', 0):.1%} "
+                    f"- **Target-Hit-Score (MC, unkalibriert):** {sim.get('hit_rate', 0):.1%} "
                     f"({sim.get('n_paths', 0):,} Pfade) – Ranking signal only, keine Gewinnwahrscheinlichkeit",
                     f"- **Target-Preis:** ${sim.get('target_price', 0):.2f}",
                     f"- **Aktueller Preis:** ${sim.get('current_price', 0):.2f}",
@@ -271,16 +269,6 @@ class Reporter:
                         _warn,
                         "",
                     ]
-
-        # Modell-Gewichte
-        weights = history.get("model_weights", {})
-        lines += [
-            "---",
-            "## Modell-Gewichte (aktuell)",
-            f"- Impact: `{weights.get('impact', 0.35):.2f}`",
-            f"- Mismatch: `{weights.get('mismatch', 0.45):.2f}`",
-            f"- EPS-Drift: `{weights.get('eps_drift', 0.20):.2f}`",
-        ]
 
         # Externer Kontext (SHADOW) — reine Observability, darf den Report
         # nie zum Absturz bringen (guarded try/except).

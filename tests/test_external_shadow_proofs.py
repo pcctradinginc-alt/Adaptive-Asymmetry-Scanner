@@ -3,7 +3,7 @@
 1. external_context.mode = shadow liefert dieselben Produktionsentscheidungen
    wie off: kein Entscheidungsmodul liest external_context; Scores/Ranking
    sind mit und ohne Kontext identisch.
-2. Externe Features erreichen weder Pearson-Gewichte noch PPO-Beobachtungen.
+2. (Pearson-Gewichte/PPO/QuasiML entfernt, siehe Entfernung 2026-11-09.)
 3. Kandidat T1 -> Revision T2 -> Feedback T3: die T1-Werte bleiben.
 """
 from __future__ import annotations
@@ -15,9 +15,8 @@ from pathlib import Path
 
 
 DECISION_MODULES = [
-    "modules/trade_scorer.py", "modules/quasi_ml.py", "modules/risk_gates.py",
-    "modules/mismatch_scorer.py", "modules/rl_agent.py", "modules/rl_environment.py",
-    "modules/deep_analysis.py",
+    "modules/trade_scorer.py", "modules/risk_gates.py",
+    "modules/mismatch_scorer.py", "modules/deep_analysis.py",
 ]
 
 
@@ -67,28 +66,11 @@ def test_decision_modules_never_read_external_context():
         assert "external_context_entry" not in src, path
 
 
-def test_quasi_ml_ranking_identical_with_and_without_external_context():
-    from modules.quasi_ml import QuasiML
-    history = {"feature_stats": {}, "model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.2}}
-    off, shadow = _pairs()
-    a = QuasiML(history).run(off)
-    b = QuasiML(history).run(shadow)
-    assert [(x["ticker"], x["final_score"]) for x in a] == [(x["ticker"], x["final_score"]) for x in b]
-
-
 def test_trade_score_identical_with_and_without_external_context():
     from modules.trade_scorer import compute_trade_score
     off, shadow = _pairs()
     for a, b in zip(off, shadow):
         assert compute_trade_score(a) == compute_trade_score(b)
-
-
-def test_rl_scorer_identical_with_and_without_external_context():
-    from modules.rl_agent import RLScorer
-    off, shadow = _pairs()
-    a = RLScorer({"feature_stats": {}}, veto_enabled=False).run(off)
-    b = RLScorer({"feature_stats": {}}, veto_enabled=False).run(shadow)
-    assert [(x["ticker"], x["final_score"]) for x in a] == [(x["ticker"], x["final_score"]) for x in b]
 
 
 def test_shadow_policy_never_changes_score_or_veto():
@@ -97,44 +79,6 @@ def test_shadow_policy_never_changes_score_or_veto():
     assert "shadow" in src
     ctx = _external_ctx()
     assert ctx["policy"]["score_delta"] == 0.0 and ctx["policy"]["veto"] is False
-
-
-def _closed_history(with_external: bool):
-    trades = []
-    for i in range(12):
-        t = {"ticker": f"T{i}", "entry_date": f"2026-05-{i + 1:02d}", "outcome": (-1) ** i * 0.4 + i * 0.01,
-             "features": {"impact": 5 + i % 4, "surprise": 5, "mismatch": 2 + i % 3, "z_score": 0.3,
-                          "eps_drift": 0.0, "bin_impact": ["low", "mid", "high"][i % 3],
-                          "bin_mismatch": ["weak", "good", "strong"][i % 3],
-                          "bin_eps_drift": "noise"},
-             "option": {"dte": 60}}
-        if with_external:
-            t["external_context_entry"] = _external_ctx(
-                state=["CONTRACTION", "EXPANSION"][i % 2], relation=["SUPPORT", "CONTRADICT"][i % 2])
-        trades.append(t)
-    return {"closed_trades": trades, "model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.2}}
-
-
-def test_external_features_do_not_reach_pearson_weights():
-    import feedback
-    assert feedback.compute_pearson_weights(_closed_history(False)) == \
-        feedback.compute_pearson_weights(_closed_history(True))
-
-
-def test_external_features_do_not_reach_ppo_observations():
-    import numpy as np
-    from modules.rl_environment import OptionsRLEnv
-    a = OptionsRLEnv(_closed_history(False)["closed_trades"])
-    b = OptionsRLEnv(_closed_history(True)["closed_trades"])
-    oa, _ = a.reset()
-    ob, _ = b.reset()
-    for _ in range(len(a.trade_data)):
-        assert np.array_equal(oa, ob)
-        oa, ra, da, _, _ = a.step(1)
-        ob, rb, db, _, _ = b.step(1)
-        assert ra == rb
-        if da:
-            break
 
 
 def test_ledger_keeps_t1_context_after_t2_revision(tmp_path):

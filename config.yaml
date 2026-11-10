@@ -63,8 +63,10 @@ options:
 costs:
   commission_per_contract: 0.65   # $/Kontrakt/Seite (Broker-typisch, z.B. Tradier/IBKR)
 
-# Positionsgrößen-Empfehlung (Fractional Kelly)
+# Positionsgrößen-Empfehlung
 portfolio:
+  sizing_mode: unit          # unit = 1 Kontrakt/Struktur je Vorschlag (Kelly nur informativ, da MC-Wahrscheinlichkeiten
+                             # unkalibriert); kelly = Fractional Kelly wie bisher. Zurück auf kelly erst nach ≥30 RELIABLE-Trades Kalibrierung.
   size_usd: 5000             # Depotgröße für Sizing-Empfehlung
   kelly_fraction: 0.25       # ¼-Kelly: konservativ, Standard für Options
   max_position_pct: 0.10     # Hard-Cap: max. 10% des Depots pro Trade
@@ -73,8 +75,6 @@ portfolio:
                              # (n=30, 2×-täglicher Check + Gaps). Kelly rechnete zu optimistisch.
 
 learning:
-  learning_rate: 0.05
-  min_bin_count:  3
   close_after_days: 45         # Geändert: 130 → 45
 
 eps_drift:
@@ -82,21 +82,12 @@ eps_drift:
   relevant_threshold: 0.05
   massive_threshold:  0.10
 
-# RL-System
+# RL-Reste (RL/PPO seit 2026-11-09 aus dem Produktionspfad entfernt; nur noch von ops_monitor
+# (arm_*, Lernfortschritts-ETA) und candidate_ledger (model_path, Modell-Hash der Altdatei) gelesen)
 rl:
-  enabled: true
-  veto_enabled: false           # Option A: PPO-Veto AUS → QuasiML-Ranking.
-                                # Grund: Der trainierte PPO-Agent skippte 100% aller
-                                # Kandidaten (degenerierte "immer SKIP"-Policy, da der
-                                # Trainings-Ledger netto verlustig ist). Erst wieder true,
-                                # wenn genug closed_trades unter den neuen Regeln vorliegen
-                                # (arm_threshold) und der Reward auf Regret-Shaping umgebaut ist.
   model_path: "outputs/models/ppo_options_agent.zip"
-  min_trades_for_training: 3
-  timesteps_per_update: 2000
-  arm_threshold: 30             # closed_trades (seit arm_since) ab denen eine "RL scharfstellen"-
-                                # Email ausgelöst wird (= Phase-1-Validierungsziel)
-  arm_since: "2026-06-11"       # Stichtag neue Gates — nur Trades danach zählen fürs Scharfstellen
+  arm_threshold: 30             # closed_trades (seit arm_since) für die Lernfortschritts-ETA
+  arm_since: "2026-06-11"       # Stichtag neue Gates
 
 # FinBERT
 finbert:
@@ -238,4 +229,3 @@ external_context:
 learning_features:
   production: [impact, mismatch, eps_drift]
   shadow: []           # externe Features werden von den Integrationsschritten ergänzt
-rl_feature_schema_version: v1

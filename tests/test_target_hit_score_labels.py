@@ -53,7 +53,7 @@ def test_daily_report_labels_score_not_probability(tmp_path):
     from modules.reporter import Reporter
     Reporter(tmp_path).save("2026-10-08", [_proposal()], {"model_weights": {}})
     md = (tmp_path / "2026-10-08.md").read_text()
-    assert "Target-Hit Score (uncalibrated):** 70.2%" in md and "Ranking signal only" in md
+    assert "Target-Hit-Score (MC, unkalibriert):** 70.2%" in md and "Ranking signal only" in md
     assert sl.TARGET_HIT_EXPLANATION in md
     _no_probability_claim(md)
     js = json.loads((tmp_path / "2026-10-08.json").read_text())

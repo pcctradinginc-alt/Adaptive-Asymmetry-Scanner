@@ -36,7 +36,9 @@ def test_kelly_inputs_from_net_distribution(monkeypatch):
     assert runs[0.2]["mean_pnl_pct"] == pytest.approx(runs[0.0]["mean_pnl_pct"])   # Brutto-Werte unverändert
 
 
-def test_kelly_formula_and_risk_at_full_debit():
+def test_kelly_formula_and_risk_at_full_debit(monkeypatch):
+    from modules.config import cfg
+    monkeypatch.setitem(cfg.portfolio, "sizing_mode", "kelly")       # Default ist Einheitsgröße
     p = {"ticker": "T", "strategy": "BULL_CALL_SPREAD", "option": {"ask": 3.0, "net_debit": 1.5},
          "roi_analysis": {"kelly_inputs": {"p_win": 0.45, "avg_win": 0.9, "avg_loss": 0.6}}}
     s = ps.compute_position_size(p)
