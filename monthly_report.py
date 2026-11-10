@@ -392,10 +392,8 @@ def current_thresholds() -> dict:
         from modules.config import cfg
         from modules.options_designer import ttm_to_dte_floor
         gate_cfg     = getattr(cfg, "gates", None)
-        mismatch_cap = float(getattr(gate_cfg, "mismatch_max",
-                              getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0)))
-        impact_floor = int(getattr(gate_cfg, "impact_min",
-                           getattr(getattr(cfg, "pipeline", None), "min_impact_threshold", 4)))
+        mismatch_cap = float(getattr(gate_cfg, "mismatch_max", 7.0))
+        impact_floor = int(getattr(gate_cfg, "impact_min", 4))
         surprise_floor = int(getattr(gate_cfg, "surprise_min", 3))
         score_floor    = int(getattr(gate_cfg, "trade_score_min", 55))
         dte_floor      = ttm_to_dte_floor("")  # unbekanntes TTM → konservativer Default

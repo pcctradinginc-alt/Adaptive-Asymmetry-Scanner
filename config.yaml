@@ -1,12 +1,7 @@
 # Adaptive Asymmetry-Scanner – Konfiguration v5.0
 
 pipeline:
-  confidence_gate: 0.70
-  n_simulation_paths: 10000
-  simulation_days: 120
-  min_impact_threshold: 4    # Legacy-Key, siehe gates.impact_min (dieser gewinnt bei Konflikt)
   max_intraday_move: 0.07    # NEU: 7% → Signal verwerfen wenn zu spät
-  max_mismatch: 7.0          # Legacy-Key, siehe gates.mismatch_max (dieser gewinnt bei Konflikt)
   # Laufzeitbudget (Job-Timeout 75 min): ab max_runtime_minutes - finalize_reserve_minutes
   # werden in Stufe 2b/4 keine neuen Kandidaten begonnen (Reject time_budget_exceeded);
   # Report, Ledger und Mail werden immer geschrieben (Testlauf 2026-09-29 brach ohne
@@ -15,7 +10,7 @@ pipeline:
   finalize_reserve_minutes: 10
 
 # Zentrale Gate-Schwellen: Pipeline, Mail und Monats-Report lesen ausschließlich
-# von hier (mit Fallback auf die Legacy-Keys oben, dann auf den Code-Default).
+# von hier (fehlt ein Key, greift der jeweilige Code-Default).
 gates:
   impact_min: 4              # Stufe 4b Impact×Surprise-Floor
   surprise_min: 3
@@ -56,8 +51,6 @@ options:
                                     # allow_bearish wirkt erst, wenn hier true (nach Fix)
   delta_target_low:  0.55
   delta_target_high: 0.75
-  target_move_pct:   0.10
-  min_roi_after_spread: 0.15
 
 # Transaktionskosten (fließen ins ROI-Gate ein)
 costs:

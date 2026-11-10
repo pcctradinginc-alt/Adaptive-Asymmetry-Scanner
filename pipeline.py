@@ -1395,8 +1395,7 @@ def main() -> None:
     # Overreaction-Cap: Mismatch > 7 war historisch ein Warnsignal
     # (4 Trades: 25% Win, mean −73%) — extreme Werte deuten auf eine
     # Bullen-Falle/strukturelles Problem statt verzögerter Einpreisung.
-    mismatch_cap = float(getattr(getattr(cfg, "gates", None), "mismatch_max",
-                          getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0)))
+    mismatch_cap = float(getattr(getattr(cfg, "gates", None), "mismatch_max", 7.0))
     _capped = []
     for s in scored:
         m = s.get("features", {}).get("mismatch", 0)
