@@ -1,238 +1,118 @@
-# Adaptive Asymmetry-Scanner v3.5
+# Adaptive Asymmetry-Scanner
 
-Ein vollautomatischer News-to-Options-Scanner, der täglich Informations-Asymmetrien im US-Aktienmarkt identifiziert und konkrete Options-Vorschläge generiert.
+Ein automatischer News-to-Options-Scanner für US-Aktien. Er erzeugt täglich **Paper-Vorschläge** für Long-Optionen
+und Debit-Spreads – **keine realen Orders, kein Live-Trading**.
 
----
-
-## Kernkonzept
-
-Das System sucht nicht nach "guten Nachrichten", sondern nach **Underreactions**: Fundamentale Nachrichten mit einem 3–6-Monats-Impact, auf die der Markt innerhalb der ersten 48 Stunden statistisch zu schwach reagiert hat. Dieser Mismatch zwischen fundamentaler Stärke und Preisbewegung ist der eigentliche Alpha-Hebel.
-
-```
-News-Stärke (Impact 0-10) minus Marktreaktion (Z-Score × 5) = Mismatch-Score
-```
-
-Je höher der Mismatch, desto wahrscheinlicher eine verzögerte Einpreisung.
+Ob der Champion Alpha hat, ist **nicht belegt**. Genau das misst das vorregistrierte Champion-Protokoll (unten),
+ausschließlich an verlässlichen Netto-Optionsrenditen.
 
 ---
 
-## 7-Stufen-Pipeline
+## Kernidee
+
+Gesucht werden **Underreactions**: Nachrichten mit fundamentalem Gewicht, auf die der Kurs in den ersten 48 Stunden
+schwach reagiert hat.
 
 ```
-1. Daten-Ingestion      → News (NewsAPI/RSS) + yfinance Hard-Filter
-2. Prescreening         → Claude Haiku: Rauschen vs. strukturelle Änderung
-3. Deep Analysis        → Claude Sonnet: Asymmetry Reasoning + Bear Case
-4. Mismatch-Score       → Z-Score der 48h-Bewegung vs. Impact
-5. MiroFish-Simulation  → 10.000 Monte-Carlo-Pfade über 120 Tage
-6. Quasi-ML Scoring     → Selbstlernende Gewichtung aus history.json
-7. Options-Design       → IV-Rank-basierte Strategie via Tradier/yfinance
+Mismatch = Impact (LLM, 0–10) − 5 · |48h-Bewegung| / σ
 ```
+
+Gerichtete Varianten (Bewegung in Thesenrichtung, ab dem Zeitstempel der Nachricht) laufen nur im Schatten als
+Challenger (`mismatch_directional_news`).
 
 ---
 
-## Schnellstart
+## Tatsächlicher Ablauf (`pipeline.py`, Mo–Fr)
 
-### 1. Repository klonen
-
-```bash
-git clone https://github.com/DEIN-USERNAME/news-mirofish.git
-cd news-mirofish
+```
+0a Data Health        Pflichtdaten verfügbar? (sonst Abbruch mit Mail)
+0  Risk Gates         VIX-Gate
+1  Hard-Filter        Market Cap, Volumen, Dollar-Volumen, realisierte Vola (yfinance)
+1b FinBERT/Sentiment  + News-Zeitfenster (erster/letzter Zeitstempel je Ticker, PIT)
+1c Sector-Momentum    vor dem LLM (spart Calls)
+EF Economics-first    echte Long-DTE-Optionsquotes vor jedem LLM-Call (config/economics_first.yaml)
+2  Prescreening       Claude Haiku: Signal vs. Rauschen
+3b Pre-MC-Gate        Sigma-Vorfilter
+3c Bearish-Vorfilter  nur nach gepaarter Validierung (model_routing)
+4  Deep Analysis      Claude Sonnet + Red Team (Impact, Surprise, Richtung, Bear Case)
+4a/4b                 Bearish-Gate, Impact×Surprise-Floor
+5  Mismatch-Score     + Overreaction-Cap
+6–8 Monte Carlo       Quick MC, Intraday-Delta, Final MC (Target-Hit-Score, MC, unkalibriert)
+9  Finale Auswahl     (RL/QuasiML am 2026-11-09 entfernt)
+10 Options-Design     Laufzeit-Loop, ROI-/Edge-Gate, Trade-Score-Ranking, Korrelation,
+                      Production Intelligence Adapter (nur freigegebener, gekappter Research-Einfluss)
 ```
 
-### 2. Abhängigkeiten installieren
+Die MC-Kennzahl heißt **Target-Hit-Score (MC, unkalibriert)** – sie ist keine Gewinnwahrscheinlichkeit.
+Positionsgröße: **Einheitsgröße** (1 Kontrakt/Struktur je Vorschlag, `portfolio.sizing_mode: unit`); Kelly erscheint
+nur informativ, solange die MC-Wahrscheinlichkeiten unkalibriert sind.
 
-```bash
-pip install -r requirements.txt
-```
-
-### 3. API-Keys konfigurieren
-
-```bash
-cp .env.example .env
-# .env öffnen und Keys eintragen
-```
-
-Lokal:
-```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
-export NEWS_API_KEY="..."
-export TRADIER_API_KEY="..."   # optional, Fallback auf yfinance
-```
-
-### 4. Ersten Lauf starten
-
-```bash
-python pipeline.py
-```
-
-### 5. Feedback-Loop manuell ausführen
-
-```bash
-python feedback.py
-```
+LLM-Aufrufe senden **keine** Sampling-Parameter: die API-Version `2026-10-21` (anthropic ≥ 2.0) lehnt
+`temperature/top_p/top_k` ab. Reproduzierbarkeit: Analyse-Cache für identische Eingaben und `llm_audit`
+(SHA-256 von Prompt und Rohantwort) je Ergebnis.
 
 ---
 
-## GitHub Actions Setup
+## Workflows
 
-### Secrets konfigurieren
-
-Im GitHub-Repo unter **Settings → Secrets and variables → Actions**:
-
-| Secret | Beschreibung |
-|---|---|
-| `ANTHROPIC_API_KEY` | Claude API Key (Pflicht) |
-| `NEWS_API_KEY` | NewsAPI Key (empfohlen) |
-| `TRADIER_API_KEY` | Tradier API Key (optional) |
-
-### Automatischer Trigger
-
-Die Pipeline läuft automatisch **Mo–Fr um 14:30 MEZ** (13:30 UTC, cron `30 13 * * 1-5`).  
-**Hinweis:** GitHub Scheduled Runs unterliegen erheblichen Verzögerungen; aktuelle Läufe starten 
-oft erst gegen 17:50 UTC statt 13:30 UTC.
-
-**Feedback-Workflow** (Exit-Checks + Lernen) läuft zusätzlich:
-- **15:30 UTC** – frühe US-Session: Stop-Loss/Take-Profit nach Markt-Open
-- **19:30 UTC** – 30 Min vor US-Close: letzte Exit-Chance am selben Tag
-
-Manueller Trigger: GitHub → Actions → "Adaptive Asymmetry-Scanner" → "Run workflow".
-
----
-
-## Projektstruktur
-
-```
-news-mirofish/
-│
-├── pipeline.py              # Haupt-Orchestrator (7-Stufen-Flow)
-├── feedback.py              # Wöchentlicher Lern-Loop
-├── config.yaml              # Alle Parameter zentral
-├── requirements.txt
-├── .env.example
-│
-├── modules/
-│   ├── data_ingestion.py    # Stufe 1: News + Hard-Filter + EPS-Drift
-│   ├── prescreener.py       # Stufe 2: Claude Haiku Batch-Filter
-│   ├── deep_analysis.py     # Stufe 3: Claude Sonnet Asymmetry-Reasoning
-│   ├── mismatch_scorer.py   # Stufe 4: Z-Score + Mismatch-Formel
-│   ├── mirofish_simulation.py # Stufe 5: Monte-Carlo 10.000 Pfade
-│   ├── quasi_ml.py          # Stufe 6: Adaptive Bin-Scoring
-│   ├── options_designer.py  # Stufe 7: IV-Analyse + Kontrakt-Auswahl
-│   ├── risk_gates.py        # VIX-Check, Earnings-Gate, Liquidität
-│   └── reporter.py          # JSON + Markdown Report
-│
-├── outputs/
-│   ├── history.json         # Persistente Feature-Stats + Trades (im Git)
-│   └── daily_reports/
-│       ├── YYYY-MM-DD.json  # Maschinenlesbar
-│       └── YYYY-MM-DD.md    # Menschenlesbar
-│
-├── tests/
-│   └── test_pipeline.py     # Pytest-Suite
-│
-└── .github/
-    └── workflows/
-        └── scanner.yml      # GitHub Actions
-```
-
----
-
-## Risk-Gates (Sicherheitslayer)
-
-Alle Gates blockieren den Trade automatisch:
-
-| Gate | Bedingung |
-|---|---|
-| VIX-Gate | VIX > 35 → gesamte Pipeline bricht ab |
-| Earnings-Gate | Earnings < 7 Tage → Ticker blockiert |
-| Bear-Case-Gate | bear_case_severity > 7 → Ticker blockiert |
-| Liquiditäts-Gate | Open Interest < 100 → Kontrakt abgelehnt |
-| Spread-Gate | Bid-Ask-Ratio > 10% → Kontrakt abgelehnt |
-
----
-
-## Strategie-Logik
-
-| IV-Rank | Richtung | Strategie |
+| Workflow | Zeitplan (UTC) | Inhalt |
 |---|---|---|
-| < 50 | Bullish | Long Call (DTE 120–200, Delta ~0.65) |
-| ≥ 50 | Bullish | Bull Call Spread |
-| < 50 | Bearish | Long Put |
-| ≥ 50 | Bearish | Bear Put Spread |
+| `scanner.yml` | Mo–Fr 13:30/14:30 | Pipeline, Tagesreport, Mail |
+| `feedback.yml` | Mo–Fr 15:30/19:30 | Exits, Outcomes (verlässlich: Entry Ask / Exit Bid, Kommission) |
+| `ml_research.yml` | Sa (weekly), 3. d. M. (full) | Research, Alpha-Ledger-Zuteilung, Champion-Protokoll, Challenger |
+| `weekly_report.yml` | Mo 05:47 | Wochenbericht (inkl. Champion-Protokoll-Status) |
+| `monthly_report.yml` | 1. d. M. 07:00 | Monatsbericht |
+
+Secrets: `ANTHROPIC_API_KEY` (Pflicht), `NEWS_API_KEY` (empfohlen), `TRADIER_API_KEY` (optional). Keine Keys im Code.
+
+Lokal: `pip install -r requirements.txt`, dann `python pipeline.py` bzw. `python feedback.py`.
 
 ---
 
-## Quasi-ML Selbstlern-System
+## Wie entschieden wird, ob etwas funktioniert
 
-`history.json` speichert für jede Feature-Kombination den historischen Durchschnitts-Return:
+1. **Champion-Protokoll** (`config/champion_protocol.yaml`, `modules/champion_protocol.py`):
+   * einzige Primärkennzahl: `outcome_net` verlässlicher geschlossener Champion-Trades ab `start_date`;
+   * einseitiger t-Test auf Tagesmitteln bei 30/60/90 Trades;
+   * Prüfberichte werden create-only eingefroren.
+   * `decision_config_sha256` pinnt Gates, Filter, Risiko, Optionen, Pipeline, Modelle, Kosten, Haltedauer,
+     economics-first und die Prompt-Versionen. Jede Änderung daran bricht das Protokoll (`PROTOCOL_BROKEN`) und
+     braucht eine neue Protokollversion. Es gibt kein Tuning auf gesehenen Daten.
+2. **Ein Fehlerbudget** (`config/alpha_ledger.yaml`, `modules/ledger_registration.py`):
+   * neue Challenger, Promotion-Verträge und das Champion-Protokoll erhalten Alpha genau einmal aus dem globalen
+     Ledger (idempotent, Hash-Kette, fail closed);
+   * ohne Zuteilung gibt es keine Bestätigung.
+   * Vor dem 2026-11-09 registrierte Tests laufen unverändert nach ihrer registrierten Regel weiter und sind als
+     Altfamilie außerhalb des Budgets ausgewiesen.
+3. **Challenger** (`challengers.yaml`, `modules/challenger.py`):
+   * vorregistriert, mit `start_date` nach der Registrierung;
+   * ausgewertet werden nur Candidate-Ledger-Zeilen nach dem Start mit verstrichenem Horizont;
+   * das Verdikt ist eine reine Funktion der Daten.
+   * Laufend sind u. a. `no_mc_gates` (Champion ohne die drei MC-Gates) und `mismatch_directional_news`.
+4. **Promotion ist immer ein von einem Menschen gemergter PR.** Geschützte Pfade stehen in `.github/CODEOWNERS`.
+5. **Research-Scope** (`config/research_scope.yaml`):
+   * parallele Hypothesen-Generatoren sind eingefroren und erzeugen keine neuen Hypothesen;
+   * registrierte Hypothesen werden weiter ausgewertet;
+   * eingefrorener Code ist per SHA-256 gepinnt.
+6. **Schatten-Messungen ohne Produktionswirkung:**
+   * Ausführungskosten nach Spread-Klasse, Limit-Szenario und Haltedauer gepaart (`modules/option_learner.py`);
+   * LLM-Zensus: k = 2 zufällige Tiefenanalysen ohne Gates, mit protokolliertem π (`modules/llm_census.py`).
+7. **Externe Daten nur mit registriertem Nutzer** (`config/external_consumers.yaml`): Quellen ohne belegten Nutzer
+   stehen auf `DEFERRED`. Archivierte Daten bleiben erhalten.
 
-```
-FinalScore = Σ(Bin_Avg_Return_i × Current_Weight_i)
-```
-
-Nach jedem abgeschlossenen Trade (Schließung nach `learning.close_after_days`, siehe unten) werden:
-1. Die Bin-Durchschnitte aktualisiert (laufender Ø)
-2. Die Feature-Gewichte via Pearson-Korrelation neu kalibriert
-
-Je mehr Trades, desto präziser das Scoring. Achtung: Sind alle Feature-Korrelationen ≤ 0,
-bleiben die Gewichte auf ihren Startwerten (der Engine-Monitor warnt dann "Lern-Loop eingefroren").
-
-**Hinweis:** Trades werden nach `learning.close_after_days` Tagen geschlossen
-(aktuell: 45 Tage, siehe `config.yaml` → `learning.close_after_days`). Trades, die älter als dieser
-Horizont sind, werden als „abgeschlossen" markiert und ihre tatsächlichen
-Outcomes zum Training herangezogen.
-
-**Hinweis:** Trades werden nach `learning.close_after_days` Tagen geschlossen
-(aktuell: 45 Tage, siehe `config.yaml` Zeile 70). Trades, die älter als dieser
-Horizont sind, werden als „abgeschlossen" markiert und ihre tatsächlichen
-Outcomes zum Training herangezogen.
+Begründung und Belege: `docs/ACTION_PLAN_2026-11-09.md`.
 
 ---
 
-## Tuning-Prozess
+## Risk-Gates
 
-Änderungen an den Produktions-Schwellen (`config.yaml` → `gates:`) folgen einem
-festen Prozess, damit kein Tuning auf bereits gesehenen Daten (Post-hoc-
-Overfitting) stattfindet und keine automatisierte Instanz allein die
-Produktionslogik ändern kann:
-
-1. **Vorregistrierung.** Jede Hypothese wird in `challengers.yaml` **vor**
-   der Datensammlung eingetragen: eine Freitext-Hypothese, eine deklarative
-   Auswahlregel für den Challenger-Arm, eine Baseline-Regel (Standard: die
-   aktuelle Produktionsregel), eine Ziel-Metrik, eine Mindest-Stichprobengröße
-   (`min_n`) und ein `start_date`/`max_duration_days`-Fenster.
-2. **Walk-forward-Auswertung.** `modules/challenger.py` wertet ausschließlich
-   Candidate-Ledger-Zeilen (`outputs/candidate_ledger/*.jsonl`) aus, deren
-   Datum **nach** der Registrierung liegt und deren Outcome-Horizont bereits
-   verstrichen ist. Bereits vor Registrierung gesammelte Daten fließen nie ein.
-3. **Deterministisches Verdikt mit Alpha-Spending.** Für jeden Challenger wird ein
-   seeded, reproduzierbares Bootstrap-Konfidenzintervall der Return-Differenz
-   (Challenger − Baseline) berechnet. Da Challenger jeden Monat neu bewertet werden
-   (bis sie promotiert oder expiriert sind), wird eine Alpha-Spending-Regel angewandt,
-   um die Familie-weise Fehlerquote über wiederholte Looks zu kontrollieren:
-   - Geplante Anzahl Looks: `n_looks = max(1, ceil(max_duration_days / 30))`
-   - Effektives Signifikanzniveau: `alpha = 0.10 / (n_active × n_looks)`
-   
-   Dies ist eine konservative (Bonferroni-artige) Korrektur; Confidence Sequences
-   sind eine künftige Verbesserung. Das Verdikt (`running`, `promote_recommended`,
-   `reject`, `expired`) ist eine reine Funktion der Daten — kein manuelles Ermessen
-   im laufenden Auswertungscode.
-4. **Promotion ist ausschließlich ein von einem Menschen gemergter PR.** Ein
-   `promote_recommended`-Verdikt erscheint informativ im Monats-Report
-   (Abschnitt „🧪 Challenger (Walk-forward)”). Es ändert **nichts** automatisch.
-   Die tatsächliche Übernahme in die Produktion ist ein Pull-Request, der
-   `gates:` in `config.yaml` ändert und von einem Repo-Owner (siehe
-   `.github/CODEOWNERS`) geprüft und gemergt wird.
-5. **Grenzen für automatisierte Beiträge.** Eine KI/Automatisierung darf neue
-   Challenger in `challengers.yaml` vorschlagen/registrieren (als PR, nicht
-   als Direkt-Commit gegen `main`). Sie darf **nicht** `modules/challenger.py`,
-   die Candidate-Ledger-Daten (`outputs/candidate_ledger/`) oder die
-   Promotion-Regeln selbst verändern — diese Pfade sind über CODEOWNERS
-   geschützt und benötigen menschliche Review.
-
-```bash
-python -m modules.challenger   # druckt eine Tabelle aller registrierten Challenger
-```
+| Gate | Bedingung (Werte in `config.yaml`) |
+|---|---|
+| VIX-Gate | VIX > `risk.vix_threshold` → Lauf endet |
+| Earnings-Gate | Earnings < `risk.earnings_buffer_days` → Ticker blockiert |
+| Bear-Case-Gate | `bear_case_severity` > `risk.max_bear_case_severity` |
+| Liquidität / Spread | Open Interest < `risk.min_open_interest`, Bid-Ask-Ratio > `risk.max_bid_ask_ratio` |
+| Trade-Score | < `gates.trade_score_min` → kein Vorschlag (≥ `gates.shadow_score_min` → Schatten) |
 
 ---
 
@@ -279,7 +159,7 @@ Candidate-Ledger-Zeile: row["external"] = {snapshot_id, feature_version,
         │        │
         │        ▼
         │    feedback.py: history["feature_stats_external"]  (rein deskriptiv,
-        │        NIE in compute_pearson_weights/model_weights/QuasiML/RL)
+        │        NIE in einem Produktions-Lernpfad)
         │
         ├──► modules/external/research.py  (retrospektiv/in-sample, H1–H12,
         │        NIE aus der Produktions-Pipeline aufgerufen)
@@ -338,8 +218,8 @@ Candidate-Ledger-Zeile: row["external"] = {snapshot_id, feature_version,
   ist strukturell auf 0 begrenzt.
 - Alle Reports markieren den Abschnitt explizit:
   **„SHADOW — NICHT in der Produktionsentscheidung verwendet"**.
-- `learning_features.shadow` sammelt externe Feature-Namen für das RL-Schema,
-  ohne dass sie ins aktive Training einfließen (`learning_features.production`
+- `learning_features.shadow` sammelt externe Feature-Namen,
+  ohne dass sie in einen Produktions-Lernpfad einfließen (`learning_features.production`
   bleibt unverändert).
 
 ### LLM-Relation — was sie ist und was sie nicht ist
