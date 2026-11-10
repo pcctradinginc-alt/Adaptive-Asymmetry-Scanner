@@ -107,9 +107,9 @@ Begründung und Belege: `docs/ACTION_PLAN_2026-11-09.md`.
 
 ## Risk-Gates
 
-| Gate | Bedingung (Werte in `config.yaml`) |
+| Gate | Bedingung (Werte in `config.yaml`, sofern nicht anders angegeben) |
 |---|---|
-| VIX-Gate | VIX > `risk.vix_threshold` → Lauf endet |
+| VIX-Gate | VIX ≥ 35 oder VIX nicht abrufbar → Lauf endet (fest im Code: `VIX_HARD_GATE` in `modules/risk_gates.py`; `risk.vix_threshold` in `config.yaml` wird nicht gelesen) |
 | Earnings-Gate | Earnings < `risk.earnings_buffer_days` → Ticker blockiert |
 | Bear-Case-Gate | `bear_case_severity` > `risk.max_bear_case_severity` |
 | Liquidität / Spread | Open Interest < `risk.min_open_interest`, Bid-Ask-Ratio > `risk.max_bid_ask_ratio` |
