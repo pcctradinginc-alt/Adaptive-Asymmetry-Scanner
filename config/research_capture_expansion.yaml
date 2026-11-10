@@ -1,0 +1,9 @@
+# Separate research-only option snapshot expansion.
+# Production decisions and config.yaml ledger.max_option_snapshots=40 stay frozen.
+# DO NOT set these approvals without documented Tradier rate/plan quota and
+# verified completion time of the scanner/capture workflow.
+enabled: false
+max_total_snapshots: 80
+provider_quota_verified: false
+# Also requires RESEARCH_EXTRA_OPTION_SNAPSHOTS_APPROVED=1 in the runner.
+# If any evidence or budget is unavailable, default remains 40.
