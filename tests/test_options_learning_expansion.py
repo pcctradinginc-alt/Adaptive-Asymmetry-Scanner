@@ -70,7 +70,7 @@ def test_forward_paper_requires_later_entry_and_mature_archived_exit():
     exit_quote = _quote(sym, "2026-11-09", 2.5, 2.6)
     prior = _quote(sym, "2026-11-02", 3.0, 3.1)
     assert lf.settle(sel, [prior], date(2026, 11, 10))["verified_n"] == 0
-    immature = lf.settle(sel, [prior, entry, exit_quote], date(2026, 11, 04))
+    immature = lf.settle(sel, [prior, entry, exit_quote], date(2026, 11, 4))
     assert immature["rows"][0]["status"] == "NOT_DUE"
     mature = lf.settle(sel, [prior, entry, exit_quote], date(2026, 11, 10))
     assert mature["verified_n"] == 1
