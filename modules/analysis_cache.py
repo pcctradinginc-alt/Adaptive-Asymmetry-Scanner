@@ -129,15 +129,13 @@ def response_text(response) -> str:
         return ""
 
 
-SAMPLING = "api-default"     # API 2026-10-21: temperature/top_p/top_k nicht setzbar (400 auf jedem Modell)
-
-
-def llm_audit(params: dict, response, *, version: str) -> dict:
-    """Audit-Feld je LLM-Ergebnis: Modell, Sampling, Prompt-Version, SHA-256 über System- + Nutzer-Prompt (UTF-8)
-    und über den rohen Antworttext. Gleiche prompt_sha256 mit verschiedener response_sha256 = Stichprobenrauschen
-    des Modells (messbar, nicht abschaltbar)."""
+def llm_audit(params: dict, response, *, version: str, sampled: bool = False) -> dict:
+    """Audit-Feld je LLM-Ergebnis: Modell, tatsächlich verwendetes Sampling (temperature=0 über die API-Version
+    2023-06-01 oder API-Default nach Fallback, siehe cost_telemetry), Prompt-Version, SHA-256 über System- +
+    Nutzer-Prompt (UTF-8) und über den rohen Antworttext. Gleiche prompt_sha256 mit verschiedener response_sha256
+    unter temperature=0 = Restrauschen des Modells (messbar)."""
     system, user = request_texts(params)
-    return {"model": params.get("model"), "sampling": SAMPLING,
+    return {"model": params.get("model"), "sampling": ct.sampling_label(sampled),
             "prompt_version": version, "prompt_sha256": _sha256(system + user),
             "response_sha256": _sha256(response_text(response))}
 

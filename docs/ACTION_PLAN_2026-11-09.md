@@ -119,18 +119,27 @@ Alle Aussagen zu Alpha sind **nicht belegt**, solange das Champion-Protokoll (Pu
 
 ## 8. Reproduzierbarkeit, Safe Mode, externe Daten
 
-* **LLM-Temperatur 0 – nicht umgesetzt, und zwar bewusst.**
-  * `requirements.txt` (`anthropic>=0.28.0`) installiert in CI anthropic 2.x. Diese Version sendet die API-Version
-    `2026-10-21`.
-  * Auf dieser Version liefern `temperature`, `top_p` und `top_k` auf jedem Modell HTTP 400, und
-    `Messages.create` kennt den Parameter nicht mehr (lokal mit 2.3.0 geprüft).
-  * `temperature=0` hätte Prescreening und Deep Analysis vollständig ausfallen lassen.
-  * Stattdessen:
-    * Tests verbieten Sampling-Parameter;
-    * der Analyse-Cache liefert identische Ergebnisse für identische Eingaben;
-    * `llm_audit` speichert je Ergebnis Modell, `sampling=api-default`, Prompt-Version und SHA-256 von Prompt und
-      Rohantwort. Gleicher Prompt-Hash mit anderem Antwort-Hash macht das Stichprobenrauschen messbar.
-  * Alternative, falls gewünscht (Entscheidung des Owners): das SDK unter 2.0 pinnen und auf `2023-06-01` bleiben.
+* **LLM-Temperatur 0 – umgesetzt per API-Version-Override (Owner-Entscheidung 2026-11-10), nicht live verifiziert.**
+  * Hintergrund: `requirements.txt` (`anthropic>=0.28.0`) installiert in CI anthropic 2.x. Dieses SDK sendet sonst die
+    API-Version `2026-10-21`, die `temperature`, `top_p` und `top_k` auf jedem Modell mit HTTP 400 ablehnt.
+  * Prescreening und Deep Analysis senden je Aufruf bzw. Message Batch `anthropic-version: 2023-06-01` mit
+    `temperature=0` (`modules/cost_telemetry.py`: `tracked_create`/`run_batch` mit `sampling=True`, Konstante
+    `SAMPLING_TAG = "temperature=0@anthropic-version=2023-06-01"`).
+  * Fallback: Lehnt die API den Override ab (4xx außer 429) und gelingt derselbe Aufruf ohne Override, läuft der Rest
+    des Prozesses mit API-Default weiter.
+    * Protokoll: `sampling_fallback` im Kosten-Ledger und `llm_audit.sampling = "api-default"` je Ergebnis.
+    * Scheitert auch die Gegenprobe, bleibt das Sampling an und der Fehler wird durchgereicht.
+  * Reproduzierbarkeit zusätzlich: Analyse-Cache für identische Eingaben (speichert nur unter der Prompt-Version, unter
+    der eine Antwort entstand) und `llm_audit` mit Modell, Sampling, Prompt-Version und SHA-256 von Prompt und
+    Rohantwort.
+  * Prompt-Versionen enthalten das Sampling-Regime. `model_routing` zählt A/B-, Bearish-Vorfilter- und
+    Vorlagen-Paare nur im aktuell wirksamen Regime. Folgen mit echten Daten:
+    * Modell-A/B (103 Altpaare) und kompakte Vorlage starten neu;
+    * der Bearish-Vorfilter (1036 Altpaare) ist inaktiv, bis er unter `temperature=0` neu validiert ist (mind. 40
+      bestandene Kandidaten an 10 Tagen); bis dahin werden alle Kandidaten analysiert.
+  * Das Champion-Protokoll wurde vor seinem Start (2026-11-11, noch keine Ledger-Zuteilung) neu gepinnt.
+  * Kein Live-Test möglich (keine bezahlten Calls). Ob der Override angenommen wird, zeigt der erste echte
+    Scanner-Lauf (Kosten-Ledger `kind=sampling_fallback` bzw. `llm_audit.sampling`).
     Das hält das ganze Repo zurück.
 * **Safe-Mode-Semantik.** `system_state.safe_mode_scope = research_influence_only`, am Code belegt:
   * keine positiven Boosts oder Gewichte des Production Intelligence Adapters; validierte Abstinenz bleibt erlaubt;
@@ -150,8 +159,10 @@ Alle Aussagen zu Alpha sind **nicht belegt**, solange das Champion-Protokoll (Pu
 
 ## Offene Punkte / Grenzen
 
-* **A/B-Paare beim Modell-Routing.** Sie tragen keine Prompt-Version. Bei der nächsten Vorlagenänderung würden
-  Paare zweier Regime gemischt. Mit unveränderten Vorlagen (Punkt 8) ist das aktuell nicht der Fall.
+* **A/B-Paare beim Modell-Routing.** Sie tragen jetzt die Prompt-Version und werden je Sampling-Regime gezählt;
+  Paare verschiedener Regime werden nicht gemischt.
+* **Live-Bestätigung des Overrides.** Steht aus. Der erste echte Scanner-Lauf zeigt, ob `temperature=0` mit
+  `2023-06-01` angenommen wird oder der Fallback greift (Kosten-Ledger `kind=sampling_fallback`, `llm_audit.sampling`).
 * **Bearish-Vorfilter.** Solange er aktiv ist, wird nur eine Stichprobe von 2 BEARISH-Kandidaten je Lauf
   analysiert. Seine laufende Verlustschätzung ist dadurch nach unten verzerrt. Das ist ein bestehendes Design; es
   wird hier nur dokumentiert.

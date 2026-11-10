@@ -1070,13 +1070,14 @@ def build_cost_html(report_month: str, summary: dict | None = None) -> str:
     try:
         from modules import model_routing as _mr
         from modules.config import cfg as _cfg
-        d = _mr.decision("deep_analysis", _cfg.models.deep_analysis)
+        d = _mr.decision("deep_analysis", _cfg.models.deep_analysis,
+                         prompt_version=_mr.current_version("route_pair"))
         ab = d.get("ab") or {}
         if d.get("status") != "OFF":
             routing_txt = (f"{d.get('status')}: aktiv {d.get('active')}; A/B {ab.get('pairs', 0)} Paare/"
                            f"{ab.get('days', 0)} Tage, Gate-Übereinstimmung {ab.get('gate_agreement') or NV}, "
                            f"Recall {NV if ab.get('pass_recall') is None else ab['pass_recall']}")
-        pf = _mr.prefilter_decision()
+        pf = _mr.prefilter_decision(prompt_version=_mr.current_version("prefilter_pair"))
         if pf.get("status") != "OFF":
             prefilter_txt = (f"{pf.get('status')} ({'aktiv' if pf.get('active') else 'inaktiv'}); "
                              f"{pf.get('pairs', 0)} Paare, Verlust bestandener Kandidaten {NV if pf.get('pass_loss') is None else pf['pass_loss']}")

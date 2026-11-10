@@ -138,9 +138,78 @@ def record(event: dict, ledger_dir: Path | None = None) -> None:
         log.debug(f"cost_telemetry.record fehlgeschlagen: {e}")
 
 
+# ── Reproduzierbares Sampling (Aktionsplan 2026-11-09, Punkt 8; Owner-Entscheidung 2026-11-10) ─────────────
+# anthropic>=2.0 sendet die API-Version 2026-10-21, die temperature/top_p/top_k auf jedem Modell mit 400 ablehnt.
+# Für Prescreening und Deep Analysis (sampling=True) senden wir daher je Aufruf die API-Version 2023-06-01 mit
+# temperature=0. Lehnt die API das ab (4xx) UND gelingt derselbe Aufruf ohne Override, wird das Sampling für den
+# Rest des Prozesses abgeschaltet (Fallback = bisheriger API-Default) und protokolliert; scheitert auch die
+# Gegenprobe, war der Fehler nicht das Sampling (Zustand bleibt, Fehler wird durchgereicht).
+SAMPLING_API_VERSION = "2023-06-01"
+SAMPLING_TEMPERATURE = 0
+SAMPLING_TAG = f"temperature={SAMPLING_TEMPERATURE}@anthropic-version={SAMPLING_API_VERSION}"
+_SAMPLING: dict = {"active": True, "reason": None}
+
+
+def sampling_active() -> bool:
+    return bool(_SAMPLING["active"])
+
+
+def sampling_label(used: bool) -> str:
+    return SAMPLING_TAG if used else "api-default"
+
+
+def reset_sampling() -> None:
+    """Nur für Tests/neue Prozesse: Sampling wieder einschalten."""
+    _SAMPLING.update(active=True, reason=None)
+
+
+def _sampling_kwargs() -> dict:
+    return {"extra_headers": {"anthropic-version": SAMPLING_API_VERSION},
+            "extra_body": {"temperature": SAMPLING_TEMPERATURE}}
+
+
+def _client_error(e: Exception) -> bool:
+    code = getattr(e, "status_code", None)
+    return isinstance(code, int) and 400 <= code < 500 and code != 429
+
+
+def _disable_sampling(workflow: str, e: Exception, ledger_dir: Path | None) -> None:
+    reason = f"{type(e).__name__} {getattr(e, 'status_code', '')}: {str(e)[:200]}"
+    _SAMPLING.update(active=False, reason=reason)
+    log.warning(f"Sampling-Override ({SAMPLING_TAG}) von der API abgelehnt ({reason}) -> Fallback auf API-Default "
+                f"für den Rest des Laufs")
+    record({"kind": "sampling_fallback", "workflow": workflow, "tag": SAMPLING_TAG, "reason": reason}, ledger_dir)
+
+
 def tracked_create(client: Any, *, workflow: str, stage: str | None = None, ticker: str | None = None,
-                   batch: bool = False, ledger_dir: Path | None = None, **kwargs) -> Any:
-    """client.messages.create(**kwargs) mit Telemetrie. Ergebnis/Exception unverändert durchgereicht."""
+                   batch: bool = False, ledger_dir: Path | None = None, sampling: bool = False,
+                   sampling_out: dict | None = None, **kwargs) -> Any:
+    """client.messages.create(**kwargs) mit Telemetrie. Ergebnis/Exception unverändert durchgereicht.
+    sampling=True: temperature=0 über die API-Version 2023-06-01 (Fallback siehe oben); sampling_out["used"]
+    meldet, ob die Antwort tatsächlich mit temperature=0 entstand."""
+    use = bool(sampling) and sampling_active()
+    if sampling_out is not None:
+        sampling_out["used"] = False
+    if use:
+        try:
+            resp = _tracked_create(client, workflow=workflow, stage=stage, ticker=ticker, batch=batch,
+                                   ledger_dir=ledger_dir, **{**kwargs, **_sampling_kwargs()})
+        except Exception as e:
+            if not _client_error(e):
+                raise
+            resp = _tracked_create(client, workflow=workflow, stage=stage, ticker=ticker, batch=batch,
+                                   ledger_dir=ledger_dir, **kwargs)        # Gegenprobe ohne Override
+            _disable_sampling(workflow, e, ledger_dir)
+            return resp
+        if sampling_out is not None:
+            sampling_out["used"] = True
+        return resp
+    return _tracked_create(client, workflow=workflow, stage=stage, ticker=ticker, batch=batch,
+                           ledger_dir=ledger_dir, **kwargs)
+
+
+def _tracked_create(client: Any, *, workflow: str, stage: str | None = None, ticker: str | None = None,
+                    batch: bool = False, ledger_dir: Path | None = None, **kwargs) -> Any:
     model = kwargs.get("model")
     t0 = time.monotonic()
     base = {"kind": "llm", "workflow": workflow, "stage": stage or workflow, "ticker": ticker,
@@ -179,11 +248,16 @@ def batch_settings(workflow: str, pol: dict | None = None) -> dict | None:
 
 def run_batch(client: Any, *, workflow: str, requests: dict[str, dict], tickers: dict[str, str] | None = None,
               max_wait_s: float = 1200, poll_s: float = 20, deadline: float | None = None,
-              sleep=None, clock=None, ledger_dir: Path | None = None) -> dict[str, Any]:
+              sleep=None, clock=None, ledger_dir: Path | None = None, sampling: bool = False,
+              sampling_out: dict | None = None) -> dict[str, Any]:
     """Sendet requests ({custom_id: create-Parameter}) als Message Batch und wartet höchstens
     max_wait_s (und nie über deadline, monotone Zeit). Rückgabe: {custom_id: Message} nur für
     erfolgreiche Ergebnisse. Alles andere (Timeout, Fehler, abgebrochen) fehlt im Ergebnis und
-    wird vom Aufrufer synchron nachgeholt – die Qualität bleibt identisch, nur der Preis sinkt."""
+    wird vom Aufrufer synchron nachgeholt – die Qualität bleibt identisch, nur der Preis sinkt.
+    sampling=True: Batch unter API-Version 2023-06-01 mit temperature=0 je Request (Ergebnisse eines Batches
+    tragen die Version seiner Erzeugung); sampling_out["used"] meldet, ob das galt."""
+    if sampling_out is not None:
+        sampling_out["used"] = False
     if not requests:
         return {}
     sleep, clock = sleep or time.sleep, clock or time.monotonic
@@ -195,8 +269,25 @@ def run_batch(client: Any, *, workflow: str, requests: dict[str, dict], tickers:
     if limit <= t0:
         return {}
     try:
-        batch = client.messages.batches.create(
-            requests=[{"custom_id": cid, "params": params} for cid, params in requests.items()])
+        use = bool(sampling) and sampling_active()
+        if use:
+            try:
+                batch = client.messages.batches.create(
+                    requests=[{"custom_id": cid, "params": {**params, "temperature": SAMPLING_TEMPERATURE}}
+                              for cid, params in requests.items()],
+                    extra_headers={"anthropic-version": SAMPLING_API_VERSION})
+            except Exception as e:
+                if not _client_error(e):
+                    raise
+                batch = client.messages.batches.create(          # Gegenprobe ohne Override
+                    requests=[{"custom_id": cid, "params": params} for cid, params in requests.items()])
+                _disable_sampling(workflow, e, ledger_dir)
+                use = False
+        else:
+            batch = client.messages.batches.create(
+                requests=[{"custom_id": cid, "params": params} for cid, params in requests.items()])
+        if sampling_out is not None:
+            sampling_out["used"] = use
         log.info(f"Batch {workflow}: {len(requests)} Requests eingereicht ({batch.id})")
         while getattr(batch, "processing_status", None) != "ended":
             if clock() >= limit:

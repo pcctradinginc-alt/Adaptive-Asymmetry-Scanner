@@ -324,10 +324,10 @@ class _Batches:
         self.results_map, self.polls, self.fail_create = results, polls_until_end, fail_create
         self.created, self.cancelled, self.retrieves = None, False, 0
 
-    def create(self, requests):
+    def create(self, requests, extra_headers=None):           # wie das SDK: optionale Header (API-Version)
         if self.fail_create:
             raise RuntimeError("batch api down")
-        self.created = requests
+        self.created, self.headers = requests, extra_headers
         return SimpleNamespace(id="b1", processing_status="in_progress")
 
     def retrieve(self, bid):
@@ -428,8 +428,12 @@ def test_deep_analysis_batch_with_sync_fallback(monkeypatch):
     assert [a["ticker"] for a in out] == ["AAA", "BBB"]
     assert out[0]["deep_analysis"]["impact"] == 5 and out[1]["deep_analysis"]["impact"] == 6
     assert len(client.calls) == 1                        # nur der fehlende Kandidat synchron
-    # identische Parameter im Batch wie im synchronen Call (gleiches Modell, gleicher Prompt)
-    assert b.created[1]["params"] == client.calls[0]
+    # identischer effektiver Request im Batch wie im synchronen Call (gleiches Modell, gleicher Prompt, gleiches
+    # Sampling temperature=0 unter derselben API-Version; synchron per extra_body/extra_headers)
+    sync = dict(client.calls[0])
+    sync_headers, sync_body = sync.pop("extra_headers"), sync.pop("extra_body")
+    assert b.created[1]["params"] == {**sync, **sync_body}
+    assert b.headers == sync_headers == {"anthropic-version": ct.SAMPLING_API_VERSION}
 
 
 def test_deep_analysis_without_batch_unchanged(monkeypatch):

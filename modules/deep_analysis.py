@@ -158,10 +158,20 @@ def _format_market_cap(market_cap: Optional[int]) -> str:
     return f"${market_cap/1_000_000:.0f} Mio."
 
 
-# Prompt-Version für den Analyse-Cache: jede Änderung an den Vorlagen invalidiert alle Einträge.
-# Keine Sampling-Parameter (temperature/top_p/top_k): die API-Version 2026-10-21 (anthropic>=2.0) lehnt sie auf
-# jedem Modell mit 400 ab; Reproduzierbarkeit kommt aus dem Analyse-Cache + llm_audit-Hashes (Aktionsplan P8).
-PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, ANALYSIS_TEMPLATE)
+# Prompt-Version für Analyse-Cache, Audit und A/B-Regime: Vorlagen + Sampling. Deep Analysis läuft mit
+# temperature=0 über die API-Version 2023-06-01 (cost_telemetry, Aktionsplan P8, Owner-Entscheidung 2026-11-10);
+# nach einem Fallback (API lehnt den Override ab) gilt wieder die Default-Version. Ergebnisse werden nur unter
+# der Version gecacht, unter der sie tatsächlich entstanden sind.
+PROMPT_VERSION_DEFAULT = analysis_cache.prompt_version(SYSTEM_PROMPT, ANALYSIS_TEMPLATE)
+PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, ANALYSIS_TEMPLATE, cost_telemetry.SAMPLING_TAG)
+
+
+def prompt_version_now() -> str:
+    return PROMPT_VERSION if cost_telemetry.sampling_active() else PROMPT_VERSION_DEFAULT
+
+
+def _version_for(sampled: bool) -> str:
+    return PROMPT_VERSION if sampled else PROMPT_VERSION_DEFAULT
 
 
 class DeepAnalysis:
@@ -202,7 +212,11 @@ class DeepAnalysis:
                 g = getattr(cfg, "gates", None)
                 cost_telemetry.record(model_routing.prefilter_pair(
                     candidate.get("ticker"), candidate.get("prescreen_direction"), analysis,
-                    impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3))))
+                    impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3)),
+                    prompt_version=model_routing.current_version("prefilter_pair")
+                    if not isinstance(analysis, dict) else
+                    f"{(candidate.get('prescreen_llm_audit') or {}).get('prompt_version')}+"
+                    f"{(analysis.get('llm_audit') or {}).get('prompt_version')}"))
             if not analysis:
                 continue
 
@@ -313,14 +327,16 @@ class DeepAnalysis:
             for cid in model_routing.sample(list(requests), routing["n"]):
                 ab["ab-" + cid.split("-", 1)[1]] = {**requests[cid], "model": routing["other"],
                                                     "max_tokens": model_routing.max_tokens_for("deep_analysis", routing["other"])}
+        sampled: dict = {}
         results = cost_telemetry.run_batch(client, workflow="deep_analysis", requests={**requests, **ab},
                                            tickers={**tickers, **{k: tickers["da-" + k[3:]] for k in ab}},
-                                           max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"], deadline=deadline)
+                                           max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"], deadline=deadline,
+                                           sampling=True, sampling_out=sampled)
         for cid, msg in results.items():
             if not cid.startswith("da-"):
                 continue
             idx = int(cid.split("-", 1)[1])
-            ctx = {**pre[idx][1], "batch": True}
+            ctx = {**pre[idx][1], "batch": True, "sampled": bool(sampled.get("used"))}
             raw_ref = None
             if ("ab-%d" % idx) in results:
                 try:
@@ -336,7 +352,7 @@ class DeepAnalysis:
     def _routing(self) -> dict:
         """Aktives Modell (A/B-validiert) + Gegenmodell für die Stichprobe dieses Laufs."""
         champion = cfg.models.deep_analysis
-        dec = model_routing.decision("deep_analysis", champion)
+        dec = model_routing.decision("deep_analysis", champion, prompt_version=prompt_version_now())
         self._active_model = dec.get("active", champion)
         s = model_routing.settings("deep_analysis") or {}
         if not s:
@@ -359,7 +375,8 @@ class DeepAnalysis:
             "deep_analysis", ctx["ticker"], ctx["params"]["model"], routing["other"], ref, other,
             impact_min=int(getattr(g, "impact_min", 4)), surprise_min=int(getattr(g, "surprise_min", 3)),
             ref_stop_reason=getattr(ref_msg, "stop_reason", None),         # TRUNCATED -> nicht vergleichbar
-            other_stop_reason=getattr(other_msg, "stop_reason", None)))
+            other_stop_reason=getattr(other_msg, "stop_reason", None),
+            prompt_version=_version_for(bool(ctx.get("sampled")))))
 
     def _prepare(self, candidate: dict) -> dict:
         """Baut Prompt, Cache-Schlüssel und Kontext (ohne LLM-Call)."""
@@ -458,7 +475,7 @@ class DeepAnalysis:
             earnings_date=(candidate.get("alpha_signals") or {}).get("earnings_date"),
             macro_text=macro_text, sector=sector, prescreen_category=prescreen_category,
             is_mega_cap=is_mega_cap, data_anomaly=bool(data_anomaly),
-            prompt_version=PROMPT_VERSION, model=model,
+            prompt_version=prompt_version_now(), model=model,
         )
         # System-Prompt als cachebarer Block (Prompt-Caching; unter der Mindestlänge
         # verarbeitet die API ohne Cache und ohne Aufpreis -> messbar via Telemetrie).
@@ -469,7 +486,8 @@ class DeepAnalysis:
                             "cache_control": {"type": "ephemeral"}}],
             "messages":   [{"role": "user", "content": prompt}],
         }
-        return {"ticker": ticker, "cache_key": cache_key, "params": params, "mc_hit_rate": mc_hit_rate,
+        return {"ticker": ticker, "cache_key": cache_key, "prompt_version": prompt_version_now(),
+                "params": params, "mc_hit_rate": mc_hit_rate,
                 "is_mega_cap": is_mega_cap, "market_cap": market_cap}
 
     def _lookup_cache(self, ctx: dict) -> Optional[dict]:
@@ -489,9 +507,11 @@ class DeepAnalysis:
             cached = self._lookup_cache(ctx)
             if cached is not None:
                 return cached
+            sampled: dict = {}
             response = cost_telemetry.tracked_create(
-                self.client, workflow="deep_analysis", ticker=ticker, **ctx["params"])
-            return self._complete(ctx, response)
+                self.client, workflow="deep_analysis", ticker=ticker, sampling=True, sampling_out=sampled,
+                **ctx["params"])
+            return self._complete({**ctx, "sampled": bool(sampled.get("used"))}, response)
         except Exception as e:
             log.error(f"  [{ticker}] Deep Analysis Fehler: {e}")
             return None
@@ -538,12 +558,17 @@ class DeepAnalysis:
             if result is None:
                 return None
 
-            result["llm_audit"] = analysis_cache.llm_audit(ctx["params"], response, version=PROMPT_VERSION)
-            analysis_cache.compare_observed(cache_key, result, workflow="deep_analysis", ticker=ticker)
-            analysis_cache.store(
-                cache_key, result, model=model,
-                cost_usd=cost_telemetry.compute_cost(model, cost_telemetry.usage_from_response(response),
-                                                     batch=bool(ctx.get("batch"))))
+            sampled = bool(ctx.get("sampled"))
+            version = _version_for(sampled)
+            result["llm_audit"] = analysis_cache.llm_audit(ctx["params"], response, version=version, sampled=sampled)
+            if version == ctx.get("prompt_version", version):
+                analysis_cache.compare_observed(cache_key, result, workflow="deep_analysis", ticker=ticker)
+                analysis_cache.store(
+                    cache_key, result, model=model,
+                    cost_usd=cost_telemetry.compute_cost(model, cost_telemetry.usage_from_response(response),
+                                                         batch=bool(ctx.get("batch"))))
+            else:   # Sampling-Fallback zwischen Prompt-Aufbau und Antwort: nicht unter fremder Version cachen
+                log.info(f"  [{ticker}] Antwort unter {version} statt {ctx.get('prompt_version')} -> nicht gecacht")
             return self._finalize(result, mc_hit_rate, is_mega_cap, market_cap)
 
         except Exception as e:
