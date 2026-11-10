@@ -75,12 +75,10 @@ eps_drift:
   relevant_threshold: 0.05
   massive_threshold:  0.10
 
-# RL-Reste (RL/PPO seit 2026-11-09 aus dem Produktionspfad entfernt; nur noch von ops_monitor
-# (arm_*, Lernfortschritts-ETA) und candidate_ledger (model_path, Modell-Hash der Altdatei) gelesen)
+# RL/PPO seit 2026-11-09 aus dem Produktionspfad entfernt. Nur noch Provenienz: candidate_ledger vermerkt
+# Pfad + Hash der Altdatei in model_ids (keine Entscheidungswirkung).
 rl:
   model_path: "outputs/models/ppo_options_agent.zip"
-  arm_threshold: 30             # closed_trades (seit arm_since) für die Lernfortschritts-ETA
-  arm_since: "2026-06-11"       # Stichtag neue Gates
 
 # FinBERT
 finbert:

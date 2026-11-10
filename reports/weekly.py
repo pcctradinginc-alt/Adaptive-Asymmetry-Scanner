@@ -541,6 +541,7 @@ def collect(root, date, state_path=None) -> dict:
     data["week_proposals"] = _week_proposals(out_dir, today)
     data["paper_perf"] = _d(_load_json(rs / "paper_performance_analysis.json"))
     data["spread_exec"] = _d(_load_json(rs / "spread_execution_analysis.json"))
+    data["champion_protocol"] = _d(_load_json(rs / "champion_protocol" / "status.json"))
     data["ea"] = _d(_load_json(out_dir / "expectation_alpha" / "evaluation.json"))
     data["ea_runs"] = _load_jsonl(out_dir / "expectation_alpha" / "runs.jsonl")[-7:]
     _sel = out_dir / "intelligence" / "spread_execution"
@@ -1014,6 +1015,22 @@ def _fwd_table(kind: str, windows: list[dict]) -> tuple:
     return ("table", hdr, rows, cls)
 
 
+def champion_protocol_text(data: dict) -> str:
+    """Champion als vorregistriertes Experiment (config/champion_protocol.yaml): Status, verlässliche Netto-Trades
+    bis zur nächsten Prüfung, Ledger-Alpha je Prüfung. Nur Messung, kein Trade-Einfluss."""
+    cp = _d(data.get("champion_protocol"))
+    if not cp:
+        return NO_DATA
+    n, looks = cp.get("reliable_trades"), [int(x) for x in cp.get("looks_at_n") or []]
+    nxt = next((k for k in looks if n is not None and k > int(n)), None)
+    la = cp.get("look_alpha")
+    return (f"{cp.get('status', NA)} · {cp.get('protocol', NA)} ab {cp.get('start_date', NA)} · "
+            f"{int(n) if n is not None else NA} verlässliche Netto-Trades"
+            + (f" (nächste Prüfung bei {nxt})" if nxt else "")
+            + (f" · α je Prüfung {la:.4f} (Alpha-Ledger)" if isinstance(la, (int, float)) else " · keine Ledger-Zuteilung")
+            + (f" – {cp.get('reason')}" if cp.get("status") in ("PROTOCOL_BROKEN", "AWAITING_ALLOCATION") else ""))
+
+
 def build_sections(data: dict) -> list[tuple[str, str, list]]:
     """Montagsbericht mit autonomen Learning-Ergebnissen und bisherigem Detailanhang."""
     main = monday_sections(data)
@@ -1467,6 +1484,7 @@ def monday_sections(data: dict) -> list[tuple[int, str, list]]:
                   + drift_input_text(dr)),
         ("Datenquellen", ", ".join(f"{k} {v}" for k, v in cnt.items()) if cnt else NO_DATA),
         ("Champion-Version", f"{cv.get('version', NA)} (ML-Champion: {cv.get('ml_champion') or 'keiner'})" if cv else NO_DATA),
+        ("Champion-Protokoll (vorregistriert)", champion_protocol_text(data)),
         ("Meta-Modell", f"{meta.get('primary_meta', NA)} v{meta.get('meta_version', NA)}, Verdikt "
                         f"{_d(meta.get('decision')).get('verdict', NA)} (SHADOW)" if meta else NO_DATA),
         ("Aktive Hypothesen (Research)", str(len(groups["RESEARCH IDEA"]))),

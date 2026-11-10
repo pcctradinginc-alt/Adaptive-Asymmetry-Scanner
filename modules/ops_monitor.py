@@ -776,7 +776,7 @@ def _eta(have: int, need: int, per_day: float, today: date) -> str | None:
 def learning_eta(hist: dict, P: dict, now: datetime) -> dict:
     """Wann die Lernschwellen bei aktuellem Zulauf voraussichtlich erreicht sind (nur Projektion, keine Aussage über
     Qualität): Meta-Label (Labels + unabhängige Tage, Reifung der offenen Labels exakt nach label_available_at),
-    RL-Arming (abgeschlossene Trades seit arm_since) und Champion-Evidenz (bewertbare Trades/Tage, MIN_N/MIN_DAYS)."""
+    Champion-Evidenz (bewertbare Trades/Tage, MIN_N/MIN_DAYS)."""
     from modules import evidence_ledger as el
     from modules import meta_label as ml
     today = now.date()

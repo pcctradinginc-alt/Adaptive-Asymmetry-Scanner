@@ -1702,8 +1702,9 @@ def main() -> None:
             log.warning(f"Final-MC-Downstream Fehler (ignoriert): {e}")
 
     # ── STUFE 9: Finale Auswahl ──────────────────────────────────────────────
-    # RL/QuasiML entfernt (wirkungslos: Veto aus, nur Sortierung). Reihenfolge
-    # unverändert; das Ranking der Vorschläge macht trade_scorer.rank_proposals.
+    # RL/QuasiML entfernt (Aktionsplan 2026-11-09, Punkt 2): Veto war aus, QuasiML sortierte nur nach final_score.
+    # Das Ranking macht trade_scorer.rank_proposals (Trade-Score); die alte Sortierung entschied danach nur noch
+    # Gleichstände – jetzt gilt bei Gleichstand die Final-MC-Reihenfolge.
     log.info("Stufe 9: Finale Auswahl")
     final_signals = list(final_sims)
     stats["final_selected"] = len(final_signals)

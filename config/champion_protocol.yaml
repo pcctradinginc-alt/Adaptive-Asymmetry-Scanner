@@ -17,9 +17,9 @@
 version: "champion-v2-2026-11-09"
 registered_on: "2026-11-09"
 registered_at: "2026-11-09T20:00:00Z"
-start_date: "2026-11-10"
+start_date: "2026-11-11"   # erster Handelstag sicher unter der gepinnten Konfiguration (Merge 2026-11-10)
 hypothesis: "Die eingefrorene Champion-Pipeline erzielt eine positive verlässliche Netto-Optionsrendite je Trade."
 primary_metric: "outcome_net (RELIABLE, Entry Ask / Exit Bid, abzüglich Kommission) je geschlossenem Champion-Trade"
 looks_at_n: [30, 60, 90]
 max_duration_days: 365
-decision_config_sha256: "984522be9d35b6615056998e510e4676bd818cdb69776e2e61c4f2d63a73a1e9"
+decision_config_sha256: "f425ed05fe5d2f7b3995a34888a8a700fc0d4173133242d09713b46c0a1298be"
