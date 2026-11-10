@@ -1,5 +1,5 @@
 """Auto-Registrierung eingefrorener Challenger-Vorschläge (nach 10 Wochen
-Ledger) + zusammengesetzte Regeln + robuste PPO-Belohnung."""
+Ledger) + zusammengesetzte Regeln."""
 from __future__ import annotations
 
 import json

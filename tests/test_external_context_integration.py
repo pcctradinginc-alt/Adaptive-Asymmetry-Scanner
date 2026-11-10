@@ -536,8 +536,6 @@ def test_assert_no_unpromoted_in_passes_for_core_features():
     gov.assert_no_unpromoted_in({"impact": 1, "mismatch": 2, "eps_drift": 3}, context="test")
 
 
-# ── rl_agent.py: Schema-Version-Guard ───────────────────────────────────────
-
 # ── candidate_ledger.py: external ist frozen ────────────────────────────────
 
 def test_candidate_ledger_external_is_frozen_after_first_note():
