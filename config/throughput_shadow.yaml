@@ -1,0 +1,12 @@
+# Research-only throughput challenger. NOT read by champion_protocol.decision_config().
+# No production decisions, gates, positions, orders, or trade recommendations may consume this.
+enabled: true
+max_quote_probes: 24       # total including cached Champion probes
+audit_quote_probes: 6     # deterministic pseudo-random exploration, inside 24
+max_haiku_candidates: 12  # total shortlist, Champion names are not re-analysed
+max_sonnet_candidates: 6  # research-only, after independent Haiku YES
+sonnet_audit_candidates: 2
+budget_s: 240
+min_reserve_s: 120
+min_start_seconds: 40
+min_monthly_headroom_usd: 3.0
