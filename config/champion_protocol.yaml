@@ -1,0 +1,25 @@
+# config/champion_protocol.yaml – der Champion als vorregistriertes Experiment (GESCHÜTZT, CODEOWNERS)
+#
+# Aktionsplan 2026-11-09, Punkt 1. Registriert vor dem ersten Trade des Messzeitraums. Auswertung:
+# modules/champion_protocol.py; Alpha ausschließlich aus dem globalen Ledger (config/alpha_ledger.yaml, Klasse
+# alpha_hypothesis, Teilsystem champion; Zuteilung durch modules/ledger_registration.py).
+#
+# Regeln:
+#  * Primärkennzahl (einzige): outcome_net je geschlossenem Champion-Trade mit verlässlichem Outcome
+#    (outcome_method in RELIABLE_OUTCOME_METHODS: Entry Ask, Exit Bid, abzüglich Kommission), entry_date >= start_date.
+#  * decision_config_sha256 friert Gates, Filter, Risiko, Optionen, Pipeline, Modelle, Kosten, Haltedauer,
+#    economics-first-Budget und die LLM-Prompt-Versionen ein. Jede Änderung daran = neue Protokollversion
+#    (neue version, neuer start_date, neue Ledger-Zuteilung). Keine Gate-Änderung auf gesehenen Daten mehr.
+#  * Test: einseitig H0 Expectancy <= 0 auf Tagesmitteln (Entry-Tag), t-Test; Prüfungen bei looks_at_n
+#    verlässlichen Trades, Ledger-Alpha gleich auf die Prüfungen verteilt; Prüfberichte create-only eingefroren.
+#  * Kein Einfluss auf Trades (nur Messung). Ergebnis im Wochenbericht.
+
+version: "champion-v2-2026-11-09"
+registered_on: "2026-11-09"
+registered_at: "2026-11-09T20:00:00Z"
+start_date: "2026-11-11"   # erster Handelstag sicher unter der gepinnten Konfiguration (Merge 2026-11-10)
+hypothesis: "Die eingefrorene Champion-Pipeline erzielt eine positive verlässliche Netto-Optionsrendite je Trade."
+primary_metric: "outcome_net (RELIABLE, Entry Ask / Exit Bid, abzüglich Kommission) je geschlossenem Champion-Trade"
+looks_at_n: [30, 60, 90]
+max_duration_days: 365
+decision_config_sha256: "f425ed05fe5d2f7b3995a34888a8a700fc0d4173133242d09713b46c0a1298be"

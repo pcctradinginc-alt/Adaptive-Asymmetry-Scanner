@@ -239,7 +239,7 @@ class _FakeDT(datetime):
 
 
 def run_main(monkeypatch, tmp_path, history, now, *, market_open=None, outcome=0.6, exit_reason="take_profit"):
-    from modules import email_reporter, final_mc_ledger, rl_robust_shadow, universe_v2_ledger
+    from modules import email_reporter, final_mc_ledger, universe_v2_ledger
     from modules.expectation_alpha import config as ea_cfg
     _FakeDT.now_value = now
     calls = {"compute": 0, "price": 0, "learn": [], "record": []}
@@ -271,14 +271,13 @@ def run_main(monkeypatch, tmp_path, history, now, *, market_open=None, outcome=0
                      ("record_trade_outcome", record), ("check_exit_rules", lambda t, o, d: exit_reason),
                      ("decide_exit", lambda t, o, m, d, n: exit_reason),   # Exit-Regel (V5) getrennt getestet
                      ("register_exit_sim", lambda *a, **k: None), ("_spread_execution_monitor", lambda *a, **k: None),
-                     ("_spread_execution_exit", lambda *a, **k: None), ("compute_pearson_weights", lambda h: {}),
-                     ("evaluate_shadow_trades", lambda *a, **k: None), ("maybe_notify_rl_arming", lambda h: None)):
+                     ("_spread_execution_exit", lambda *a, **k: None),
+                     ("evaluate_shadow_trades", lambda *a, **k: None)):
         monkeypatch.setattr(feedback, name, fn)
     monkeypatch.setattr(feedback.candidate_ledger, "update_outcomes", lambda *a, **k: None)
     monkeypatch.setattr(universe_v2_ledger, "resolve_outcomes", lambda **k: 0)
     monkeypatch.setattr(final_mc_ledger, "resolve_outcomes", lambda **k: 0)
     monkeypatch.setattr(ea_cfg, "enabled", lambda: False)
-    monkeypatch.setattr(rl_robust_shadow, "train_robust_shadow", lambda h: None)
     monkeypatch.setattr(email_reporter, "send_exit_alert_email", lambda *a, **k: None)
     feedback.main()
     return calls

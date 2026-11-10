@@ -81,8 +81,8 @@ log = logging.getLogger(__name__)
 REGISTRY_PATH = Path("challengers.yaml")
 LEDGER_ROOT   = Path("outputs/candidate_ledger")
 
-MAX_ACTIVE           = 3
-ALPHA_BASE           = 0.10
+MAX_ACTIVE           = 3     # gilt für die Altfamilie (vor 2026-11-09 registriert)
+ALPHA_BASE           = 0.10  # nur Altfamilie (registrierte Regel unverändert); neue Challenger: globaler Ledger
 N_BOOT               = 2000
 LOSS_FLOOR           = -0.95
 LOSS_MARGIN          = 0.02
@@ -358,7 +358,8 @@ def _row_is_time_eligible(row: dict, start_date: date, registered_at: str | None
     return True
 
 
-def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> dict:
+def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int,
+             ledger_path: Path | None = None) -> dict:
     """Evaluates a single pre-registered challenger against the ledger rows.
     Never writes anything — purely computes a recommendation.
 
@@ -419,8 +420,19 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
     # Count distinct clusters (trading days)
     n_clusters = len(set(clusters))
 
-    # Calculate effective alpha with alpha-spending rule
-    alpha = ALPHA_BASE / (max(n_active, 1) * n_looks)
+    # Alpha: ab 2026-11-09 registrierte Challenger ausschließlich aus dem globalen Ledger (Zuteilung / Looks,
+    # fail closed ohne Zuteilung). Altfamilie: exakt die registrierte Regel ALPHA_BASE/(n_aktiv·Looks), n_aktiv
+    # zählt nur die Altfamilie (neue Challenger gehören nicht mehr dazu).
+    from modules import ledger_registration as lr
+    if lr.uses_ledger(challenger.get("registered_on")):
+        alloc = lr.ledger_alpha(lr.challenger_test_id(challenger), ledger_path)
+        alpha = lr.per_look_alpha(alloc, n_looks)
+        alpha_regime = "alpha-ledger-v1" if alloc else "awaiting_ledger_allocation"
+        if alloc and alloc.get("spec_hash") != lr.spec_hash(lr.challenger_spec(challenger)):
+            alpha, alpha_regime = None, "spec_changed_after_allocation"
+    else:
+        alpha = ALPHA_BASE / (max(n_active, 1) * n_looks)
+        alpha_regime = "legacy_family_0.10_outside_global_budget"
 
     result = {
         "id": cid,
@@ -437,11 +449,15 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
         "ci_lower": None,
         "ci_upper": None,
         "alpha": alpha,
+        "alpha_regime": alpha_regime,
         "n_looks": n_looks,
         "expired": expired,
         "verdict": "running",
         "n_clusters": n_clusters,
     }
+    if alpha is None:                     # ohne gültige Ledger-Zuteilung keine Bestätigung (fail closed)
+        result["verdict"] = "reject" if expired else "running"
+        return result
 
     if base_stats["n"] < min_n or chal_stats["n"] < min_n:
         result["verdict"] = "reject" if expired else "running"
@@ -480,7 +496,7 @@ def evaluate(challenger: dict, rows: list[dict], today: date, n_active: int) -> 
 
 def evaluate_all(registry_path: Path | str = REGISTRY_PATH,
                   ledger_root: Path | str = LEDGER_ROOT,
-                  today: date | None = None) -> list[dict]:
+                  today: date | None = None, alpha_ledger_path: Path | None = None) -> list[dict]:
     """Loads the registry + ledger and evaluates all registered challengers.
     Enforces MAX_ACTIVE = 3: only the first 3 active challengers (by
     registered_on) are evaluated; the rest are reported as 'queued'.
@@ -498,12 +514,17 @@ def evaluate_all(registry_path: Path | str = REGISTRY_PATH,
     active = [c for c in valid if c.get("status") == "active"]
     inactive = [c for c in valid if c.get("status") != "active"]
 
+    from modules import ledger_registration as lr
     active_sorted = sorted(active, key=lambda c: _parse_date(c["registered_on"]))
-    to_evaluate = active_sorted[:MAX_ACTIVE]
-    queued = active_sorted[MAX_ACTIVE:]
+    legacy = [c for c in active_sorted if not lr.uses_ledger(c.get("registered_on"))]
+    ledgered = [c for c in active_sorted if lr.uses_ledger(c.get("registered_on"))]
+    to_evaluate = legacy[:MAX_ACTIVE]               # Obergrenze nur für die Altfamilie (eigenes Budget)
+    queued = legacy[MAX_ACTIVE:]
 
     n_active = len(to_evaluate)
-    results = [evaluate(c, rows, today, n_active) for c in to_evaluate]
+    results = [evaluate(c, rows, today, n_active, alpha_ledger_path) for c in to_evaluate]
+    # Ledger-Challenger: Alpha je Test aus dem globalen Budget, Obergrenze = Registrierungsgrenze des Ledgers
+    results += [evaluate(c, rows, today, len(ledgered), alpha_ledger_path) for c in ledgered]
 
     for c in invalid:
         results.append({

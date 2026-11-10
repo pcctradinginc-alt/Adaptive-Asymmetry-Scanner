@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -194,3 +195,30 @@ def test_report_is_descriptive_and_scores_due_shadow_decisions(tmp_path):
     assert pro["decisions"] == 8 and pro["pending"] == 0 and pro["missing_outcomes"] == 0
     assert pro["value_vs_never"]["n"] == 8
     assert ol._safe_native(rows, None, last, 5, tmp_path)["error"]                            # Fehler -> nur Hinweis
+
+
+def test_limit_scenario_brackets_mid_and_executable_and_k1_reproduces_executable():
+    row = _row("2026-09-01", "lx", half=0.20)
+    comp, why = ol.decompose(row, _pseudo(row), 5)
+    assert why == "OK" and comp["v0_ask"] > comp["v0_mid"] and comp["entry_spread"] > 0
+    assert ol.limit_scenario(comp, 1.0) == pytest.approx(comp["exec_ret"], abs=1e-6)     # k = 1: Ask rein, Bid raus
+    lim = ol.limit_scenario(comp)
+    assert comp["exec_ret"] < lim < comp["mid_ret"]                                       # k = 0,5: dazwischen
+    assert ol.limit_scenario({**comp, "v0_ask": None}) is None
+
+
+def test_execution_report_buckets_by_entry_spread_and_pairs_holding_periods():
+    rows, cands = _world()
+    data, _ = ol.native_dataset(rows, cands, date(2027, 1, 1), 5)
+    rep = ol.execution_report(data, 5)
+    assert rep["n"] == len(data) and rep["limit_fraction"] == 0.5
+    assert sum(b["n"] for b in rep["by_entry_spread"].values()) == len(data)
+    o = rep["overall"]
+    assert o["cost"]["mean_diff"] < 0 and o["exec_ret"]["mean_diff"] < o["limit_scenario"]["mean_diff"]
+    assert ol._spread_bucket(0.01) == "0%–2%" and ol._spread_bucket(0.5) == ">=10%" and ol._spread_bucket(None) == "unbekannt"
+    longer = [{**d, "exec_ret": d["exec_ret"] + 0.05, "cost": d["cost"] + 0.01} for d in data]
+    hc = ol.holding_comparison(data, longer, 20)
+    assert hc["pairs"] == len(data) and hc["exec_ret_long_minus_short"]["mean_diff"] == pytest.approx(0.05)
+    assert hc["cost_long_minus_short"]["mean_diff"] == pytest.approx(0.01)
+    full = ol.options_native_report(rows, cands, date(2027, 1, 1), 5, out=Path("/nonexistent-native-test"))
+    assert full["execution"]["n"] == full["decomposed"]

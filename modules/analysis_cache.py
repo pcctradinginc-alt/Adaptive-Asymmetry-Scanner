@@ -105,6 +105,43 @@ def prompt_version(*templates: str) -> str:
     return hashlib.sha256("\x1f".join(templates).encode("utf-8")).hexdigest()[:12]
 
 
+# ── Reproduzierbarkeits-Audit (Hashes von Prompt/Antwort) ───────────────────
+def _sha256(text: str) -> str:
+    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()
+
+
+def request_texts(params: dict) -> tuple[str, str]:
+    """(System-Text, Nutzer-Text) aus Request-Parametern; System darf String oder Block-Liste sein."""
+    system = params.get("system") or ""
+    if isinstance(system, list):
+        system = "".join(b.get("text", "") for b in system if isinstance(b, dict))
+    user = "".join(
+        m.get("content", "") if isinstance(m.get("content"), str) else ""
+        for m in (params.get("messages") or []) if m.get("role") == "user")
+    return str(system), user
+
+
+def response_text(response) -> str:
+    """Roher Antworttext (unverändert, ohne strip/Parsing); leer wenn nicht lesbar."""
+    try:
+        return response.content[0].text or ""
+    except (AttributeError, IndexError, TypeError):
+        return ""
+
+
+SAMPLING = "api-default"     # API 2026-10-21: temperature/top_p/top_k nicht setzbar (400 auf jedem Modell)
+
+
+def llm_audit(params: dict, response, *, version: str) -> dict:
+    """Audit-Feld je LLM-Ergebnis: Modell, Sampling, Prompt-Version, SHA-256 über System- + Nutzer-Prompt (UTF-8)
+    und über den rohen Antworttext. Gleiche prompt_sha256 mit verschiedener response_sha256 = Stichprobenrauschen
+    des Modells (messbar, nicht abschaltbar)."""
+    system, user = request_texts(params)
+    return {"model": params.get("model"), "sampling": SAMPLING,
+            "prompt_version": version, "prompt_sha256": _sha256(system + user),
+            "response_sha256": _sha256(response_text(response))}
+
+
 # ── Speicher ────────────────────────────────────────────────────────────────
 def _load(path: Path) -> dict:
     try:

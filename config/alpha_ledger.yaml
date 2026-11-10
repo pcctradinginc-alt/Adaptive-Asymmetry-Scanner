@@ -19,8 +19,14 @@
 #  * Append-only Journal mit Hash-Kette (outputs/research/alpha_ledger.jsonl); verletzte Kette = keine neue
 #    Zuteilung (fail closed), bestehende Zuteilungen gelten unverändert.
 #
-# Nicht erfasst (eigene Regeln, offen dokumentiert): ML-Promotion (config/research_protocol.yaml),
-# Factory-/Promotion-Controller-Forward-Gate, Faktor-Forward. Nur strenger ändern; Hash in tests/test_alpha_ledger.py.
+# Erweitert 2026-11-09 (Aktionsplan Punkt 7, vor der ersten Zuteilung – das Ledger ist noch nicht eingerichtet):
+# NEUE Challenger (challengers.yaml), NEUE Promotion-Verträge (config/promotion_hypotheses.yaml) und das
+# Champion-Protokoll (config/champion_protocol.yaml) beziehen ihr Alpha nur noch hieraus
+# (modules/ledger_registration.py, ein Schreiber im ML-Research-Workflow). Vor 2026-11-09 registrierte Challenger
+# (Familie 0,10) und Verträge (Familie 0,05) bleiben unverändert und werden als Altfamilien AUSSERHALB dieses
+# Budgets ausgewiesen (legacy_families_outside_budget) – bis zu ihrem Ende gilt systemweit offen: 0,05 + Altfamilien.
+# Nicht erfasst (eigene Regeln, offen dokumentiert): ML-Promotion (config/research_protocol.yaml), Faktor-Forward.
+# Nur strenger ändern; Hash in tests/test_alpha_ledger.py.
 
 version: "alpha-ledger-v1"
 registered_at: "2026-11-08"
@@ -31,14 +37,17 @@ classes:
   alpha_hypothesis:                 # neue Alpha-Hypothesen (Aktien- bzw. Optionsrendite gegen Nicht-Handeln)
     share: 0.7
     max_registrations: 60
-    subsystems: [error_research, alpha_option_validation]
+    subsystems: [error_research, alpha_option_validation, promotion_contract, champion]
   model_variant:                    # Varianten des Options-Lernmodells (ein Parameter geändert)
     share: 0.3
     max_registrations: 60
-    subsystems: [option_learner_variant]
+    subsystems: [option_learner_variant, challenger]
 legacy:                             # vor dem Ledger vergebene Slots; Pfade relativ zu outputs/research
   option_learner_variant: {path: option_learner/variants.jsonl, event: registered, id: variant_id,
                            alpha: slot_alpha}
   error_research: {path: error_forward_journal.jsonl, event: slot_assigned, id: hypothesis_id, alpha: slot_alpha}
   alpha_option_validation: {path: autonomous_alpha/option_validation/variants.jsonl, event: registered,
                             id: plan_id, alpha: alpha_slot}
+legacy_families_outside_budget:     # informativ, NICHT vom Budget abgezogen (vor dem Ledger registriert, unverändert)
+  challenger: {alpha_family: 0.10, registered_before: "2026-11-09", rule: "0,10/(n_aktiv·Looks), n_aktiv nur Altfamilie"}
+  promotion_contract: {alpha_family: 0.05, registered_before: "2026-11-09", rule: "0,05/(Familiengröße·12 Looks)"}

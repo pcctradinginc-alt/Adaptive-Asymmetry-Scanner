@@ -464,15 +464,29 @@ def family_of(contract: dict) -> str:
     return contract["production_class"] if st == CHAMPION_STAGE else f"{contract['production_class']}@{st}"
 
 
-def family_alpha(contract: dict, registry_entries: list[dict], policy: dict) -> dict:
+def family_alpha(contract: dict, registry_entries: list[dict], policy: dict,
+                 alpha_ledger_path: Path | None = None) -> dict:
+    """Alpha je Look. Vor 2026-11-09 registrierte Verträge: unverändert die Policy-Familie (alpha_family /
+    (Familiengröße · Looks)), ausgewiesen als Altfamilie außerhalb des globalen Budgets. Ab 2026-11-09
+    registrierte Verträge: ausschließlich die Zuteilung aus dem globalen Alpha-Ledger / Looks; ohne Zuteilung 0
+    (keine Bestätigung möglich, fail closed) – nie mehr als die Policy-Familie erlauben würde (nur strenger)."""
+    from modules import ledger_registration as lr
     st = policy.get("statistics") or {}
     fam = family_of(contract)
     members = {e["key"] for e in registry_entries if e.get("contract") and family_of(e["contract"]) == fam}
     variants = sum(1 for e in registry_entries if e.get("hypothesis_id") == contract["hypothesis_id"])
     m = max(1, len(members))
     looks = int(st.get("planned_looks", 12))
-    return {"hypothesis_family": fam, "family_size": m, "number_of_variants": variants, "planned_looks": looks,
-            "alpha_effective": float(st.get("alpha_family", 0.05)) / (m * looks)}
+    family = float(st.get("alpha_family", 0.05)) / (m * looks)
+    out = {"hypothesis_family": fam, "family_size": m, "number_of_variants": variants, "planned_looks": looks,
+           "alpha_effective": family, "alpha_regime": "legacy_family_0.05_outside_global_budget"}
+    if lr.uses_ledger(contract.get("registered_at")):
+        alloc = lr.ledger_alpha(lr.promotion_test_id(hc.key(contract)), alpha_ledger_path)
+        ok = bool(alloc) and alloc.get("spec_hash") == hc.spec_hash(contract)
+        out.update(alpha_effective=min(family, lr.per_look_alpha(alloc, looks)) if ok else 0.0,
+                   alpha_regime="alpha-ledger-v1" if ok else "awaiting_ledger_allocation",
+                   ledger_alpha=(alloc or {}).get("alpha"))
+    return out
 
 
 def looks_used(key: str, path: Path | None = None) -> int:

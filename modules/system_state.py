@@ -54,6 +54,13 @@ DEFAULT_INPUTS = {
     "root": Path("."),
 }
 SCHEMA = "system-state-v2"
+SAFE_MODE_SCOPE = "research_influence_only"
+# Belegt im Code: production_intelligence_adapter (safe_mode -> kein positiver Boost/Gewicht, validierte Abstinenz
+# bleibt), promotion_controller._safe_mode_state (Promotion pausiert), meta_learning (meta_active nur ohne Safe Mode);
+# pipeline.py loggt nur – Gates, Filter und Optionsauswahl des Champions laufen unverändert weiter.
+SAFE_MODE_EFFECT = ("Wirkt nur auf den Research-Einfluss: keine positiven Boosts/Gewichte des Production "
+                    "Intelligence Adapters (validierte Abstinenz bleibt erlaubt), Promotionen pausiert, "
+                    "Meta-Learning nicht aktiv. Champion-Entscheidungen (Gates, Filter, Optionsauswahl) unverändert.")
 MODEL_HEALTH_MAX_AGE_DAYS = 14          # Meta-Cognition wöchentlich (ml_research.yml) + Puffer
 DRIFT_INPUT_MAX_AGE_DAYS = 8          # wöchentlicher Meta-Lauf (ml_research.yml, Samstag) + 1 Tag Toleranz (nur Kennzeichnung)
 COMMODITY_SOURCES = ("eia_petroleum_weekly", "eia_natural_gas", "fred_commodities", "fred_regime_macro", "cftc_cot")
@@ -220,6 +227,7 @@ def derive(inputs: dict[str, Path] | None = None, now: datetime | None = None) -
 
     all_reasons = unknown + reasons
     content = {"schema": SCHEMA, "safe_mode": bool(all_reasons), "safe_mode_reason": all_reasons,
+               "safe_mode_scope": SAFE_MODE_SCOPE, "safe_mode_effect": SAFE_MODE_EFFECT,
                "data_health": data_health, "model_health": model_health, "drift_state": drift_state,
                "champion_version": champion, "promotion_state": promotion_state, "known": not unknown,
                "allowed_influence": allowed_influence, "universe_version": universe_version,

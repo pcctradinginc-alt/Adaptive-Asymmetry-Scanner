@@ -759,11 +759,11 @@ def test_history_row_workflow_learning_and_conflict_metrics():
     assert ops_report.history_row(_wfs())["workflows.failed_runs"] == 0                 # echte 0
     assert ops_report.history_row(_wfs([_failed(), _failed(run_id=2)]))["workflows.failed_runs"] == 2
     s = make_status()
-    s["learning_eta"] = {"meta_label": {"have": 4}, "rl_arming": {"have": 9}, "champion_evidence": {"have": 0}}
+    s["learning_eta"] = {"meta_label": {"have": 4}, "champion_evidence": {"have": 0}}
     s["run"]["scanner"].update(direction_conflicts=7, direction_conflict_share=0.0778)
     row = ops_report.history_row(s)
-    assert (row["learning.meta_label.have"], row["learning.rl_arming.have"], row["learning.champion_evidence.have"]) \
-        == (4, 9, 0)
+    assert (row["learning.meta_label.have"], row["learning.champion_evidence.have"]) == (4, 0)
+    assert "learning.rl_arming.have" not in row
     assert row["run.scanner.direction_conflicts"] == 7 and row["run.scanner.direction_conflict_share"] == 0.0778
 
 
@@ -838,7 +838,6 @@ def test_render_learning_eta_workflows_and_conflicts():
     s["learning_eta"] = {
         "meta_label": {"have": 0, "need": 200, "have_dates": 0, "need_dates": 20, "pending_maturing": 144,
                        "new_rows_per_day": 8.5, "eta": "2026-12-01", "basis": "Zielpopulation"},
-        "rl_arming": {"have": 9, "need": 30, "closes_per_day_30d": 0.167, "eta": None, "since": "2026-06-11"},
         "champion_evidence": {"have": 3, "need": 30, "have_days": 3, "need_days": 20, "evaluable_per_day_30d": 0.1,
                               "eta": "2027-07-12"},
         "note": "Projektion bei unverändertem Zulauf"}
@@ -847,7 +846,7 @@ def test_render_learning_eta_workflows_and_conflicts():
     md = ops_report.render_markdown(s, row, ops_report.deltas(row, []), [])
     assert "## Lern-Prognose" in md and "## Workflow-Fehler (GitHub Actions)" in md
     assert "| Meta-Label-Training | 0 · Tage 0 | 200 · Tage 20 | 8.5 | 2026-12-01 |" in md
-    assert "| RL-Freischaltung (closed trades) | 9 | 30 | 0.167 | nicht absehbar |" in md
+    assert "RL-Freischaltung" not in md
     assert "144 offene Labels" in md
     assert "– SPÄT" in md and "Scanner ausführen" in md and "ImportError: x" in md
     assert "Haiku/Sonnet-Widerspruch" in md and "7 (Anteil 0.0778)" in md

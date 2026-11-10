@@ -58,6 +58,12 @@ jobs:
         continue-on-error: true   # fehlt er, sind Commodity-Features NaN / verfügbar 0 – Champion unberührt
         run: python -m modules.commodity_intelligence build
 
+      # Forschungsumfang (Aktionsplan 2026-11-09, Punkt 7): eingefrorene Generatoren erzeugen keine neuen
+      # Hypothesen mehr (config/research_scope.yaml); registrierte werden in den übrigen Schritten weiter ausgewertet.
+      - name: Forschungsumfang – eingefrorene Generatoren
+        id: research_scope
+        run: python -m modules.research_scope --github-output
+
       - name: ML-Research (präregistriert, nur SHADOW)
         run: |
           MODE="${{ github.event.inputs.mode }}"
@@ -72,6 +78,7 @@ jobs:
       # The ML panel already exists in RUNNER_TEMP; fail rather than re-download.
       - name: Feature Discovery v3 – liquidity and macro-calendar shadow learning
         id: feature_discovery_v3
+        if: steps.research_scope.outputs.frozen_feature_discovery_v3 != 'true'
         continue-on-error: true
         run: python -m modules.research_feature_discovery --panel-cache "$RUNNER_TEMP/panel.pkl"
 
@@ -86,8 +93,24 @@ jobs:
       # independently evaluated stock-forward looks; decisions are research-only.
       - name: Feature Discovery Phase 3 – autonomous research priority and memory
         id: feature_director_v1
+        if: steps.research_scope.outputs.frozen_feature_director_v1 != 'true'
         continue-on-error: true
         run: python -m modules.research_feature_director
+
+      # Gemeinsames Fehlerbudget (Aktionsplan 2026-11-09, Punkt 7): EINZIGER Schreiber der Ledger-Zuteilungen für
+      # neue Challenger, neue Promotion-Verträge und das Champion-Protokoll (idempotent, Hash-Kette, fail closed).
+      # Exit 1 bei geänderter Vorregistrierung oder fehlendem Budget (kritisch).
+      - name: Fehlerbudget – Zuteilung für Challenger, Promotion-Verträge, Champion-Protokoll
+        id: ledger_registration
+        continue-on-error: true
+        run: python -m modules.ledger_registration
+
+      # Champion als vorregistriertes Experiment (Punkt 1): eine Kennzahl (verlässliche Netto-Optionsrendite),
+      # gepinnte Entscheidungs-Konfiguration, eingefrorene Prüfungen. Nur Messung, kein Einfluss auf Trades.
+      - name: Champion-Protokoll – Auswertung
+        id: champion_protocol
+        continue-on-error: true
+        run: python -m modules.champion_protocol
 
       # Fehlergetriebene Forschung (wöchentlich + full, vor dem Director): geprüfte Forward-Prognosefehler des
       # Ensembles (Candidate Ledger gegen ml_predictions) -> fester Suchraum (config/error_research_protocol.yaml)
@@ -102,20 +125,20 @@ jobs:
 
       - name: Research Director + Active Learning (nur full)
         id: director
-        if: env.MODE == 'full'
+        if: env.MODE == 'full' && steps.research_scope.outputs.frozen_director != 'true'
         continue-on-error: true
         run: python -m modules.research_director
 
       - name: Scientific Hypothesis Factory – Plan (Ideen, DATA_GAP, Ähnlichkeit, Budget – nur full)
         id: factory_plan
-        if: env.MODE == 'full'
+        if: env.MODE == 'full' && steps.research_scope.outputs.frozen_factory_plan != 'true'
         continue-on-error: true
         # Research ideas use the free deterministic factory; no Anthropic API.
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" python -m modules.hypothesis_factory plan
 
       - name: Autonomous Alpha – genetic PIT factor exploration (nur full, max 2/Monat)
         id: alpha_explore
-        if: env.MODE == 'full'
+        if: env.MODE == 'full' && steps.research_scope.outputs.frozen_alpha_explore != 'true'
         continue-on-error: true
         run: python -m modules.autonomous_alpha explore
 
@@ -153,7 +176,7 @@ jobs:
 
       - name: Kausalschicht + Knowledge Graph (nur full)
         id: causal
-        if: env.MODE == 'full'
+        if: env.MODE == 'full' && steps.research_scope.outputs.frozen_causal != 'true'
         continue-on-error: true
         run: |
           python -m modules.causal_research
@@ -161,7 +184,7 @@ jobs:
 
       - name: Gesamtvalidierung A–G, Blind Spots, Stress, Decision Intelligence (nur full)
         id: next_intel
-        if: env.MODE == 'full'
+        if: env.MODE == 'full' && steps.research_scope.outputs.frozen_next_intel != 'true'
         continue-on-error: true
         run: ML_PANEL_CACHE="$RUNNER_TEMP/panel.pkl" META_RES_CACHE="$RUNNER_TEMP/meta.pkl" python -m modules.next_intelligence
 
@@ -270,6 +293,14 @@ jobs:
         continue-on-error: true
         run: python -m modules.research_source_utilization --as-of "$(date -u +%Y-%m-%d)"
 
+      # LLM-Zensus (Aktionsplan 2026-11-09, Punkt 6): Zufallsstichprobe der Hard-Filter-Population mit
+      # protokolliertem π -> ob Impact/Mismatch überhaupt Vorhersagekraft haben (beschreibend, keine Bestätigung).
+      - name: LLM-Zensus – Bericht
+        id: llm_census
+        if: env.MODE == 'weekly'
+        continue-on-error: true
+        run: python -m modules.llm_census report --as-of "$(date -u +%Y-%m-%d)"
+
       - name: Options-Lernmodell – Walk-Forward und Forward-Auswertung (5 T / 20 T)
         id: option_learner
         continue-on-error: true
@@ -362,6 +393,6 @@ jobs:
         env:
           # 2026-11-01: Schritte, die prospektive Evidenz einfrieren oder auswerten (Challenger-Forward-Ledger,
           # Alpha→Options-Link, Options-Lernmodell), sind zentral – ihr Ausfall macht den Lauf rot statt grün.
-          CRITICAL: "error_research=${{ steps.error_research.outcome }} factory_plan=${{ steps.factory_plan.outcome }} alpha_explore=${{ steps.alpha_explore.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }} autonomous_alpha_registry=${{ steps.autonomous_alpha_registry.outcome }} alpha_factor_forward=${{ steps.alpha_factor_forward.outcome }} alpha_option_forward=${{ steps.alpha_option_forward.outcome }} alpha_reflection=${{ steps.alpha_reflection.outcome }} factory_forward=${{ steps.factory_forward.outcome }} alpha_option_link=${{ steps.alpha_option_link.outcome }} paper_account=${{ steps.paper_account.outcome }} paper_report=${{ steps.paper_report.outcome }} alpha_data_quality=${{ steps.alpha_data_quality.outcome }} alpha_e2e=${{ steps.alpha_e2e.outcome }} option_learner=${{ steps.option_learner.outcome }}"
-          DEGRADED: "feature_options_economics_v1=${{ steps.feature_options_economics_v1.outcome }} feature_director_v1=${{ steps.feature_director_v1.outcome }} feature_validation_v1=${{ steps.feature_validation_v1.outcome }} feature_discovery_v3=${{ steps.feature_discovery_v3.outcome }} alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }} evidence_coverage=${{ steps.evidence_coverage.outcome }} evidence_reconcile=${{ steps.evidence_reconcile.outcome }} evidence_discovery=${{ steps.evidence_discovery.outcome }} research_improvement=${{ steps.research_improvement.outcome }} candidate_census=${{ steps.candidate_census.outcome }} source_utilization=${{ steps.source_utilization.outcome }} improvement_notify=${{ steps.improvement_notify.outcome }}"
+          CRITICAL: "ledger_registration=${{ steps.ledger_registration.outcome }} champion_protocol=${{ steps.champion_protocol.outcome }} error_research=${{ steps.error_research.outcome }} factory_plan=${{ steps.factory_plan.outcome }} alpha_explore=${{ steps.alpha_explore.outcome }} research_lab=${{ steps.research_lab.outcome }} factory_evaluate=${{ steps.factory_eval.outcome }} meta_cognition=${{ steps.meta_cognition.outcome }} autonomous_alpha_registry=${{ steps.autonomous_alpha_registry.outcome }} alpha_factor_forward=${{ steps.alpha_factor_forward.outcome }} alpha_option_forward=${{ steps.alpha_option_forward.outcome }} alpha_reflection=${{ steps.alpha_reflection.outcome }} factory_forward=${{ steps.factory_forward.outcome }} alpha_option_link=${{ steps.alpha_option_link.outcome }} paper_account=${{ steps.paper_account.outcome }} paper_report=${{ steps.paper_report.outcome }} alpha_data_quality=${{ steps.alpha_data_quality.outcome }} alpha_e2e=${{ steps.alpha_e2e.outcome }} option_learner=${{ steps.option_learner.outcome }}"
+          DEGRADED: "feature_options_economics_v1=${{ steps.feature_options_economics_v1.outcome }} feature_director_v1=${{ steps.feature_director_v1.outcome }} feature_validation_v1=${{ steps.feature_validation_v1.outcome }} feature_discovery_v3=${{ steps.feature_discovery_v3.outcome }} alt_sec=${{ steps.alt_sec.outcome }} alt_xbrl=${{ steps.alt_xbrl.outcome }} alt_ted=${{ steps.alt_ted.outcome }} commodity_build=${{ steps.cmd_build.outcome }} research_director=${{ steps.director.outcome }} alt_evaluate=${{ steps.alt_eval.outcome }} commodity_evaluate=${{ steps.cmd_eval.outcome }} meta_learning=${{ steps.meta_learning.outcome }} causal=${{ steps.causal.outcome }} next_intelligence=${{ steps.next_intel.outcome }} hc_scanner=${{ steps.hc_scanner.outcome }} evidence_coverage=${{ steps.evidence_coverage.outcome }} evidence_reconcile=${{ steps.evidence_reconcile.outcome }} evidence_discovery=${{ steps.evidence_discovery.outcome }} research_improvement=${{ steps.research_improvement.outcome }} candidate_census=${{ steps.candidate_census.outcome }} source_utilization=${{ steps.source_utilization.outcome }} llm_census=${{ steps.llm_census.outcome }} improvement_notify=${{ steps.improvement_notify.outcome }}"
         run: bash scripts/ci_stage_check.sh

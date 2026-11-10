@@ -101,6 +101,10 @@ challengers:
     status: active
 
   - id: ppo_robust_shadow
+    # 2026-11-09: RL/PPO aus dem Produktionspfad entfernt -> ab dann keine neuen rl_robust_action-Zeilen. Der
+    # Challenger bleibt bewusst 'active' bis zu seinem registrierten Ende (max_duration_days): ein vorzeitiges
+    # Austragen würde n_aktiv der Altfamilie senken und damit das Alpha der übrigen Alt-Challenger lockern.
+    # Bewertet werden nur die bis dahin erfassten Zeilen (historische Daten unverändert).
     # Robuster PPO-Challenger (modules/rl_robust_shadow.py): Belohnung =
     # Log-Depotwachstum bei realem Positionsanteil (portfolio.max_position_pct)
     # statt Rendite; chronologisch trainiert, fester Seed, Walk-forward-
@@ -121,6 +125,66 @@ challengers:
       - {field: "features.rl_robust_action", op: "in", value: ["NORMAL", "BOOST"]}
     baseline_rule:
       - {field: "status", op: "==", value: "proposed"}
+    metric: "outcomes.real_strat_ret_45d"
+    min_n: 30
+    min_clusters: 12
+    horizon_days: 45
+    max_duration_days: 270
+    status: active
+
+  # ── Ab 2026-11-09: Alpha ausschließlich aus dem globalen Ledger (config/alpha_ledger.yaml, Klasse
+  #    model_variant; Zuteilung durch modules/ledger_registration.py, ohne Zuteilung keine Bestätigung).
+  #    Vor der Datensammlung registriert (start_date nach registered_on).
+  - id: no_mc_gates
+    # Aktionsplan 2026-11-09, Punkt 3. Die MC-Trefferquote ist eine deterministische Funktion aus σ,
+    # Trend-Drift (hist_mu erklärt laut mirofish_simulation.py 73–90 % der Drift) und LLM-Scores, unkalibriert.
+    # Gemessen wird nur, was nach der Deep Analysis gefiltert wird (Quick MC, Final MC); der Pre-MC vor der
+    # Deep Analysis ist hier nicht messbar (dafür LLM-Zensus, modules/llm_census.py).
+    hypothesis: >
+      Die MC-Gates nach der Deep Analysis (Quick MC, Final MC) wählen keine besseren Optionen aus.
+      Kandidaten, die die MC-Stufe erreichen (Mismatch berechnet, nicht über dem Cap), erzielen ohne
+      MC-Filter keine schlechtere reale Strategierendite als die MC-Überlebenden. Untergrenze des KI
+      (ungefiltert minus MC-Überlebende) > 0 -> die MC-Gates sind entbehrlich; Obergrenze < 0 -> sie
+      tragen Information und bleiben.
+    registered_on: "2026-11-09"
+    registered_at: "2026-11-09T20:00:00Z"
+    start_date: "2026-11-10"
+    rule:
+      - {field: "features.mismatch", op: ">", value: 0}
+    baseline_rule:
+      - {field: "features.mismatch", op: ">", value: 0}
+      - {not: {field: "reject_reason", op: "in", value: [mc_below_threshold, mc_no_result, mc_invalid_hit_rate,
+                                                         final_mc_below_threshold, final_mc_invalid,
+                                                         final_mc_zero_prob]}}
+    metric: "outcomes.real_strat_ret_45d"
+    min_n: 30
+    min_clusters: 12
+    horizon_days: 45
+    max_duration_days: 270
+    status: active
+
+  - id: mismatch_directional_news
+    # Aktionsplan 2026-11-09, Punkt 4. Produktion: mismatch = impact − 5·|48h-Move|/σ (richtungsblind, relativ
+    # zum Scan-Tag). Challenger: mismatch_dir_news = impact − 5·max(0, s·Move seit der ersten Schlagzeile)/σ
+    # (modules/mismatch_scorer.py, für JEDE analysierte These notiert, auch Mismatch ≤ 0). Gleiche
+    # Population (Deep Analysis, Impact×Surprise-Floor), gleicher Cap 7, gleiche Skalierung.
+    hypothesis: >
+      Ein gerichteter, an der Nachricht verankerter Mismatch trennt Underreactions besser als der
+      richtungsblinde 48h-Mismatch: Thesen mit mismatch_dir_news in (0, 7] erzielen eine höhere reale
+      Strategierendite als Thesen mit Produktions-Mismatch in (0, 7].
+    registered_on: "2026-11-09"
+    registered_at: "2026-11-09T20:00:00Z"
+    start_date: "2026-11-10"
+    rule:
+      - {field: "features.impact", op: ">=", value: 4}
+      - {field: "features.surprise", op: ">=", value: 3}
+      - {field: "features.mismatch_dir_news", op: ">", value: 0}
+      - {field: "features.mismatch_dir_news", op: "<=", value: 7.0}
+    baseline_rule:
+      - {field: "features.impact", op: ">=", value: 4}
+      - {field: "features.surprise", op: ">=", value: 3}
+      - {field: "features.mismatch_raw", op: ">", value: 0}
+      - {field: "features.mismatch_raw", op: "<=", value: 7.0}
     metric: "outcomes.real_strat_ret_45d"
     min_n: 30
     min_clusters: 12

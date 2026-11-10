@@ -20,7 +20,7 @@ import os
 import time
 import anthropic
 
-from modules import cost_telemetry, model_routing
+from modules import analysis_cache, cost_telemetry, model_routing
 from modules.config import cfg
 
 log = logging.getLogger(__name__)
@@ -94,6 +94,11 @@ Antworte NUR mit diesem JSON:
 
 Richtwert: ~15% YES bei vorhandenen Signalen. Vergib [YES] NUR bei echtem Signal.
 An nachrichtenarmen Tagen ist 0% YES korrekt — erzwinge keine Quote."""
+
+
+# Prompt-Version fürs Audit (Vorlagen); das Prescreening hat keinen Cache. Keine Sampling-Parameter: die
+# API-Version 2026-10-21 (anthropic>=2.0) lehnt temperature/top_p/top_k auf jedem Modell ab.
+PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, USER_TEMPLATE, USER_TEMPLATE_COMPACT)
 
 
 def _compact_mode() -> str:
@@ -175,6 +180,7 @@ class Prescreener:
                         "reason":    r.get("reason", ""),
                         "category":  r.get("category", ""),
                         "direction": r.get("direction") if r.get("direction") in ("BULLISH", "BEARISH") else None,
+                        "llm_audit": r.get("llm_audit"),
                     }
                     yes_count += 1
                 else:
@@ -193,6 +199,7 @@ class Prescreener:
                 c["prescreen_reason"]   = prescreen_data.get("reason", "")
                 c["prescreen_category"] = prescreen_data.get("category", "")
                 c["prescreen_direction"] = prescreen_data.get("direction")
+                c["prescreen_llm_audit"] = prescreen_data.get("llm_audit")
                 shortlist.append(c)
                 log.info(f"  [YES] {c['ticker']}: {prescreen_data.get('reason','')} [{prescreen_data.get('category','')}]")
 
@@ -232,6 +239,15 @@ class Prescreener:
                 "messages": [{"role": "user", "content": prompt}]}
 
     @staticmethod
+    def _with_audit(results: list, params: dict, response) -> list:
+        """Hängt je Ergebnis das Audit-Feld llm_audit (Hashes der Batch-Anfrage/-Antwort) an."""
+        audit = analysis_cache.llm_audit(params, response, version=PROMPT_VERSION)
+        for r in results:
+            if isinstance(r, dict):
+                r["llm_audit"] = dict(audit)
+        return results
+
+    @staticmethod
     def _parse(response) -> list:
         raw = response.content[0].text.strip()
 
@@ -269,7 +285,7 @@ class Prescreener:
                 continue
             i = int(cid.split("-", 1)[1])
             try:
-                out[i] = self._parse(msg)
+                out[i] = self._with_audit(self._parse(msg), requests[cid], msg)
             except (json.JSONDecodeError, KeyError, AttributeError, IndexError) as e:
                 log.warning(f"    Batch-Antwort {i + 1} unlesbar ({e}) → synchroner Retry")
         for cid in checks:
@@ -290,7 +306,7 @@ class Prescreener:
             try:
                 response = cost_telemetry.tracked_create(
                     self.client, workflow="prescreening", **params)
-                results = self._parse(response)
+                results = self._with_audit(self._parse(response), params, response)
                 log.info(
                     f"    Batch OK (Versuch {attempt}): "
                     f"{len(results)} Ticker bewertet"

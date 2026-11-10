@@ -460,14 +460,11 @@ def test_nan_extreme_and_missing_rerank_signals_keep_champion_order(tmp_path):
         assert d["final_production_decision"] == "TRADE" and abs(d["score_adjustment"]) <= pia.HARD_CAPS["score_points"]
 
 
-def test_rl_veto_off_by_default_and_never_drops_candidates():
+def test_stage9_has_no_rl_and_never_drops_candidates():
+    """RL/QuasiML entfernt (2026-11-09): Stufe 9 reicht final_sims unverändert durch."""
     src = (ROOT / "pipeline.py").read_text()
-    assert 'cfg.rl.get("veto_enabled", False)' in src
-    assert yaml.safe_load((ROOT / "config.yaml").read_text())["rl"]["veto_enabled"] is False
-    from modules.rl_agent import RLScorer
-    sims = [{"ticker": f"T{i}", "features": {}, "simulation": {}, "deep_analysis": {}} for i in range(5)]
-    out = RLScorer(history={}, veto_enabled=False).run(sims)
-    assert {s["ticker"] for s in out} == {s["ticker"] for s in sims}
+    assert "RLScorer" not in src and "final_signals = list(final_sims)" in src
+    assert "rl_agent" not in src and "rl_robust_shadow" not in src
 
 
 def test_absurd_cot_and_extreme_eia_are_flagged_not_used():
@@ -504,8 +501,9 @@ def test_stale_model_health_is_unknown_fail_closed(tmp_path):
     assert st["safe_mode"] and any("veraltet" in r for r in st["safe_mode_reason"])
 
 
-def test_learning_health_detects_stalled_paths(tmp_path):
+def test_learning_health_detects_stalled_paths(tmp_path, monkeypatch):
     from modules import learning_health as lh
+    from modules import research_scope
     o = tmp_path / "outputs"
     (o / "research").mkdir(parents=True)
     (o / "intelligence").mkdir(parents=True)
@@ -514,6 +512,11 @@ def test_learning_health_detects_stalled_paths(tmp_path):
                                                                         "hypotheses": {}}))
     (o / "history.json").write_text(json.dumps({"closed_trades": [{"close_date": "2026-05-01", "outcome": 0.1}],
                                                 "active_trades": [{"ticker": "A"}], "shadow_trades": []}))
+    # Seit 2026-11-09 ist die Hypothesen-Generierung per config/research_scope.yaml eingefroren -> FROZEN, nicht STALLED.
+    frozen = lh.assess(tmp_path, datetime(2026, 10, 4, tzinfo=UTC))["paths"]["research_generation"]
+    assert frozen["status"] == "FROZEN" and "research_scope" in frozen["detail"]
+    # Die STALLED-Erkennung selbst bleibt geprüft: ohne Freeze ist der Pfad mit altem Artefakt STALLED.
+    monkeypatch.setattr(research_scope, "health_frozen", lambda key: None)
     r = lh.assess(tmp_path, datetime(2026, 10, 4, tzinfo=UTC))
     p = r["paths"]
     assert p["research_generation"]["status"] == "STALLED" and p["promotion_pipeline"]["status"] == "STALLED"
@@ -550,13 +553,10 @@ def _legacy_history(n_legacy=20, n_rel=0):
 
 
 def test_legacy_unknown_outcomes_kept_but_excluded_from_learning():
-    from modules import abstention_proposals, rl_environment
+    from modules import abstention_proposals
     from modules.outcomes import class_counts
-    import feedback
     h = _legacy_history(20)
     assert class_counts(h["closed_trades"]) == {"UNKNOWN": 20}          # nicht gelöscht, nur klassifiziert
-    assert rl_environment.build_env_from_history(h) is None              # RL/PPO lernt nicht daraus
-    assert feedback.compute_pearson_weights(h) == h["model_weights"]     # QuasiML-Gewichte unverändert
     assert abstention_proposals.propose(h)["n_trades"] == 0              # Meta-/Abstention-Evidenz
     sys.path.insert(0, str(ROOT / "scripts"))
     import paper_performance_analysis as ppa

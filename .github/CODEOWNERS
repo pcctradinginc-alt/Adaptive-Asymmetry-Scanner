@@ -74,3 +74,13 @@ tests/test_error_driven_research.py @pcctradinginc-alt
 # Globales Fehlerbudget und fehlergetriebene Forschung (Präregistrierung, Hash gepinnt)
 config/alpha_ledger.yaml      @pcctradinginc-alt
 tests/test_alpha_ledger.py    @pcctradinginc-alt
+# Aktionsplan 2026-11-09: Champion-Protokoll, ein Fehlerbudget, Research-Scope, LLM-Zensus, externe Nutzer
+config/champion_protocol.yaml      @pcctradinginc-alt
+modules/champion_protocol.py       @pcctradinginc-alt
+modules/ledger_registration.py     @pcctradinginc-alt
+config/research_scope.yaml         @pcctradinginc-alt
+modules/research_scope.py          @pcctradinginc-alt
+config/llm_census.yaml             @pcctradinginc-alt
+modules/llm_census.py              @pcctradinginc-alt
+config/external_consumers.yaml     @pcctradinginc-alt
+tests/test_champion_protocol.py    @pcctradinginc-alt

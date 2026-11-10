@@ -159,6 +159,8 @@ def _format_market_cap(market_cap: Optional[int]) -> str:
 
 
 # Prompt-Version für den Analyse-Cache: jede Änderung an den Vorlagen invalidiert alle Einträge.
+# Keine Sampling-Parameter (temperature/top_p/top_k): die API-Version 2026-10-21 (anthropic>=2.0) lehnt sie auf
+# jedem Modell mit 400 ab; Reproduzierbarkeit kommt aus dem Analyse-Cache + llm_audit-Hashes (Aktionsplan P8).
 PROMPT_VERSION = analysis_cache.prompt_version(SYSTEM_PROMPT, ANALYSIS_TEMPLATE)
 
 
@@ -475,6 +477,9 @@ class DeepAnalysis:
         if cached is None:
             return None
         log.info(f"  [{ctx['ticker']}] Analyse-Cache-Treffer (identische Eingaben) → kein Sonnet-Call")
+        # Ursprüngliche Hashes aus dem Cache übernehmen und als Cache-Treffer markieren
+        orig = cached.get("llm_audit") if isinstance(cached.get("llm_audit"), dict) else {}
+        cached["llm_audit"] = {**orig, "cached": True}
         return self._finalize(cached, ctx["mc_hit_rate"], ctx["is_mega_cap"], ctx["market_cap"])
 
     def _analyze(self, candidate: dict, ctx: Optional[dict] = None) -> Optional[dict]:
@@ -533,6 +538,7 @@ class DeepAnalysis:
             if result is None:
                 return None
 
+            result["llm_audit"] = analysis_cache.llm_audit(ctx["params"], response, version=PROMPT_VERSION)
             analysis_cache.compare_observed(cache_key, result, workflow="deep_analysis", ticker=ticker)
             analysis_cache.store(
                 cache_key, result, model=model,

@@ -472,3 +472,33 @@ def test_weekly_alpha_html_escapes_untrusted_signal_titles(tmp_path):
     html = weekly.render_html(weekly.collect(tmp_path, "2026-11-02", state_path=tmp_path / "state.json"))
     assert "<script>alert(1)</script>" not in html
     assert "&lt;script&gt;" in html
+
+
+def test_weekly_safe_mode_label_is_honest_about_scope(tmp_path):
+    make_full(tmp_path)
+    t = text_for(tmp_path)
+    assert "Research-Safe-Mode (sperrt Research-Einfluss; Champion-Gates unverändert)" in t
+    assert "Safe Mode:" not in t and "Safe Mode " not in t.replace("Research-Safe-Mode ", "")
+
+
+def test_weekly_mc_label_and_rl_removed_without_rl_promotion_json(tmp_path):
+    make_full(tmp_path)
+    assert not (tmp_path / "outputs/research/rl_promotion.json").exists()
+    _calib(tmp_path)
+    _proposal(tmp_path, "2026-09-28", 0.80, "GOOD")
+    t = text_for(tmp_path)
+    assert weekly.RL_REMOVED_TEXT == "RL/PPO: entfernt (2026-11-09) – kein Lernpfad mehr" and weekly.RL_REMOVED_TEXT in t
+    assert "RL-Agent" not in t and "RL-Freischaltung" not in t and "rl_promotion" not in t
+    assert "Target-Hit-Score (MC, unkalibriert)" in t
+
+
+def test_champion_protocol_line_shows_status_next_look_and_ledger_alpha():
+    from reports import weekly as w
+    assert w.champion_protocol_text({}) == w.NO_DATA
+    t = w.champion_protocol_text({"champion_protocol": {
+        "status": "NEED_MORE_DATA", "protocol": "champion-v2", "start_date": "2026-11-11", "reliable_trades": 12,
+        "looks_at_n": [30, 60, 90], "look_alpha": 0.0035}})
+    assert "NEED_MORE_DATA" in t and "nächste Prüfung bei 30" in t and "0.0035" in t
+    t = w.champion_protocol_text({"champion_protocol": {"status": "AWAITING_ALLOCATION", "reliable_trades": 0,
+                                                        "looks_at_n": [30], "reason": "Noch keine Zuteilung"}})
+    assert "keine Ledger-Zuteilung" in t and "Noch keine Zuteilung" in t

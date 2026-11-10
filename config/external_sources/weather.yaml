@@ -188,6 +188,7 @@ sources:
     # Aktiv seit 2026-10-03: Jahresdatei (Vorjahr) höchstens alle 30 Tage (min_refetch_days),
     # nie täglich; nur Zähler je Bundesstaat/Event-Typ werden normalisiert gespeichert.
     enabled: true
+    status_override: DEFERRED   # Aktionsplan 2026-11-09 P8: kein registrierter Nutzer (config/external_consumers.yaml); Historie nachholbar, Archiv bleibt
     criticality: low
     base_url: "https://www.ncei.noaa.gov/pub/data/swdi/stormevents/csvfiles"
     backfill_only: true

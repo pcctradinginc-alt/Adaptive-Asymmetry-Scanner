@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 
 # Funnel-Reihenfolge für die Killer-Diagnose (siehe pipeline.py stats-dict).
 # Bewusst reduziert auf die "Haupt-Trichter"-Stufen — Zwischenstufen wie
-# sector_ok/pre_mc/roi_precheck/rl_scored/after_isf sind Diagnose-Detail,
+# sector_ok/pre_mc/roi_precheck/final_selected/after_isf sind Diagnose-Detail,
 # aber für die Frage "welches Gate hat den 0-Trade-Tag verursacht" reicht
 # diese grobe Kette.
 FUNNEL_ORDER = [
@@ -294,7 +294,7 @@ def _check_learn_loop_sanity(
     history: dict, today: date, close_after_days: int, warnings: list[str],
 ) -> dict:
     """
-    Prüft Sanity des Lern-Loops: NaN-Gewichte, Null-Gewichte, verwaiste Trades,
+    Prüft Sanity des Lern-Loops: verwaiste Trades,
     und Feature-Korrelationen mit Outcome.
 
     Returns dict mit:
@@ -302,23 +302,6 @@ def _check_learn_loop_sanity(
       - feature_corr: dict mit Korrelationswerten (oder {})
     """
     metrics = {"learn_loop_frozen": False, "feature_corr": {}}
-
-    weights = history.get("model_weights") or {}
-    if isinstance(weights, dict) and weights:
-        nan_feats, numeric_vals = [], []
-        for k, v in weights.items():
-            try:
-                fv = float(v)
-            except (TypeError, ValueError):
-                continue
-            if math.isnan(fv):
-                nan_feats.append(k)
-            else:
-                numeric_vals.append(fv)
-        if nan_feats:
-            warnings.append(f"model_weights enthält NaN: {', '.join(sorted(nan_feats))}.")
-        elif numeric_vals and all(v == 0 for v in numeric_vals):
-            warnings.append("Alle model_weights sind exakt 0 (Lern-Loop liefert kein Signal mehr).")
 
     stale_cutoff = close_after_days + 30
     stale = []
@@ -337,7 +320,7 @@ def _check_learn_loop_sanity(
             f"(sollte(n) längst geschlossen sein): {', '.join(stale[:5])}."
         )
 
-    # Lern-Loop-Status (Audit 2026-10-09): Die Gewichte (feedback.compute_pearson_weights) lernen
+    # Lern-Loop-Status (Audit 2026-10-09): Die Gewichte (Pearson-Update, 2026-11-09 entfernt) lernten
     # NUR aus RELIABLE-Outcomes und erst ab MIN_RELIABLE_FOR_WEIGHT_UPDATE. Der Hauptgrund für
     # unveränderte Gewichte ist daher die RELIABLE-Anzahl, nicht eine Korrelation über alle Trades.
     # Korrelationen über alle Trades (inkl. UNKNOWN/RECONSTRUCTED) sind nur EXPLORATORY.
@@ -630,53 +613,6 @@ def _check_data_health(reports_dir: Path, today: date, warnings: list[str]) -> N
 
 # ── Öffentliche API ───────────────────────────────────────────────────────────
 
-PPO_COLLAPSE_SHARE = 0.95   # eine Aktion >= 95 % aller Entscheidungen
-
-
-def ppo_action_distribution(history: dict, model=None) -> dict | None:
-    """Deterministische PPO-Aktionen über alle geschlossenen Trades. None, wenn
-    kein Modell/zu wenig Daten/SB3 fehlt. Rein beobachtend (kein Training)."""
-    try:
-        from modules.rl_environment import build_env_from_history
-        env = build_env_from_history(history)
-        if env is None:
-            return None
-        if model is None:
-            from modules.rl_agent import MODEL_PATH
-            if not MODEL_PATH.exists():
-                return None
-            from stable_baselines3 import PPO
-            model = PPO.load(str(MODEL_PATH))
-        obs, _ = env.reset()
-        counts = {"SKIP": 0, "NORMAL": 0, "BOOST": 0}
-        names = {0: "SKIP", 1: "NORMAL", 2: "BOOST"}
-        for _ in range(len(env.trade_data)):
-            action, _ = model.predict(obs, deterministic=True)
-            counts[names.get(int(action), str(int(action)))] = counts.get(names.get(int(action)), 0) + 1
-            obs, _r, term, trunc, _i = env.step(action)
-            if term or trunc:
-                break
-        n = sum(counts.values())
-        return {"n": n, "counts": counts,
-                "max_share": round(max(counts.values()) / n, 3) if n else None}
-    except Exception as e:  # noqa: BLE001 - Monitor darf nie werfen
-        log.debug(f"PPO-Aktionsverteilung fehlgeschlagen: {e}")
-        return None
-
-
-def _check_ppo_policy_collapse(history: dict, warnings: list[str], model=None) -> dict:
-    """Audit 2026-09-27: PPO kollabierte erst auf 100 % SKIP, dann 100 % BOOST,
-    ohne dass ein Check anschlug. Warnt, wenn eine Aktion dominiert."""
-    dist = ppo_action_distribution(history, model=model)
-    if dist and dist["max_share"] is not None and dist["max_share"] >= PPO_COLLAPSE_SHARE:
-        dominant = max(dist["counts"], key=dist["counts"].get)
-        warnings.append(
-            f"PPO-Policy kollabiert: {dist['max_share']:.0%} {dominant} über {dist['n']} "
-            f"geschlossene Trades (in-sample) -> keine unterscheidende Policy; Veto nicht scharfschalten."
-        )
-    return dist or {}
-
-
 def build_health_report(history: dict, reports_dir, today: date) -> dict:
     """
     Baut den Engine-Health-Report. Reine Funktion — kein Netzwerk, keine
@@ -710,7 +646,6 @@ def build_health_report(history: dict, reports_dir, today: date) -> dict:
     learn_loop_metrics = _check_learn_loop_sanity(history, today, close_after_days, warnings)
     _check_data_health(reports_dir, today, warnings)
     external_metrics = _check_external_health(history, today, warnings)
-    rl_policy = _check_ppo_policy_collapse(history, warnings)
 
     return {
         "status":   "WARN" if warnings else "OK",
@@ -720,7 +655,6 @@ def build_health_report(history: dict, reports_dir, today: date) -> dict:
             "parallel_tests":  parallel_tests,
             "learn_loop":      learn_loop_metrics,
             "external":        external_metrics,
-            "rl_policy":       rl_policy,
         },
     }
 

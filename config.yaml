@@ -1,12 +1,7 @@
 # Adaptive Asymmetry-Scanner – Konfiguration v5.0
 
 pipeline:
-  confidence_gate: 0.70
-  n_simulation_paths: 10000
-  simulation_days: 120
-  min_impact_threshold: 4    # Legacy-Key, siehe gates.impact_min (dieser gewinnt bei Konflikt)
   max_intraday_move: 0.07    # NEU: 7% → Signal verwerfen wenn zu spät
-  max_mismatch: 7.0          # Legacy-Key, siehe gates.mismatch_max (dieser gewinnt bei Konflikt)
   # Laufzeitbudget (Job-Timeout 75 min): ab max_runtime_minutes - finalize_reserve_minutes
   # werden in Stufe 2b/4 keine neuen Kandidaten begonnen (Reject time_budget_exceeded);
   # Report, Ledger und Mail werden immer geschrieben (Testlauf 2026-09-29 brach ohne
@@ -15,7 +10,7 @@ pipeline:
   finalize_reserve_minutes: 10
 
 # Zentrale Gate-Schwellen: Pipeline, Mail und Monats-Report lesen ausschließlich
-# von hier (mit Fallback auf die Legacy-Keys oben, dann auf den Code-Default).
+# von hier (fehlt ein Key, greift der jeweilige Code-Default).
 gates:
   impact_min: 4              # Stufe 4b Impact×Surprise-Floor
   surprise_min: 3
@@ -56,15 +51,15 @@ options:
                                     # allow_bearish wirkt erst, wenn hier true (nach Fix)
   delta_target_low:  0.55
   delta_target_high: 0.75
-  target_move_pct:   0.10
-  min_roi_after_spread: 0.15
 
 # Transaktionskosten (fließen ins ROI-Gate ein)
 costs:
   commission_per_contract: 0.65   # $/Kontrakt/Seite (Broker-typisch, z.B. Tradier/IBKR)
 
-# Positionsgrößen-Empfehlung (Fractional Kelly)
+# Positionsgrößen-Empfehlung
 portfolio:
+  sizing_mode: unit          # unit = 1 Kontrakt/Struktur je Vorschlag (Kelly nur informativ, da MC-Wahrscheinlichkeiten
+                             # unkalibriert); kelly = Fractional Kelly wie bisher. Zurück auf kelly erst nach ≥30 RELIABLE-Trades Kalibrierung.
   size_usd: 5000             # Depotgröße für Sizing-Empfehlung
   kelly_fraction: 0.25       # ¼-Kelly: konservativ, Standard für Options
   max_position_pct: 0.10     # Hard-Cap: max. 10% des Depots pro Trade
@@ -73,8 +68,6 @@ portfolio:
                              # (n=30, 2×-täglicher Check + Gaps). Kelly rechnete zu optimistisch.
 
 learning:
-  learning_rate: 0.05
-  min_bin_count:  3
   close_after_days: 45         # Geändert: 130 → 45
 
 eps_drift:
@@ -82,21 +75,10 @@ eps_drift:
   relevant_threshold: 0.05
   massive_threshold:  0.10
 
-# RL-System
+# RL/PPO seit 2026-11-09 aus dem Produktionspfad entfernt. Nur noch Provenienz: candidate_ledger vermerkt
+# Pfad + Hash der Altdatei in model_ids (keine Entscheidungswirkung).
 rl:
-  enabled: true
-  veto_enabled: false           # Option A: PPO-Veto AUS → QuasiML-Ranking.
-                                # Grund: Der trainierte PPO-Agent skippte 100% aller
-                                # Kandidaten (degenerierte "immer SKIP"-Policy, da der
-                                # Trainings-Ledger netto verlustig ist). Erst wieder true,
-                                # wenn genug closed_trades unter den neuen Regeln vorliegen
-                                # (arm_threshold) und der Reward auf Regret-Shaping umgebaut ist.
   model_path: "outputs/models/ppo_options_agent.zip"
-  min_trades_for_training: 3
-  timesteps_per_update: 2000
-  arm_threshold: 30             # closed_trades (seit arm_since) ab denen eine "RL scharfstellen"-
-                                # Email ausgelöst wird (= Phase-1-Validierungsziel)
-  arm_since: "2026-06-11"       # Stichtag neue Gates — nur Trades danach zählen fürs Scharfstellen
 
 # FinBERT
 finbert:
@@ -238,4 +220,3 @@ external_context:
 learning_features:
   production: [impact, mismatch, eps_drift]
   shadow: []           # externe Features werden von den Integrationsschritten ergänzt
-rl_feature_schema_version: v1

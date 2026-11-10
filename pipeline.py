@@ -31,7 +31,7 @@ Reihenfolge v8.3:
   2.  Prescreening (Haiku)
   2b. Alpha Sources + Data Validation
   2c. Sector-Momentum-Check                                    ← NEU
-  3.  ROI Pre-Check (Fail Fast)
+  3.  (ROI Pre-Check entfernt 2026-11-09 – prüfte nicht gehandelte 21–45-DTE-Kontrakte)
   3b. Pre-MC Gate (1k Pfade, sigma-only)
   4.  Deep Analysis (Sonnet + Red Team) — jetzt auf weniger Kandidaten
   5.  Mismatch-Score
@@ -46,6 +46,7 @@ Reihenfolge v8.3:
 import json
 import math
 import logging
+import os
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -59,7 +60,6 @@ from modules.deep_analysis       import DeepAnalysis
 from modules.mismatch_scorer     import MismatchScorer
 from modules.mirofish_simulation import MirofishSimulation, compute_time_value_efficiency
 from modules.trade_scorer        import rank_proposals
-from modules.rl_agent            import RLScorer
 from modules.options_designer    import OptionsDesigner, ttm_to_dte_floor
 from modules.reporter            import Reporter
 from modules.risk_gates          import RiskGates
@@ -209,6 +209,8 @@ def note_base_features(c: dict) -> None:
             c.get("ticker"),
             sector=info.get("sector"), industry=info.get("industry"),
             rel_volume=c.get("rel_volume"), news_count=len(c.get("news") or []),
+            # Zeitfenster der verwendeten Schlagzeilen (Anker für die news-verankerte Reaktion, Punkt 4)
+            news_first_ts=(c.get("news_ts") or {}).get("first"), news_ts_source=(c.get("news_ts") or {}).get("source"),
             # Tagesrendite zum Scan-Zeitpunkt (PIT): naive Preis-Baseline für den
             # gepaarten LLM-Mehrwert-Test (factor_monitor.llm_value_add).
             scan_day_ret=_scan_day_ret(info),
@@ -763,9 +765,9 @@ def main() -> None:
 
     stats = {
         "vix": None, "universe": 0, "candidates": 0, "prescreened": 0,
-        "sector_ok": 0, "pre_mc": 0, "roi_precheck": 0, "analyzed": 0,
+        "sector_ok": 0, "pre_mc": 0, "analyzed": 0,
         "mismatch_ok": 0, "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
-        "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
+        "final_selected": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
     }
     # Kosten-Telemetrie: Fremd-API-Zähler je Lauf + Budgetwarnung (Produktion läuft immer
     # weiter – produktionskritische Deep Analysis wird nie still übersprungen).
@@ -796,6 +798,7 @@ def main() -> None:
 
     _proposals_ref = []
     _ea_input_ref: list = []       # Expectation Alpha (SHADOW): eingefrorene Stufe-4-Analysen (Auswertung am Laufende)
+    _census_ref: list = []         # LLM-Zensus (Research): Zufallsstichprobe der Hard-Filter-Überlebenden (Laufende)
     _health_ref    = []   # letzter Engine-Health-Report, für die Status-Mail wiederverwendet
 
     def _expectation_alpha_finalize():
@@ -825,11 +828,35 @@ def main() -> None:
             stats["expectation_alpha"] = {"mode": "shadow", "enabled": True, "status": "ERROR",
                                           "error": f"{type(e).__name__}: {str(e)[:200]}"}
 
+    def _llm_census_finalize():
+        """LLM-Zensus (Aktionsplan Punkt 6, nur Research) am Laufende: Deep Analysis + Mismatch der zufällig
+        gezogenen Kandidaten, nur census_*-Felder im Ledger. Nach allen Champion-Entscheidungen, eigenes
+        Zeitbudget; ohne API-Schlüssel übersprungen. Jeder Fehler ändert nichts an der Produktion."""
+        if not _census_ref:
+            return
+        _picks, _design = _census_ref.pop()
+        _census_ref.clear()
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            stats["llm_census"] = {"status": "no_api_key", **_design}
+            return
+        try:
+            from modules import llm_census as _lc
+            _p = getattr(cfg, "pipeline", None)
+            _reserve = float(getattr(_p, "finalize_reserve_minutes", 10) or 10) * 60
+            stats["llm_census"] = _lc.run(
+                _picks, _design,
+                _lc.deadline_for(_RUN_DEADLINE[0] if _RUN_DEADLINE else None, _reserve, _lc.settings()),
+                analyzer=DeepAnalysis(), scorer_cls=MismatchScorer)
+        except Exception as e:  # noqa: BLE001 – Research-Messung darf den Scan nie brechen
+            log.warning(f"LLM-Zensus Fehler (ignoriert): {type(e).__name__}: {e}")
+            stats["llm_census"] = {"status": "ERROR", "error": f"{type(e).__name__}: {str(e)[:200]}"}
+
     def save_stats_snapshot():
         """Persistiert Funnel-Stats + Reject-Gründe in die Daily-JSON.
         Läuft auf JEDEM Exit-Pfad — sonst ist bei 0-Trade-Tagen nicht
         nachvollziehbar, welches Gate blockiert hat."""
         _expectation_alpha_finalize()
+        _llm_census_finalize()
         try:
             REPORTS_DIR.mkdir(parents=True, exist_ok=True)
             path = REPORTS_DIR / f"{today}.json"
@@ -971,6 +998,16 @@ def main() -> None:
         _note_news_novelty(c, _novelty_t0)
         enriched.append(c)
     candidates = enriched
+
+    # ── LLM-Zensus (Aktionsplan Punkt 6, nur Research): Zufallsstichprobe ALLER Hard-Filter-Überlebenden vor jedem
+    # weiteren Gate; Auswertung erst am Laufende (_llm_census_finalize), nie im Trade-Pfad.
+    try:
+        from modules import llm_census as _lc
+        _lc_cfg = _lc.settings()
+        if _lc_cfg["enabled"]:
+            _census_ref[:] = [_lc.select(candidates, today, _lc_cfg["k"])]
+    except Exception as e:  # noqa: BLE001 – Research-Stichprobe, nie lauf-brechend
+        log.warning(f"LLM-Zensus-Auswahl Fehler (ignoriert): {e}")
 
     # ── STUFE 1b-ext: externer Kontext für ALLE angereicherten Kandidaten (nur Ledger, SHADOW) ─
     # Vor Sektor-Check und economics-first, die die Kohorte vor Stufe 2b-ext stark verkleinern; der Snapshot wird
@@ -1150,51 +1187,17 @@ def main() -> None:
     log.info(f"Stufe 2b-ext External Context: {time.monotonic() - _t_ext:.0f}s")
     stats["external_context"] = {**_ext_summary, "ledger_noted": _ext_noted}
 
-    # ── STUFE 3: ROI Pre-Check (Fail Fast) ───────────────────────────────────
-    log.info("Stufe 3: ROI Pre-Check (Fail Fast)")
-    roi_viable = []
-    for c in shortlist:
-        ticker = c["ticker"]
-        try:
-            _, current, _ = MirofishSimulation()._get_market_params(ticker)
-            if current <= 0:
-                roi_viable.append(c)
-                continue
-            iv_rank  = designer._get_iv_rank(ticker)
-            if iv_rank is None:
-                # Precheck kann ohne IV-Rank nicht urteilen -> nicht verwerfen;
-                # Stufe 10 überspringt den Kandidaten dann explizit.
-                roi_viable.append(c)
-                continue
-            strategy = designer._select_strategy(ticker, "BULLISH", iv_rank)
-            option   = designer._find_option_for_dte(ticker, strategy, current, 21, 45)
-            if option:
-                sim_fake = {"current_price": current, "target_price": current * 1.08, "iv_rank": iv_rank}
-                roi      = designer._compute_roi(
-                    option, sim_fake, iv_rank,
-                    {"label": "Short-Term", "dte_min": 21, "dte_max": 45, "min_roi": 0.15}
-                )
-                if roi["roi_net"] < -0.30:
-                    log.info(f"  [{ticker}] ROI-PRECHECK: {roi['roi_net']:.1%} → hoffnungslos")
-                    continue
-            roi_viable.append(c)
-            log.info(f"  [{ticker}] ROI-PRECHECK: viable")
-        except Exception:
-            reject("roi_error", c.get("ticker"))
-            continue
-
-    stats["roi_precheck"] = len(roi_viable)
-    log.info(f"  → {len(roi_viable)} nach ROI Pre-Check")
-    if not roi_viable:
-        stats["stop_reason"] = "Alle Optionsketten hoffnungslos (ROI Pre-Check)."
-        send_email()
-        return
+    # ── STUFE 3: ROI Pre-Check – entfernt 2026-11-09 ─────────────────────────
+    # Der Vorcheck bewertete einen 21–45-DTE-Kontrakt mit fixem +8-%-Ziel, gehandelt wird ab DTE 120
+    # (options.dte_floor): er verwarf Kandidaten anhand eines Kontrakts, der nie gehandelt würde. Die
+    # Langläufer-Quotes prüft economics-first VOR jedem LLM-Aufruf, das ROI-Gate in Stufe 10 den echten
+    # Kontrakt (docs/ACTION_PLAN_2026-11-09.md, Punkt 3).
 
     # ── STUFE 3b: Pre-MC Gate (sigma-only, vor Deep Analysis) ────────────────
     log.info(f"Stufe 3b: Pre-MC Gate ({PRE_MC_PATHS} Pfade, {PRE_MC_DAYS}d, sigma-only)")
     pre_mc_sim = MirofishSimulation()
     pre_mc_viable = []
-    for c in roi_viable:
+    for c in shortlist:
         ticker = c["ticker"]
         c_temp = {**c, "deep_analysis": {"impact": 5, "surprise": 5,
                   "time_to_materialization": "2-3 Monate"}}
@@ -1219,7 +1222,7 @@ def main() -> None:
             )
 
     stats["pre_mc"] = len(pre_mc_viable)
-    log.info(f"  → {len(pre_mc_viable)} nach Pre-MC Gate (eingespart: {len(roi_viable)-len(pre_mc_viable)} Sonnet-Calls)")
+    log.info(f"  → {len(pre_mc_viable)} nach Pre-MC Gate (eingespart: {len(shortlist)-len(pre_mc_viable)} Sonnet-Calls)")
     if not pre_mc_viable:
         stats["stop_reason"] = "Alle unter Pre-MC-Schwelle (zu wenig Volatilität)."
         save_history(history)
@@ -1281,6 +1284,7 @@ def main() -> None:
                 a.get("ticker"), stage="deep_analysis",
                 direction=_da.get("direction"), impact=_da.get("impact"),
                 surprise=_da.get("surprise"), ttm=_da.get("time_to_materialization"),
+                llm_audit=_da.get("llm_audit"),
                 # P2 Signal-Identität (candidate_ledger.py): Katalysator-Text
                 # als event_key → event_id = sha1(ticker + event_key)[:12].
                 # Dedup beim Ledger-Flush wird dadurch (date, ticker, event_id)
@@ -1390,8 +1394,7 @@ def main() -> None:
     # Overreaction-Cap: Mismatch > 7 war historisch ein Warnsignal
     # (4 Trades: 25% Win, mean −73%) — extreme Werte deuten auf eine
     # Bullen-Falle/strukturelles Problem statt verzögerter Einpreisung.
-    mismatch_cap = float(getattr(getattr(cfg, "gates", None), "mismatch_max",
-                          getattr(getattr(cfg, "pipeline", None), "max_mismatch", 7.0)))
+    mismatch_cap = float(getattr(getattr(cfg, "gates", None), "mismatch_max", 7.0))
     _capped = []
     for s in scored:
         m = s.get("features", {}).get("mismatch", 0)
@@ -1698,30 +1701,24 @@ def main() -> None:
         except Exception as e:  # noqa: BLE001
             log.warning(f"Final-MC-Downstream Fehler (ignoriert): {e}")
 
-    # ── STUFE 9: RL-Scoring ──────────────────────────────────────────────────
-    log.info("Stufe 9: RL-Scoring")
-    _rl_veto = bool(cfg.rl.get("veto_enabled", False))   # fehlt der Schlüssel: Veto AUS (nie automatisch aktiv)
-    final_signals = RLScorer(history=history, veto_enabled=_rl_veto).run(final_sims)
-    stats["rl_scored"] = len(final_signals)
-    # Robuster PPO-Challenger: NUR Shadow-Aktion im Ledger (challengers.yaml
-    # ppo_robust_shadow), beeinflusst weder final_signals noch Ranking/Gates.
-    try:
-        from modules.rl_robust_shadow import shadow_actions
-        for _tk, _act in shadow_actions(final_sims).items():
-            candidate_ledger.note(_tk, rl_robust_action=_act)
-    except Exception as e:  # noqa: BLE001
-        log.warning(f"robustes PPO Shadow Fehler (ignoriert): {e}")
+    # ── STUFE 9: Finale Auswahl ──────────────────────────────────────────────
+    # RL/QuasiML entfernt (Aktionsplan 2026-11-09, Punkt 2): Veto war aus, QuasiML sortierte nur nach final_score.
+    # Das Ranking macht trade_scorer.rank_proposals (Trade-Score); die alte Sortierung entschied danach nur noch
+    # Gleichstände – jetzt gilt bei Gleichstand die Final-MC-Reihenfolge.
+    log.info("Stufe 9: Finale Auswahl")
+    final_signals = list(final_sims)
+    stats["final_selected"] = len(final_signals)
     for fs in final_signals:
         try:
             candidate_ledger.note(
-                fs.get("ticker"), stage="rl_scoring",
+                fs.get("ticker"), stage="final_selection",
                 final_mc_hit_rate=fs.get("simulation", {}).get("hit_rate"),
             )
         except Exception as e:
             log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
-    log.info(f"  → {len(final_signals)} nach RL-Scoring")
+    log.info(f"  → {len(final_signals)} nach Final MC")
     if not final_signals:
-        stats["stop_reason"] = "RL-Agent: alle als SKIP klassifiziert."
+        stats["stop_reason"] = "Keine Signale nach Final MC."
         _record_final_mc_downstream()
         save_history(history)
         send_email()

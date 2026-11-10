@@ -54,7 +54,7 @@ def test_daily_report_shows_booking_and_canonical_version(tmp_path):
     Reporter(tmp_path).save("2026-10-07", [p], {"model_weights": {}})
     md = (tmp_path / "2026-10-07.md").read_text()
     assert "NICHT neu gebucht" in md and f"Scanner {APP_VERSION}" in md and "v8.2" not in md
-    assert "Gleichstände möglich" in md                                              # Shadow-Score-Ties dokumentiert
+    assert "QuasiML" not in md and "Modell-Gewichte" not in md                       # entfernte Pseudo-Lernschichten
 
 
 def test_mail_uses_canonical_version_and_labels_universe(monkeypatch):
@@ -77,17 +77,6 @@ def test_ingestion_sets_raw_universe_size():
     assert "self.universe_size = len(tickers)" in src
     pipe = (ROOT / "pipeline.py").read_text()
     assert 'getattr(ingestion, "universe_size", None)' in pipe and 'stats["candidates"] = len(candidates)' in pipe
-
-
-def test_shadow_score_ties_have_no_production_effect():
-    """FinalScore (QuasiML) ist grob quantisiert (3 Features × 3 Bins); Trade-Ranking nutzt trade_score."""
-    src = (ROOT / "modules/quasi_ml.py").read_text()
-    assert "das Trade-Ranking nutzt trade_score" in src
-    from modules.quasi_ml import QuasiML
-    q = QuasiML({"model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.2}, "feature_stats": {}})
-    a = q._compute_final_score({"features": {"bin_impact": "mid", "bin_mismatch": "good", "bin_eps_drift": "noise", "mismatch": 2.287}})
-    b = q._compute_final_score({"features": {"bin_impact": "mid", "bin_mismatch": "good", "bin_eps_drift": "noise", "mismatch": 1.068}})
-    assert a == b                                                                     # echte Gleichheit, keine Rundung
 
 
 def test_entity_build_budget_stops_cleanly_and_marks_partial(tmp_path):

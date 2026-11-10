@@ -1,5 +1,10 @@
 """
-Positionsgrößen-Empfehlung via Fractional Kelly.
+Positionsgrößen-Empfehlung: Einheitsgröße (Default) oder Fractional Kelly.
+
+Seit 2026-11-09 gilt portfolio.sizing_mode = "unit": je Vorschlag genau 1 Kontrakt bzw. 1 Struktur
+(position_usd = Netto-Debit × 100). Grund: Kelly rechnet aus unkalibrierten MC-Wahrscheinlichkeiten
+(Live-Kalibrierung n=0). Die Kelly-Werte erscheinen nur noch informativ unter "kelly_info".
+Modus "kelly" bleibt als Option erhalten (Verhalten wie V6, siehe unten).
 
 V6 (2026-10-18): Kelly aus der simulierten Netto-P&L-Verteilung (roi_analysis.kelly_inputs):
   f* = p / L − (1 − p) / W
@@ -27,14 +32,22 @@ def _portfolio_cfg() -> dict:
         "kelly_fraction":   float(getattr(p, "kelly_fraction", 0.25)),
         "max_position_pct": float(getattr(p, "max_position_pct", 0.10)),
         "assumed_loss_pct": float(getattr(p, "assumed_loss_pct", 0.45)),
+        "sizing_mode":      str(getattr(p, "sizing_mode", "unit") or "unit").lower(),
     }
+
+
+UNIT_NOTE = "Einheitsgröße – Kelly ausgesetzt, bis ≥30 RELIABLE-Trades kalibriert sind"
 
 
 def compute_position_size(proposal: dict) -> dict:
     """
     Berechnet die empfohlene Positionsgröße für einen Trade-Vorschlag.
 
-    Returns dict mit:
+    Modus "unit" (Default): 1 Kontrakt/Struktur, position_usd = Netto-Debit × 100, sizing_basis="UNIT";
+    Überschreitung von portfolio.max_position_pct setzt nur ein Flag (exceeds_max_position_pct).
+    Kelly-Werte stehen dann nur informativ in "kelly_info".
+
+    Modus "kelly" – Returns dict mit:
         kelly_raw        – Voll-Kelly-Anteil (informativ)
         position_pct     – empfohlener Depot-Anteil nach ¼-Kelly + Cap
         position_usd     – Dollar-Budget
@@ -43,6 +56,7 @@ def compute_position_size(proposal: dict) -> dict:
         note             – Hinweis, z.B. wenn 1 Kontrakt das Budget sprengt
     """
     pc      = _portfolio_cfg()
+    unit    = pc["sizing_mode"] != "kelly"
     option  = proposal.get("option") or {}
     roi     = proposal.get("roi_analysis") or {}
     strategy = proposal.get("strategy", "")
@@ -73,6 +87,17 @@ def compute_position_size(proposal: dict) -> dict:
 
     contracts = int(position_usd // cost_per_contract) if cost_per_contract > 0 else 0
 
+    if unit:
+        return _unit_sizing(proposal, pc, cost_per_contract, {
+            "kelly_raw":      round(kelly_raw, 4),
+            "kelly_fraction": pc["kelly_fraction"],
+            "kelly_basis":    basis,
+            "p_win":          round(p_win, 4) if ki else None,
+            "position_pct":   round(position_pct, 4),
+            "position_usd":   position_usd,
+            "contracts":      contracts,
+        })
+
     note = ""
     if basis == "NO_PNL_DISTRIBUTION":
         note = "Keine P&L-Verteilung (MC-P&L fehlt) — keine Kelly-Grundlage, nur beobachten."
@@ -102,6 +127,34 @@ def compute_position_size(proposal: dict) -> dict:
         f"{position_pct:.1%} (${position_usd:.0f}) → {contracts} Kontrakt(e) "
         f"à ${cost_per_contract:.0f}{' | ' + note if note else ''}"
     )
+    return sizing
+
+
+def _unit_sizing(proposal: dict, pc: dict, cost_per_contract: float, kelly_info: dict) -> dict:
+    """Einheitsgröße: 1 Kontrakt/Struktur; Überschreitung des Positions-Caps wird nur geflaggt."""
+    contracts = 1 if cost_per_contract > 0 else 0
+    position_usd = round(cost_per_contract * contracts, 2)
+    pct = round(position_usd / pc["size_usd"], 4) if pc["size_usd"] > 0 else 0.0
+    exceeds = pct > pc["max_position_pct"] + 1e-9
+    note = UNIT_NOTE if contracts else "Kein Optionspreis – keine Einheitsposition möglich, nur beobachten."
+    if exceeds:
+        note += (f" | Flag: Position {pct:.1%} des Depots übersteigt Cap "
+                 f"{pc['max_position_pct']:.0%} (portfolio.max_position_pct).")
+    sizing = {
+        "portfolio_usd":     pc["size_usd"],
+        "sizing_basis":      "UNIT",
+        "position_pct":      pct,
+        "pct_of_depot":      pct,
+        "position_usd":      position_usd,
+        "cost_per_contract": cost_per_contract,
+        "contracts":         contracts,
+        "max_risk_usd":      position_usd,                 # Debit-Position: bis 100 % Verlust
+        "exceeds_max_position_pct": exceeds,
+        "kelly_info":        kelly_info,
+        "note":              note,
+    }
+    log.info(f"  [{proposal.get('ticker','?')}] Sizing (Einheit): {contracts} Kontrakt à "
+             f"${cost_per_contract:.0f} = {pct:.1%} Depot{' | Cap überschritten' if exceeds else ''}")
     return sizing
 
 

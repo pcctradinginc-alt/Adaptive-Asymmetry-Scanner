@@ -6,7 +6,6 @@ from datetime import date
 
 import pytest
 
-import feedback
 from modules.engine_monitor import build_health_report
 from modules.outcomes import MIN_RELIABLE_FOR_WEIGHT_UPDATE, is_reliable_outcome
 
@@ -39,7 +38,6 @@ def _report(h, tmp_path):
 
 def test_three_reliable_weights_unchanged_reason_need_more_data(tmp_path):
     h = _history(3, 77, 40)
-    assert feedback.compute_pearson_weights(h) == START                       # Gewichte unverändert
     r = _report(h, tmp_path)
     ll = r["metrics"]["learn_loop"]
     assert ll["weight_update_status"] == "NEED_MORE_DATA" and ll["n_reliable"] == 3 and ll["n_non_reliable"] == 117
@@ -59,7 +57,6 @@ def test_exploratory_correlation_labeled_and_without_weight_effect(tmp_path):
     main = next(w for w in r["warnings"] if w.startswith("Gewichts-Update"))
     assert "EXPLORATORY" in main and "n=120, davon 3 RELIABLE und 117 NON_RELIABLE" in main
     assert "not eligible for production learning / weight update" in main
-    assert feedback.compute_pearson_weights(h) == START
 
 
 def test_five_reliable_evaluates_existing_update_logic_unchanged(tmp_path):
@@ -67,15 +64,12 @@ def test_five_reliable_evaluates_existing_update_logic_unchanged(tmp_path):
     r = _report(h, tmp_path)
     assert r["metrics"]["learn_loop"]["weight_update_status"] == "ELIGIBLE"
     assert not any("NEED_MORE_DATA" in w for w in r["warnings"])
-    w = feedback.compute_pearson_weights(h)                                   # bestehende Logik läuft
-    assert set(w) == set(START) and abs(sum(w.values()) - 1) < 1e-3
 
 
 @pytest.mark.parametrize("n_unknown,n_rec", [(200, 0), (0, 200)])
 def test_unknown_and_reconstructed_never_count_productively(tmp_path, n_unknown, n_rec):
     h = _history(3, n_unknown, n_rec)
     assert sum(is_reliable_outcome(t) for t in h["closed_trades"]) == 3
-    assert feedback.compute_pearson_weights(h) == START
     assert _report(h, tmp_path)["metrics"]["learn_loop"]["weight_update_status"] == "NEED_MORE_DATA"
 
 
