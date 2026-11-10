@@ -1,55 +1,5 @@
 {
- "at": "2026-11-10T17:17:24+00:00",
- "changes": [
-  {
-   "source_id": "entsoe_power",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "clinicaltrials_sponsors",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "UNVALIDATED",
-   "error": "nicht aktiv: status_override=DEFERRED"
-  },
-  {
-   "source_id": "usaspending_contracts",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "UNVALIDATED",
-   "error": "nicht aktiv: status_override=DEFERRED"
-  },
-  {
-   "source_id": "sec_13f_holdings",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "UNVALIDATED",
-   "error": "nicht aktiv: status_override=DEFERRED"
-  },
-  {
-   "source_id": "destatis_truck_toll",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "nhc_storms",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Ingest WARN: DQ: SCALE_SHIFT; Data-Quality-Befund schwerwiegend"
-  },
-  {
-   "source_id": "noaa_storm_events",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "UNVALIDATED",
-   "error": "nicht aktiv: status_override=DEFERRED"
-  }
- ],
- "mail": "sent"
+ "at": "2026-11-10T19:59:15+00:00",
+ "changes": [],
+ "mail": "no_change"
 }
