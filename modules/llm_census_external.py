@@ -89,6 +89,7 @@ class FrozenContextAnalyzer:
         from modules.config import cfg
         self.engine = DeepAnalysis()
         self.engine.telemetry_workflow = "llm_census_external"
+        self.engine.cache_enabled = False  # NEVER share production LLM analysis cache
         self.engine._macro = {"data_available": False, "macro_regime": "unknown"}
         self.engine._get_48h_move = lambda _ticker: None
         self.engine._active_model = cfg.models.deep_analysis
