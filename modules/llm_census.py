@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 CONFIG = Path("config/llm_census.yaml")
 OUT = Path("outputs/research/llm_census.json")
 POLICY = "uniform-without-replacement-v1"
-DEFAULTS = {"enabled": True, "k": 2, "budget_s": 240, "min_reserve_s": 120}
+DEFAULTS = {"enabled": True, "execution": "external", "k": 5, "budget_s": 420, "min_reserve_s": 120}
 HORIZONS = (20, 45)
 
 

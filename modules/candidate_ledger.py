@@ -214,14 +214,42 @@ def _compute_config_hash() -> str:
 
 
 def _max_option_snapshots() -> int:
-    """config.yaml ledger.max_option_snapshots, Default 40. Nie ein Fehler
-    nach außen (fehlende/kaputte config.yaml → Default)."""
+    """Production reference cap 40; expansion is research-only and fail-closed.
+
+    An 80-snapshot run needs documented Tradier quota, explicit runner opt-in,
+    and a healthy cost ledger. Never raise budget on malformed/unknown config.
+    Does not change any production decision, gate or Champion protocol hash.
+    """
     try:
         from modules.config import cfg
         ledger_cfg = getattr(cfg, "ledger", None)
-        return int(getattr(ledger_cfg, "max_option_snapshots", DEFAULT_MAX_OPTION_SNAPSHOTS))
+        baseline = max(0, int(getattr(ledger_cfg, "max_option_snapshots", DEFAULT_MAX_OPTION_SNAPSHOTS)))
     except Exception:
-        return DEFAULT_MAX_OPTION_SNAPSHOTS
+        baseline = DEFAULT_MAX_OPTION_SNAPSHOTS
+    if os.getenv("RESEARCH_EXTRA_OPTION_SNAPSHOTS_APPROVED") != "1":
+        return baseline
+    try:
+        import yaml
+        from modules import cost_telemetry
+        path = Path(__file__).resolve().parent.parent / "config" / "research_capture_expansion.yaml"
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+        if not isinstance(raw, dict) or not raw.get("enabled") or raw.get("provider_quota_verified") is not True:
+            return baseline
+        if set(raw) - {"enabled", "max_total_snapshots", "provider_quota_verified"}:
+            return baseline
+        cap = raw.get("max_total_snapshots")
+        if type(cap) is not int or not baseline <= cap <= 80:
+            return baseline
+        b = cost_telemetry.budget_status()
+        if b.get("level") != "OK" or b.get("soft_pressure") or b.get("projected_month_usd") is None:
+            return baseline
+        if float(b["monthly_api_budget_usd"]) - max(float(b["projected_month_usd"]),
+                                                      float(b["month_usd"])) < 3:
+            return baseline
+        return cap
+    except Exception as exc:
+        log.warning("research snapshot expansion disabled (fail-closed): %s", exc)
+        return baseline
 
 
 def _research_option_sample_enabled() -> bool:

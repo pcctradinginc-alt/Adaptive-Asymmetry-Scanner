@@ -1,0 +1,46 @@
+name: LLM Census Research (frozen signal-time cohort)
+# Independent from scanner finalization: never edits candidate ledger or decisions.
+on:
+  workflow_run:
+    workflows: ["Adaptive Asymmetry Scanner"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: research-census-external
+  cancel-in-progress: false
+
+jobs:
+  census:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout frozen inputs from main
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install research dependencies
+        run: pip install -r requirements.txt
+
+      - name: Analyze frozen same-day random census (no trade access)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m modules.llm_census_external run --date "$(date -u +%Y-%m-%d)"
+
+      - name: Commit research-only sidecars
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore: frozen LLM census $(date -u +%Y-%m-%d)" outputs/research/llm_census_runs/ outputs/costs/

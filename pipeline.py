@@ -1032,7 +1032,15 @@ def main() -> None:
         from modules import llm_census as _lc
         _lc_cfg = _lc.settings()
         if _lc_cfg["enabled"]:
-            _census_ref[:] = [_lc.select(candidates, today, _lc_cfg["k"])]
+            _picks, _design = _lc.select(candidates, today, _lc_cfg["k"])
+            if _lc_cfg.get("execution") == "external":
+                # Only freeze signal-time research inputs; NO Sonnet calls inside
+                # the Champion's finalization reserve. The independent workflow
+                # uses sidecar outputs and cannot mutate this trade ledger.
+                from modules import llm_census_external as _lce
+                stats["llm_census"] = _lce.freeze(_picks, _design)
+            else:
+                _census_ref[:] = [(_picks, _design)]
     except Exception as e:  # noqa: BLE001 – Research-Stichprobe, nie lauf-brechend
         log.warning(f"LLM-Zensus-Auswahl Fehler (ignoriert): {e}")
 

@@ -139,6 +139,16 @@ jobs:
           TRADIER_API_KEY:   ${{ secrets.TRADIER_API_KEY }}
         run: python feedback.py
 
+      # ── LLM-free fixed baseline (RESEARCH ONLY, no API or orders) ────
+      # Proposes after candidate_ledger.flush and the Feedback step, using only
+      # today's frozen research options. Future paper fills MUST be after this
+      # decision, never the earlier scan-time ask. Not a production signal.
+      - name: LLM-free options baseline – freeze research predictions
+        id: llm_free_baseline
+        if: steps.scanner.outcome == 'success'
+        continue-on-error: true
+        run: python -m modules.llm_free_challenger propose --date "$(date -u +%Y-%m-%d)"
+
       # ── Options-Lernmodell (Research, kein Handel) ──────────────────────
       # Prognose je Kandidat mit Kontrakt ins append-only Journal (prospektiv, vor dem Label); Empfehlung und Mail
       # nur bei Freigabe: Walk-Forward VALIDATED, Forward FORWARD_POSITIVE und sequenzielle Bestätigung an einem vorab
