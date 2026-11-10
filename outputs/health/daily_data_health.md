@@ -1,8 +1,18 @@
-# Daily Data Health Report – 2026-11-09
+# Daily Data Health Report – 2026-11-10
 
-**Safe Mode (Daten): aus** – gewichtete Data Quality 0.952
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.959
 
-Status: HEALTHY 49 · DEGRADED 3 · STALE 2 · BROKEN 0 · UNVALIDATED 9
+Status: HEALTHY 46 · DEGRADED 2 · STALE 2 · BROKEN 0 · UNVALIDATED 13
+
+## Neue Änderungen
+
+- recovery: entsoe_power DEGRADED → HEALTHY
+- degradation: clinicaltrials_sponsors HEALTHY → UNVALIDATED (nicht aktiv: status_override=DEFERRED)
+- degradation: usaspending_contracts HEALTHY → UNVALIDATED (nicht aktiv: status_override=DEFERRED)
+- degradation: sec_13f_holdings HEALTHY → UNVALIDATED (nicht aktiv: status_override=DEFERRED)
+- recovery: destatis_truck_toll DEGRADED → HEALTHY
+- degradation: nhc_storms HEALTHY → DEGRADED (Ingest WARN: DQ: SCALE_SHIFT; Data-Quality-Befund schwerwiegend)
+- degradation: noaa_storm_events HEALTHY → UNVALIDATED (nicht aktiv: status_override=DEFERRED)
 
 ## Nicht gesunde Quellen
 
@@ -10,9 +20,8 @@ Status: HEALTHY 49 · DEGRADED 3 · STALE 2 · BROKEN 0 · UNVALIDATED 9
 |---|---|---|---|---|---|---|
 | estat_jp_truck | STALE | NON_CRITICAL | 0 | 2026-03-01 | – | veraltet (Frequenz-Grenze der Registry) |
 | finra_short_interest | STALE | NON_CRITICAL | 0 | 2026-10-15 | – | veraltet (Frequenz-Grenze der Registry) |
-| destatis_truck_toll | DEGRADED | IMPORTANT | 0 | 2026-10-01 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
-| entsoe_power | DEGRADED | NON_CRITICAL | 2 | 2026-11-09 | – | Ingest FAIL: SourceTimeout('Zeitbudget 420s überschritten') |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
+| nhc_storms | DEGRADED | IMPORTANT | 0 | – | – | Ingest WARN: DQ: SCALE_SHIFT; Data-Quality-Befund schwerwiegend |
 
 ## Fallbacks
 
@@ -25,6 +34,6 @@ Status: HEALTHY 49 · DEGRADED 3 · STALE 2 · BROKEN 0 · UNVALIDATED 9
 - nicht verfügbare Features: keine
 - Cache (stale) genutzt: keine
 
-Wiederkehrende Instabilität (30 T): ['estat_jp_truck', 'finra_short_interest', 'imf_portwatch_chokepoints', 'imf_portwatch_disruptions', 'imf_portwatch_ports']
+Wiederkehrende Instabilität (30 T): ['destatis_truck_toll', 'estat_jp_truck', 'finra_short_interest', 'imf_portwatch_chokepoints', 'imf_portwatch_disruptions', 'imf_portwatch_ports']
 
 _Regel: Ein fehlendes Signal ist besser als ein Signal aus falschen oder unbekannt alten Daten._

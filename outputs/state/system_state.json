@@ -4,21 +4,23 @@
  "safe_mode_reason": [
   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.33"
  ],
+ "safe_mode_scope": "research_influence_only",
+ "safe_mode_effect": "Wirkt nur auf den Research-Einfluss: keine positiven Boosts/Gewichte des Production Intelligence Adapters (validierte Abstinenz bleibt erlaubt), Promotionen pausiert, Meta-Learning nicht aktiv. Champion-Entscheidungen (Gates, Filter, Optionsauswahl) unverändert.",
  "data_health": {
   "status": "OK",
-  "data_quality": 0.952,
+  "data_quality": 0.959,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-11-09T22:41:11+00:00",
+  "generated": "2026-11-10T17:17:24+00:00",
   "counts": {
-   "HEALTHY": 49,
-   "DEGRADED": 3,
+   "HEALTHY": 46,
+   "DEGRADED": 2,
    "STALE": 2,
    "BROKEN": 0,
-   "UNVALIDATED": 9
+   "UNVALIDATED": 13
   },
   "fallbacks": []
  },
@@ -93,7 +95,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 0.952
+    "data_quality": 0.959
    }
   },
   "reasons": [
@@ -108,17 +110,17 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-07T15:06:36+00:00",
-  "drift_input_age_days": 2.5,
+  "drift_input_age_days": 3.1,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
   "ml_champion": null,
   "rule_champion": "scanner_rules",
-  "config_hash": "fa6cc74e0def",
-  "version": "scanner_rules@fa6cc74e0def"
+  "config_hash": "9aaf7a892de0",
+  "version": "scanner_rules@9aaf7a892de0"
  },
  "promotion_state": {
-  "generated": "2026-11-09T23:50:26+00:00",
+  "generated": "2026-11-10T02:22:19+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -160,15 +162,13 @@
   "safe_mode_relevant": false
  },
  "learning_health": {
-  "overall": "DEGRADED",
-  "stalled_or_broken": [
-   "rl"
-  ],
+  "overall": "OK",
+  "stalled_or_broken": [],
   "paths": {
    "outcome_ingestion": "OK",
    "shadow_lifecycle": "NEED_MORE_DATA",
    "gate_counterfactuals": "ACTIVE",
-   "research_generation": "OK",
+   "research_generation": "FROZEN",
    "hypothesis_testing": "OK",
    "promotion_pipeline": "OK",
    "demotion_pipeline": "OK",
@@ -178,22 +178,21 @@
    "universe_v2": "SHADOW",
    "commodity_intelligence": "RESEARCH",
    "commodity_sources": "HEALTHY",
-   "rl": "STALLED",
    "research_memory": "ACTIVE"
   }
  },
  "inputs": {
   "model_health": "55e58d46d923",
   "meta_learning": "be7453f22501",
-  "data_health": "ac0e7fb067df",
-  "promotion": "3a91a92b48d9",
+  "data_health": "44c164ea1718",
+  "promotion": "bf6a5488d568",
   "model_registry": "a0c0ce90b949",
-  "champion_config": "fa6cc74e0def",
+  "champion_config": "9aaf7a892de0",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "c9c59a294088"
  },
- "state_version": 110,
- "fingerprint": "dde203be3475952e",
- "updated_at": "2026-11-10T02:22:19+00:00",
- "code_version": "b92e25286d92"
+ "state_version": 111,
+ "fingerprint": "e8766ffa23dc3089",
+ "updated_at": "2026-11-10T17:17:24+00:00",
+ "code_version": "abd6de2ebf9f"
 }
