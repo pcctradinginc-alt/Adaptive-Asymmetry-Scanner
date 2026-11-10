@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-10T02:22:19+00:00",
+ "generated": "2026-11-10T21:23:14+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "b92e25286d92",
+ "code_version": "5de0ccfe78b7",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -45,7 +45,8 @@
     "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0006944444444444445
+    "alpha_effective": 0.0006944444444444445,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "n_observations": 3,
@@ -170,7 +171,8 @@
     "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0006944444444444445
+    "alpha_effective": 0.0006944444444444445,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "n_observations": 3,
@@ -252,7 +254,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Technology",
+    "dominant_sector_fired": "Financial Services",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -305,7 +307,8 @@
     "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0006944444444444445
+    "alpha_effective": 0.0006944444444444445,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "n_observations": 3,
@@ -430,7 +433,8 @@
     "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0006944444444444445
+    "alpha_effective": 0.0006944444444444445,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "n_observations": 3,
@@ -565,7 +569,8 @@
     "family_size": 6,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0006944444444444445
+    "alpha_effective": 0.0006944444444444445,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "n_observations": 3,
@@ -690,7 +695,8 @@
     "family_size": 5,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0008333333333333334,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "FINAL_MC_SURVIVOR",
@@ -799,7 +805,8 @@
     "family_size": 5,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0008333333333333334,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "FINAL_MC_SURVIVOR",
@@ -908,7 +915,8 @@
     "family_size": 5,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0008333333333333334,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "FINAL_MC_SURVIVOR",
@@ -1017,7 +1025,8 @@
     "family_size": 5,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0008333333333333334,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "FINAL_MC_SURVIVOR",
@@ -1126,7 +1135,8 @@
     "family_size": 5,
     "number_of_variants": 2,
     "planned_looks": 12,
-    "alpha_effective": 0.0008333333333333334
+    "alpha_effective": 0.0008333333333333334,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "FINAL_MC_SURVIVOR",
@@ -1238,7 +1248,8 @@
     "family_size": 4,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0010416666666666667
+    "alpha_effective": 0.0010416666666666667,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "V2_CANDIDATE",
@@ -1336,7 +1347,8 @@
     "family_size": 4,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0010416666666666667
+    "alpha_effective": 0.0010416666666666667,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "V2_CANDIDATE",
@@ -1434,7 +1446,8 @@
     "family_size": 4,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0010416666666666667
+    "alpha_effective": 0.0010416666666666667,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "V2_CANDIDATE",
@@ -1532,7 +1545,8 @@
     "family_size": 4,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0010416666666666667
+    "alpha_effective": 0.0010416666666666667,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "V2_CANDIDATE",
@@ -1627,7 +1641,8 @@
     "family_size": 7,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0005952380952380953
+    "alpha_effective": 0.0005952380952380953,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "EA_NEWS_CANDIDATE",
@@ -1734,7 +1749,8 @@
     "family_size": 7,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0005952380952380953
+    "alpha_effective": 0.0005952380952380953,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "EA_NEWS_CANDIDATE",
@@ -1841,7 +1857,8 @@
     "family_size": 7,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0005952380952380953
+    "alpha_effective": 0.0005952380952380953,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "EA_NEWS_CANDIDATE",
@@ -1948,7 +1965,8 @@
     "family_size": 7,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0005952380952380953
+    "alpha_effective": 0.0005952380952380953,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "EA_NEWS_CANDIDATE",
@@ -2035,7 +2053,8 @@
     "family_size": 7,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0005952380952380953
+    "alpha_effective": 0.0005952380952380953,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "EA_NEWS_CANDIDATE",
@@ -2142,7 +2161,8 @@
     "family_size": 7,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0005952380952380953
+    "alpha_effective": 0.0005952380952380953,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "EA_NEWS_CANDIDATE",
@@ -2256,7 +2276,8 @@
     "family_size": 7,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0005952380952380953
+    "alpha_effective": 0.0005952380952380953,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "stage": "EA_NEWS_CANDIDATE",
@@ -2343,7 +2364,8 @@
     "family_size": 6,
     "number_of_variants": 1,
     "planned_looks": 12,
-    "alpha_effective": 0.0006944444444444445
+    "alpha_effective": 0.0006944444444444445,
+    "alpha_regime": "legacy_family_0.05_outside_global_budget"
    },
    "evidence": {
     "n_observations": 0,
@@ -2485,5 +2507,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "a129f242a010c9fc6afda273e2ae65ef32a9b0e53033f3ac2bf8ebaf07551dff"
+ "state_hash": "4de2794d544dd41cdc0accfc9c6990f2c21c7bb650c947d8b6c36750ead6c7f5"
 }
