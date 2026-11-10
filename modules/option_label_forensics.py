@@ -23,10 +23,6 @@ def audit(rows: list[dict], quotes: list[dict], as_of: date, horizons=(5, 20)) -
     index = red.quote_index(quotes)
     first_archive = min((oq.quote_day(q) for q in quotes if oq.quote_day(q)), default=None)
     missing, due, verified, details = Counter(), Counter(), Counter(), []
-    for c in ol.candidates(rows, quotes, as_of, horizon=5):
-        # A different horizon must recheck independently; options expressions
-        # and timestamps are derived only from original immutable ledger rows.
-        pass
     for h in horizons:
         cs = ol.candidates(rows, quotes, as_of, horizon=h)
         for c in cs:
@@ -86,11 +82,11 @@ def main(argv=None):
     p.add_argument("--out", default=str(OUT))
     args = p.parse_args(argv)
     as_of = date.fromisoformat(args.as_of)
-    rows = red.load(ol.LEDGER, as_of)
+    rows = red.load(red.LEDGER, as_of)
     labelled = [r for r in rows if any(
         red.number((r.get("outcomes") or {}).get(f"{prefix}_ret_{h}d")) is not None
         for h in (5, 20) for _k, prefix, _name in ol.SOURCES)]
-    quotes = red.load_quotes(ol.QUOTES, labelled, as_of)
+    quotes = red.load_quotes(red.QUOTES, labelled, as_of)
     report = audit(rows, quotes, as_of)
     path = Path(args.out)
     path.parent.mkdir(parents=True, exist_ok=True)
