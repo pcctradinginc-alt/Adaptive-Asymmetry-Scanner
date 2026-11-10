@@ -491,6 +491,8 @@ class DeepAnalysis:
                 "is_mega_cap": is_mega_cap, "market_cap": market_cap}
 
     def _lookup_cache(self, ctx: dict) -> Optional[dict]:
+        if not getattr(self, "cache_enabled", True):
+            return None
         cached = analysis_cache.lookup(ctx["cache_key"], workflow=getattr(self, "telemetry_workflow", "deep_analysis"), ticker=ctx["ticker"])
         if cached is None:
             return None
@@ -561,13 +563,13 @@ class DeepAnalysis:
             sampled = bool(ctx.get("sampled"))
             version = _version_for(sampled)
             result["llm_audit"] = analysis_cache.llm_audit(ctx["params"], response, version=version, sampled=sampled)
-            if version == ctx.get("prompt_version", version):
+            if version == ctx.get("prompt_version", version) and getattr(self, "cache_enabled", True):
                 analysis_cache.compare_observed(cache_key, result, workflow=getattr(self, "telemetry_workflow", "deep_analysis"), ticker=ticker)
                 analysis_cache.store(
                     cache_key, result, model=model,
                     cost_usd=cost_telemetry.compute_cost(model, cost_telemetry.usage_from_response(response),
                                                          batch=bool(ctx.get("batch"))))
-            else:   # Sampling-Fallback zwischen Prompt-Aufbau und Antwort: nicht unter fremder Version cachen
+            elif version != ctx.get("prompt_version", version):  # Sampling-Fallback: nicht unter fremder Version cachen
                 log.info(f"  [{ticker}] Antwort unter {version} statt {ctx.get('prompt_version')} -> nicht gecacht")
             return self._finalize(result, mc_hit_rate, is_mega_cap, market_cap)
 
