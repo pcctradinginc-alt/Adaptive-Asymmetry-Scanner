@@ -328,7 +328,7 @@ class DeepAnalysis:
                 ab["ab-" + cid.split("-", 1)[1]] = {**requests[cid], "model": routing["other"],
                                                     "max_tokens": model_routing.max_tokens_for("deep_analysis", routing["other"])}
         sampled: dict = {}
-        results = cost_telemetry.run_batch(client, workflow="deep_analysis", requests={**requests, **ab},
+        results = cost_telemetry.run_batch(client, workflow=getattr(self, "telemetry_workflow", "deep_analysis"), requests={**requests, **ab},
                                            tickers={**tickers, **{k: tickers["da-" + k[3:]] for k in ab}},
                                            max_wait_s=conf["max_wait_s"], poll_s=conf["poll_s"], deadline=deadline,
                                            sampling=True, sampling_out=sampled)
@@ -491,7 +491,7 @@ class DeepAnalysis:
                 "is_mega_cap": is_mega_cap, "market_cap": market_cap}
 
     def _lookup_cache(self, ctx: dict) -> Optional[dict]:
-        cached = analysis_cache.lookup(ctx["cache_key"], workflow="deep_analysis", ticker=ctx["ticker"])
+        cached = analysis_cache.lookup(ctx["cache_key"], workflow=getattr(self, "telemetry_workflow", "deep_analysis"), ticker=ctx["ticker"])
         if cached is None:
             return None
         log.info(f"  [{ctx['ticker']}] Analyse-Cache-Treffer (identische Eingaben) → kein Sonnet-Call")
@@ -509,7 +509,7 @@ class DeepAnalysis:
                 return cached
             sampled: dict = {}
             response = cost_telemetry.tracked_create(
-                self.client, workflow="deep_analysis", ticker=ticker, sampling=True, sampling_out=sampled,
+                self.client, workflow=getattr(self, "telemetry_workflow", "deep_analysis"), ticker=ticker, sampling=True, sampling_out=sampled,
                 **ctx["params"])
             return self._complete({**ctx, "sampled": bool(sampled.get("used"))}, response)
         except Exception as e:
@@ -562,7 +562,7 @@ class DeepAnalysis:
             version = _version_for(sampled)
             result["llm_audit"] = analysis_cache.llm_audit(ctx["params"], response, version=version, sampled=sampled)
             if version == ctx.get("prompt_version", version):
-                analysis_cache.compare_observed(cache_key, result, workflow="deep_analysis", ticker=ticker)
+                analysis_cache.compare_observed(cache_key, result, workflow=getattr(self, "telemetry_workflow", "deep_analysis"), ticker=ticker)
                 analysis_cache.store(
                     cache_key, result, model=model,
                     cost_usd=cost_telemetry.compute_cost(model, cost_telemetry.usage_from_response(response),
