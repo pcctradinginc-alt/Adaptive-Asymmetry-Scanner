@@ -800,6 +800,7 @@ def main() -> None:
     _proposals_ref = []
     _ea_input_ref: list = []       # Expectation Alpha (SHADOW): eingefrorene Stufe-4-Analysen (Auswertung am Laufende)
     _census_ref: list = []         # LLM-Zensus (Research): Zufallsstichprobe der Hard-Filter-Überlebenden (Laufende)
+    _throughput_ref: list = []     # Separate research-only quote/LLM cohort; never a trade input
     _health_ref    = []   # letzter Engine-Health-Report, für die Status-Mail wiederverwendet
 
     def _expectation_alpha_finalize():
@@ -852,12 +853,37 @@ def main() -> None:
             log.warning(f"LLM-Zensus Fehler (ignoriert): {type(e).__name__}: {e}")
             stats["llm_census"] = {"status": "ERROR", "error": f"{type(e).__name__}: {str(e)[:200]}"}
 
+    def _throughput_finalize():
+        """Research-only acquisition challenger AFTER all Champion decisions.
+        The separate cohort is never supplied to the production pipeline.
+        """
+        if not _throughput_ref:
+            return
+        _raw, _champion_decisions = _throughput_ref.pop()
+        _throughput_ref.clear()
+        try:
+            from modules import throughput_shadow as _ts
+            _p = getattr(cfg, "pipeline", None)
+            _reserve = float(getattr(_p, "finalize_reserve_minutes", 10) or 10) * 60
+            stats["throughput_shadow"] = _ts.run(
+                _raw, _champion_decisions, day=today,
+                probe=lambda c: _ef.probe_candidate(c, designer=designer, gates=gates, policy=_ef_cfg),
+                note=candidate_ledger.note, economics_policy=_ef_cfg,
+                run_deadline=_RUN_DEADLINE[0] if _RUN_DEADLINE else None,
+                finalize_reserve_s=_reserve)
+        except Exception as e:  # noqa: BLE001 – research must never block reporting
+            log.warning("Throughput shadow failed (ignored): %s: %s", type(e).__name__, e)
+            stats["throughput_shadow"] = {
+                "mode": "research_only", "status": "ERROR",
+                "production_influence": "NONE", "error": f"{type(e).__name__}: {str(e)[:160]}"}
+
     def save_stats_snapshot():
         """Persistiert Funnel-Stats + Reject-Gründe in die Daily-JSON.
         Läuft auf JEDEM Exit-Pfad — sonst ist bei 0-Trade-Tagen nicht
         nachvollziehbar, welches Gate blockiert hat."""
         _expectation_alpha_finalize()
         _llm_census_finalize()
+        _throughput_finalize()
         try:
             REPORTS_DIR.mkdir(parents=True, exist_ok=True)
             path = REPORTS_DIR / f"{today}.json"
@@ -1052,6 +1078,15 @@ def main() -> None:
     from modules import economics_first as _ef
     _ef_cfg = _ef.settings()
     _ef_start = len(candidates)
+    # Freeze the research cohort before acquisition. Never append these names
+    # to candidates/shortlist/analyses/proposals; no Champion budget changes.
+    try:
+        from modules import throughput_shadow as _ts
+        if _ts.settings().get("enabled"):
+            import copy as _copy
+            _throughput_ref[:] = [(_copy.deepcopy(candidates), None)]
+    except Exception as _shadow_exc:
+        log.warning("Throughput shadow cohort unavailable: %s", _shadow_exc)
     try:
         candidates, _ef_decisions, _ef_summary = _ef.select_before_haiku(
             candidates, day=today,
@@ -1072,6 +1107,8 @@ def main() -> None:
         _ef_summary = {"mode": "error_closed", "input": _ef_start, "haiku": 0,
                        "error": str(_ef_exc)[:160]}
     stats["economics_first"] = _ef_summary
+    if _throughput_ref:
+        _throughput_ref[0] = (_throughput_ref[0][0], _ef_decisions.copy())
     stats["economics_first_candidates"] = len(candidates)
     for _tk, _d in _ef_decisions.items():
         candidate_ledger.note(_tk, stage="economics_first", economics_first=_d)
