@@ -1,4 +1,4 @@
-# Gate- und Optionsökonomie – 2026-11-06
+# Gate- und Optionsökonomie – 2026-11-10
 
 **READ-ONLY SHADOW – keine Handels- oder Gate-Freigabe.**
 
@@ -6,6 +6,7 @@
 
 | Datum | Sektor | Quote-Probes | Budget-untersucht: nein | Earnings-Reject | Haiku | Sonnet | Quick-MC | ROI OK | Trades |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2026-11-09 | 145 | 8 | 137 | 2 | 6 | 3 | 1 | 0 | 0 |
 | 2026-11-06 | 132 | 8 | 124 | 4 | 3 | 2 | 1 | 0 | 0 |
 | 2026-11-05 | 366 | 8 | 358 | 2 | 5 | 3 | 0 | 0 | 0 |
 | 2026-11-04 | 378 | 8 | 370 | 1 | 5 | 1 | 0 | 0 | 0 |
@@ -45,21 +46,21 @@ Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.
 
 | Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |
 |---|---:|---:|---:|---:|---:|---:|
-| prescreen_no | 3926 | 0 | 3901 | 0.5% | 2549 | 2.6% |
-| economics_first_quote_probe_budget | 2099 | 0 | 1000 | n/v | 0 | n/v |
-| sector_momentum_weak | 845 | 1 | 677 | 0.8% | 352 | 3.5% |
-| earnings_gate | 439 | 43 | 439 | -0.3% | 117 | 2.8% |
-| mismatch_below_min | 343 | 343 | 340 | 0.3% | 215 | -0.2% |
-| bearish_disabled | 311 | 311 | 306 | -0.0% | 226 | -0.4% |
+| prescreen_no | 3929 | 0 | 3912 | 0.5% | 2892 | 2.2% |
+| economics_first_quote_probe_budget | 2236 | 0 | 1617 | n/v | 0 | n/v |
+| sector_momentum_weak | 874 | 1 | 760 | -0.0% | 402 | 3.0% |
+| earnings_gate | 439 | 43 | 439 | -0.3% | 181 | 1.7% |
+| mismatch_below_min | 344 | 344 | 341 | 0.3% | 252 | -1.1% |
+| bearish_disabled | 312 | 312 | 308 | -0.0% | 261 | 0.7% |
 | time_budget_exceeded | 253 | 0 | 252 | n/v | 252 | n/v |
-| pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 164 | 7.0% |
-| options_design_roi_or_edge | 165 | 165 | 164 | 0.2% | 127 | -1.7% |
-| deep_analysis_veto_or_invalid | 162 | 0 | 160 | -0.2% | 102 | -1.4% |
-| mc_below_threshold | 100 | 100 | 100 | 1.0% | 64 | 5.3% |
+| pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 175 | 7.1% |
+| options_design_roi_or_edge | 165 | 165 | 164 | 0.2% | 134 | -2.2% |
+| deep_analysis_veto_or_invalid | 162 | 0 | 162 | -0.4% | 131 | -3.3% |
+| mc_below_threshold | 100 | 100 | 100 | 1.0% | 75 | 4.6% |
 | prescreen_bearish_prefilter | 39 | 0 | 39 | n/v | 0 | n/v |
-| impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 23 | n/v |
-| unlabeled_after_options_design | 20 | 20 | 20 | n/v | 19 | n/v |
-| economics_first_earnings_gate | 18 | 0 | 6 | n/v | 0 | n/v |
+| impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 27 | 2.4% |
+| economics_first_earnings_gate | 20 | 0 | 12 | n/v | 0 | n/v |
+| unlabeled_after_options_design | 20 | 20 | 20 | n/v | 20 | n/v |
 
 *Mittelwerte erst ab 20 Marks an 10 unabhängigen Signaltagen; nicht kausal.
 Richtungsunbekannte Budget-Signale sind keine Long-Call-Prognosen.
