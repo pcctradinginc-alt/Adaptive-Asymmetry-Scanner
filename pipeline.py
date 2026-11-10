@@ -588,7 +588,8 @@ def load_history() -> dict:
             if not isinstance(data, dict):
                 raise ValueError("history.json ist kein dict")
             # NaN/ungültige Modell-Gewichte (z.B. aus Pearson auf konstanter
-            # Spalte) auf Defaults zurücksetzen, sonst ist das Scoring mit diesen Gewichten NaN.
+            # Spalte) auf Defaults zurücksetzen. Seit 2026-11-09 scort nichts mehr damit; history.json
+            # behält das Feld nur für Altdaten und die Engine-Monitor-Diagnose.
             defaults = {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}
             weights  = data.get("model_weights")
             if not isinstance(weights, dict):
