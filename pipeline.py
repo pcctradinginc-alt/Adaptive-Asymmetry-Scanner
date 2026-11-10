@@ -60,7 +60,6 @@ from modules.deep_analysis       import DeepAnalysis
 from modules.mismatch_scorer     import MismatchScorer
 from modules.mirofish_simulation import MirofishSimulation, compute_time_value_efficiency
 from modules.trade_scorer        import rank_proposals
-from modules.rl_agent            import RLScorer
 from modules.options_designer    import OptionsDesigner, ttm_to_dte_floor
 from modules.reporter            import Reporter
 from modules.risk_gates          import RiskGates
@@ -768,7 +767,7 @@ def main() -> None:
         "vix": None, "universe": 0, "candidates": 0, "prescreened": 0,
         "sector_ok": 0, "pre_mc": 0, "analyzed": 0,
         "mismatch_ok": 0, "quick_mc": 0, "intraday_ok": 0, "final_mc": 0,
-        "rl_scored": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
+        "final_selected": 0, "roi_ok": 0, "trades": 0, "stop_reason": "",
     }
     # Kosten-Telemetrie: Fremd-API-Zähler je Lauf + Budgetwarnung (Produktion läuft immer
     # weiter – produktionskritische Deep Analysis wird nie still übersprungen).
@@ -1702,30 +1701,23 @@ def main() -> None:
         except Exception as e:  # noqa: BLE001
             log.warning(f"Final-MC-Downstream Fehler (ignoriert): {e}")
 
-    # ── STUFE 9: RL-Scoring ──────────────────────────────────────────────────
-    log.info("Stufe 9: RL-Scoring")
-    _rl_veto = bool(cfg.rl.get("veto_enabled", False))   # fehlt der Schlüssel: Veto AUS (nie automatisch aktiv)
-    final_signals = RLScorer(history=history, veto_enabled=_rl_veto).run(final_sims)
-    stats["rl_scored"] = len(final_signals)
-    # Robuster PPO-Challenger: NUR Shadow-Aktion im Ledger (challengers.yaml
-    # ppo_robust_shadow), beeinflusst weder final_signals noch Ranking/Gates.
-    try:
-        from modules.rl_robust_shadow import shadow_actions
-        for _tk, _act in shadow_actions(final_sims).items():
-            candidate_ledger.note(_tk, rl_robust_action=_act)
-    except Exception as e:  # noqa: BLE001
-        log.warning(f"robustes PPO Shadow Fehler (ignoriert): {e}")
+    # ── STUFE 9: Finale Auswahl ──────────────────────────────────────────────
+    # RL/QuasiML entfernt (wirkungslos: Veto aus, nur Sortierung). Reihenfolge
+    # unverändert; das Ranking der Vorschläge macht trade_scorer.rank_proposals.
+    log.info("Stufe 9: Finale Auswahl")
+    final_signals = list(final_sims)
+    stats["final_selected"] = len(final_signals)
     for fs in final_signals:
         try:
             candidate_ledger.note(
-                fs.get("ticker"), stage="rl_scoring",
+                fs.get("ticker"), stage="final_selection",
                 final_mc_hit_rate=fs.get("simulation", {}).get("hit_rate"),
             )
         except Exception as e:
             log.warning(f"candidate_ledger.note Fehler (ignoriert): {e}")
-    log.info(f"  → {len(final_signals)} nach RL-Scoring")
+    log.info(f"  → {len(final_signals)} nach Final MC")
     if not final_signals:
-        stats["stop_reason"] = "RL-Agent: alle als SKIP klassifiziert."
+        stats["stop_reason"] = "Keine Signale nach Final MC."
         _record_final_mc_downstream()
         save_history(history)
         send_email()

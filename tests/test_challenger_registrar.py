@@ -108,15 +108,3 @@ def test_min_clusters_tightens_but_never_loosens():
     res = challenger.evaluate(c, rows, date(2026, 2, 1), n_active=1)
     assert res["verdict"] == "running" and res["min_clusters"] == 15
 
-
-def test_robust_reward_is_concave_and_uses_position_fraction():
-    from modules.rl_environment import ACTION_BOOST, ACTION_NORMAL, ACTION_SKIP, robust_reward
-    assert robust_reward(-1.0, ACTION_SKIP) == 0.0
-    f = 0.10
-    # Totalverlust kostet genau den Positionsanteil (log(0.9)/0.1)
-    assert abs(robust_reward(-1.0, ACTION_NORMAL, f) - (-1.0536)) < 1e-3
-    # Konkav: Gewinn wird gedämpft, Verlust verstärkt gegenüber linear
-    assert robust_reward(5.0, ACTION_NORMAL, f) < 5.0
-    assert robust_reward(-0.5, ACTION_NORMAL, f) < -0.5
-    # BOOST lohnt nur, wenn der Erwartungswert die höhere Varianz trägt
-    assert robust_reward(-1.0, ACTION_BOOST, f) < robust_reward(-1.0, ACTION_NORMAL, f)

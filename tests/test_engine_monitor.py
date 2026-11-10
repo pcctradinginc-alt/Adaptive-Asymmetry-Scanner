@@ -242,23 +242,6 @@ class TestParallelTestReife:
 # ── c) Lern-Loop-Sanity ───────────────────────────────────────────────────────
 
 class TestLearnLoopSanity:
-    def test_nan_weight_warns(self, tmp_path):
-        history = _empty_history(model_weights={"impact": float("nan"), "mismatch": 0.5, "eps_drift": 0.2})
-        result = build_health_report(history=history, reports_dir=tmp_path, today=date(2026, 7, 20))
-        assert result["status"] == "WARN"
-        assert any("NaN" in w for w in result["warnings"])
-
-    def test_all_zero_weights_warns(self, tmp_path):
-        history = _empty_history(model_weights={"impact": 0.0, "mismatch": 0.0, "eps_drift": 0.0})
-        result = build_health_report(history=history, reports_dir=tmp_path, today=date(2026, 7, 20))
-        assert result["status"] == "WARN"
-        assert any("model_weights" in w and "0" in w for w in result["warnings"])
-
-    def test_valid_weights_no_sanity_warning(self, tmp_path):
-        history = _empty_history(model_weights={"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20})
-        result = build_health_report(history=history, reports_dir=tmp_path, today=date(2026, 7, 20))
-        assert not any("NaN" in w or "model_weights" in w for w in result["warnings"])
-
     def test_stale_active_trade_warns(self, tmp_path):
         today = date(2026, 7, 26)
         stale_entry = today - timedelta(days=CLOSE_AFTER_DAYS + 31)   # > Cutoff (close_after+30)

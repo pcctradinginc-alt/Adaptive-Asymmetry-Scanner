@@ -211,38 +211,6 @@ class TestMismatchScorer:
         assert result["features"]["eps_drift"] == 0.0
 
 
-# ── Quasi-ML ─────────────────────────────────────────────────────────────────
-
-class TestQuasiML:
-    def test_fallback_scoring_without_history(self, empty_history):
-        from modules.quasi_ml import QuasiML
-        qml = QuasiML(history=empty_history)
-
-        signal = {
-            "ticker": "NVDA",
-            "features": {
-                "impact": 9, "surprise": 8,
-                "mismatch": 7.0, "z_score": 0.4, "sigma_30d": 0.02, "eps_drift": 0.15,
-                "bin_impact": "high", "bin_mismatch": "strong", "bin_eps_drift": "massive",
-            },
-            "deep_analysis": {"direction": "BULLISH"},
-            "simulation": {"hit_rate": 0.82},
-        }
-        result = qml.run([signal])
-        assert len(result) == 1
-        assert result[0]["final_score"] > 0
-
-    def test_signals_sorted_by_score(self, empty_history):
-        from modules.quasi_ml import QuasiML
-        qml = QuasiML(history=empty_history)
-
-        low = {"ticker": "A", "features": {"impact": 2, "mismatch": 1, "eps_drift": 0, "bin_impact": "low", "bin_mismatch": "weak", "bin_eps_drift": "noise"}, "deep_analysis": {}, "simulation": {}}
-        high = {"ticker": "B", "features": {"impact": 9, "mismatch": 8, "eps_drift": 0.15, "bin_impact": "high", "bin_mismatch": "strong", "bin_eps_drift": "massive"}, "deep_analysis": {}, "simulation": {}}
-
-        result = qml.run([low, high])
-        assert result[0]["ticker"] == "B"
-
-
 # ── Risk Gates ────────────────────────────────────────────────────────────────
 
 class TestRiskGates:
@@ -360,8 +328,15 @@ class TestExitRules:
         assert check_exit_rules(t, 0.10, datetime(2026, 5, 20)) is None
 
 
+def _kelly_mode(monkeypatch):
+    """Kelly-Modus explizit einschalten (Default ist die Einheitsgröße)."""
+    from modules.config import cfg
+    monkeypatch.setitem(cfg.portfolio, "sizing_mode", "kelly")
+
+
 class TestPositionSizing:
-    def test_positive_edge_gives_contracts(self):
+    def test_positive_edge_gives_contracts(self, monkeypatch):
+        _kelly_mode(monkeypatch)
         from modules.position_sizing import compute_position_size
         # V6: Kelly aus der Netto-P&L-Verteilung: f* = p/L − (1−p)/W = 0,6/0,5 − 0,4/0,8 = 0,7
         p = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 2.0},
@@ -371,7 +346,8 @@ class TestPositionSizing:
         assert s["contracts"] >= 1 and s["max_risk_usd"] == s["contracts"] * 200.0     # bis 100 % Verlust
         assert s["position_usd"] <= s["portfolio_usd"] * 0.10 + 1e-6
 
-    def test_negative_edge_gives_zero(self):
+    def test_negative_edge_gives_zero(self, monkeypatch):
+        _kelly_mode(monkeypatch)
         from modules.position_sizing import compute_position_size
         p = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 2.0},
              "roi_analysis": {"roi_net": 0.05, "kelly_inputs": {"p_win": 0.3, "avg_win": 0.5, "avg_loss": 0.8}},
@@ -380,12 +356,47 @@ class TestPositionSizing:
         assert s["contracts"] == 0
         assert "Kelly" in s["note"]
 
-    def test_without_pnl_distribution_no_position(self):
+    def test_without_pnl_distribution_no_position(self, monkeypatch):
+        _kelly_mode(monkeypatch)
         from modules.position_sizing import compute_position_size
         p = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 2.0},
              "roi_analysis": {"roi_net": 0.80}, "mc_hit_rate": 0.70}
         s = compute_position_size(p)
         assert s["contracts"] == 0 and s["kelly_basis"] == "NO_PNL_DISTRIBUTION" and "P&L-Verteilung" in s["note"]
+
+    def test_unit_mode_is_default_one_contract_regardless_of_kelly(self):
+        from modules.position_sizing import compute_position_size
+        pos = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 2.0},
+               "roi_analysis": {"kelly_inputs": {"p_win": 0.6, "avg_win": 0.8, "avg_loss": 0.5}}}
+        neg = {**pos, "roi_analysis": {"kelly_inputs": {"p_win": 0.3, "avg_win": 0.5, "avg_loss": 0.8}}}
+        none = {**pos, "roi_analysis": {}}
+        for p in (pos, neg, none):                       # Kelly-Ergebnis ändert die Einheitsgröße nicht
+            s = compute_position_size(p)
+            assert s["sizing_basis"] == "UNIT" and s["contracts"] == 1
+            assert s["position_usd"] == 200.0 and s["max_risk_usd"] == 200.0
+            assert s["pct_of_depot"] == s["position_pct"] == pytest.approx(200.0 / s["portfolio_usd"])
+            assert "Einheitsgröße" in s["note"] and "≥30 RELIABLE" in s["note"]
+            assert s["exceeds_max_position_pct"] is False
+        assert compute_position_size(pos)["kelly_info"]["kelly_raw"] == pytest.approx(0.7)
+        assert compute_position_size(none)["kelly_info"]["kelly_basis"] == "NO_PNL_DISTRIBUTION"
+
+    def test_unit_mode_spread_uses_net_debit(self):
+        from modules.position_sizing import compute_position_size
+        p = {"ticker": "T", "strategy": "BULL_CALL_SPREAD", "option": {"ask": 3.0, "net_debit": 1.5}}
+        s = compute_position_size(p)
+        assert s["cost_per_contract"] == 150.0 and s["position_usd"] == 150.0 and s["contracts"] == 1
+
+    def test_unit_mode_flags_but_keeps_position_above_cap(self):
+        from modules.position_sizing import compute_position_size
+        p = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 8.0}}       # 800 $ = 16 % von 5000 $ > 10 %
+        s = compute_position_size(p)
+        assert s["contracts"] == 1 and s["position_usd"] == 800.0                   # nicht verworfen
+        assert s["exceeds_max_position_pct"] is True and "Cap" in s["note"]
+
+    def test_unit_mode_without_price_gives_no_position(self):
+        from modules.position_sizing import compute_position_size
+        s = compute_position_size({"ticker": "T", "strategy": "LONG_CALL", "option": {}})
+        assert s["contracts"] == 0 and s["position_usd"] == 0.0
 
 
 class TestCommissionInRoi:
@@ -448,9 +459,3 @@ class TestFeedbackLoop:
         feedback.update_bin(stats, "impact", "high", 0.10)
         assert stats["impact"]["high"]["count"] == 2
         assert abs(stats["impact"]["high"]["avg_return"] - 0.15) < 1e-6
-
-    def test_bin_to_num_mapping(self):
-        import feedback
-        assert feedback._bin_to_num("impact",   "high")     == 1.0
-        assert feedback._bin_to_num("mismatch", "weak")     == 0.0
-        assert feedback._bin_to_num("eps_drift","relevant") == 0.5

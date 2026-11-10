@@ -25,10 +25,8 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import numpy as np
 import requests
 import yfinance as yf
-from scipy import stats
 
 from modules.config import cfg
 from modules.exit_sim import register_exit_sim, summarize_exit_sim, trim_exit_sim, update_exit_sim_entry
@@ -1354,154 +1352,6 @@ def resolve_pending_exits(history: dict, now: datetime) -> dict:
     return out
 
 
-# ── RL-Training ───────────────────────────────────────────────────────────────
-
-def maybe_notify_rl_arming(history: dict) -> None:
-    """
-    Sendet eine EINMALIGE Email, sobald genug closed_trades unter den neuen Regeln
-    (entry_date >= rl.arm_since) vorliegen, um den RL-Agenten scharfzustellen.
-
-    Relevant nur solange das RL-Veto deaktiviert ist (Option A). Der Flag
-    history['rl_arm_notified'] verhindert wiederholten Versand.
-    """
-    rl_cfg = cfg.rl
-    if rl_cfg.get("veto_enabled", True):
-        return  # RL bereits scharf → nichts zu tun
-    if history.get("rl_arm_notified"):
-        return  # bereits benachrichtigt
-
-    threshold = int(rl_cfg.get("arm_threshold", 30))
-    since     = str(rl_cfg.get("arm_since", "2026-06-11"))
-    closed    = history.get("closed_trades", [])
-
-    relevant = [
-        t for t in closed
-        if t.get("outcome") is not None and str(t.get("entry_date", ""))[:10] >= since
-    ]
-    n = len(relevant)
-    if n < threshold:
-        log.info(f"RL-Arming: {n}/{threshold} closed_trades seit {since} — noch nicht erreicht.")
-        return
-
-    wins     = sum(1 for t in relevant if t["outcome"] > 0)
-    win_rate = wins / n if n else 0.0
-    try:
-        from modules.email_reporter import send_rl_arming_email
-        send_rl_arming_email(n, threshold, win_rate, since)
-        history["rl_arm_notified"] = True
-        log.info(f"RL-Arming-Email gesendet: {n} Trades seit {since}, Win-Rate {win_rate:.0%}.")
-    except Exception as e:
-        log.error(f"RL-Arming-Email-Fehler: {e}")
-
-
-RL_ROBUST_SHADOW_TRAINING = False   # Systemaudit 2026-10-30: RL-Training eingefroren (siehe Feedback-Hauptlauf)
-
-
-def retrain_rl_agent(history: dict) -> None:
-    """
-    Trainiert den PPO-Agenten inkrementell auf allen closed_trades.
-
-    Continual Learning: 2.000 Steps pro Feedback-Lauf (~5s auf CPU).
-    GitHub-Actions-tauglich: Modell als .zip committed, nächster Run nutzt es.
-    """
-    try:
-        from modules.rl_agent import train_agent
-    except ImportError as e:
-        log.warning(f"RL-Agent nicht importierbar: {e} → Training übersprungen")
-        return
-
-    closed = history.get("closed_trades", [])
-    if len(closed) < 5:
-        log.info(
-            f"Nur {len(closed)} closed_trades → RL-Training übersprungen "
-            f"(Minimum: 5)."
-        )
-        return
-
-    log.info(f"Starte RL-Nachtraining auf {len(closed)} closed_trades...")
-    success = train_agent(
-        history         = history,
-        total_timesteps = 2_000,
-        force_retrain   = False,
-    )
-
-    if success:
-        log.info("RL-Agent erfolgreich nachtrainiert.")
-    else:
-        log.warning("RL-Nachtraining fehlgeschlagen (nicht kritisch).")
-
-
-# ── Pearson-Gewichte (Legacy-Support) ────────────────────────────────────────
-
-def compute_pearson_weights(history: dict) -> dict:
-    from modules.outcomes import MIN_RELIABLE_FOR_WEIGHT_UPDATE, is_reliable_outcome
-    closed = [t for t in history.get("closed_trades", []) if is_reliable_outcome(t)]
-    if len(closed) < MIN_RELIABLE_FOR_WEIGHT_UPDATE:
-        return history.get("model_weights", {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20})
-
-    outcomes, impacts, mismatches, drifts, entry_days = [], [], [], [], set()
-    for t in closed:
-        outcome = t.get("outcome")
-        if outcome is None:
-            continue
-        feat = t.get("features", {})
-        outcomes.append(outcome)
-        entry_days.add(str(t.get("entry_date", ""))[:10])
-        impacts.append(_bin_to_num("impact",    feat.get("bin_impact",    "mid")))
-        mismatches.append(_bin_to_num("mismatch", feat.get("bin_mismatch",  "good")))
-        drifts.append(_bin_to_num("eps_drift", feat.get("bin_eps_drift", "noise")))
-
-    if len(outcomes) < 5:
-        return history.get("model_weights", {})
-
-    outcomes_arr = np.array(outcomes)
-    correlations = {}
-    for name, arr in [("impact", np.array(impacts)),
-                       ("mismatch", np.array(mismatches)),
-                       ("eps_drift", np.array(drifts))]:
-        # Konstante Spalte (z.B. alle bin_eps_drift="noise") → pearsonr=NaN
-        if np.std(arr) == 0 or np.std(outcomes_arr) == 0:
-            r = 0.0
-        else:
-            r, _ = stats.pearsonr(arr, outcomes_arr)
-        if not np.isfinite(r):
-            r = 0.0
-        # Sicherheitsbremse (Audit 2026-09-29): nur statistisch belastbare
-        # positive Korrelationen zählen. Vorher bekam ein Feature mit zufällig
-        # r=+0.02 das Zielgewicht 100 % und setzte sich bei 2 Läufen/Werktag
-        # mit Lernrate 0.05 binnen Wochen durch (Overfitting auf Rauschen).
-        # Gleiche Regel wie modules/factor_monitor.py: >= MIN_EFF_N
-        # unabhängige Entry-Tage UND 90%-KI (Fisher-z) oberhalb 0.
-        from modules.factor_monitor import MIN_EFF_N, fisher_ci
-        lo, _hi = fisher_ci(float(r), len(entry_days))
-        if len(entry_days) < MIN_EFF_N or lo is None or lo <= 0:
-            r = 0.0
-        correlations[name] = max(r, 0)
-
-    total = sum(correlations.values()) or 1.0
-    old_w    = history.get("model_weights", {})
-    defaults = {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}
-    new_w = {}
-    for feat, corr in correlations.items():
-        raw_new = corr / total
-        old     = old_w.get(feat, defaults.get(feat, 1/3))
-        if not isinstance(old, (int, float)) or not np.isfinite(old):
-            old = defaults.get(feat, 1/3)
-        new_w[feat] = round(old + cfg.learning.learning_rate * (raw_new - old), 4)
-
-    total_w = sum(new_w.values())
-    return {k: round(v / total_w, 4) for k, v in new_w.items()}
-
-
-def _bin_to_num(feature: str, bin_label: str) -> float:
-    mapping = {
-        "impact":    {"low": 0.0, "mid": 0.5, "high": 1.0},
-        "mismatch":  {"weak": 0.0, "good": 0.5, "strong": 1.0},
-        "eps_drift": {"noise": 0.0, "relevant": 0.5, "massive": 1.0},
-    }
-    return mapping.get(feature, {}).get(bin_label, 0.5)
-
-
 # ── Haupt-Loop ────────────────────────────────────────────────────────────────
 
 def main() -> None:
@@ -1654,7 +1504,6 @@ def main() -> None:
             still_active.append(trade)
 
     history["active_trades"] = still_active
-    history["model_weights"] = compute_pearson_weights(history)
 
     # Schatten-Trades bewerten (Gate-Validierung, kein Geld im Spiel)
     try:
@@ -1724,9 +1573,6 @@ def main() -> None:
     except Exception as e:
         log.error(f"Exit-Sim-Fehler: {e}")
 
-    # RL-Scharfstellung: Email sobald genug closed_trades unter neuen Regeln vorliegen
-    maybe_notify_rl_arming(history)
-
     save_history(history)
     _lr = _ll.run_stats()
     log.info(f"Learning-Integrität: {_lr['processed']} Lern-Updates, duplicate_learning_skips={_lr['duplicate_skips']}, "
@@ -1739,33 +1585,6 @@ def main() -> None:
             send_exit_alert_email(exit_alerts, today.strftime("%Y-%m-%d"))
         except Exception as e:
             log.error(f"Exit-Alert-Email-Fehler: {e}")
-
-    if newly_closed > 0:
-        # PPO nur nachtrainieren, wenn er Entscheidungen beeinflussen darf (rl.veto_enabled).
-        # Bei Veto aus ist das Modell ungenutzt (Audit 2026-10-03: zuletzt degenerierte
-        # Immer-SKIP-Policy) – Training wäre reine Rechenzeit + Commit-Rauschen.
-        if bool(cfg.rl.get("veto_enabled", False)):
-            log.info(f"{newly_closed} neue closed_trades → starte RL-Nachtraining...")
-            retrain_rl_agent(history)
-        else:
-            log.info("RL-Veto aus → PPO-Nachtraining übersprungen (Modell ungenutzt)")
-        # Robuster PPO-Challenger (SHADOW): eingefroren seit 2026-10-30 (Systemaudit: kollabierte Policies, zu wenige
-        # geprüfte Options-Outcomes). Das bestehende Modell bleibt für die Shadow-Aktion im Ledger; neu trainiert wird
-        # erst wieder, wenn RL_ROBUST_SHADOW_TRAINING bewusst eingeschaltet wird.
-        if RL_ROBUST_SHADOW_TRAINING:
-            try:
-                from modules.rl_robust_shadow import train_robust_shadow
-                meta = train_robust_shadow(history)
-                if meta:
-                    wf = meta["walk_forward"]["test"]
-                    log.info(f"Robustes PPO (Shadow): walk-forward n={wf['n']} "
-                             f"Aktionen={wf['action_counts']} kollabiert={wf['collapsed']}")
-            except Exception as e:  # noqa: BLE001
-                log.warning(f"Robustes PPO-Shadow-Training fehlgeschlagen (ignoriert): {e}")
-        else:
-            log.info("Robustes PPO-Shadow-Training eingefroren (Systemaudit 2026-10-30)")
-    else:
-        log.info("Keine neuen closed_trades → RL-Training übersprungen.")
 
     # Candidate-Ledger: Counterfactual-Outcomes nachtragen (reine Observability,
     # darf den Feedback-Loop nie brechen).

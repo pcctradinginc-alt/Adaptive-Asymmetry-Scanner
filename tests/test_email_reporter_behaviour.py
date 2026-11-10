@@ -74,12 +74,6 @@ def test_exit_alert_mail(outbox):
     assert "1× TP, 1× SL" in subj and "STOP-LOSS" in html and "-50.0%" in html
 
 
-def test_rl_arming_mail_escapes_prompt(outbox):
-    er.send_rl_arming_email(120, 100, 0.41, "2026-04-01")
-    subj, html = outbox[-1]
-    assert "120 Trades" in subj and "41%" in html and "&gt;90%" in html
-
-
 def test_smtp_not_called_without_credentials(monkeypatch):
     monkeypatch.delenv("GMAIL_SENDER", raising=False)
     monkeypatch.delenv("GMAIL_APP_PW", raising=False)

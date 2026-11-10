@@ -536,56 +536,7 @@ def test_assert_no_unpromoted_in_passes_for_core_features():
     gov.assert_no_unpromoted_in({"impact": 1, "mismatch": 2, "eps_drift": 3}, context="test")
 
 
-def test_quasi_ml_and_pearson_only_use_core_features():
-    """Regressions-Guard: QuasiML.weights und feedback.compute_pearson_weights
-    dürfen niemals ein nicht-promotetes externes Feature einführen."""
-    from modules.quasi_ml import QuasiML
-    q = QuasiML(history={"feature_stats": {}, "model_weights": {
-        "impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}})
-    gov.assert_no_unpromoted_in(q.weights, context="QuasiML.weights")
-
-    import feedback
-    history = {"closed_trades": [
-        {"outcome": 0.1, "features": {"bin_impact": "high", "bin_mismatch": "good",
-                                        "bin_eps_drift": "noise"}}
-        for _ in range(6)
-    ], "model_weights": {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}}
-    weights = feedback.compute_pearson_weights(history)
-    gov.assert_no_unpromoted_in(weights, context="feedback.compute_pearson_weights")
-
-
-def test_rl_obs_dim_unaffected_by_external_features():
-    from modules.rl_environment import OBS_DIM, features_to_obs
-    obs = features_to_obs({"impact": 5, "freight_global_z": -3.0}, {}, {})
-    assert obs.shape[0] == OBS_DIM == 11
-
-
 # ── rl_agent.py: Schema-Version-Guard ───────────────────────────────────────
-
-def test_rl_agent_refuses_to_load_model_on_schema_mismatch(monkeypatch, tmp_path):
-    import modules.rl_agent as rl_agent_mod
-    from modules.config import cfg
-
-    fake_model = tmp_path / "model.zip"
-    fake_model.write_bytes(b"not a real model")
-    monkeypatch.setattr(rl_agent_mod, "MODEL_PATH", fake_model)
-    monkeypatch.setitem(cfg, "rl_feature_schema_version", "v2")
-
-    scorer = rl_agent_mod.RLScorer(history={}, veto_enabled=True)
-    assert scorer._model is None  # Laden wurde abgelehnt, kein stable_baselines3-Import nötig
-
-
-def test_rl_agent_loads_normally_when_schema_matches(monkeypatch, tmp_path):
-    import modules.rl_agent as rl_agent_mod
-    from modules.config import cfg
-
-    # Keine Datei -> _load_model kehrt vor dem Schema-Check zurück (kein
-    # Widerspruch zum Guard, nur der "kein Modell vorhanden"-Pfad).
-    monkeypatch.setattr(rl_agent_mod, "MODEL_PATH", tmp_path / "does_not_exist.zip")
-    monkeypatch.setitem(cfg, "rl_feature_schema_version", "v1")
-    scorer = rl_agent_mod.RLScorer(history={}, veto_enabled=True)
-    assert scorer._model is None
-
 
 # ── candidate_ledger.py: external ist frozen ────────────────────────────────
 
@@ -758,8 +709,7 @@ def test_no_production_module_reads_external_context_key():
     import pathlib
     production_modules = [
         "modules/prescreener.py", "modules/deep_analysis.py", "modules/mismatch_scorer.py",
-        "modules/mirofish_simulation.py", "modules/quasi_ml.py", "modules/rl_agent.py",
-        "modules/rl_environment.py", "modules/trade_scorer.py",
+        "modules/mirofish_simulation.py", "modules/trade_scorer.py",
     ]
     root = pathlib.Path(__file__).resolve().parents[1]
     for rel in production_modules:

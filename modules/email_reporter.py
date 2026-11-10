@@ -30,10 +30,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from modules.booking_labels import booking_text
-from modules.score_labels import TARGET_HIT_EXPLANATION, TARGET_HIT_LABEL, UNCALIBRATED, calibration_status
+from modules.score_labels import TARGET_HIT_EXPLANATION, UNCALIBRATED, calibration_status
 from modules.version import APP_VERSION
 
 from modules.config import cfg
+
+# Anzeigetext der MC-Kennzahl (simulation.hit_rate); Feldnamen bleiben unverändert.
+MC_SCORE_LABEL = "Target-Hit-Score (MC, unkalibriert)"
 
 log = logging.getLogger(__name__)
 
@@ -155,74 +158,6 @@ def send_exit_alert_email(alerts: list[dict], today: str) -> None:
     n_sl = sum(1 for a in alerts if a["reason"] == "stop_loss")
     subject = f"🚨 Exit-Alarm: {len(alerts)} Position(en) ({n_tp}× TP, {n_sl}× SL) – {today}"
     _send_smtp(subject, html)
-
-
-# Copy-Paste-Prompt für Claude Code: setzt den RL-Agenten von Option A (Veto aus)
-# auf Option B (gelernter Filter mit Regret-Reward) um. Bewusst self-contained,
-# damit der User ihn direkt einfügen kann, ohne weiteren Kontext.
-RL_ARMING_PROMPT = (
-    "Stelle den RL-Agenten des Adaptive-Asymmetry-Scanners scharf (Übergang Option A → B). "
-    "Es liegen jetzt genug closed_trades unter den neuen Regeln vor. Mach Folgendes und "
-    "committe erst nach meiner Freigabe:\n"
-    "1) modules/rl_environment.py: Reward auf Regret-Shaping umbauen — SKIP darf nicht mehr "
-    "gratis sein. reward(SKIP) = -max(0, outcome) (Wegskippen eines Gewinners wird bestraft), "
-    "NORMAL = outcome, BOOST = outcome*1.5 wie bisher. KEIN Win-Capping (verschärft den SKIP-Kollaps).\n"
-    "2) config.yaml: rl.timesteps_per_update von 2000 auf mindestens 50000 erhöhen.\n"
-    "3) feedback.py retrain_rl_agent: einmalig force_retrain=True, damit nicht auf der alten "
-    "degenerierten Policy aufgesetzt wird.\n"
-    "4) Anti-Degenerations-Check ergänzen: nach dem Training auf den closed_trades evaluieren; "
-    "wenn der Agent >90% skippt, rl.veto_enabled auf false lassen und mich warnen statt scharfzustellen.\n"
-    "5) Backtest auf closed_trades: Win-Rate des getradeten Subsets vs. aller Trades berichten.\n"
-    "6) Erst nach grünem Anti-Degenerations-Check rl.veto_enabled: true setzen.\n"
-    "Berichte mir das Ergebnis vor dem Commit."
-)
-
-
-def send_rl_arming_email(n_trades: int, threshold: int,
-                         win_rate: float, since: str) -> None:
-    """
-    Einmalige Email, sobald genug closed_trades unter den neuen Regeln vorliegen,
-    um den RL-Agenten scharfzustellen (Option A → B). Enthält einen fertigen
-    Prompt, den der User direkt an Claude Code geben kann.
-    """
-    html = _build_rl_arming_email(n_trades, threshold, win_rate, since)
-    subject = f"🟢 RL scharfstellen bereit: {n_trades} Trades erreicht (Schwelle {threshold})"
-    _send_smtp(subject, html)
-
-
-def _build_rl_arming_email(n_trades: int, threshold: int,
-                           win_rate: float, since: str) -> str:
-    import html as _html
-    prompt_escaped = _html.escape(RL_ARMING_PROMPT)
-    return f"""<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;margin:0;padding:0;background:#f8fafc;">
-<div style="max-width:640px;margin:30px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-  <div style="background:#16a34a;padding:28px 32px;">
-    <div style="font-size:28px;margin-bottom:6px;">🟢</div>
-    <div style="color:#fff;font-size:22px;font-weight:bold;">RL-Agent bereit zum Scharfstellen</div>
-    <div style="color:rgba(255,255,255,0.85);font-size:16px;margin-top:4px;">Datenschwelle erreicht</div>
-  </div>
-  <div style="padding:24px 32px;color:#0f172a;font-size:14px;line-height:1.55;">
-    <p><b>Trade-Anzahl für RL-Scharfstellung erreicht.</b></p>
-    <table style="width:100%;border-collapse:collapse;margin:14px 0;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
-      <tr><td style="padding:9px 16px;background:#f0fdf4;border-bottom:1px solid #e2e8f0;">✅&nbsp; Geschlossene Trades seit {since}</td>
-          <td style="padding:9px 16px;background:#f0fdf4;border-bottom:1px solid #e2e8f0;text-align:right;"><b>{n_trades}</b> / {threshold}</td></tr>
-      <tr><td style="padding:9px 16px;">📊&nbsp; Win-Rate dieser Trades</td>
-          <td style="padding:9px 16px;text-align:right;"><b>{win_rate:.0%}</b></td></tr>
-    </table>
-    <p>Der RL-Agent läuft aktuell im <b>Option-A-Modus</b> (PPO-Veto aus, QuasiML-Ranking).
-    Es liegen jetzt genug Outcomes unter den neuen Regeln vor, um ihn als echten gelernten
-    Filter scharfzustellen (Option B: Regret-Reward + Voll-Retraining + Anti-Degenerations-Check).</p>
-    <p style="margin-top:18px;"><b>Diesen Prompt direkt an Claude Code geben:</b></p>
-    <pre style="white-space:pre-wrap;word-break:break-word;background:#0f172a;color:#e2e8f0;
-                padding:16px 18px;border-radius:8px;font-size:12.5px;line-height:1.5;
-                font-family:Menlo,Consolas,monospace;user-select:all;">{prompt_escaped}</pre>
-    <p style="color:#64748b;font-size:12px;">Hinweis: Claude soll <b>erst nach deiner Freigabe</b> committen und
-    bei einem fehlgeschlagenen Anti-Degenerations-Check das Veto ausgelassen lassen.</p>
-  </div>
-  <div style="padding:14px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center;">
-    Adaptive Asymmetry-Scanner &nbsp;·&nbsp; {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}
-  </div>
-</div></body></html>"""
 
 
 def _build_status_email(stats: dict, today: str, health: dict | None = None) -> str:
@@ -377,7 +312,7 @@ def _build_trade_email(proposals: list[dict], today: str, ea: dict | None = None
           <b style="color:#92400e;">📊 Ranking-Kennzahlen &amp; Katalysator</b>
           <table style="width:100%;margin-top:6px;font-size:12px;color:#78350f;border-collapse:collapse;">
             <tr>
-              <td style="padding:2px 8px 2px 0;"><b>{TARGET_HIT_LABEL}:</b> <span style="color:{mc_color};font-weight:bold;">{mc_hit_rate_pct:.0%}</span> ({mc_status}) – Ranking signal only<br><b>Band-Win-Rate (Paper-Trades, deskriptiv):</b> {mc_calibrated}</td>
+              <td style="padding:2px 8px 2px 0;"><b>{MC_SCORE_LABEL}:</b> <span style="color:{mc_color};font-weight:bold;">{mc_hit_rate_pct:.0%}</span> ({mc_status}) – Ranking signal only<br><b>Band-Win-Rate (Paper-Trades, deskriptiv):</b> {mc_calibrated}</td>
               <td style="padding:2px 8px 2px 0;"><b>Catalyst-Konfidenz:</b> {cat_str}</td>
             </tr>
             <tr>
@@ -471,7 +406,7 @@ def _build_trade_email(proposals: list[dict], today: str, ea: dict | None = None
               </table>
             </div>"""
 
-        # ── Positionsgrößen-Block (Fractional Kelly) ─────────────────────────
+        # ── Positionsgrößen-Block (Einheitsgröße) ─────────────────────────
         sizing      = p.get("position_sizing") or {}
         sizing_html = ""
         if sizing:
@@ -481,7 +416,7 @@ def _build_trade_email(proposals: list[dict], today: str, ea: dict | None = None
             note_html   = f"<br><i style='color:#92400e;'>{s_note}</i>" if s_note else ""
             sizing_html = f"""
             <div style="margin-top:10px;padding:12px 14px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:6px;font-size:12px;">
-              <b style="color:#3730a3;">💼 Positionsgröße (¼-Kelly, Depot ${sizing.get('portfolio_usd',0):,.0f})</b>
+              <b style="color:#3730a3;">💼 Positionsgröße (Einheit, Depot ${sizing.get('portfolio_usd',0):,.0f})</b>
               <table style="width:100%;margin-top:6px;font-size:12px;color:#312e81;border-collapse:collapse;">
                 <tr>
                   <td style="padding:2px 8px 2px 0;"><b>Empfehlung:</b>
@@ -492,7 +427,7 @@ def _build_trade_email(proposals: list[dict], today: str, ea: dict | None = None
                 </tr>
                 <tr>
                   <td style="padding:2px 8px 2px 0;"><b>Max. Risiko (bei SL):</b> ${sizing.get('max_risk_usd',0):,.0f}</td>
-                  <td style="padding:2px 8px 2px 0;"><b>Voll-Kelly:</b> {sizing.get('kelly_raw',0):.2f}</td>
+                  <td style="padding:2px 8px 2px 0;"><b>Kelly (nur Info):</b> {(sizing.get('kelly_info') or sizing).get('kelly_raw', 0):.2f}</td>
                 </tr>
               </table>
               {note_html}
