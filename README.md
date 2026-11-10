@@ -47,9 +47,10 @@ Die MC-Kennzahl heißt **Target-Hit-Score (MC, unkalibriert)** – sie ist keine
 Positionsgröße: **Einheitsgröße** (1 Kontrakt/Struktur je Vorschlag, `portfolio.sizing_mode: unit`); Kelly erscheint
 nur informativ, solange die MC-Wahrscheinlichkeiten unkalibriert sind.
 
-LLM-Aufrufe senden **keine** Sampling-Parameter: die API-Version `2026-10-21` (anthropic ≥ 2.0) lehnt
-`temperature/top_p/top_k` ab. Reproduzierbarkeit: Analyse-Cache für identische Eingaben und `llm_audit`
-(SHA-256 von Prompt und Rohantwort) je Ergebnis.
+LLM-Aufrufe (Prescreening, Deep Analysis) laufen mit `temperature=0` über die API-Version `2023-06-01`; die
+Standardversion von anthropic ≥ 2.0 (`2026-10-21`) lehnt Sampling-Parameter ab. Lehnt die API den Override ab, läuft
+der Prozess mit API-Default weiter und protokolliert das (Kosten-Ledger `sampling_fallback`, `llm_audit.sampling`).
+Reproduzierbarkeit zusätzlich über den Analyse-Cache und `llm_audit` (SHA-256 von Prompt und Rohantwort).
 
 ---
 
