@@ -1,13 +1,16 @@
-"""Engine-Warnung (2026-10-09): Gewichte lernen nur aus RELIABLE (min. 5); Korrelationen über alle
-Trades sind EXPLORATORY und dürfen nicht als Grund für unveränderte Gewichte erscheinen."""
+"""Engine-Monitor, Lern-Loop-Diagnose: Das Pearson-Gewichts-Update ist seit 2026-11-09 entfernt.
+Der Monitor meldet es als REMOVED, ohne Update-Schwelle, Freeze-Flag oder Warnung zu einem
+ausstehenden Gewichts-Update. RELIABLE-Zählung und Korrelationen bleiben reine Diagnose;
+Korrelationen über alle Trades sind EXPLORATORY."""
 from __future__ import annotations
 
 from datetime import date
 
 import pytest
 
+from modules import outcomes
 from modules.engine_monitor import build_health_report
-from modules.outcomes import MIN_RELIABLE_FOR_WEIGHT_UPDATE, is_reliable_outcome
+from modules.outcomes import is_reliable_outcome
 
 TODAY = date(2026, 10, 8)
 START = {"impact": 0.35, "mismatch": 0.45, "eps_drift": 0.20}
@@ -36,20 +39,37 @@ def _report(h, tmp_path):
     return build_health_report(history=h, reports_dir=tmp_path, today=TODAY)
 
 
+# Vollständiges Schema von metrics["learn_loop"]: kein Schlüssel darf einen Gewichts-Lernpfad
+# (Update-Schwelle, Freeze-Flag) vortäuschen, den es nicht mehr gibt.
+LEARN_LOOP_KEYS = {"weight_update_status", "weight_learning", "feature_corr", "feature_corr_exploratory",
+                   "n_reliable", "n_non_reliable"}
+REMOVED_PATH_KEYS = {"learn_loop_frozen", "min_reliable_for_weight_update"}
+
+
 def _no_weight_warnings(r):
     return not any(w.startswith("Gewichts-Update") or "eingefroren" in w or "NEED_MORE_DATA" in w
                    for w in r["warnings"])
+
+
+def _assert_removed_path(ll):
+    assert ll["weight_update_status"] == "REMOVED"
+    assert not REMOVED_PATH_KEYS & set(ll), ll
 
 
 def test_three_reliable_reports_removed_weight_path(tmp_path):
     h = _history(3, 77, 40)
     r = _report(h, tmp_path)
     ll = r["metrics"]["learn_loop"]
-    assert ll["weight_update_status"] == "REMOVED" and ll["learn_loop_frozen"] is False
+    _assert_removed_path(ll)
+    assert set(ll) == LEARN_LOOP_KEYS
     assert ll["weight_learning"].startswith("REMOVED (2026-11-09")
     assert ll["n_reliable"] == 3 and ll["n_non_reliable"] == 117
-    assert ll["min_reliable_for_weight_update"] == MIN_RELIABLE_FOR_WEIGHT_UPDATE == 5
     assert _no_weight_warnings(r)
+
+
+def test_weight_update_threshold_constant_removed():
+    """Die Schwelle für das entfernte Gewichts-Update hat keinen Leser mehr und ist entfernt."""
+    assert not hasattr(outcomes, "MIN_RELIABLE_FOR_WEIGHT_UPDATE")
 
 
 def test_exploratory_correlation_kept_as_diagnostic_only(tmp_path):
@@ -65,7 +85,7 @@ def test_five_reliable_still_removed_not_eligible(tmp_path):
     h = _history(5, 0)
     r = _report(h, tmp_path)
     ll = r["metrics"]["learn_loop"]
-    assert ll["weight_update_status"] == "REMOVED" and ll["learn_loop_frozen"] is False
+    _assert_removed_path(ll)
     assert ll["n_reliable"] == 5
     assert _no_weight_warnings(r)
 
@@ -75,7 +95,8 @@ def test_unknown_and_reconstructed_never_count_productively(tmp_path, n_unknown,
     h = _history(3, n_unknown, n_rec)
     assert sum(is_reliable_outcome(t) for t in h["closed_trades"]) == 3
     ll = _report(h, tmp_path)["metrics"]["learn_loop"]
-    assert ll["weight_update_status"] == "REMOVED" and ll["n_reliable"] == 3
+    _assert_removed_path(ll)
+    assert ll["n_reliable"] == 3
 
 
 def test_report_never_presents_all_trades_as_reliable(tmp_path):

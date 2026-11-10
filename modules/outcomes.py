@@ -15,10 +15,6 @@ RELIABLE_OUTCOME_METHODS = frozenset({"option_quote", "option_quote_bid_zero", "
 # Nur OBSERVED_QUOTE und SETTLEMENT_INTRINSIC sind realisierbare Preise.
 REALIZABLE_PRICE_TYPES = frozenset({"OBSERVED_QUOTE", "SETTLEMENT_INTRINSIC"})
 
-# Schwelle verlässlicher Outcomes für ein Gewichts-Update. Das Pearson-Update selbst ist seit 2026-11-09 entfernt;
-# gelesen wird die Konstante nur noch von der Diagnose in modules/engine_monitor.py.
-MIN_RELIABLE_FOR_WEIGHT_UPDATE = 5
-
 # Totalverlust – eine Definition für Performance-Reports (2026-11-01): Outcome <= -95 % des Einsatzes, wie im
 # vorab festgelegten Challenger-Protokoll (modules/challenger.py) und in exit_sim. Restwerte von höchstens 5 % sind
 # wirtschaftlich ein Totalverlust (Spread/Mindestgebot). Historische Daten und Protokolle bleiben unverändert.

@@ -3,12 +3,13 @@ modules/engine_monitor.py – Engine-Überwachung (reine Observability)
 
 Zweck:
   Der Scanner hat mehrere Paralleltests laufen (Schatten-Trades, Trailing-Sim),
-  eine mehrstufige Gate-Pipeline und einen Lern-Loop (Feature-Bins/Outcomes;
-  das Pearson-Gewichts-Update auf model_weights ist seit 2026-11-09 entfernt).
-  Bricht irgendwo etwas (Datenquelle tot, Gate zu scharf, NaN im
-  Lern-Loop), fällt das bisher nur auf, wenn jemand manuell in die JSONs
-  schaut. Dieses Modul baut daraus einen Health-Report, der jeden Lauf
-  automatisch mitprüft.
+  eine mehrstufige Gate-Pipeline und einen Lern-Loop (Feature-Bins/Outcomes).
+  Einen Gewichts-Lernpfad gibt es nicht mehr: das Pearson-Update auf
+  model_weights wurde 2026-11-09 mit QuasiML/RL entfernt; der Monitor meldet
+  ihn als REMOVED und gibt dazu keine Warnungen aus.
+  Bricht irgendwo etwas (Datenquelle tot, Gate zu scharf, verwaiste Trades),
+  fällt das bisher nur auf, wenn jemand manuell in die JSONs schaut. Dieses
+  Modul baut daraus einen Health-Report, der jeden Lauf automatisch mitprüft.
 
 WICHTIG: Dieses Modul verändert KEINE Gates, Schwellen oder Pipeline-Logik.
 Es liest nur bereits vorhandene Daten (history.json, Daily-Reports) und
@@ -19,8 +20,8 @@ Checks in build_health_report():
                         (welche Funnel-Stufe hat den Kandidaten-Fluss gestoppt)
   b) PARALLELTEST     – Reife-Übersicht der Schatten-Trades / Trailing-Sim
      -REIFE             (keine Warnung, nur Metrics für die Kalibrierung)
-  c) LERN-LOOP-SANITY – NaN-/Null-Gewichte, verwaiste (überfällige) Trades,
-                        Feature-Korrelationen mit Outcome (nur Diagnose)
+  c) LERN-LOOP-SANITY – verwaiste (überfällige) Trades, Feature-Korrelationen
+                        mit Outcome (nur Diagnose, kein Gewichts-Update)
   d) DATA-HEALTH      – Läuft der Scanner noch? Kommen sinnvolle Daten rein?
 """
 
@@ -305,11 +306,12 @@ def _check_learn_loop_sanity(
     Returns dict mit:
       - weight_update_status: immer "REMOVED"
       - weight_learning: Hinweistext zum entfernten Gewichts-Lernpfad
-      - learn_loop_frozen: immer False (kein Gewichts-Lernpfad, der einfrieren könnte)
       - feature_corr: RELIABLE-Korrelationen ab 20 RELIABLE (Diagnose, oder {})
       - feature_corr_exploratory, n_reliable, n_non_reliable: Diagnose
+    Bewusst NICHT mehr enthalten: learn_loop_frozen und min_reliable_for_weight_update
+    (beide beschrieben nur den entfernten Gewichts-Lernpfad).
     """
-    metrics = {"learn_loop_frozen": False, "feature_corr": {},
+    metrics = {"feature_corr": {},
                "weight_update_status": "REMOVED",
                "weight_learning": ("REMOVED (2026-11-09: Pearson-Update mit QuasiML/RL entfernt; "
                                    "Korrelationen nur Diagnose)")}
@@ -332,16 +334,16 @@ def _check_learn_loop_sanity(
         )
 
     # Lern-Loop-Status: Das Pearson-Gewichts-Update wurde 2026-11-09 entfernt (weight_update_status
-    # = "REMOVED", nie "frozen"). Zählungen und Korrelationen bleiben als reine Diagnose erhalten;
-    # Korrelationen über alle Trades (inkl. UNKNOWN/RECONSTRUCTED) sind nur EXPLORATORY.
+    # = "REMOVED"; keine Update-Schwelle, kein Freeze-Flag). Zählungen und Korrelationen bleiben als
+    # reine Diagnose erhalten; Korrelationen über alle Trades (inkl. UNKNOWN/RECONSTRUCTED) sind nur
+    # EXPLORATORY.
     try:
-        from modules.outcomes import MIN_RELIABLE_FOR_WEIGHT_UPDATE, is_reliable_outcome
+        from modules.outcomes import is_reliable_outcome
         closed_trades = history.get("closed_trades") or []
         valid_trades = [t for t in closed_trades if isinstance(t, dict) and t.get("outcome") is not None]
         reliable = [t for t in valid_trades if is_reliable_outcome(t)]
         n_rel, n_non = len(reliable), len(valid_trades) - len(reliable)
-        metrics.update(n_reliable=n_rel, n_non_reliable=n_non,
-                       min_reliable_for_weight_update=MIN_RELIABLE_FOR_WEIGHT_UPDATE)
+        metrics.update(n_reliable=n_rel, n_non_reliable=n_non)
 
         exploratory = _feature_correlations(valid_trades) if len(valid_trades) >= 20 else {}
         metrics["feature_corr_exploratory"] = exploratory

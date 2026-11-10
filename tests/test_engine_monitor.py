@@ -261,10 +261,12 @@ class TestLearnLoopSanity:
         result = build_health_report(history=history, reports_dir=tmp_path, today=today)
         assert not any("FRESH" in w for w in result["warnings"])
 
-    def test_negative_feature_correlations_warns_frozen_loop(self, tmp_path):
+    def test_negative_feature_correlations_no_frozen_warning(self, tmp_path):
         """
         25 synthetische Trades: höhere bins → niedrigere Outcomes.
-        Alle Korrelationen sollten <= 0 sein → warning + frozen=True.
+        Alle Korrelationen sind <= 0. Früher hieß das "Lern-Loop eingefroren" + Warnung;
+        seit das Gewichts-Update entfernt ist (2026-11-09), bleiben die Korrelationen
+        reine Diagnose: keine Warnung, kein Freeze-Flag, Status REMOVED.
         """
         today = date(2026, 7, 20)
 
@@ -284,7 +286,7 @@ class TestLearnLoopSanity:
             closed_trades.append({
                 "ticker": f"STOCK{i}",
                 "outcome": outcome,
-                "outcome_method": "option_quote",   # RELIABLE (Freeze-Check nur auf RELIABLE)
+                "outcome_method": "option_quote",   # RELIABLE (feature_corr nur auf RELIABLE)
                 "features": {
                     "bin_impact": bin_impact,
                     "bin_mismatch": bin_mismatch,
@@ -299,9 +301,10 @@ class TestLearnLoopSanity:
         assert not [w for w in result["warnings"]
                     if "eingefroren" in w.lower() or w.startswith("Gewichts-Update")], result["warnings"]
 
-        # Diagnose bleibt: Korrelationen vorhanden, aber nie "frozen"
+        # Diagnose bleibt: Korrelationen vorhanden, aber kein Freeze-Flag für einen entfernten Lernpfad
         learn_loop = result["metrics"].get("learn_loop", {})
-        assert learn_loop.get("learn_loop_frozen") is False
+        assert "learn_loop_frozen" not in learn_loop
+        assert "min_reliable_for_weight_update" not in learn_loop
         assert learn_loop.get("weight_update_status") == "REMOVED"
         assert learn_loop.get("weight_learning", "").startswith("REMOVED (2026-11-09")
         assert all(c <= 0 for c in learn_loop["feature_corr"].values())
@@ -311,7 +314,7 @@ class TestLearnLoopSanity:
     def test_positive_feature_correlations_no_warning(self, tmp_path):
         """
         25 synthetische Trades: höhere bins → höhere Outcomes.
-        Korrelationen sollten positiv sein → kein warning, frozen=False.
+        Korrelationen sollten positiv sein → kein warning, kein Freeze-Flag.
         """
         today = date(2026, 7, 20)
 
@@ -343,11 +346,12 @@ class TestLearnLoopSanity:
         frozen_warnings = [w for w in result["warnings"] if "eingefroren" in w.lower()]
         assert len(frozen_warnings) == 0
 
-        # frozen sollte False sein
+        # Kein Freeze-Flag mehr (Gewichts-Lernpfad entfernt), Korrelationen als Diagnose
         learn_loop = result["metrics"].get("learn_loop", {})
-        assert learn_loop.get("learn_loop_frozen") is False
+        assert "learn_loop_frozen" not in learn_loop
         assert learn_loop.get("weight_update_status") == "REMOVED"
-        assert "feature_corr" in learn_loop
+        assert all(c > 0 for c in learn_loop["feature_corr"].values())
+        assert len(learn_loop["feature_corr"]) == 3
 
     def test_insufficient_trades_no_correlation_warning(self, tmp_path):
         """
@@ -380,7 +384,7 @@ class TestLearnLoopSanity:
         # 15 Trades ohne Preismethode = 0 RELIABLE; Gewichts-Lernpfad entfernt -> REMOVED, keine Warnung
         learn_loop = result["metrics"].get("learn_loop", {})
         assert learn_loop.get("weight_update_status") == "REMOVED"
-        assert learn_loop.get("learn_loop_frozen") is False
+        assert "learn_loop_frozen" not in learn_loop
         assert learn_loop.get("n_reliable") == 0 and learn_loop.get("n_non_reliable") == 15
         assert learn_loop.get("feature_corr_exploratory") == {}          # < 20 Trades: keine Korrelation
         assert not any("NEED_MORE_DATA" in w or w.startswith("Gewichts-Update") for w in result["warnings"])
