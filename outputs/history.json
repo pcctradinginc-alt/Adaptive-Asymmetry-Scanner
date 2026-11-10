@@ -287,7 +287,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-10T02:20:11+00:00",
+        "evaluated_at": "2026-11-10T17:38:28+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -312,8 +312,8 @@
         ]
       },
       "peak_return": 0.1806,
-      "last_price": 293.3,
-      "current_return": 0.0992
+      "last_price": 294.03,
+      "current_return": 0.0913
     },
     {
       "ticker": "MET",
@@ -563,7 +563,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-10T02:20:11+00:00",
+        "evaluated_at": "2026-11-10T17:38:28+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -588,8 +588,8 @@
         ]
       },
       "peak_return": 0.0506,
-      "last_price": 101.67,
-      "current_return": -0.0633
+      "last_price": 102.83,
+      "current_return": 0.038
     }
   ],
   "closed_trades": [
@@ -10965,11 +10965,6 @@
   "sentiment_history": {
     "TECH": [
       {
-        "date": "2026-05-07",
-        "score": 0.1442,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-08",
         "score": 0.0816,
         "headline_count": 5
@@ -11263,6 +11258,11 @@
         "date": "2026-11-05",
         "score": -0.2231,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3384,
+        "headline_count": 3
       }
     ],
     "GEN": [
@@ -11452,6 +11452,11 @@
         "date": "2026-11-09",
         "score": 0.529,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3582,
+        "headline_count": 5
       }
     ],
     "WELL": [
@@ -11542,11 +11547,6 @@
       }
     ],
     "AKAM": [
-      {
-        "date": "2026-05-20",
-        "score": -0.344,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-21",
         "score": -0.31,
@@ -11841,14 +11841,14 @@
         "date": "2026-11-09",
         "score": -0.1147,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2209,
+        "headline_count": 5
       }
     ],
     "AMZN": [
-      {
-        "date": "2026-07-13",
-        "score": 0.2103,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-15",
         "score": 0.3159,
@@ -12143,6 +12143,11 @@
         "date": "2026-11-09",
         "score": 0.0948,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1479,
+        "headline_count": 5
       }
     ],
     "AXON": [
@@ -12435,6 +12440,11 @@
         "date": "2026-11-09",
         "score": 0.0842,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0362,
+        "headline_count": 5
       }
     ],
     "KMX": [
@@ -12470,11 +12480,6 @@
       }
     ],
     "DAL": [
-      {
-        "date": "2026-06-12",
-        "score": 0.2011,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-15",
         "score": -0.1192,
@@ -12769,6 +12774,11 @@
         "date": "2026-11-05",
         "score": 0.2067,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3808,
+        "headline_count": 5
       }
     ],
     "HOLX": [
@@ -12948,6 +12958,11 @@
         "date": "2026-11-09",
         "score": -0.2969,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0305,
+        "headline_count": 5
       }
     ],
     "MU": [
@@ -13100,6 +13115,11 @@
         "date": "2026-11-09",
         "score": -0.3123,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.295,
+        "headline_count": 5
       }
     ],
     "ORCL": [
@@ -13251,6 +13271,11 @@
       {
         "date": "2026-11-09",
         "score": -0.1909,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5151,
         "headline_count": 5
       }
     ],
@@ -13526,6 +13551,11 @@
         "date": "2026-11-06",
         "score": -0.075,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1625,
+        "headline_count": 5
       }
     ],
     "WFC": [
@@ -13794,6 +13824,11 @@
       {
         "date": "2026-11-09",
         "score": -0.4397,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1641,
         "headline_count": 5
       }
     ],
@@ -14114,6 +14149,11 @@
         "date": "2026-11-09",
         "score": -0.0637,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1621,
+        "headline_count": 5
       }
     ],
     "ADBE": [
@@ -14653,14 +14693,14 @@
         "date": "2026-11-09",
         "score": -0.1287,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2342,
+        "headline_count": 5
       }
     ],
     "APA": [
-      {
-        "date": "2026-05-14",
-        "score": 0.1707,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-17",
         "score": -0.2443,
@@ -14954,6 +14994,11 @@
       {
         "date": "2026-11-06",
         "score": 0.1409,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.7144,
         "headline_count": 5
       }
     ],
@@ -15563,11 +15608,6 @@
     ],
     "CHTR": [
       {
-        "date": "2026-06-10",
-        "score": 0.1488,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-11",
         "score": -0.1784,
         "headline_count": 5
@@ -15861,14 +15901,14 @@
         "date": "2026-11-09",
         "score": -0.0036,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0006,
+        "headline_count": 5
       }
     ],
     "C": [
-      {
-        "date": "2026-06-19",
-        "score": 0.2248,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-22",
         "score": 0.1906,
@@ -16162,6 +16202,11 @@
       {
         "date": "2026-11-09",
         "score": -0.4589,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5121,
         "headline_count": 5
       }
     ],
@@ -16943,11 +16988,6 @@
     ],
     "DOW": [
       {
-        "date": "2026-06-03",
-        "score": 0.2116,
-        "headline_count": 4
-      },
-      {
         "date": "2026-06-10",
         "score": -0.2169,
         "headline_count": 4
@@ -17241,6 +17281,11 @@
         "date": "2026-11-05",
         "score": -0.4068,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1282,
+        "headline_count": 4
       }
     ],
     "EW": [
@@ -17854,6 +17899,11 @@
         "date": "2026-11-09",
         "score": 0.086,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2392,
+        "headline_count": 5
       }
     ],
     "HSY": [
@@ -17991,6 +18041,11 @@
         "date": "2026-11-06",
         "score": 0.2933,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1644,
+        "headline_count": 5
       }
     ],
     "HST": [
@@ -18053,6 +18108,11 @@
         "date": "2026-11-05",
         "score": 0.0228,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2924,
+        "headline_count": 3
       }
     ],
     "JPM": [
@@ -18648,6 +18708,11 @@
         "date": "2026-11-09",
         "score": -0.0653,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1415,
+        "headline_count": 5
       }
     ],
     "MS": [
@@ -18912,6 +18977,11 @@
         "date": "2026-11-06",
         "score": -0.0669,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1334,
+        "headline_count": 4
       }
     ],
     "NKE": [
@@ -19186,6 +19256,11 @@
         "date": "2026-11-09",
         "score": -0.5047,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0213,
+        "headline_count": 5
       }
     ],
     "OXY": [
@@ -19312,6 +19387,11 @@
       {
         "date": "2026-11-09",
         "score": 0.2453,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1283,
         "headline_count": 5
       }
     ],
@@ -19619,6 +19699,11 @@
         "date": "2026-11-09",
         "score": 0.1744,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1275,
+        "headline_count": 5
       }
     ],
     "SYK": [
@@ -19760,6 +19845,11 @@
       {
         "date": "2026-11-09",
         "score": 0.3529,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2059,
         "headline_count": 5
       }
     ],
@@ -20000,6 +20090,11 @@
         "date": "2026-11-09",
         "score": 0.3668,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2613,
+        "headline_count": 5
       }
     ],
     "TMO": [
@@ -20121,6 +20216,11 @@
       {
         "date": "2026-11-05",
         "score": 0.6186,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.8533,
         "headline_count": 5
       }
     ],
@@ -20321,6 +20421,11 @@
         "date": "2026-11-05",
         "score": 0.0776,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2902,
+        "headline_count": 4
       }
     ],
     "ARES": [
@@ -20992,6 +21097,11 @@
         "date": "2026-11-09",
         "score": -0.0344,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0525,
+        "headline_count": 5
       }
     ],
     "ARM": [
@@ -21138,6 +21248,11 @@
       {
         "date": "2026-11-09",
         "score": -0.0233,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.7043,
         "headline_count": 5
       }
     ],
@@ -21296,6 +21411,11 @@
         "date": "2026-11-09",
         "score": -0.0734,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1981,
+        "headline_count": 5
       }
     ],
     "PDD": [
@@ -21408,6 +21528,11 @@
         "date": "2026-11-09",
         "score": -0.1746,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.4686,
+        "headline_count": 5
       }
     ],
     "ZS": [
@@ -21478,11 +21603,6 @@
       }
     ],
     "T": [
-      {
-        "date": "2026-07-06",
-        "score": 0.2192,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-07",
         "score": 0.1601,
@@ -21777,14 +21897,14 @@
         "date": "2026-11-06",
         "score": -0.0811,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1075,
+        "headline_count": 5
       }
     ],
     "BDX": [
-      {
-        "date": "2026-04-14",
-        "score": 0.0221,
-        "headline_count": 2
-      },
       {
         "date": "2026-04-15",
         "score": 0.0221,
@@ -22079,6 +22199,11 @@
         "date": "2026-11-09",
         "score": 0.0996,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3863,
+        "headline_count": 5
       }
     ],
     "CE": [
@@ -22144,11 +22269,6 @@
       }
     ],
     "COP": [
-      {
-        "date": "2026-06-15",
-        "score": -0.1662,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-16",
         "score": 0.1923,
@@ -22442,6 +22562,11 @@
       {
         "date": "2026-11-09",
         "score": 0.1636,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.6009,
         "headline_count": 5
       }
     ],
@@ -23064,6 +23189,11 @@
         "date": "2026-11-05",
         "score": -0.0327,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3341,
+        "headline_count": 3
       }
     ],
     "ABT": [
@@ -24231,11 +24361,6 @@
     ],
     "AAPL": [
       {
-        "date": "2026-07-20",
-        "score": 0.166,
-        "headline_count": 5
-      },
-      {
         "date": "2026-07-27",
         "score": -0.1022,
         "headline_count": 5
@@ -24529,14 +24654,14 @@
         "date": "2026-11-09",
         "score": -0.1615,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2993,
+        "headline_count": 5
       }
     ],
     "BAC": [
-      {
-        "date": "2026-07-13",
-        "score": -0.52,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-14",
         "score": 0.1111,
@@ -24831,6 +24956,11 @@
         "date": "2026-11-09",
         "score": -0.3007,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3518,
+        "headline_count": 5
       }
     ],
     "BK": [
@@ -24946,11 +25076,6 @@
       }
     ],
     "AVGO": [
-      {
-        "date": "2026-06-30",
-        "score": 0.2379,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-01",
         "score": 0.4732,
@@ -25245,14 +25370,14 @@
         "date": "2026-11-09",
         "score": -0.3737,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1041,
+        "headline_count": 5
       }
     ],
     "BRK-B": [
-      {
-        "date": "2026-06-22",
-        "score": -0.2075,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-23",
         "score": 0.1538,
@@ -25546,6 +25671,11 @@
       {
         "date": "2026-11-09",
         "score": -0.18,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.329,
         "headline_count": 5
       }
     ],
@@ -25853,11 +25983,6 @@
     ],
     "CAT": [
       {
-        "date": "2026-06-29",
-        "score": 0.0641,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-30",
         "score": 0.0572,
         "headline_count": 5
@@ -26151,6 +26276,11 @@
         "date": "2026-11-09",
         "score": -0.0414,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0994,
+        "headline_count": 5
       }
     ],
     "BF-B": [
@@ -26414,6 +26544,11 @@
       {
         "date": "2026-11-09",
         "score": 0.6749,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.5395,
         "headline_count": 5
       }
     ],
@@ -26843,6 +26978,11 @@
         "date": "2026-11-09",
         "score": -0.2373,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1385,
+        "headline_count": 5
       }
     ],
     "KEY": [
@@ -26964,6 +27104,11 @@
       {
         "date": "2026-11-05",
         "score": 0.3287,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3204,
         "headline_count": 5
       }
     ],
@@ -27096,6 +27241,11 @@
       {
         "date": "2026-11-09",
         "score": -0.0418,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3115,
         "headline_count": 5
       }
     ],
@@ -27462,6 +27612,11 @@
         "date": "2026-11-06",
         "score": 0.279,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.011,
+        "headline_count": 5
       }
     ],
     "NI": [
@@ -27712,6 +27867,11 @@
       {
         "date": "2026-11-09",
         "score": 0.2246,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5234,
         "headline_count": 5
       }
     ],
@@ -28198,6 +28358,11 @@
         "date": "2026-11-09",
         "score": -0.1455,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1516,
+        "headline_count": 5
       }
     ],
     "SWK": [
@@ -28309,6 +28474,11 @@
       {
         "date": "2026-11-05",
         "score": 0.3729,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5286,
         "headline_count": 5
       }
     ],
@@ -28447,6 +28617,11 @@
         "date": "2026-11-09",
         "score": 0.5181,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3981,
+        "headline_count": 5
       }
     ],
     "XYL": [
@@ -28539,14 +28714,14 @@
         "date": "2026-11-04",
         "score": -0.0331,
         "headline_count": 2
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2152,
+        "headline_count": 3
       }
     ],
     "APP": [
-      {
-        "date": "2026-07-03",
-        "score": 0.1359,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-06",
         "score": 0.4322,
@@ -28840,6 +29015,11 @@
       {
         "date": "2026-11-09",
         "score": 0.0315,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0034,
         "headline_count": 5
       }
     ],
@@ -29311,11 +29491,6 @@
     ],
     "DDOG": [
       {
-        "date": "2026-06-05",
-        "score": -0.0369,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-08",
         "score": 0.056,
         "headline_count": 5
@@ -29608,6 +29783,11 @@
       {
         "date": "2026-11-09",
         "score": -0.4005,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1291,
         "headline_count": 5
       }
     ],
@@ -29972,11 +30152,6 @@
     ],
     "CVS": [
       {
-        "date": "2026-06-04",
-        "score": -0.0653,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-05",
         "score": -0.1106,
         "headline_count": 5
@@ -30270,6 +30445,11 @@
         "date": "2026-11-09",
         "score": -0.3088,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3057,
+        "headline_count": 5
       }
     ],
     "DXCM": [
@@ -30540,11 +30720,6 @@
       }
     ],
     "D": [
-      {
-        "date": "2026-05-21",
-        "score": -0.2089,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-25",
         "score": -0.2155,
@@ -30839,6 +31014,11 @@
         "date": "2026-11-05",
         "score": 0.0376,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.193,
+        "headline_count": 4
       }
     ],
     "ETR": [
@@ -31170,6 +31350,11 @@
         "date": "2026-11-09",
         "score": 0.0653,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.4951,
+        "headline_count": 5
       }
     ],
     "MAR": [
@@ -31364,6 +31549,11 @@
         "date": "2026-11-09",
         "score": 0.1072,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2711,
+        "headline_count": 5
       }
     ],
     "RMD": [
@@ -31736,11 +31926,6 @@
     ],
     "A": [
       {
-        "date": "2026-04-29",
-        "score": 0.0112,
-        "headline_count": 3
-      },
-      {
         "date": "2026-05-05",
         "score": -0.002,
         "headline_count": 2
@@ -32033,6 +32218,11 @@
       {
         "date": "2026-11-05",
         "score": 0.4106,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.7051,
         "headline_count": 5
       }
     ],
@@ -32642,11 +32832,6 @@
     ],
     "DE": [
       {
-        "date": "2026-06-15",
-        "score": 0.0594,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-17",
         "score": -0.2985,
         "headline_count": 5
@@ -32940,6 +33125,11 @@
         "date": "2026-11-09",
         "score": -0.1215,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0077,
+        "headline_count": 5
       }
     ],
     "EMN": [
@@ -33069,6 +33259,11 @@
         "date": "2026-11-09",
         "score": 0.6608,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5279,
+        "headline_count": 5
       }
     ],
     "GPC": [
@@ -35965,11 +36160,6 @@
     ],
     "KO": [
       {
-        "date": "2026-07-03",
-        "score": 0.046,
-        "headline_count": 5
-      },
-      {
         "date": "2026-07-06",
         "score": 0.137,
         "headline_count": 5
@@ -36263,14 +36453,14 @@
         "date": "2026-11-09",
         "score": -0.0475,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0671,
+        "headline_count": 5
       }
     ],
     "GLW": [
-      {
-        "date": "2026-06-23",
-        "score": -0.2338,
-        "headline_count": 3
-      },
       {
         "date": "2026-06-24",
         "score": 0.4021,
@@ -36565,6 +36755,11 @@
         "date": "2026-11-09",
         "score": 0.0242,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5612,
+        "headline_count": 5
       }
     ],
     "COST": [
@@ -37170,11 +37365,6 @@
     ],
     "ETN": [
       {
-        "date": "2026-06-22",
-        "score": 0.077,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-23",
         "score": 0.1034,
         "headline_count": 3
@@ -37468,6 +37658,11 @@
         "date": "2026-11-09",
         "score": 0.1375,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2711,
+        "headline_count": 5
       }
     ],
     "EXR": [
@@ -37715,11 +37910,6 @@
       }
     ],
     "AMD": [
-      {
-        "date": "2026-07-15",
-        "score": 0.0694,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-17",
         "score": -0.0931,
@@ -38014,14 +38204,14 @@
         "date": "2026-11-09",
         "score": -0.4462,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.148,
+        "headline_count": 5
       }
     ],
     "GOOG": [
-      {
-        "date": "2026-07-09",
-        "score": -0.1677,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-16",
         "score": 0.0914,
@@ -38316,6 +38506,11 @@
         "date": "2026-11-09",
         "score": 0.4008,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1409,
+        "headline_count": 5
       }
     ],
     "AES": [
@@ -38596,11 +38791,6 @@
       }
     ],
     "AEP": [
-      {
-        "date": "2026-05-06",
-        "score": 0.3231,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-13",
         "score": 0.0533,
@@ -38894,6 +39084,11 @@
       {
         "date": "2026-11-05",
         "score": 0.0456,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2898,
         "headline_count": 5
       }
     ],
@@ -39201,11 +39396,6 @@
     ],
     "GOOGL": [
       {
-        "date": "2026-07-07",
-        "score": 0.0054,
-        "headline_count": 5
-      },
-      {
         "date": "2026-07-09",
         "score": -0.1677,
         "headline_count": 5
@@ -39498,6 +39688,11 @@
       {
         "date": "2026-11-09",
         "score": 0.4008,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1409,
         "headline_count": 5
       }
     ],
@@ -39805,11 +40000,6 @@
     ],
     "ADI": [
       {
-        "date": "2026-05-26",
-        "score": 0.2574,
-        "headline_count": 5
-      },
-      {
         "date": "2026-05-27",
         "score": 0.1331,
         "headline_count": 5
@@ -40103,14 +40293,14 @@
         "date": "2026-11-09",
         "score": -0.1829,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0224,
+        "headline_count": 5
       }
     ],
     "AMAT": [
-      {
-        "date": "2026-06-29",
-        "score": -0.1741,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-30",
         "score": 0.1497,
@@ -40404,6 +40594,11 @@
       {
         "date": "2026-11-09",
         "score": -0.0023,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1359,
         "headline_count": 5
       }
     ],
@@ -41013,11 +41208,6 @@
     ],
     "ANET": [
       {
-        "date": "2026-06-22",
-        "score": 0.2541,
-        "headline_count": 3
-      },
-      {
         "date": "2026-06-23",
         "score": 0.0074,
         "headline_count": 5
@@ -41311,14 +41501,14 @@
         "date": "2026-11-09",
         "score": 0.0668,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1964,
+        "headline_count": 5
       }
     ],
     "ADSK": [
-      {
-        "date": "2026-06-09",
-        "score": 0.2838,
-        "headline_count": 3
-      },
       {
         "date": "2026-06-10",
         "score": 0.0941,
@@ -41613,14 +41803,14 @@
         "date": "2026-11-05",
         "score": -0.3342,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.533,
+        "headline_count": 3
       }
     ],
     "BKR": [
-      {
-        "date": "2026-06-12",
-        "score": -0.3084,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-15",
         "score": -0.0336,
@@ -41915,6 +42105,11 @@
         "date": "2026-11-09",
         "score": 0.1587,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3573,
+        "headline_count": 5
       }
     ],
     "BBWI": [
@@ -41960,11 +42155,6 @@
       }
     ],
     "BA": [
-      {
-        "date": "2026-07-06",
-        "score": 0.137,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-20",
         "score": -0.1852,
@@ -42258,6 +42448,11 @@
       {
         "date": "2026-11-09",
         "score": 0.115,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.4109,
         "headline_count": 5
       }
     ],
@@ -42732,11 +42927,6 @@
     ],
     "CL": [
       {
-        "date": "2026-06-16",
-        "score": 0.062,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-17",
         "score": 0.3183,
         "headline_count": 5
@@ -43030,14 +43220,14 @@
         "date": "2026-11-06",
         "score": -0.5424,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0985,
+        "headline_count": 5
       }
     ],
     "CME": [
-      {
-        "date": "2026-05-29",
-        "score": 0.1294,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-01",
         "score": 0.0529,
@@ -43331,6 +43521,11 @@
       {
         "date": "2026-11-05",
         "score": -0.3091,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1122,
         "headline_count": 5
       }
     ],
@@ -43638,11 +43833,6 @@
     ],
     "ABNB": [
       {
-        "date": "2026-06-15",
-        "score": 0.3443,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-16",
         "score": 0.151,
         "headline_count": 5
@@ -43936,14 +44126,14 @@
         "date": "2026-11-09",
         "score": -0.272,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1487,
+        "headline_count": 5
       }
     ],
     "CTSH": [
-      {
-        "date": "2026-05-28",
-        "score": -0.013,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-29",
         "score": 0.2762,
@@ -44238,6 +44428,11 @@
         "date": "2026-11-05",
         "score": 0.2223,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3724,
+        "headline_count": 5
       }
     ],
     "CTVA": [
@@ -44353,11 +44548,6 @@
       }
     ],
     "ALB": [
-      {
-        "date": "2026-05-28",
-        "score": 0.4586,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-29",
         "score": 0.3777,
@@ -44652,6 +44842,11 @@
         "date": "2026-11-06",
         "score": 0.2401,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1561,
+        "headline_count": 5
       }
     ],
     "GE": [
@@ -44783,6 +44978,11 @@
       {
         "date": "2026-11-05",
         "score": -0.1011,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1173,
         "headline_count": 5
       }
     ],
@@ -44921,6 +45121,11 @@
         "date": "2026-11-09",
         "score": 0.3639,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1771,
+        "headline_count": 5
       }
     ],
     "ON": [
@@ -45043,6 +45248,11 @@
         "date": "2026-11-09",
         "score": -0.5919,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0103,
+        "headline_count": 5
       }
     ],
     "PEP": [
@@ -46423,6 +46633,11 @@
         "date": "2026-11-09",
         "score": 0.2701,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.4748,
+        "headline_count": 5
       }
     ],
     "RF": [
@@ -46600,11 +46815,6 @@
       }
     ],
     "CF": [
-      {
-        "date": "2026-04-21",
-        "score": 0.1356,
-        "headline_count": 5
-      },
       {
         "date": "2026-04-23",
         "score": -0.1307,
@@ -46899,14 +47109,14 @@
         "date": "2026-11-05",
         "score": -0.6317,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5864,
+        "headline_count": 3
       }
     ],
     "CVX": [
-      {
-        "date": "2026-06-25",
-        "score": 0.0288,
-        "headline_count": 4
-      },
       {
         "date": "2026-06-29",
         "score": 0.2096,
@@ -47201,14 +47411,14 @@
         "date": "2026-11-09",
         "score": 0.0331,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1666,
+        "headline_count": 5
       }
     ],
     "DVN": [
-      {
-        "date": "2026-06-01",
-        "score": 0.008,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-02",
         "score": -0.4521,
@@ -47502,6 +47712,11 @@
       {
         "date": "2026-11-09",
         "score": 0.4709,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.38,
         "headline_count": 5
       }
     ],
@@ -47814,6 +48029,11 @@
         "date": "2026-11-09",
         "score": 0.003,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3981,
+        "headline_count": 5
       }
     ],
     "VLO": [
@@ -47936,6 +48156,11 @@
         "date": "2026-11-09",
         "score": 0.1509,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.263,
+        "headline_count": 5
       }
     ],
     "AMT": [
@@ -48242,11 +48467,6 @@
     ],
     "CLX": [
       {
-        "date": "2026-06-05",
-        "score": 0.322,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-08",
         "score": 0.1849,
         "headline_count": 5
@@ -48540,6 +48760,11 @@
         "date": "2026-11-05",
         "score": 0.2133,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2255,
+        "headline_count": 3
       }
     ],
     "EOG": [
@@ -48691,6 +48916,11 @@
       {
         "date": "2026-11-09",
         "score": 0.2697,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.6463,
         "headline_count": 5
       }
     ],
@@ -48869,6 +49099,11 @@
         "date": "2026-11-09",
         "score": 0.1924,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1123,
+        "headline_count": 5
       }
     ],
     "FCX": [
@@ -48991,6 +49226,11 @@
         "date": "2026-11-09",
         "score": -0.0819,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1918,
+        "headline_count": 5
       }
     ],
     "GPN": [
@@ -49062,6 +49302,11 @@
       {
         "date": "2026-11-05",
         "score": 0.38,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2064,
         "headline_count": 5
       }
     ],
@@ -49190,6 +49435,11 @@
         "date": "2026-11-09",
         "score": -0.1557,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.309,
+        "headline_count": 5
       }
     ],
     "LEN": [
@@ -49292,6 +49542,11 @@
         "date": "2026-11-05",
         "score": -0.1786,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2923,
+        "headline_count": 3
       }
     ],
     "LOW": [
@@ -49541,6 +49796,11 @@
         "date": "2026-11-09",
         "score": 0.6081,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.249,
+        "headline_count": 5
       }
     ],
     "NXPI": [
@@ -49647,6 +49907,11 @@
       {
         "date": "2026-11-09",
         "score": -0.0061,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1638,
         "headline_count": 5
       }
     ],
@@ -50275,6 +50540,11 @@
         "date": "2026-11-09",
         "score": 0.0217,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0457,
+        "headline_count": 5
       }
     ],
     "TFC": [
@@ -50386,6 +50656,11 @@
       {
         "date": "2026-11-05",
         "score": -0.487,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3433,
         "headline_count": 5
       }
     ],
@@ -50703,6 +50978,11 @@
         "date": "2026-11-05",
         "score": 0.3622,
         "headline_count": 2
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3103,
+        "headline_count": 3
       }
     ],
     "VTRS": [
@@ -50784,6 +51064,11 @@
       {
         "date": "2026-11-09",
         "score": -0.005,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1827,
         "headline_count": 3
       }
     ],
@@ -51114,14 +51399,14 @@
         "date": "2026-11-06",
         "score": 0.2542,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.7105,
+        "headline_count": 5
       }
     ],
     "MMM": [
-      {
-        "date": "2026-05-19",
-        "score": -0.022,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-20",
         "score": -0.2054,
@@ -51415,6 +51700,11 @@
       {
         "date": "2026-11-09",
         "score": -0.0411,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2287,
         "headline_count": 4
       }
     ],
@@ -52104,6 +52394,11 @@
         "date": "2026-11-09",
         "score": 0.0204,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0011,
+        "headline_count": 5
       }
     ],
     "NTRS": [
@@ -52306,11 +52601,6 @@
       }
     ],
     "ALL": [
-      {
-        "date": "2026-05-17",
-        "score": 0.0113,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-19",
         "score": 0.3571,
@@ -52604,6 +52894,11 @@
       {
         "date": "2026-11-06",
         "score": 0.5188,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2506,
         "headline_count": 5
       }
     ],
@@ -52911,11 +53206,6 @@
     ],
     "AXP": [
       {
-        "date": "2026-06-16",
-        "score": 0.228,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-17",
         "score": 0.0798,
         "headline_count": 5
@@ -53208,6 +53498,11 @@
       {
         "date": "2026-11-09",
         "score": 0.1827,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2337,
         "headline_count": 5
       }
     ],
@@ -53515,11 +53810,6 @@
     ],
     "BBY": [
       {
-        "date": "2026-05-11",
-        "score": 0.1816,
-        "headline_count": 3
-      },
-      {
         "date": "2026-05-14",
         "score": 0.1791,
         "headline_count": 1
@@ -53813,6 +54103,11 @@
         "date": "2026-11-09",
         "score": -0.0094,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3178,
+        "headline_count": 5
       }
     ],
     "BR": [
@@ -54053,11 +54348,6 @@
       }
     ],
     "CBRE": [
-      {
-        "date": "2026-05-14",
-        "score": 0.4097,
-        "headline_count": 5
-      },
       {
         "date": "2026-05-15",
         "score": 0.0509,
@@ -54352,14 +54642,14 @@
         "date": "2026-11-05",
         "score": 0.0397,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0582,
+        "headline_count": 3
       }
     ],
     "COF": [
-      {
-        "date": "2026-06-11",
-        "score": -0.3527,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-12",
         "score": -0.1996,
@@ -54654,6 +54944,11 @@
         "date": "2026-11-09",
         "score": 0.2033,
         "headline_count": 1
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1181,
+        "headline_count": 4
       }
     ],
     "COR": [
@@ -55866,11 +56161,6 @@
     ],
     "CSCO": [
       {
-        "date": "2026-06-01",
-        "score": -0.418,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-02",
         "score": 0.0142,
         "headline_count": 5
@@ -56164,14 +56454,14 @@
         "date": "2026-11-09",
         "score": -0.1627,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1115,
+        "headline_count": 5
       }
     ],
     "CEG": [
-      {
-        "date": "2026-06-23",
-        "score": -0.0336,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-25",
         "score": 0.3122,
@@ -56465,6 +56755,11 @@
       {
         "date": "2026-11-09",
         "score": 0.3456,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1622,
         "headline_count": 5
       }
     ],
@@ -56772,11 +57067,6 @@
     ],
     "DHR": [
       {
-        "date": "2026-05-17",
-        "score": 0.1094,
-        "headline_count": 4
-      },
-      {
         "date": "2026-05-19",
         "score": 0.408,
         "headline_count": 3
@@ -57070,6 +57360,11 @@
         "date": "2026-11-05",
         "score": 0.4878,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.7141,
+        "headline_count": 5
       }
     ],
     "DOV": [
@@ -57310,11 +57605,6 @@
       }
     ],
     "DUK": [
-      {
-        "date": "2026-06-17",
-        "score": 0.2847,
-        "headline_count": 4
-      },
       {
         "date": "2026-06-18",
         "score": 0.0452,
@@ -57608,6 +57898,11 @@
       {
         "date": "2026-11-06",
         "score": -0.0056,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2417,
         "headline_count": 5
       }
     ],
@@ -58616,11 +58911,6 @@
     ],
     "APH": [
       {
-        "date": "2026-06-02",
-        "score": 0.2474,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-03",
         "score": 0.1722,
         "headline_count": 5
@@ -58914,6 +59204,11 @@
         "date": "2026-11-09",
         "score": 0.2951,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5371,
+        "headline_count": 5
       }
     ],
     "AEE": [
@@ -59333,6 +59628,11 @@
         "date": "2026-11-06",
         "score": -0.0146,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0069,
+        "headline_count": 3
       }
     ],
     "AVB": [
@@ -59428,11 +59728,6 @@
       }
     ],
     "BRO": [
-      {
-        "date": "2026-05-21",
-        "score": 0.418,
-        "headline_count": 3
-      },
       {
         "date": "2026-05-25",
         "score": -0.0404,
@@ -59727,6 +60022,11 @@
         "date": "2026-11-05",
         "score": 0.3187,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0258,
+        "headline_count": 3
       }
     ],
     "CCI": [
@@ -60827,14 +61127,14 @@
         "date": "2026-11-05",
         "score": 0.2794,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.4912,
+        "headline_count": 3
       }
     ],
     "CNC": [
-      {
-        "date": "2026-06-01",
-        "score": 0.0499,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-03",
         "score": 0.1187,
@@ -61129,6 +61429,11 @@
         "date": "2026-11-05",
         "score": 0.0181,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0234,
+        "headline_count": 4
       }
     ],
     "CNX": [
@@ -61452,11 +61757,6 @@
     ],
     "DECK": [
       {
-        "date": "2026-06-15",
-        "score": 0.158,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-17",
         "score": -0.122,
         "headline_count": 5
@@ -61750,14 +62050,14 @@
         "date": "2026-11-05",
         "score": 0.4669,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2016,
+        "headline_count": 5
       }
     ],
     "ECL": [
-      {
-        "date": "2026-04-28",
-        "score": -0.1517,
-        "headline_count": 4
-      },
       {
         "date": "2026-04-29",
         "score": -0.0173,
@@ -62051,6 +62351,11 @@
       {
         "date": "2026-11-09",
         "score": 0.3471,
+        "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0379,
         "headline_count": 3
       }
     ],
@@ -62713,6 +63018,11 @@
         "date": "2026-11-09",
         "score": 0.0323,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1588,
+        "headline_count": 5
       }
     ],
     "EL": [
@@ -62890,6 +63200,11 @@
         "date": "2026-11-09",
         "score": 0.2004,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1417,
+        "headline_count": 5
       }
     ],
     "ETSY": [
@@ -63079,6 +63394,11 @@
         "date": "2026-11-06",
         "score": 0.2628,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1234,
+        "headline_count": 4
       }
     ],
     "AFL": [
@@ -63947,6 +64267,11 @@
         "date": "2026-11-05",
         "score": 0.592,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3295,
+        "headline_count": 3
       }
     ],
     "BAX": [
@@ -64290,6 +64615,11 @@
       {
         "date": "2026-11-05",
         "score": 0.1568,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3484,
         "headline_count": 5
       }
     ],
@@ -65344,11 +65674,6 @@
     ],
     "XYZ": [
       {
-        "date": "2026-06-12",
-        "score": 0.4324,
-        "headline_count": 5
-      },
-      {
         "date": "2026-06-15",
         "score": -0.1697,
         "headline_count": 4
@@ -65641,6 +65966,11 @@
       {
         "date": "2026-11-09",
         "score": 0.2452,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.098,
         "headline_count": 5
       }
     ],
@@ -66734,11 +67064,6 @@
     ],
     "COIN": [
       {
-        "date": "2026-07-22",
-        "score": 0.2988,
-        "headline_count": 5
-      },
-      {
         "date": "2026-07-27",
         "score": -0.1815,
         "headline_count": 5
@@ -67032,14 +67357,14 @@
         "date": "2026-11-09",
         "score": 0.0336,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1872,
+        "headline_count": 5
       }
     ],
     "COHR": [
-      {
-        "date": "2026-07-28",
-        "score": 0.0469,
-        "headline_count": 5
-      },
       {
         "date": "2026-07-29",
         "score": -0.2804,
@@ -67334,14 +67659,14 @@
         "date": "2026-11-09",
         "score": 0.1445,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3946,
+        "headline_count": 5
       }
     ],
     "CRWD": [
-      {
-        "date": "2026-06-19",
-        "score": 0.0132,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-22",
         "score": -0.037,
@@ -67636,14 +67961,14 @@
         "date": "2026-11-09",
         "score": 0.127,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1365,
+        "headline_count": 5
       }
     ],
     "DELL": [
-      {
-        "date": "2026-07-03",
-        "score": 0.0455,
-        "headline_count": 4
-      },
       {
         "date": "2026-07-06",
         "score": -0.0748,
@@ -67938,14 +68263,14 @@
         "date": "2026-11-09",
         "score": -0.0728,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5945,
+        "headline_count": 5
       }
     ],
     "DASH": [
-      {
-        "date": "2026-06-01",
-        "score": -0.0212,
-        "headline_count": 5
-      },
       {
         "date": "2026-06-02",
         "score": 0.032,
@@ -68239,6 +68564,11 @@
       {
         "date": "2026-11-09",
         "score": 0.3782,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.325,
         "headline_count": 5
       }
     ],
@@ -68896,6 +69226,11 @@
         "date": "2026-11-09",
         "score": 0.2817,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.148,
+        "headline_count": 5
       }
     ],
     "EXE": [
@@ -69857,6 +70192,11 @@
         "date": "2026-11-09",
         "score": -0.4016,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1856,
+        "headline_count": 5
       }
     ],
     "CMI": [
@@ -70094,6 +70434,11 @@
         "date": "2026-11-09",
         "score": -0.4516,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0587,
+        "headline_count": 5
       }
     ],
     "GEHC": [
@@ -70332,6 +70677,11 @@
       {
         "date": "2026-11-09",
         "score": 0.3865,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0746,
         "headline_count": 5
       }
     ],
@@ -70633,6 +70983,11 @@
       {
         "date": "2026-11-09",
         "score": 0.4864,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0031,
         "headline_count": 5
       }
     ],
@@ -70990,6 +71345,11 @@
         "date": "2026-11-09",
         "score": 0.1471,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3181,
+        "headline_count": 5
       }
     ],
     "IT": [
@@ -71265,6 +71625,11 @@
       {
         "date": "2026-11-09",
         "score": -0.4437,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1648,
         "headline_count": 5
       }
     ],
@@ -71833,6 +72198,11 @@
         "date": "2026-11-09",
         "score": -0.1034,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2853,
+        "headline_count": 5
       }
     ],
     "NDAQ": [
@@ -71944,6 +72314,11 @@
       {
         "date": "2026-11-05",
         "score": 0.0827,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3887,
         "headline_count": 5
       }
     ],
@@ -72103,6 +72478,11 @@
       {
         "date": "2026-11-09",
         "score": -0.3556,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.21,
         "headline_count": 5
       }
     ],
@@ -72338,6 +72718,11 @@
         "date": "2026-11-09",
         "score": 0.2123,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1968,
+        "headline_count": 5
       }
     ],
     "MNST": [
@@ -72955,6 +73340,11 @@
         "date": "2026-11-09",
         "score": 0.0788,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1143,
+        "headline_count": 5
       }
     ],
     "JNJ": [
@@ -73071,6 +73461,11 @@
       {
         "date": "2026-11-05",
         "score": 0.0565,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0433,
         "headline_count": 5
       }
     ],
@@ -73378,6 +73773,11 @@
         "date": "2026-11-05",
         "score": 0.0008,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0341,
+        "headline_count": 5
       }
     ],
     "MRSH": [
@@ -73557,6 +73957,11 @@
         "date": "2026-11-06",
         "score": -0.1366,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.017,
+        "headline_count": 5
       }
     ],
     "ROST": [
@@ -73726,6 +74131,11 @@
         "date": "2026-11-05",
         "score": -0.0083,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0406,
+        "headline_count": 5
       }
     ],
     "ORLY": [
@@ -74017,6 +74427,11 @@
         "date": "2026-11-09",
         "score": 0.0812,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0068,
+        "headline_count": 5
       }
     ],
     "SMCI": [
@@ -74149,6 +74564,11 @@
         "date": "2026-11-09",
         "score": -0.0841,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0028,
+        "headline_count": 5
       }
     ],
     "VZ": [
@@ -74275,6 +74695,11 @@
       {
         "date": "2026-11-09",
         "score": 0.1581,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2599,
         "headline_count": 5
       }
     ],
@@ -74746,6 +75171,11 @@
         "date": "2026-11-09",
         "score": 0.212,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1863,
+        "headline_count": 5
       }
     ],
     "PSX": [
@@ -74863,6 +75293,11 @@
         "date": "2026-11-09",
         "score": 0.4453,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.5523,
+        "headline_count": 5
       }
     ],
     "JBL": [
@@ -74965,6 +75400,11 @@
         "date": "2026-11-05",
         "score": -0.1594,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.6697,
+        "headline_count": 4
       }
     ],
     "SNPS": [
@@ -75204,6 +75644,11 @@
         "date": "2026-11-06",
         "score": -0.2713,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3605,
+        "headline_count": 5
       }
     ],
     "PWR": [
@@ -75336,6 +75781,11 @@
         "date": "2026-11-09",
         "score": 0.2923,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3151,
+        "headline_count": 5
       }
     ],
     "TGT": [
@@ -75452,6 +75902,11 @@
       {
         "date": "2026-11-09",
         "score": 0.2852,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0411,
         "headline_count": 5
       }
     ],
@@ -76177,6 +76632,11 @@
         "date": "2026-11-09",
         "score": 0.1949,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2957,
+        "headline_count": 5
       }
     ],
     "WBD": [
@@ -76330,6 +76790,11 @@
       {
         "date": "2026-11-09",
         "score": 0.3727,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2476,
         "headline_count": 5
       }
     ],
@@ -76525,6 +76990,11 @@
         "date": "2026-11-09",
         "score": -0.0616,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0637,
+        "headline_count": 5
       }
     ],
     "PFE": [
@@ -76657,6 +77127,11 @@
         "date": "2026-11-09",
         "score": 0.2969,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3368,
+        "headline_count": 5
       }
     ],
     "NEE": [
@@ -76778,6 +77253,11 @@
       {
         "date": "2026-11-09",
         "score": 0.1908,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3294,
         "headline_count": 5
       }
     ],
@@ -76942,6 +77422,11 @@
       {
         "date": "2026-11-05",
         "score": 0.0759,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1102,
         "headline_count": 5
       }
     ],
@@ -77166,6 +77651,11 @@
       {
         "date": "2026-11-09",
         "score": -0.104,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2619,
         "headline_count": 5
       }
     ],
@@ -77438,6 +77928,11 @@
         "date": "2026-11-09",
         "score": -0.2956,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2573,
+        "headline_count": 5
       }
     ],
     "GIS": [
@@ -77549,6 +78044,11 @@
       {
         "date": "2026-11-05",
         "score": 0.1828,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1554,
         "headline_count": 5
       }
     ],
@@ -77836,6 +78336,11 @@
         "date": "2026-11-09",
         "score": -0.0861,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1137,
+        "headline_count": 5
       }
     ],
     "LHX": [
@@ -77938,6 +78443,11 @@
         "date": "2026-11-05",
         "score": -0.2201,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3992,
+        "headline_count": 5
       }
     ],
     "TSN": [
@@ -78000,6 +78510,11 @@
         "date": "2026-11-05",
         "score": -0.2083,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.4021,
+        "headline_count": 5
       }
     ],
     "O": [
@@ -78316,6 +78831,11 @@
         "date": "2026-11-06",
         "score": 0.0644,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1451,
+        "headline_count": 3
       }
     ],
     "KIM": [
@@ -78393,6 +78913,11 @@
         "date": "2026-11-09",
         "score": 0.2025,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0338,
+        "headline_count": 3
       }
     ],
     "GM": [
@@ -78647,6 +79172,11 @@
         "date": "2026-11-09",
         "score": 0.1157,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.292,
+        "headline_count": 5
       }
     ],
     "JBHT": [
@@ -78786,6 +79316,11 @@
         "date": "2026-11-06",
         "score": 0.0474,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1715,
+        "headline_count": 2
       }
     ],
     "HUM": [
@@ -78893,6 +79428,11 @@
         "date": "2026-11-09",
         "score": 0.0583,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1449,
+        "headline_count": 5
       }
     ],
     "SPG": [
@@ -78950,6 +79490,11 @@
         "date": "2026-11-05",
         "score": 0.2787,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3755,
+        "headline_count": 5
       }
     ],
     "QCOM": [
@@ -79271,6 +79816,11 @@
         "date": "2026-11-09",
         "score": -0.1858,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.1904,
+        "headline_count": 5
       }
     ],
     "NWSA": [
@@ -79368,6 +79918,11 @@
         "date": "2026-11-09",
         "score": -0.3631,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2985,
+        "headline_count": 5
       }
     ],
     "RTX": [
@@ -79485,6 +80040,11 @@
         "date": "2026-11-05",
         "score": -0.1991,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0927,
+        "headline_count": 5
       }
     ],
     "TRV": [
@@ -79581,6 +80141,11 @@
       {
         "date": "2026-11-09",
         "score": -0.0151,
+        "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2181,
         "headline_count": 4
       }
     ],
@@ -79703,6 +80268,11 @@
       {
         "date": "2026-11-09",
         "score": 0.1107,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3283,
         "headline_count": 5
       }
     ],
@@ -80711,6 +81281,11 @@
         "date": "2026-11-09",
         "score": -0.3631,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2985,
+        "headline_count": 5
       }
     ],
     "PM": [
@@ -80828,6 +81403,11 @@
         "date": "2026-11-09",
         "score": 0.4731,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0761,
+        "headline_count": 5
       }
     ],
     "SPGI": [
@@ -80982,6 +81562,11 @@
         "date": "2026-11-05",
         "score": 0.0459,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2016,
+        "headline_count": 3
       }
     ],
     "AZN": [
@@ -81263,6 +81848,11 @@
         "date": "2026-11-09",
         "score": 0.0751,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0256,
+        "headline_count": 5
       }
     ],
     "KKR": [
@@ -81374,6 +81964,11 @@
       {
         "date": "2026-11-09",
         "score": 0.2832,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1533,
         "headline_count": 5
       }
     ],
@@ -81496,6 +82091,11 @@
       {
         "date": "2026-11-06",
         "score": 0.0357,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0222,
         "headline_count": 5
       }
     ],
@@ -81716,6 +82316,11 @@
         "date": "2026-11-05",
         "score": 0.3159,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3056,
+        "headline_count": 4
       }
     ],
     "BEN": [
@@ -81803,6 +82408,11 @@
         "date": "2026-11-09",
         "score": 0.4614,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.4666,
+        "headline_count": 5
       }
     ],
     "MA": [
@@ -81934,6 +82544,11 @@
       {
         "date": "2026-11-09",
         "score": 0.4633,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2985,
         "headline_count": 5
       }
     ],
@@ -82733,6 +83348,11 @@
         "date": "2026-11-09",
         "score": -0.3819,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.4104,
+        "headline_count": 3
       }
     ],
     "VRTX": [
@@ -82844,6 +83464,11 @@
       {
         "date": "2026-11-05",
         "score": 0.3834,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1803,
         "headline_count": 5
       }
     ],
@@ -83105,6 +83730,11 @@
       {
         "date": "2026-11-06",
         "score": 0.2374,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1319,
         "headline_count": 5
       }
     ],
@@ -83588,6 +84218,11 @@
         "date": "2026-11-09",
         "score": 0.0071,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.206,
+        "headline_count": 5
       }
     ],
     "WM": [
@@ -84013,6 +84648,11 @@
         "date": "2026-11-09",
         "score": 0.2756,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2263,
+        "headline_count": 5
       }
     ],
     "IQV": [
@@ -84192,6 +84832,11 @@
         "date": "2026-11-09",
         "score": -0.0992,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1573,
+        "headline_count": 5
       }
     ],
     "HSIC": [
@@ -84530,6 +85175,11 @@
         "date": "2026-11-09",
         "score": 0.0908,
         "headline_count": 4
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0388,
+        "headline_count": 5
       }
     ],
     "ZTS": [
@@ -84770,6 +85420,11 @@
       {
         "date": "2026-11-05",
         "score": 0.3438,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1437,
         "headline_count": 5
       }
     ],
@@ -85024,6 +85679,11 @@
         "date": "2026-11-09",
         "score": 0.2355,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.315,
+        "headline_count": 3
       }
     ],
     "VLTO": [
@@ -85142,6 +85802,11 @@
       {
         "date": "2026-11-06",
         "score": 0.4949,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.2021,
         "headline_count": 5
       }
     ],
@@ -85428,6 +86093,11 @@
         "date": "2026-11-09",
         "score": 0.1102,
         "headline_count": 3
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.3597,
+        "headline_count": 5
       }
     ],
     "Q": [
@@ -85505,6 +86175,11 @@
         "date": "2026-11-06",
         "score": 0.5558,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.0991,
+        "headline_count": 3
       }
     ],
     "REG": [
@@ -85626,6 +86301,11 @@
         "date": "2026-11-05",
         "score": 0.0263,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0078,
+        "headline_count": 3
       }
     ],
     "VMRK": [
@@ -85652,6 +86332,11 @@
       {
         "date": "2026-11-05",
         "score": -0.1276,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1955,
         "headline_count": 5
       }
     ],
@@ -85724,6 +86409,11 @@
       {
         "date": "2026-11-09",
         "score": -0.2392,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.1814,
         "headline_count": 5
       }
     ],
@@ -85806,6 +86496,11 @@
       {
         "date": "2026-11-09",
         "score": 0.2988,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.085,
         "headline_count": 5
       }
     ],
@@ -85966,6 +86661,11 @@
         "date": "2026-11-09",
         "score": 0.4742,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.3327,
+        "headline_count": 5
       }
     ],
     "NBIS": [
@@ -86048,6 +86748,11 @@
         "date": "2026-11-09",
         "score": 0.0041,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.042,
+        "headline_count": 5
       }
     ],
     "RKLB": [
@@ -86119,6 +86824,11 @@
       {
         "date": "2026-11-09",
         "score": 0.3856,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.0254,
         "headline_count": 5
       }
     ],
@@ -86192,6 +86902,11 @@
         "date": "2026-11-09",
         "score": -0.1221,
         "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.085,
+        "headline_count": 5
       }
     ],
     "SHOP": [
@@ -86258,6 +86973,11 @@
       {
         "date": "2026-11-05",
         "score": -0.1084,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": -0.117,
         "headline_count": 5
       }
     ],
@@ -86354,6 +87074,11 @@
       {
         "date": "2026-11-09",
         "score": 0.6742,
+        "headline_count": 5
+      },
+      {
+        "date": "2026-11-10",
+        "score": 0.2057,
         "headline_count": 5
       }
     ],
@@ -146670,6 +147395,388 @@
             "global_freight_confidence",
             "global_maritime_state"
           ],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "entry_date": "2026-11-10",
+      "reject_reason": "final_mc_survivor",
+      "strategy": "",
+      "simulation": {
+        "current_price": 222.89,
+        "target_price": 240.72,
+        "hit_rate": 0.5942,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0234,
+        "sigma_source": "measured",
+        "alpha": 0.00084,
+        "shadow_v4": {
+          "hit_rate": 0.5198,
+          "hit_rate_uncapped": 0.5198,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 7,
+        "surprise": 4,
+        "mismatch": 1.329,
+        "z_score": 1.134,
+        "sigma_30d": 0.0246,
+        "price_move_48h": 0.0279,
+        "price_move_48h_signed": -0.0279,
+        "z_score_2d_scaled": 0.802,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5098
+      },
+      "sector": "Communication Services",
+      "sector_etf": "",
+      "deep_analysis": {
+        "direction": "BULLISH",
+        "impact": 7,
+        "surprise": 4,
+        "time_to_materialization": "4-8 Wochen"
+      },
+      "outcome": null,
+      "final_mc_shadow": {
+        "dte_used": 45,
+        "hit_rate_used": 0.5942,
+        "dte_shadow": 120,
+        "hit_rate_shadow": 0.618,
+        "would_pass_shadow": true,
+        "mode": "legacy_45"
+      },
+      "external_context_entry": {
+        "snapshot_id": "2c01dfc509b6ec09",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-11-10T15:07:27+00:00",
+        "primitives": {
+          "freight_global_z": -1.4541708211581925,
+          "freight_us_z": -2.813899290646873,
+          "freight_eu_z": -0.8954378537238875,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.0,
+          "de_truck_z_1y": -0.11777679961313593,
+          "de_truck_acceleration": -0.010650602948743614,
+          "us_freight_tsi_yoy": -0.02960288808664256,
+          "us_freight_tsi_z": -2.813899290646873,
+          "shipping_global_z": -0.28087191022657787,
+          "shipping_container_z": 0.34436050627715786,
+          "shipping_drybulk_z": -1.2277478123426773,
+          "shipping_tanker_z": 0.04269627378979173,
+          "shipping_negative_breadth": 0.25,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.18195279979324339,
+          "panama_z": -1.9793739398793608,
+          "hormuz_z": -0.38691161626706844,
+          "malacca_z": 0.4758408561943331,
+          "bab_el_mandeb_z": -0.650406631256538,
+          "asia_export_z": -0.175281048575603,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": null,
+          "us_cpi_yoy_3m_ago": 0.03303856050706311,
+          "nfci_credit": 0.002,
+          "nfci": -0.459,
+          "fed_assets_13w_chg": -6.253179378679086e-05,
+          "usd_63d_chg": 0.023645927557155888,
+          "wti_63d_chg": 0.29773378483980206,
+          "de_power_price_7d": 292.67717142857146,
+          "de_power_price_z": 3.942301865446092,
+          "de_load_yoy": 0.04102391961825225,
+          "hdd_anomaly": -6.205087289348077,
+          "cdd_anomaly": 0.9771962804220863,
+          "forecast_revision_hdd": -0.22767139467523115,
+          "forecast_revision_cdd": 0.22767139467523115,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1732989109316145,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.07548388217762785,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "STRONG_CONTRACTION",
+          "eu_freight_confidence": 0.3533,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.2169,
+          "global_freight_state": "CONTRACTION",
+          "global_freight_confidence": 0.4847
+        },
+        "ticker_exposure": {
+          "industry": null,
+          "level": "unknown",
+          "road_freight_relevance": null,
+          "maritime_relevance": null,
+          "weather_relevance": null,
+          "exposure_source": "unknown",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1732989109316145,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.07548388217762785,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.98,
+          "mechanism": "1. MECHANISMUS: Fracht-, Schifffahrts- und Wetter-Primitive k\u00f6nnten TTWO nur beeinflussen, wenn sie die physische Lieferkette f\u00fcr Hardware/Konsolen oder die Distributionskosten f\u00fcr GTA VI-physische Kopien erheblich st\u00f6ren w\u00fcrden. 2. EXPOSURE: TTWO hat ZERO Exposure in allen relevanten Kategorien (road_freight_relevance: None, maritime_relevance: None, weather_relevance: None). Das Unternehmen ist ein reiner Software/Gaming-Publisher ohne messbare Abh\u00e4ngigkeit von Fracht- oder Schifffahrts-Primitiven. 3. KATALYSATOR-BEZUG: Der Katalysator (GTA VI Launch, Preorder-Zahlen in Q3/Q4 2026, 4-8 Wochen) ist ein IP-/Nachfrage-getriebenes Event, das v\u00f6llig unabh\u00e4ngig von Transportdaten, H\u00e4fen-St\u00f6rungen oder Wetter ist. Externe Primitive k\u00f6nnen dieses reine Gaming-Software-Demand-Signal nicht beeinflussen.",
+          "relevant_sources": [],
+          "source": "llm_shadow",
+          "reason": ""
+        },
+        "policy": {
+          "mode": "shadow",
+          "score_delta": 0.0,
+          "veto": false
+        }
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "entry_date": "2026-11-10",
+      "reject_reason": "roi_gate",
+      "catalyst_type": "OTHER",
+      "strategy": "BULL_CALL_SPREAD",
+      "entry_debit": 37.3,
+      "option": {
+        "expiry": "2027-06-17",
+        "strike": 220.0,
+        "bid": 35.4,
+        "ask": 37.3,
+        "open_interest": 576,
+        "implied_vol": 0.4616,
+        "spread_ratio": 0.0509,
+        "dte": 218,
+        "delta": 0.6156,
+        "data_source": "tradier",
+        "option_symbol": "TTWO270617C00220000",
+        "volume": 58,
+        "iv_source": "chain",
+        "delta_source": "chain",
+        "chain_retrieved_at": "2026-11-10T17:33:36+00:00",
+        "quote_time": "2026-11-10T17:33:36+00:00",
+        "bid_missing": false,
+        "ask_missing": false,
+        "source_primary": "options_chain",
+        "source_actual": "options_chain",
+        "spread_leg": {
+          "strike": 240.0,
+          "bid": 26.2,
+          "ask": 28.9,
+          "symbol": "TTWO270617C00240000",
+          "quote_time": "2026-11-10T17:33:17+00:00",
+          "bid_missing": false,
+          "ask_missing": false,
+          "open_interest": 119,
+          "volume": 39
+        },
+        "net_debit": 11.1
+      },
+      "simulation": {
+        "current_price": 222.89,
+        "target_price": 240.72,
+        "hit_rate": 0.5942,
+        "n_paths": 10000,
+        "days": 45,
+        "sigma": 0.0234,
+        "sigma_source": "measured",
+        "alpha": 0.00084,
+        "shadow_v4": {
+          "hit_rate": 0.5198,
+          "hit_rate_uncapped": 0.5198,
+          "steps": 31,
+          "calendar_days": 45,
+          "unit": "trading_days",
+          "version": "v4-shadow-1"
+        }
+      },
+      "features": {
+        "impact": 7,
+        "surprise": 4,
+        "mismatch": 1.329,
+        "z_score": 1.134,
+        "sigma_30d": 0.0246,
+        "price_move_48h": 0.0279,
+        "price_move_48h_signed": -0.0279,
+        "z_score_2d_scaled": 0.802,
+        "eps_drift": 0.0,
+        "bin_impact": "mid",
+        "bin_mismatch": "weak",
+        "bin_eps_drift": "noise",
+        "quick_mc_hit_rate": 0.5098
+      },
+      "roi_net": -0.3071,
+      "roi_hurdle": 0.085,
+      "roi_gap": -0.3921,
+      "fail_gates": {
+        "Long-Term": "roi_initial"
+      },
+      "vix": 20.82,
+      "mc_hit_rate": 0.5942,
+      "outcome": null,
+      "external_context_entry": {
+        "snapshot_id": "2c01dfc509b6ec09",
+        "feature_version": {
+          "road_freight": "v1",
+          "maritime": "v1",
+          "weather": "v1",
+          "real_economy": "v1",
+          "divergences": "v1",
+          "context": "v1"
+        },
+        "available_at": "2026-11-10T15:07:27+00:00",
+        "primitives": {
+          "freight_global_z": -1.4541708211581925,
+          "freight_us_z": -2.813899290646873,
+          "freight_eu_z": -0.8954378537238875,
+          "freight_asia_z": -0.6531753191038174,
+          "freight_breadth": 0.0,
+          "de_truck_z_1y": -0.11777679961313593,
+          "de_truck_acceleration": -0.010650602948743614,
+          "us_freight_tsi_yoy": -0.02960288808664256,
+          "us_freight_tsi_z": -2.813899290646873,
+          "shipping_global_z": -0.28087191022657787,
+          "shipping_container_z": 0.34436050627715786,
+          "shipping_drybulk_z": -1.2277478123426773,
+          "shipping_tanker_z": 0.04269627378979173,
+          "shipping_negative_breadth": 0.25,
+          "shipping_valid_port_count": 24,
+          "suez_z": 0.18195279979324339,
+          "panama_z": -1.9793739398793608,
+          "hormuz_z": -0.38691161626706844,
+          "malacca_z": 0.4758408561943331,
+          "bab_el_mandeb_z": -0.650406631256538,
+          "asia_export_z": -0.175281048575603,
+          "port_disruption_active_events": 2,
+          "port_disruption_curated_ports": 0,
+          "port_disruption_curated_max_level": 0,
+          "weather_disruption_index": 0.0,
+          "us_cpi_yoy": null,
+          "us_cpi_yoy_3m_ago": 0.03303856050706311,
+          "nfci_credit": 0.002,
+          "nfci": -0.459,
+          "fed_assets_13w_chg": -6.253179378679086e-05,
+          "usd_63d_chg": 0.023645927557155888,
+          "wti_63d_chg": 0.29773378483980206,
+          "de_power_price_7d": 292.67717142857146,
+          "de_power_price_z": 3.942301865446092,
+          "de_load_yoy": 0.04102391961825225,
+          "hdd_anomaly": -6.205087289348077,
+          "cdd_anomaly": 0.9771962804220863,
+          "forecast_revision_hdd": -0.22767139467523115,
+          "forecast_revision_cdd": 0.22767139467523115,
+          "active_tropical_system": true,
+          "road_shipping_divergence_z": -1.1732989109316145,
+          "road_shipping_agreement": "A_STRONGER",
+          "possible_weather_confounded_freight": false,
+          "hard_data_vs_survey_divergence": 0.07548388217762785,
+          "industry_shipping_z": null
+        },
+        "states": {
+          "us_freight_state": "STRONG_CONTRACTION",
+          "us_freight_confidence": 0.3,
+          "us_freight_source_count": 1,
+          "eu_freight_state": "STRONG_CONTRACTION",
+          "eu_freight_confidence": 0.3533,
+          "eu_freight_source_count": 12,
+          "asia_freight_state": "CONTRACTION",
+          "asia_freight_confidence": 0.3,
+          "asia_freight_source_count": 1,
+          "global_maritime_state": "NEUTRAL",
+          "global_maritime_confidence": 0.2169,
+          "global_freight_state": "CONTRACTION",
+          "global_freight_confidence": 0.4847
+        },
+        "ticker_exposure": {
+          "industry": null,
+          "level": "unknown",
+          "road_freight_relevance": null,
+          "maritime_relevance": null,
+          "weather_relevance": null,
+          "exposure_source": "unknown",
+          "hub_codes": null,
+          "catalyst_relevance": null
+        },
+        "divergences": {
+          "road_shipping_divergence_z": -1.1732989109316145,
+          "road_shipping_agreement": "A_STRONGER",
+          "hard_data_vs_survey_divergence_z": 0.07548388217762785,
+          "hard_data_vs_survey_agreement": "MIXED"
+        },
+        "quality": {
+          "eu_source_count": 12,
+          "eu_sources": [
+            "destatis_truck_toll",
+            "eurostat_road_freight:AT",
+            "eurostat_road_freight:BE",
+            "eurostat_road_freight:CZ",
+            "eurostat_road_freight:DE",
+            "eurostat_road_freight:ES",
+            "eurostat_road_freight:EU27_2020",
+            "eurostat_road_freight:FR",
+            "eurostat_road_freight:IT",
+            "eurostat_road_freight:NL",
+            "eurostat_road_freight:PL",
+            "eurostat_road_freight:SE"
+          ]
+        },
+        "relation": {
+          "relation": "NEUTRAL",
+          "materiality": "NONE",
+          "confidence": 0.98,
+          "mechanism": "1. MECHANISMUS: Fracht-, Schifffahrts- und Wetter-Primitive k\u00f6nnten TTWO nur beeinflussen, wenn sie die physische Lieferkette f\u00fcr Hardware/Konsolen oder die Distributionskosten f\u00fcr GTA VI-physische Kopien erheblich st\u00f6ren w\u00fcrden. 2. EXPOSURE: TTWO hat ZERO Exposure in allen relevanten Kategorien (road_freight_relevance: None, maritime_relevance: None, weather_relevance: None). Das Unternehmen ist ein reiner Software/Gaming-Publisher ohne messbare Abh\u00e4ngigkeit von Fracht- oder Schifffahrts-Primitiven. 3. KATALYSATOR-BEZUG: Der Katalysator (GTA VI Launch, Preorder-Zahlen in Q3/Q4 2026, 4-8 Wochen) ist ein IP-/Nachfrage-getriebenes Event, das v\u00f6llig unabh\u00e4ngig von Transportdaten, H\u00e4fen-St\u00f6rungen oder Wetter ist. Externe Primitive k\u00f6nnen dieses reine Gaming-Software-Demand-Signal nicht beeinflussen.",
+          "relevant_sources": [],
           "source": "llm_shadow",
           "reason": ""
         },

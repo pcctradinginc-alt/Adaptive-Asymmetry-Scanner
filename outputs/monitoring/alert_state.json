@@ -1,9 +1,16 @@
 {
- "WORKFLOW_FAILED:PortWatch HDX Shadow (OCHA mirror, no fallback)": {
-  "fingerprint": "368b305a78f2b63c",
-  "first_seen": "2026-11-09",
-  "last_seen": "2026-11-09",
+ "BRANCH_UNPROTECTED": {
+  "fingerprint": "56422ebe1ea059ca",
+  "first_seen": "2026-11-10",
+  "last_seen": "2026-11-10",
   "severity": "WARNING",
-  "component": "Lauf"
+  "component": "Governance"
+ },
+ "UNREVIEWED_CRITICAL_MERGE": {
+  "fingerprint": "00ee2872daea19d0",
+  "first_seen": "2026-11-10",
+  "last_seen": "2026-11-10",
+  "severity": "WARNING",
+  "component": "Governance"
  }
 }
