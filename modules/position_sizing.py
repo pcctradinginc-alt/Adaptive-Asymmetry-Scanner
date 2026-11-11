@@ -138,8 +138,9 @@ def _unit_sizing(proposal: dict, pc: dict, cost_per_contract: float, kelly_info:
     exceeds = pct > pc["max_position_pct"] + 1e-9
     note = UNIT_NOTE if contracts else "Kein Optionspreis – keine Einheitsposition möglich, nur beobachten."
     if exceeds:
-        note += (f" | Flag: Position {pct:.1%} des Depots übersteigt Cap "
-                 f"{pc['max_position_pct']:.0%} (portfolio.max_position_pct).")
+        note += (f" | BLOCKIERT: 1 Kontrakt ({pct:.1%}) übersteigt "
+                 f"das harte Positionscap {pc['max_position_pct']:.0%}.")
+        contracts, position_usd, pct = 0, 0.0, 0.0
     sizing = {
         "portfolio_usd":     pc["size_usd"],
         "sizing_basis":      "UNIT",
@@ -192,4 +193,8 @@ def enrich_with_sizing(proposals: list[dict]) -> list[dict]:
                                                              p.get("intelligence_size_applied_by"))
         except Exception as e:
             log.warning(f"  [{p.get('ticker','?')}] Sizing-Fehler: {e}")
-    return proposals
+    valid = [p for p in proposals if (p.get("position_sizing") or {}).get("contracts", 0) >= 1]
+    for p in proposals:
+        if p not in valid:
+            log.warning("  [%s] Trade durch Risk-Cap oder Sizing-Fehler blockiert", p.get("ticker", "?"))
+    return valid

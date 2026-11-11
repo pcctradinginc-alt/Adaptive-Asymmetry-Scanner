@@ -386,12 +386,13 @@ class TestPositionSizing:
         s = compute_position_size(p)
         assert s["cost_per_contract"] == 150.0 and s["position_usd"] == 150.0 and s["contracts"] == 1
 
-    def test_unit_mode_flags_but_keeps_position_above_cap(self):
-        from modules.position_sizing import compute_position_size
+    def test_unit_mode_blocks_position_above_cap(self):
+        from modules.position_sizing import compute_position_size, enrich_with_sizing
         p = {"ticker": "T", "strategy": "LONG_CALL", "option": {"ask": 8.0}}       # 800 $ = 16 % von 5000 $ > 10 %
         s = compute_position_size(p)
-        assert s["contracts"] == 1 and s["position_usd"] == 800.0                   # nicht verworfen
-        assert s["exceeds_max_position_pct"] is True and "Cap" in s["note"]
+        assert s["contracts"] == 0 and s["position_usd"] == 0.0
+        assert s["exceeds_max_position_pct"] is True and "BLOCKIERT" in s["note"]
+        assert enrich_with_sizing([p]) == []
 
     def test_unit_mode_without_price_gives_no_position(self):
         from modules.position_sizing import compute_position_size

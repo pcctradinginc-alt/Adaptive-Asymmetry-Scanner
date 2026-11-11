@@ -43,6 +43,8 @@ v8.3 Options-P&L Monte Carlo (Phase 1):
 from __future__ import annotations
 import logging
 import math
+import hashlib
+import json
 import numpy as np
 from scipy.stats import norm as _scipy_norm
 import yfinance as yf
@@ -297,14 +299,20 @@ class MirofishSimulation:
                         f"-> keine Trefferquote aus Default-σ")
             return None
 
+        # Candidate-specific reproducible random streams.
+        seed_data = [ticker, round(current, 6), days_to_expiry, da, round(sigma, 8), round(hist_mu, 8)]
+        rng_seed = int(hashlib.sha256(json.dumps(seed_data, sort_keys=True, default=str).encode()).hexdigest()[:16], 16)
+        self.rng = np.random.default_rng(rng_seed)
+        self.shadow_rng = np.random.default_rng(rng_seed ^ 0x9E3779B97F4A7C15)
         # ── Signal-Alpha (News-Drift) ─────────────────────────────────────────
         signal_strength, signal_alpha, decay_rate = _signal_terms(da)
 
         # Gesamt-Alpha: historischer Trend + Signal-Bonus
         base_alpha = hist_mu + signal_alpha
 
-        # v8.2: Volatilitäts-adaptives Target
-        target  = _compute_dynamic_target(current, sigma, days_to_expiry)
+        # Volatility and drift are per TRADING session; DTE uses calendar days.
+        trading_steps = max(1, round(days_to_expiry * 252 / 365))
+        target = _compute_dynamic_target(current, sigma, trading_steps)
         target_pct = (target / current - 1.0) * 100
 
         n_paths   = QUICK_MC_PATHS if days_to_expiry <= 45 else FINAL_MC_PATHS
@@ -327,7 +335,7 @@ class MirofishSimulation:
         for _ in range(n_paths):
             price = current
             hit   = False
-            for d in range(days_to_expiry):
+            for d in range(trading_steps):
                 # Alpha nimmt exponentiell ab (Narrative verblasst)
                 daily_alpha = base_alpha * math.exp(-decay_rate * d)
                 daily_ret   = daily_alpha + sigma * self.rng.standard_normal()
@@ -380,6 +388,8 @@ class MirofishSimulation:
                 "hit_rate":      round(hit_rate, 4),
                 "n_paths":       n_paths,
                 "days":          days_to_expiry,
+                "trading_steps": trading_steps,
+                "rng_seed":      rng_seed,
                 "sigma":         round(sigma, 4),
                 "sigma_source":  sigma_source,
                 "alpha":         round(base_alpha, 5),
@@ -615,8 +625,13 @@ class MirofishSimulation:
         mu          = mu_daily * 252
         sigma       = sigma_daily * math.sqrt(252)
 
-        # OU-Parameter (2-Layer Hybrid)
+        # Reproducible, contract-specific options P&L paths.
         ticker = candidate.get("ticker", "")
+        pnl_seed_data = [ticker, round(current_price, 6), option, days_to_expiry, n_paths,
+                         hold_days, iv_rank, candidate.get("deep_analysis") or {}]
+        pnl_seed = int(hashlib.sha256(json.dumps(pnl_seed_data, sort_keys=True, default=str).encode()).hexdigest()[:16], 16)
+        self.rng = np.random.default_rng(pnl_seed)
+        # OU-Parameter (2-Layer Hybrid)
         ou     = self._get_ou_parameters(ticker, history or {}, entry_iv, iv_rank)
 
         hold_days   = (max(5, days_to_expiry // 2) if hold_days is None

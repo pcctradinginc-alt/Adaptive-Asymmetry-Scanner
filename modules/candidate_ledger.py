@@ -1032,12 +1032,13 @@ def _v2_entry(row: dict, key: str, now: datetime) -> bool:
     spec = row.get(key)
     if not isinstance(spec, dict) or not spec.get("entry_pending"):
         return False
-    sig, syms = tp._ts(row.get("signal_timestamp")), _v2_symbols(row, key)
+    frozen = row.get("entry_anchor_policy") == "decision-frozen-v1"
+    sig, syms = tp._ts(row.get("decision_frozen_at") if frozen else row.get("signal_timestamp")), _v2_symbols(row, key)
     if sig is None or not syms or any(x is None for x in syms):
         spec.update(entry_pending=False, entry_status="UNUSABLE",
                     entry_unusable_reason="SIGNAL_TIME_MISSING" if sig is None else "CONTRACT_UNKNOWN")
         return True
-    after = sig - timedelta(minutes=tp.params()["decision_quote_max_age_minutes"]) if tp.in_window(sig, syms[0]) else sig
+    after = sig if frozen else (sig - timedelta(minutes=tp.params()["decision_quote_max_age_minutes"]) if tp.in_window(sig, syms[0]) else sig)
     f = tp.find_fill(syms, after, now)
     if f["status"] == "PENDING":
         changed = spec.get("entry_status") != "PENDING"
@@ -1106,7 +1107,8 @@ def pending_entry_targets(today: str, root: Path = LEDGER_ROOT) -> dict:
                         continue
                     if not isinstance(row, dict) or not _is_v2(row):
                         continue
-                    sig = tp._ts(row.get("signal_timestamp"))
+                    frozen = row.get("entry_anchor_policy") == "decision-frozen-v1"
+                    sig = tp._ts(row.get("decision_frozen_at") if frozen else row.get("signal_timestamp"))
                     for k in _ENTRY_KEYS:
                         if sig is not None and isinstance(row.get(k), dict) and row[k].get("entry_pending"):
                             for x in _v2_symbols(row, k):
@@ -1390,6 +1392,8 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         if term_calls:
             log.info(f"candidate_ledger: {term_calls} zusätzliche Term-Structure-Chain-Call(s) für real_strategy")
 
+        # Freeze after all analysis/contract selection: no pre-decision simulated fills.
+        _decision_frozen_at = _now_utc().isoformat(timespec="seconds")
         new_lines = []
         for ticker, e in to_process:
             # Ohne reject()-Aufruf ausgeschieden (z.B. Prescreening) → als
@@ -1423,6 +1427,8 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "underlying":       resolved["underlying"],
                 "gap_at_entry":     resolved["gap_at_entry"],
                 "signal_timestamp": e.get("signal_timestamp"),
+                "decision_frozen_at": _decision_frozen_at,
+                "entry_anchor_policy": "decision-frozen-v1" if _timing_policy_current() == "timing-v2" else "legacy-signal",
                 "timing_policy":    _timing_policy_current(),
                 # Externer Kontext: beim ersten note(external=...) eingefroren,
                 # hier unverändert persistiert (nie neu berechnet).
