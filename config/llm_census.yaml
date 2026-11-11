@@ -4,7 +4,7 @@
 # Surprise und Mismatch auf der Population schätzbar werden (π = k/N je Zeile protokolliert). Ergebnisse nur als
 # census_*-Felder im Kandidaten-Ledger, nie im Trade-, Snapshot- oder Score-Pfad. Kosten: k Sonnet-Analysen je Lauf
 # (Cache, Temperatur 0), eigenes Zeitbudget am Laufende nach allen Champion-Entscheidungen.
-enabled: true
+enabled: false  # replaced by frozen standalone cohort in config/llm_census_offline.yaml
 k: 2
 budget_s: 240          # Zeitbudget der Zensus-Analysen am Laufende
 min_reserve_s: 120     # bleibt immer für Ledger, Bericht und Mail übrig
