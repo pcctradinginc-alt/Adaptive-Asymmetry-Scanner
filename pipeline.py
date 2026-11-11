@@ -1329,7 +1329,9 @@ def main() -> None:
             _da = a.get("deep_analysis", {}) or {}
             candidate_ledger.note(
                 a.get("ticker"), stage="deep_analysis",
-                direction=_da.get("direction"), impact=_da.get("impact"),
+                direction=_da.get("direction"),
+                decision_frozen_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                impact=_da.get("impact"),
                 surprise=_da.get("surprise"), ttm=_da.get("time_to_materialization"),
                 llm_audit=_da.get("llm_audit"),
                 # P2 Signal-Identität (candidate_ledger.py): Katalysator-Text
