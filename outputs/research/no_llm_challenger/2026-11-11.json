@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-11",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "35d880ad4b4b",
+  "action": "ABSTAIN",
+  "candidates_seen": 202,
+  "eligible_contracts": 37,
+  "watchlist": [
+    {
+      "ticker": "ASML",
+      "signal_id": "064051adad67466a86c44db88e90013f",
+      "contract": "ASML270319C01560000",
+      "model_net_estimate": -0.014383,
+      "entry_ask_debit": 69.6,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "PDD",
+      "signal_id": "3159e35459be4892af61a9c437ceb067",
+      "contract": "PDD270319C00080000",
+      "model_net_estimate": -0.040028,
+      "entry_ask_debit": 6.9,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "MSTR",
+      "signal_id": "073a2f12a3be4a0caf21f4e6793cc922",
+      "contract": "MSTR270319C00125000",
+      "model_net_estimate": -0.048323,
+      "entry_ask_debit": 21.7,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "ALAB",
+      "signal_id": "2fa9c5162e814050bfc516790ebf851b",
+      "contract": "ALAB270319C00240000",
+      "model_net_estimate": -0.056734,
+      "entry_ask_debit": 9.55,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "PG",
+      "signal_id": "51f28a6f6e6b4bf48d032710c4d07ed5",
+      "contract": "PG270319C00165000",
+      "model_net_estimate": -0.057264,
+      "entry_ask_debit": 6.6,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "f6fa241ad85791d2",
+  "recorded_at": "2026-11-11T17:51:34.833842+00:00"
+}
