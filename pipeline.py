@@ -1026,6 +1026,15 @@ def main() -> None:
         enriched.append(c)
     candidates = enriched
 
+    # ── Research-Only: separate LLM-Zensus-Kohorte vor Sektor-/LLM-Gates einfrieren.
+    # Offline-Workflow liest NUR dieses gespeicherte Snapshot; keine künftigen Daten
+    # dürfen in die ursprüngliche LLM-Einschätzung einfließen.
+    try:
+        from modules import llm_census_offline as _lco
+        _lco.freeze(candidates, today)
+    except Exception as _e:  # noqa: BLE001 – Research darf Champion niemals blockieren
+        log.warning("Offline LLM census freeze failed: %s", _e)
+
     # ── LLM-Zensus (Aktionsplan Punkt 6, nur Research): Zufallsstichprobe ALLER Hard-Filter-Überlebenden vor jedem
     # weiteren Gate; Auswertung erst am Laufende (_llm_census_finalize), nie im Trade-Pfad.
     try:
