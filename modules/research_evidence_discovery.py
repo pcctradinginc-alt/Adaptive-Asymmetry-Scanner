@@ -95,6 +95,9 @@ def provenance(row, index, horizon=HORIZON):
 
     by_symbol = index["by_symbol"]
     ids = rs.get("entry_quote_record_ids")
+    frozen = row.get("entry_anchor_policy") == "decision-frozen-v1"
+    if frozen and not ids:
+        return "ENTRY_NOT_ARCHIVED"
     if ids:                                   # timing-v2 fill: exact archive records
         recs = [index["by_id"].get(i) for i in ids]
         if any(r is None for r in recs):
@@ -103,6 +106,13 @@ def provenance(row, index, horizon=HORIZON):
             return "ENTRY_CONTRACT_MISMATCH"
         if any(not oq.usable_rth_quote(r) or oq.quote_day(r) != entry_day for r in recs):
             return "ENTRY_QUOTE_UNUSABLE"
+        if frozen:
+            decision_at = oq._parse_ts(row.get("decision_frozen_at"))
+            if decision_at is None or any(
+                oq._parse_ts(r.get("retrieved_at")) is None or oq._parse_ts(r["retrieved_at"]) < decision_at
+                for r in recs
+            ):
+                return "ENTRY_BEFORE_DECISION"
         price = number(recs[0].get("ask"))
         if len(recs) == 2 and price is not None:
             short_bid = number(recs[1].get("bid"))
