@@ -51,7 +51,7 @@ def test_no_llm_needs_model_strictly_before_day_and_ignores_outcomes():
     row = {"date": "2026-11-11", "ticker": "ABC", "signal_id": "s1",
            "features": {"news_count": 4},
            "real_option": {"symbol": "ABC261120C00100000"},
-           "real_strategy": {"legs": [{"side": "long"}], "net_debit_entry": 2.0},
+           "real_strategy": {"strategy": "LONG_CALL", "legs": [{"side": "long"}], "net_debit_entry": 2.0},
            "option_sample": "research_census",
            "outcomes": {"real_strat_ret_5d": 99.0}}
     a = no_llm.decide([row], date(2026,11,11), model)
@@ -106,3 +106,19 @@ def test_no_production_config_changed_and_workflow_order():
     assert pipeline.index("_lco.freeze(candidates, today)") < pipeline.index("select_before_haiku(")
     assert "max_quote_probes: 8" in (base / "config/economics_first.yaml").read_text()
     assert "champion-v2-2026-11-09" in (base / "config/champion_protocol.yaml").read_text()
+
+def test_no_llm_evaluation_has_no_imputation_or_best_outcome_selection():
+    from modules import no_llm_challenger_eval as ev
+    predictions = [{"day": "2026-11-11", "watchlist": [
+        {"ticker": "ABC", "signal_id": "s1", "contract": "ABC261120C00100000",
+         "model_net_estimate": 0.25}]}]
+    candidates = [{"date": "2026-11-11", "signal_id": "s1", "ticker": "ABC",
+                   "exprs": [{"contract": ["ABC261120C00100000"],
+                              "status": "NO_LABEL", "y": None}]}]
+    a = ev.evaluate(predictions, candidates)
+    assert a["verified"] == 0 and a["unverified"] == 1 and a["mean_of_day_means"] is None
+    candidates[0]["exprs"] = [{"contract": ["ABC261120C00100000"], "status": "VERIFIED",
+                              "y": -0.2, "label_day": date(2026,11,17)}]
+    b = ev.evaluate(predictions, candidates)
+    assert b["verified"] == 1 and b["rows"][0]["net_return"] == -0.2
+    assert b["claim_proven_alpha"] is False
