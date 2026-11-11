@@ -1317,6 +1317,18 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
         # Scorecards und Meta-Label (nur Zeilen mit Richtung) bleiben unverändert.
         # Kein LLM-Aufruf, nie mehr Snapshots als ledger.max_option_snapshots.
         research_budget = max(0, max_snapshots - len(selected_ids)) if _research_option_sample_enabled() else 0
+        # Additional RESEARCH-ONLY slots: up to +40 on top of the pinned
+        # Champion snapshot capacity, only after explicit provider-plan approval.
+        # No production direction, eligibility, gate, or order changes.
+        try:
+            from modules import research_snapshot_expansion as _rse
+            _extra, _reason = _rse.additional_slots(max_snapshots)
+            if _research_option_sample_enabled():
+                research_budget += _extra
+            log.info("Research snapshot extension: extra=%d reason=%s; research_budget=%d",
+                     _extra if _research_option_sample_enabled() else 0, _reason, research_budget)
+        except Exception as _e:  # noqa: BLE001 – optional research must never block scanner
+            log.warning("Research snapshot extension unavailable: %s", _e)
         # Erfassungs-Bandit (2026-11-08, nur Research): Thompson-Sampling auf dem Erfassungsmodell des
         # Options-Lernmodells mit 50 % Gleichverteilung und exakten Einschlusswahrscheinlichkeiten, je Zeile
         # protokolliert (option_learner.acquisition_report). Jeder Fehler -> bisherige Hash-Stichprobe (B/N).
