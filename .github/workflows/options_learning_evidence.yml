@@ -1,0 +1,44 @@
+name: Options Learning Evidence Audit (research only)
+
+on:
+  schedule:
+    - cron: '10 19 * * 6'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: options-learning-audit
+  cancel-in-progress: false
+
+jobs:
+  offline_audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout main snapshots and predictions
+        uses: actions/checkout@v5
+        with:
+          ref: main
+      - name: Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Dependencies
+        run: pip install -r requirements.txt
+      - name: Strict historical entry-quote audit
+        run: |
+          python -m modules.label_recovery_audit --horizon 5
+          python -m modules.label_recovery_audit --horizon 20
+      - name: No-LLM prospective paper evaluation (real option quotes only)
+        run: |
+          python -m modules.no_llm_challenger_eval --horizon 5
+          python -m modules.no_llm_challenger_eval --horizon 20
+      - name: Commit read-only reports
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/ci_push.sh "chore(research): weekly option-learning evidence audit" \
+            outputs/research/label_recovery_audit/ outputs/research/no_llm_evaluation/
