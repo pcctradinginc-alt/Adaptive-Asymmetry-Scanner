@@ -22,5 +22,6 @@ start_date: "2026-11-12"   # erster Handelstag sicher unter der gepinnten Konfig
 hypothesis: "Die eingefrorene Champion-Pipeline erzielt eine positive verlässliche Netto-Optionsrendite je Trade."
 primary_metric: "outcome_net (RELIABLE, Entry Ask / Exit Bid, abzüglich Kommission) je geschlossenem Champion-Trade"
 looks_at_n: [30, 60, 90]
+min_independent_entry_days: 10  # no significance claim from clustered entry dates
 max_duration_days: 365
 decision_config_sha256: "b39afb81728d61bfa8e0dcfd4b3edb3a0571f7cfcee080b629feec6d64880607"
