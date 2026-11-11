@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-11T00:10:41+00:00",
+ "generated": "2026-11-11T22:06:31+00:00",
  "as_of": "2026-11-11",
  "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
  "n_labels": 198,
@@ -11,13 +11,12 @@
  "n_labels_target_population": 198,
  "population_shift": {
   "status": "OK",
-  "n_target": 237,
-  "n_other": 804,
-  "n_shifted": 11,
+  "n_target": 238,
+  "n_other": 806,
+  "n_shifted": 10,
   "shifted": [
    "final_mc_hit_rate",
    "mismatch",
-   "ml_disagreement_sd",
    "ml_exp_dd_60",
    "ml_exp_ret_60",
    "ml_q10_ret_60",
@@ -30,49 +29,49 @@
   "top": [
    {
     "feature": "ml_q10_ret_60",
-    "smd": -1.249,
+    "smd": -1.25,
     "missing_target": 0.118,
     "missing_other": 0.052
    },
    {
     "feature": "sigma_30d",
-    "smd": 1.031,
+    "smd": 1.036,
     "missing_target": 0.0,
     "missing_other": 0.872
    },
    {
     "feature": "ml_exp_ret_60",
-    "smd": 0.994,
+    "smd": 0.991,
     "missing_target": 0.118,
     "missing_other": 0.052
    },
    {
     "feature": "ml_exp_dd_60",
-    "smd": -0.473,
+    "smd": -0.476,
     "missing_target": 0.118,
     "missing_other": 0.052
    },
    {
     "feature": "sentiment_score",
-    "smd": 0.378,
+    "smd": 0.379,
     "missing_target": 0.063,
     "missing_other": 0.025
    },
    {
     "feature": "ml_disagreement_sd",
-    "smd": 0.254,
+    "smd": 0.244,
     "missing_target": 0.118,
     "missing_other": 0.052
    },
    {
     "feature": "sentiment_drift",
-    "smd": 0.184,
+    "smd": 0.19,
     "missing_target": 0.063,
     "missing_other": 0.025
    },
    {
     "feature": "scan_day_ret",
-    "smd": 0.169,
+    "smd": 0.18,
     "missing_target": 0.063,
     "missing_other": 0.025
    }

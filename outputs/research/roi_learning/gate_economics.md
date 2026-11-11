@@ -6,6 +6,7 @@
 
 | Datum | Sektor | Quote-Probes | Budget-untersucht: nein | Earnings-Reject | Haiku | Sonnet | Quick-MC | ROI OK | Trades |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2026-11-11 | 173 | 8 | 165 | 1 | 7 | 3 | 1 | 0 | 0 |
 | 2026-11-10 | 175 | 8 | 167 | 1 | 7 | 2 | 1 | 0 | 0 |
 | 2026-11-09 | 145 | 8 | 137 | 2 | 6 | 3 | 1 | 0 | 0 |
 | 2026-11-06 | 132 | 8 | 124 | 4 | 3 | 2 | 1 | 0 | 0 |
@@ -15,7 +16,6 @@
 | 2026-11-02 | 123 | 8 | 115 | 2 | 6 | 1 | 0 | 0 | 0 |
 | 2026-10-30 | 291 | 8 | 283 | 0 | 8 | 2 | 0 | 0 | 0 |
 | 2026-10-29 | 375 | 8 | 367 | 1 | 7 | 3 | 0 | 0 | 0 |
-| 2026-10-28 | 358 | 8 | 350 | 5 | 3 | 1 | 0 | 0 | 0 |
 
 Budget-bedingt nicht untersuchte Kandidaten sind **keine** nachgewiesenen
 ökonomischen Rejects. Für unbepreiste Aktien existieren keine realen Options-Outcomes.
@@ -47,20 +47,20 @@ Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.
 
 | Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |
 |---|---:|---:|---:|---:|---:|---:|
-| prescreen_no | 3934 | 0 | 3914 | 0.5% | 3091 | 2.2% |
-| economics_first_quote_probe_budget | 2403 | 0 | 1975 | n/v | 0 | n/v |
-| sector_momentum_weak | 909 | 1 | 809 | 0.5% | 432 | 3.0% |
+| prescreen_no | 3937 | 0 | 3914 | 0.5% | 3091 | 2.2% |
+| economics_first_quote_probe_budget | 2568 | 0 | 1975 | n/v | 0 | n/v |
+| sector_momentum_weak | 938 | 1 | 809 | 0.5% | 432 | 3.0% |
 | earnings_gate | 439 | 43 | 439 | -0.3% | 225 | 0.2% |
-| mismatch_below_min | 345 | 345 | 342 | 0.3% | 269 | -0.8% |
-| bearish_disabled | 312 | 312 | 310 | -0.1% | 267 | 0.7% |
+| mismatch_below_min | 346 | 346 | 342 | 0.3% | 269 | -0.8% |
+| bearish_disabled | 313 | 313 | 310 | -0.1% | 267 | 0.7% |
 | time_budget_exceeded | 253 | 0 | 252 | n/v | 252 | n/v |
 | pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 180 | 7.0% |
-| options_design_roi_or_edge | 166 | 166 | 164 | 0.2% | 142 | -2.6% |
+| options_design_roi_or_edge | 167 | 167 | 164 | 0.2% | 142 | -2.6% |
 | deep_analysis_veto_or_invalid | 162 | 0 | 162 | -0.4% | 137 | -3.4% |
 | mc_below_threshold | 100 | 100 | 100 | 1.0% | 83 | 4.8% |
 | prescreen_bearish_prefilter | 39 | 0 | 39 | n/v | 0 | n/v |
 | impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 28 | 2.6% |
-| economics_first_earnings_gate | 21 | 0 | 14 | n/v | 0 | n/v |
+| economics_first_earnings_gate | 22 | 0 | 14 | n/v | 0 | n/v |
 | unlabeled_after_options_design | 20 | 20 | 20 | n/v | 20 | n/v |
 
 *Mittelwerte erst ab 20 Marks an 10 unabhängigen Signaltagen; nicht kausal.
