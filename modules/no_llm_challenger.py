@@ -53,11 +53,21 @@ def decide(rows: list[dict], day: date, model: dict | None) -> dict:
     for row in candidates:
         # Non-production research census is an existing, observed bullish call.
         # Do NOT choose the winner from several expiries after observing outcomes.
+        # Only the unbiased LLM-free acquisition cohort: no Sonnet/Haiku
+        # direction label and no production-selected ticker in the cohort.
+        if row.get("option_sample") != "research_census" or row.get("direction") is not None:
+            continue
         option = row.get("real_option") or {}
         rs = row.get("real_strategy") or {}
         if not isinstance(option, dict) or not isinstance(rs, dict):
             continue
         if not option.get("symbol") or not rs.get("legs"):
+            continue
+        # The acquisition model is trained on bullish Call research only.
+        # Do not silently score Puts or strategies outside that population.
+        if str(option["symbol"])[-9:-8] != "C" or rs.get("strategy") not in ol.ALLOWED_STRATEGIES:
+            continue
+        if option.get("entry_pending") or rs.get("entry_pending") or rs.get("entry_status") == "UNUSABLE":
             continue
         # Do not claim filled P&L from a quote. Entry requires positive net debit.
         debit = rs.get("net_debit_entry")
