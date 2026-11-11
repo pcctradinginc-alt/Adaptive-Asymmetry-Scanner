@@ -53,6 +53,10 @@ def policy(path: Path | None = None) -> dict:
 
 
 def scope_of(workflow: str, pol: dict | None = None) -> str:
+    # Dedicated census runner reuses the same DeepAnalysis class but its
+    # API usage is RESEARCH, not production. The flag is never set by scanner.
+    if os.getenv("RESEARCH_ONLY_LLM_CENSUS") == "1" and workflow in ("deep_analysis", "prescreening"):
+        return "research"
     return str(((pol or policy()).get("scopes") or {}).get(workflow, "research"))
 
 
