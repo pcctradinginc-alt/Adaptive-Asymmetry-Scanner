@@ -8,17 +8,17 @@
  "safe_mode_effect": "Wirkt nur auf den Research-Einfluss: keine positiven Boosts/Gewichte des Production Intelligence Adapters (validierte Abstinenz bleibt erlaubt), Promotionen pausiert, Meta-Learning nicht aktiv. Champion-Entscheidungen (Gates, Filter, Optionsauswahl) unverändert.",
  "data_health": {
   "status": "OK",
-  "data_quality": 0.959,
+  "data_quality": 0.976,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-11-10T19:59:15+00:00",
+  "generated": "2026-11-11T17:27:39+00:00",
   "counts": {
-   "HEALTHY": 46,
+   "HEALTHY": 47,
    "DEGRADED": 2,
-   "STALE": 2,
+   "STALE": 1,
    "BROKEN": 0,
    "UNVALIDATED": 13
   },
@@ -95,7 +95,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 0.959
+    "data_quality": 0.976
    }
   },
   "reasons": [
@@ -110,7 +110,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-07T15:06:36+00:00",
-  "drift_input_age_days": 3.4,
+  "drift_input_age_days": 4.1,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -120,7 +120,7 @@
   "version": "scanner_rules@9aaf7a892de0"
  },
  "promotion_state": {
-  "generated": "2026-11-10T21:23:14+00:00",
+  "generated": "2026-11-11T00:10:42+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -184,15 +184,15 @@
  "inputs": {
   "model_health": "55e58d46d923",
   "meta_learning": "be7453f22501",
-  "data_health": "a57f0e5e6f12",
-  "promotion": "956f99894b1c",
+  "data_health": "350dcd648b6e",
+  "promotion": "9e7bde88719a",
   "model_registry": "a0c0ce90b949",
   "champion_config": "9aaf7a892de0",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "c9c59a294088"
  },
- "state_version": 113,
- "fingerprint": "56d1c6da010eeb1d",
- "updated_at": "2026-11-11T00:10:42+00:00",
- "code_version": "14bcb9c501b2"
+ "state_version": 114,
+ "fingerprint": "5dc9cffd36a3b72b",
+ "updated_at": "2026-11-11T17:27:39+00:00",
+ "code_version": "a49c68269aec"
 }

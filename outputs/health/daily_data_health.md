@@ -1,17 +1,20 @@
-# Daily Data Health Report – 2026-11-10
+# Daily Data Health Report – 2026-11-11
 
-**Safe Mode (Daten): aus** – gewichtete Data Quality 0.959
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.976
 
-Status: HEALTHY 46 · DEGRADED 2 · STALE 2 · BROKEN 0 · UNVALIDATED 13
+Status: HEALTHY 47 · DEGRADED 2 · STALE 1 · BROKEN 0 · UNVALIDATED 13
+
+## Neue Änderungen
+
+- recovery: nhc_storms DEGRADED → HEALTHY
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
 | estat_jp_truck | STALE | NON_CRITICAL | 0 | 2026-03-01 | – | veraltet (Frequenz-Grenze der Registry) |
-| finra_short_interest | STALE | NON_CRITICAL | 0 | 2026-10-15 | – | veraltet (Frequenz-Grenze der Registry) |
+| finra_short_interest | DEGRADED | NON_CRITICAL | 0 | 2026-10-30 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
-| nhc_storms | DEGRADED | IMPORTANT | 0 | – | – | Ingest WARN: DQ: SCALE_SHIFT; Data-Quality-Befund schwerwiegend |
 
 ## Fallbacks
 
