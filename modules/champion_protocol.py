@@ -83,6 +83,38 @@ def reliable_trades(history: dict, start: date) -> list[dict]:
     return sorted(out, key=lambda r: (r["close_date"], r["ticker"] or "", r["entry_date"]))
 
 
+def frozen_entry_cohort(history: dict, start: date) -> list[dict]:
+    """All champion entries (not merely closed winners), ordered by ENTRY time.
+
+    Active / exit-pending / unusable trades remain in the denominator. The
+    earliest preregistered entry cohort cannot complete while any constituent
+    lacks a reliable outcome. No historical data is changed.
+    """
+    from modules.outcomes import is_reliable_outcome
+    rows = []
+    for source in ("closed_trades", "closed_trades_unusable",
+                   "exit_pending_trades", "active_trades"):
+        for idx, t in enumerate(history.get(source) or []):
+            if not isinstance(t, dict):
+                continue
+            try:
+                entry = date.fromisoformat(str(t.get("entry_date"))[:10])
+            except (TypeError, ValueError):
+                continue
+            if entry < start:
+                continue
+            y = t.get("outcome_net")
+            reliable = (source == "closed_trades" and is_reliable_outcome(t)
+                        and isinstance(y, (int, float)) and math.isfinite(y))
+            rows.append({"ticker": t.get("ticker"), "entry_date": entry.isoformat(),
+                         "decision_time": str(t.get("decision_time") or ""),
+                         "source": source, "source_index": idx,
+                         "reliable": reliable, "y": float(y) if reliable else None,
+                         "close_date": str(t.get("close_date") or "")[:10]})
+    return sorted(rows, key=lambda t: (t["entry_date"], t["decision_time"],
+                                       str(t["ticker"]), t["source"], t["source_index"]))
+
+
 def day_means(trades: list[dict]) -> list[float]:
     by: dict[str, list[float]] = {}
     for t in trades:
@@ -137,11 +169,17 @@ def evaluate(today: date | None = None, *, protocol_path: Path = PROTOCOL, histo
     except (OSError, ValueError):
         history = {}
     trades = reliable_trades(history, start)
+    strict_cohort = str(proto.get("version") or "").startswith("champion-v3-")
+    entries = frozen_entry_cohort(history, start) if strict_cohort else []
     res = {"protocol": proto.get("version"), "as_of": today.isoformat(), "start_date": start.isoformat(),
            "primary_metric": proto.get("primary_metric"), "decision_config_sha256": current_sha,
            "decision_config_pinned": proto.get("decision_config_sha256"),
            "ledger_alpha": (alloc or {}).get("alpha"), "look_alpha": look_alpha, "looks_at_n": looks,
            "reliable_trades": len(trades), "looks": [], "production_influence": "NONE"}
+    if strict_cohort:
+        res["entry_cohort_size"] = len(entries)
+        res["entry_cohort_unreliable_or_pending"] = sum(not x["reliable"] for x in entries)
+        res["min_independent_entry_days"] = int(proto.get("min_independent_entry_days", 10))
     if current_sha != proto.get("decision_config_sha256"):
         res["status"] = "PROTOCOL_BROKEN"
         res["reason"] = ("Entscheidungs-Konfiguration weicht vom registrierten Stand ab – neue Protokollversion "
@@ -153,17 +191,31 @@ def evaluate(today: date | None = None, *, protocol_path: Path = PROTOCOL, histo
         return res
     status = "NEED_MORE_DATA"
     for k, n in enumerate(looks, start=1):
-        if len(trades) < n:
-            break
-        subset = trades[:n]
+        if strict_cohort:
+            if len(entries) < n:
+                break
+            group = entries[:n]  # fixed by entry order, never selected by close order
+            not_ready = [t for t in group if not t["reliable"]]
+            if not_ready:
+                res["next_look_blocked"] = {"look": k, "n_entries": n,
+                                            "unresolved_or_unreliable": len(not_ready)}
+                break
+            subset = group
+        else:
+            if len(trades) < n:
+                break
+            subset = trades[:n]
         test = one_sided_test(day_means(subset), look_alpha)
+        if strict_cohort and test["n_days"] < res["min_independent_entry_days"]:
+            test.update(p_value=None, lower=None, upper=None)
         verdict = ("CONFIRMED_POSITIVE" if test["p_value"] is not None and test["p_value"] < look_alpha
                    and (test["mean"] or 0) > 0 else
                    "REJECTED_NEGATIVE" if test["upper"] is not None and test["upper"] < 0 else "CONTINUE")
         report = {"protocol": proto.get("version"), "look": k, "n_trades": n,
                   "trade_ids": [f"{t['ticker']}|{t['entry_date']}|{t['close_date']}" for t in subset],
                   "test": test, "look_alpha": look_alpha, "verdict": verdict, "evaluated_on": today.isoformat()}
-        rep = _freeze(out, k, report) if persist else report
+        look_dir = out / str(proto["version"]) if strict_cohort else out
+        rep = _freeze(look_dir, k, report) if persist else report
         res["looks"].append({k2: rep.get(k2) for k2 in ("look", "n_trades", "test", "verdict", "evaluated_on")})
         status = rep.get("verdict", verdict)
         if status in ("CONFIRMED_POSITIVE", "REJECTED_NEGATIVE"):
