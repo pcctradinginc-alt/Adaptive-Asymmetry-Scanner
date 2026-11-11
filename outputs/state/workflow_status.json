@@ -1,72 +1,6 @@
 {
   "version": "wf-sched-v1",
   "days": {
-    "2026-10-20": {
-      "external_data": {
-        "file": "external_data.yml",
-        "expected": "2026-10-20T06:17+00:00",
-        "deadline": "2026-10-20T16:17+00:00",
-        "actual_last_run": "2026-10-20T11:41:23Z",
-        "conclusion": "success",
-        "delay_hours": 5.4,
-        "runs_today": 1,
-        "recovered": false,
-        "recoveries_today": 0,
-        "artifact_ok": true,
-        "action": null,
-        "stale_upstream": [],
-        "reason": null,
-        "state": "OK"
-      },
-      "source_health": {
-        "file": "source_health.yml",
-        "expected": "2026-10-20T12:41+00:00",
-        "deadline": "2026-10-20T15:41+00:00",
-        "actual_last_run": "2026-10-20T17:28:44Z",
-        "conclusion": "success",
-        "delay_hours": 4.6,
-        "runs_today": 2,
-        "recovered": true,
-        "recoveries_today": 1,
-        "artifact_ok": true,
-        "action": null,
-        "stale_upstream": [],
-        "reason": null,
-        "state": "OK"
-      },
-      "scanner": {
-        "file": "scanner.yml",
-        "expected": "2026-10-20T13:30+00:00",
-        "deadline": "2026-10-20T17:30+00:00",
-        "actual_last_run": "2026-10-20T18:35:08Z",
-        "conclusion": "success",
-        "delay_hours": 4.0,
-        "runs_today": 3,
-        "recovered": false,
-        "recoveries_today": 0,
-        "artifact_ok": true,
-        "action": null,
-        "stale_upstream": [],
-        "reason": null,
-        "state": "OK"
-      },
-      "feedback": {
-        "file": "feedback.yml",
-        "expected": "2026-10-20T15:30+00:00",
-        "deadline": "2026-10-20T23:30+00:00",
-        "actual_last_run": "2026-10-20T19:24:42Z",
-        "conclusion": "success",
-        "delay_hours": 3.9,
-        "runs_today": 1,
-        "recovered": false,
-        "recoveries_today": 0,
-        "artifact_ok": null,
-        "action": null,
-        "stale_upstream": [],
-        "reason": null,
-        "state": "OK"
-      }
-    },
     "2026-10-21": {
       "external_data": {
         "file": "external_data.yml",
@@ -1452,12 +1386,77 @@
         "reason": null,
         "state": "OK"
       }
+    },
+    "2026-11-11": {
+      "external_data": {
+        "file": "external_data.yml",
+        "expected": "2026-11-11T06:17+00:00",
+        "deadline": "2026-11-11T16:17+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "source_health": {
+        "file": "source_health.yml",
+        "expected": "2026-11-11T12:41+00:00",
+        "deadline": "2026-11-11T15:41+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "scanner": {
+        "file": "scanner.yml",
+        "expected": "2026-11-11T13:30+00:00",
+        "deadline": "2026-11-11T17:30+00:00",
+        "actual_last_run": null,
+        "conclusion": null,
+        "delay_hours": null,
+        "runs_today": 0,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": false,
+        "action": null,
+        "stale_upstream": [
+          "source_health"
+        ],
+        "reason": null,
+        "state": "PENDING"
+      },
+      "feedback": {
+        "file": "feedback.yml",
+        "expected": "2026-11-11T15:30+00:00",
+        "deadline": "2026-11-11T23:30+00:00",
+        "actual_last_run": "2026-11-11T00:07:36Z",
+        "conclusion": "success",
+        "delay_hours": -15.4,
+        "runs_today": 1,
+        "recovered": false,
+        "recoveries_today": 0,
+        "artifact_ok": null,
+        "action": null,
+        "stale_upstream": [],
+        "reason": null,
+        "state": "OK"
+      }
     }
   },
   "recoveries": {
-    "2026-10-20": {
-      "source_health": 1
-    },
     "2026-10-21": {
       "source_health": 1
     },
