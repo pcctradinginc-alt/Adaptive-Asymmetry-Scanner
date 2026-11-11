@@ -1047,7 +1047,8 @@ def _v2_entry(row: dict, key: str, now: datetime) -> bool:
         spec.update(entry_pending=False, entry_status="UNUSABLE",
                     entry_unusable_reason="SIGNAL_TIME_MISSING" if sig is None else "CONTRACT_UNKNOWN")
         return True
-    after = sig - timedelta(minutes=tp.params()["decision_quote_max_age_minutes"]) if tp.in_window(sig, syms[0]) else sig
+    # Strictly after the frozen decision; never price a paper fill from an earlier quote.
+    after = sig
     f = tp.find_fill(syms, after, now)
     if f["status"] == "PENDING":
         changed = spec.get("entry_status") != "PENDING"
