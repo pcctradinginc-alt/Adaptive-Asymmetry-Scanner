@@ -1329,7 +1329,9 @@ def main() -> None:
             _da = a.get("deep_analysis", {}) or {}
             candidate_ledger.note(
                 a.get("ticker"), stage="deep_analysis",
-                direction=_da.get("direction"), impact=_da.get("impact"),
+                direction=_da.get("direction"),
+                decision_frozen_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                impact=_da.get("impact"),
                 surprise=_da.get("surprise"), ttm=_da.get("time_to_materialization"),
                 llm_audit=_da.get("llm_audit"),
                 # P2 Signal-Identität (candidate_ledger.py): Katalysator-Text
@@ -1985,6 +1987,17 @@ def main() -> None:
 
         # ── Positionsgrößen (Fractional Kelly, Depot aus config.yaml) ────────
         trade_proposals = enrich_with_sizing(trade_proposals)
+        # No suggested or booked trade may bypass the unit-risk hard cap.
+        # Missing/broken sizing is a reject, never an implicit approval.
+        _risk_passed = []
+        for _p in trade_proposals:
+            _s = _p.get("position_sizing") or {}
+            if int(_s.get("contracts") or 0) <= 0:
+                candidate_ledger.mark_rejected(_p.get("ticker"), "risk_sizing_rejected")
+                log.warning("  [%s] Risk cap / invalid sizing: no bookable contract", _p.get("ticker"))
+            else:
+                _risk_passed.append(_p)
+        trade_proposals = _risk_passed
 
         log.info("Trade-Ranking:")
         for p in trade_proposals:

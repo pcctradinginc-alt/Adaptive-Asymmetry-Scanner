@@ -42,6 +42,7 @@ v8.3 Options-P&L Monte Carlo (Phase 1):
 
 from __future__ import annotations
 import logging
+import hashlib
 import math
 import numpy as np
 from scipy.stats import norm as _scipy_norm
@@ -323,6 +324,13 @@ class MirofishSimulation:
         )
 
         # ── Monte Carlo ───────────────────────────────────────────────────────
+        # Stable per-candidate/per-model Monte Carlo stream: reruns of the same
+        # frozen inputs cannot change a gate solely due to random seed entropy.
+        seed_parts = (ticker, str(days_to_expiry), str(round(current, 6)),
+                      str(round(sigma, 8)), str(round(base_alpha, 8)),
+                      str(round(decay_rate, 8)), str(round(target, 6)))
+        seed = int(hashlib.sha256("|".join(seed_parts).encode()).hexdigest()[:16], 16)
+        rng = np.random.default_rng(seed)
         paths_hit = 0
         for _ in range(n_paths):
             price = current
@@ -330,7 +338,7 @@ class MirofishSimulation:
             for d in range(days_to_expiry):
                 # Alpha nimmt exponentiell ab (Narrative verblasst)
                 daily_alpha = base_alpha * math.exp(-decay_rate * d)
-                daily_ret   = daily_alpha + sigma * self.rng.standard_normal()
+                daily_ret   = daily_alpha + sigma * rng.standard_normal()
                 price      *= (1.0 + daily_ret)
                 if price >= target:
                     hit = True

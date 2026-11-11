@@ -131,15 +131,17 @@ def compute_position_size(proposal: dict) -> dict:
 
 
 def _unit_sizing(proposal: dict, pc: dict, cost_per_contract: float, kelly_info: dict) -> dict:
-    """Einheitsgröße: 1 Kontrakt/Struktur; Überschreitung des Positions-Caps wird nur geflaggt."""
-    contracts = 1 if cost_per_contract > 0 else 0
+    """Einheitsgröße: nur wenn ein Kontrakt innerhalb der harten Verlustgrenze liegt."""
+    max_risk = max(0.0, pc["size_usd"] * pc["max_position_pct"])
+    too_large = cost_per_contract > max_risk or max_risk <= 0
+    contracts = 1 if cost_per_contract > 0 and not too_large else 0
     position_usd = round(cost_per_contract * contracts, 2)
     pct = round(position_usd / pc["size_usd"], 4) if pc["size_usd"] > 0 else 0.0
-    exceeds = pct > pc["max_position_pct"] + 1e-9
+    exceeds = too_large and cost_per_contract > 0
     note = UNIT_NOTE if contracts else "Kein Optionspreis – keine Einheitsposition möglich, nur beobachten."
     if exceeds:
-        note += (f" | Flag: Position {pct:.1%} des Depots übersteigt Cap "
-                 f"{pc['max_position_pct']:.0%} (portfolio.max_position_pct).")
+        note += (f" | REJECT: 1 Kontrakt (${cost_per_contract:.0f}) überschreitet das Risikolimit "
+                 f"${max_risk:.0f} (portfolio.max_position_pct).")
     sizing = {
         "portfolio_usd":     pc["size_usd"],
         "sizing_basis":      "UNIT",

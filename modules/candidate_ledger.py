@@ -529,6 +529,11 @@ def note(ticker, stage: str | None = None, **fields) -> None:
             for k, v in fields.items():
                 if k == "direction":
                     e["direction"] = v
+                elif k == "decision_frozen_at":
+                    # Final directional decision time is not the initial universe observation.
+                    # Set exactly once; never backdate or overwrite on subsequent research updates.
+                    if e.get("decision_frozen_at") is None and v is not None:
+                        e["decision_frozen_at"] = v
                 elif k == "external":
                     # Frozen: einmal je Signal gesetzt, danach NIE überschrieben
                     # (Vertrag: candidate_ledger friert external_context zum
@@ -1032,12 +1037,23 @@ def _v2_entry(row: dict, key: str, now: datetime) -> bool:
     spec = row.get(key)
     if not isinstance(spec, dict) or not spec.get("entry_pending"):
         return False
-    sig, syms = tp._ts(row.get("signal_timestamp")), _v2_symbols(row, key)
+    # Frozen decisions (new protocol): never fill before the completed LLM decision.
+    # Old v2 research rows have no decision_frozen_at; retain historical behavior
+    # for reproducibility, but do not misrepresent them as newly time-verified.
+    directional = row.get("direction") in ("BULLISH", "BEARISH")
+    strict = directional and "decision_frozen_at" in row
+    decision_ts = row.get("decision_frozen_at") if strict else row.get("signal_timestamp")
+    sig, syms = tp._ts(decision_ts), _v2_symbols(row, key)
     if sig is None or not syms or any(x is None for x in syms):
         spec.update(entry_pending=False, entry_status="UNUSABLE",
                     entry_unusable_reason="SIGNAL_TIME_MISSING" if sig is None else "CONTRACT_UNKNOWN")
         return True
-    after = sig - timedelta(minutes=tp.params()["decision_quote_max_age_minutes"]) if tp.in_window(sig, syms[0]) else sig
+    # Legacy v2 kept its 15-minute pre-observation quote tolerance.
+    # The new frozen-decision protocol can NEVER use pre-decision quotes.
+    after = sig if strict else (
+        sig - timedelta(minutes=tp.params()["decision_quote_max_age_minutes"])
+        if tp.in_window(sig, syms[0]) else sig
+    )
     f = tp.find_fill(syms, after, now)
     if f["status"] == "PENDING":
         changed = spec.get("entry_status") != "PENDING"
@@ -1423,6 +1439,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "underlying":       resolved["underlying"],
                 "gap_at_entry":     resolved["gap_at_entry"],
                 "signal_timestamp": e.get("signal_timestamp"),
+                "decision_frozen_at": e.get("decision_frozen_at"),
                 "timing_policy":    _timing_policy_current(),
                 # Externer Kontext: beim ersten note(external=...) eingefroren,
                 # hier unverändert persistiert (nie neu berechnet).

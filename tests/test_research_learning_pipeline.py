@@ -105,7 +105,7 @@ def test_no_production_config_changed_and_workflow_order():
     pipeline = (base / "pipeline.py").read_text()
     assert pipeline.index("_lco.freeze(candidates, today)") < pipeline.index("select_before_haiku(")
     assert "max_quote_probes: 8" in (base / "config/economics_first.yaml").read_text()
-    assert "champion-v2-2026-11-09" in (base / "config/champion_protocol.yaml").read_text()
+    assert "champion-v3-2026-11-11" in (base / "config/champion_protocol.yaml").read_text()
 
 def test_no_llm_evaluation_has_no_imputation_or_best_outcome_selection():
     from modules import no_llm_challenger_eval as ev
