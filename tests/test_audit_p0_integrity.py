@@ -77,3 +77,16 @@ def test_mc_repeats_same_candidate_results(monkeypatch):
     b = mf.MirofishSimulation().run_for_dte(cand, days_to_expiry=30)["simulation"]
     assert a["hit_rate"] == b["hit_rate"] and a["rng_seed"] == b["rng_seed"]
     assert a["trading_steps"] == round(30 * 252 / 365)
+
+
+def test_v3_entry_cohort_keeps_open_and_unusable_positions_in_denominator():
+    from datetime import date
+    history = {
+        "active_trades": [{"ticker": "AAA", "entry_date": "2026-11-12", "decision_time": "2026-11-12T15:00:00Z"}],
+        "closed_trades": [{"ticker": "BBB", "entry_date": "2026-11-13",
+                           "outcome_method": "option_quote", "outcome_net": 0.2}],
+        "closed_trades_unusable": [{"ticker": "CCC", "entry_date": "2026-11-14"}],
+    }
+    cohort = cp.frozen_entry_cohort(history, date(2026, 11, 12))
+    assert [x["ticker"] for x in cohort] == ["AAA", "BBB", "CCC"]
+    assert [x["reliable"] for x in cohort] == [False, True, False]
