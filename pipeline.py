@@ -1984,7 +1984,9 @@ def main() -> None:
             log.info(f"  {len(_shadow)} Schatten-Trade(s) registriert (Gate-Validierung)")
 
         # ── Positionsgrößen (Fractional Kelly, Depot aus config.yaml) ────────
+        _before_sizing = len(trade_proposals)
         trade_proposals = enrich_with_sizing(trade_proposals)
+        stats["risk_cap_rejected"] = _before_sizing - len(trade_proposals)
 
         log.info("Trade-Ranking:")
         for p in trade_proposals:
@@ -1997,7 +1999,9 @@ def main() -> None:
     stats["roi_ok"] = len(trade_proposals)
     stats["trades"] = len(trade_proposals)
     if not trade_proposals:
-        stats["stop_reason"] = "Alle Options-Kontrakte scheitern am ROI-Gate."
+        stats["stop_reason"] = ("Alle verbleibenden Kontrakte durch Positions-/Risikocap blockiert."
+                                if stats.get("risk_cap_rejected") else
+                                "Alle Options-Kontrakte scheitern am ROI-Gate.")
 
     for p in trade_proposals:
         try:
