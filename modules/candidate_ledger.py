@@ -457,7 +457,6 @@ def _new_signal(ticker: str, event_key=None) -> dict:
         # wurde (UTC, Sekundenpräzision) — für die Pre-Registrierungs-
         # Walk-forward-Prüfung im Challenger-Modul (registered_at).
         "signal_timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "decision_frozen_at": None,
         # Eindeutige ID je Signal — bei Erzeugung vergeben (nicht erst beim
         # Flush), damit sie über note()-Aufrufe hinweg stabil bleibt.
         "signal_id":        uuid.uuid4().hex,
@@ -1038,17 +1037,23 @@ def _v2_entry(row: dict, key: str, now: datetime) -> bool:
     spec = row.get(key)
     if not isinstance(spec, dict) or not spec.get("entry_pending"):
         return False
-    # Directional options cannot be filled before the LLM has completed its decision.
-    # Direction-neutral research census uses the original observation timestamp.
+    # Frozen decisions (new protocol): never fill before the completed LLM decision.
+    # Old v2 research rows have no decision_frozen_at; retain historical behavior
+    # for reproducibility, but do not misrepresent them as newly time-verified.
     directional = row.get("direction") in ("BULLISH", "BEARISH")
-    decision_ts = row.get("decision_frozen_at") if directional else row.get("signal_timestamp")
+    strict = directional and "decision_frozen_at" in row
+    decision_ts = row.get("decision_frozen_at") if strict else row.get("signal_timestamp")
     sig, syms = tp._ts(decision_ts), _v2_symbols(row, key)
     if sig is None or not syms or any(x is None for x in syms):
         spec.update(entry_pending=False, entry_status="UNUSABLE",
                     entry_unusable_reason="SIGNAL_TIME_MISSING" if sig is None else "CONTRACT_UNKNOWN")
         return True
-    # Strictly after the frozen decision; never price a paper fill from an earlier quote.
-    after = sig
+    # Legacy v2 kept its 15-minute pre-observation quote tolerance.
+    # The new frozen-decision protocol can NEVER use pre-decision quotes.
+    after = sig if strict else (
+        sig - timedelta(minutes=tp.params()["decision_quote_max_age_minutes"])
+        if tp.in_window(sig, syms[0]) else sig
+    )
     f = tp.find_fill(syms, after, now)
     if f["status"] == "PENDING":
         changed = spec.get("entry_status") != "PENDING"
