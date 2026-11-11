@@ -98,7 +98,7 @@ def one_sided_test(xs: list[float], alpha: float) -> dict:
         return {"n_days": n, "mean": None, "p_value": None, "lower": None, "upper": None}
     m = sum(xs) / n
     sd = math.sqrt(sum((x - m) ** 2 for x in xs) / (n - 1))
-    if sd == 0:
+    if sd <= 1e-12 * max(1.0, abs(m)):
         # Zero sample variance does NOT establish zero sampling uncertainty.
         # Never declare statistical confirmation from perfectly repeated few-day returns.
         return {"n_days": n, "mean": round(m, 6), "p_value": None,
