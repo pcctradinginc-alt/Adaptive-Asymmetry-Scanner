@@ -1,0 +1,6 @@
+# Research-only option snapshot expansion, never an instruction to the Champion.
+# Activation requires TRADIER_RESEARCH_80_APPROVED=1 after checking provider plan/rate limits.
+enabled: true
+max_extra_snapshots: 40
+max_total_snapshots: 80
+require_tradier_plan_approval: true
