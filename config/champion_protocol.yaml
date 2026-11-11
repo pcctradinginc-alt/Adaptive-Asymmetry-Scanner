@@ -14,10 +14,11 @@
 #    verlässlichen Trades, Ledger-Alpha gleich auf die Prüfungen verteilt; Prüfberichte create-only eingefroren.
 #  * Kein Einfluss auf Trades (nur Messung). Ergebnis im Wochenbericht.
 
-version: "champion-v2-2026-11-09"
-registered_on: "2026-11-09"
-registered_at: "2026-11-09T20:00:00Z"
-start_date: "2026-11-11"   # erster Handelstag sicher unter der gepinnten Konfiguration (Merge 2026-11-10)
+# New cohort after P0 decision/timebase corrections. Preserve v2 historical outcomes.
+version: "champion-v3-2026-11-11"
+registered_on: "2026-11-11"
+registered_at: "2026-11-11T19:00:00Z"
+start_date: "2026-11-12"   # erster Handelstag sicher unter der gepinnten Konfiguration (Merge 2026-11-10)
 hypothesis: "Die eingefrorene Champion-Pipeline erzielt eine positive verlässliche Netto-Optionsrendite je Trade."
 primary_metric: "outcome_net (RELIABLE, Entry Ask / Exit Bid, abzüglich Kommission) je geschlossenem Champion-Trade"
 looks_at_n: [30, 60, 90]
