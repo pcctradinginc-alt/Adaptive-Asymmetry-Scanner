@@ -1987,6 +1987,17 @@ def main() -> None:
 
         # ── Positionsgrößen (Fractional Kelly, Depot aus config.yaml) ────────
         trade_proposals = enrich_with_sizing(trade_proposals)
+        # No suggested or booked trade may bypass the unit-risk hard cap.
+        # Missing/broken sizing is a reject, never an implicit approval.
+        _risk_passed = []
+        for _p in trade_proposals:
+            _s = _p.get("position_sizing") or {}
+            if int(_s.get("contracts") or 0) <= 0:
+                candidate_ledger.mark_rejected(_p.get("ticker"), "risk_sizing_rejected")
+                log.warning("  [%s] Risk cap / invalid sizing: no bookable contract", _p.get("ticker"))
+            else:
+                _risk_passed.append(_p)
+        trade_proposals = _risk_passed
 
         log.info("Trade-Ranking:")
         for p in trade_proposals:
