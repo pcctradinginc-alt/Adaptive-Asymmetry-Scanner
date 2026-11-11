@@ -116,6 +116,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY:     ${{ secrets.ANTHROPIC_API_KEY }}
           TRADIER_API_KEY:       ${{ secrets.TRADIER_API_KEY }}
+          TRADIER_RESEARCH_80_APPROVED: ${{ vars.TRADIER_RESEARCH_80_APPROVED }}
           NEWS_API_KEY:          ${{ secrets.NEWS_API_KEY }}
           GMAIL_SENDER:          ${{ secrets.GMAIL_SENDER }}
           GMAIL_APP_PW:          ${{ secrets.GMAIL_APP_PW }}
@@ -138,6 +139,19 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TRADIER_API_KEY:   ${{ secrets.TRADIER_API_KEY }}
         run: python feedback.py
+
+      # ── LLM-freier Challenger (Research-only; immutable day-of predictions) ─
+      # Must precede option_learner recommend: model must already exist before today.
+      - name: No-LLM prospective options ranking (research)
+        if: steps.scanner.outcome == 'success'
+        continue-on-error: true
+        run: python -m modules.no_llm_challenger --day "$(date -u +%Y-%m-%d)"
+
+      # ── Forensic audit: genuine archived option-entry evidence only ────────
+      - name: Audit missing historical option entries (read-only)
+        if: steps.scanner.outcome == 'success'
+        continue-on-error: true
+        run: python -m modules.label_recovery_audit --as-of "$(date -u +%Y-%m-%d)"
 
       # ── Options-Lernmodell (Research, kein Handel) ──────────────────────
       # Prognose je Kandidat mit Kontrakt ins append-only Journal (prospektiv, vor dem Label); Empfehlung und Mail

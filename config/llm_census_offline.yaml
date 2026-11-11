@@ -1,0 +1,8 @@
+# Separate daily research sample, frozen before all Champion gates.
+# Standalone workflow after the scanner; no production LLM budget/timing impact.
+enabled: true
+k: 5
+max_k: 10
+max_runtime_s: 600
+projected_monthly_cap_usd: 10.0
+minimum_monthly_headroom_usd: 1.0
