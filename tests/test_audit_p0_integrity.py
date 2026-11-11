@@ -29,7 +29,7 @@ def test_one_contract_cannot_exceed_hard_risk_limit():
 def test_directional_entry_requires_final_decision_timestamp(monkeypatch):
     from modules import timing_policy as tp
     row = {"signal_timestamp": "2026-11-11T15:00:00+00:00",
-           "direction": "BULLISH", "real_option": {"entry_pending": True,
+           "direction": "BULLISH", "decision_frozen_at": None, "real_option": {"entry_pending": True,
            "symbol": "SPY261218C00500000"}}
     # Missing final decision timestamp must fail closed, never reuse universe time.
     assert cl._v2_entry(row, "real_option", datetime(2026, 11, 11, 17, tzinfo=timezone.utc))
