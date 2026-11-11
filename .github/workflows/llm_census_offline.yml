@@ -33,8 +33,11 @@ jobs:
       - name: Research-only LLM census
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          RESEARCH_ONLY_LLM_CENSUS: '1'
         run: python -m modules.llm_census_offline --day "$(date -u +%Y-%m-%d)"
       - name: Commit independent outcomes (never Candidate Ledger)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash scripts/ci_push.sh "chore(research): independent LLM census $(date -u +%Y-%m-%d)" outputs/research/llm_census_offline/
+        run: |
+          bash scripts/ci_push.sh "chore(research): independent LLM census $(date -u +%Y-%m-%d)" \
+            outputs/research/llm_census_offline/ outputs/costs/
