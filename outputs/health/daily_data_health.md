@@ -4,16 +4,12 @@
 
 Status: HEALTHY 47 · DEGRADED 2 · STALE 1 · BROKEN 0 · UNVALIDATED 13
 
-## Neue Änderungen
-
-- recovery: nhc_storms DEGRADED → HEALTHY
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
 | estat_jp_truck | STALE | NON_CRITICAL | 0 | 2026-03-01 | – | veraltet (Frequenz-Grenze der Registry) |
-| finra_short_interest | DEGRADED | NON_CRITICAL | 0 | 2026-10-30 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
+| finra_short_interest | DEGRADED | NON_CRITICAL | 0 | 2026-10-30 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
 
 ## Fallbacks
