@@ -457,6 +457,7 @@ def _new_signal(ticker: str, event_key=None) -> dict:
         # wurde (UTC, Sekundenpräzision) — für die Pre-Registrierungs-
         # Walk-forward-Prüfung im Challenger-Modul (registered_at).
         "signal_timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "decision_frozen_at": None,
         # Eindeutige ID je Signal — bei Erzeugung vergeben (nicht erst beim
         # Flush), damit sie über note()-Aufrufe hinweg stabil bleibt.
         "signal_id":        uuid.uuid4().hex,
@@ -529,6 +530,11 @@ def note(ticker, stage: str | None = None, **fields) -> None:
             for k, v in fields.items():
                 if k == "direction":
                     e["direction"] = v
+                elif k == "decision_frozen_at":
+                    # Final directional decision time is not the initial universe observation.
+                    # Set exactly once; never backdate or overwrite on subsequent research updates.
+                    if e.get("decision_frozen_at") is None and v is not None:
+                        e["decision_frozen_at"] = v
                 elif k == "external":
                     # Frozen: einmal je Signal gesetzt, danach NIE überschrieben
                     # (Vertrag: candidate_ledger friert external_context zum
@@ -1032,7 +1038,11 @@ def _v2_entry(row: dict, key: str, now: datetime) -> bool:
     spec = row.get(key)
     if not isinstance(spec, dict) or not spec.get("entry_pending"):
         return False
-    sig, syms = tp._ts(row.get("signal_timestamp")), _v2_symbols(row, key)
+    # Directional options cannot be filled before the LLM has completed its decision.
+    # Direction-neutral research census uses the original observation timestamp.
+    directional = row.get("direction") in ("BULLISH", "BEARISH")
+    decision_ts = row.get("decision_frozen_at") if directional else row.get("signal_timestamp")
+    sig, syms = tp._ts(decision_ts), _v2_symbols(row, key)
     if sig is None or not syms or any(x is None for x in syms):
         spec.update(entry_pending=False, entry_status="UNUSABLE",
                     entry_unusable_reason="SIGNAL_TIME_MISSING" if sig is None else "CONTRACT_UNKNOWN")
@@ -1423,6 +1433,7 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
                 "underlying":       resolved["underlying"],
                 "gap_at_entry":     resolved["gap_at_entry"],
                 "signal_timestamp": e.get("signal_timestamp"),
+                "decision_frozen_at": e.get("decision_frozen_at"),
                 "timing_policy":    _timing_policy_current(),
                 # Externer Kontext: beim ersten note(external=...) eingefroren,
                 # hier unverändert persistiert (nie neu berechnet).
