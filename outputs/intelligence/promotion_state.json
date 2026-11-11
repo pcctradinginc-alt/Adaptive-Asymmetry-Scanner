@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-10T21:23:14+00:00",
+ "generated": "2026-11-11T00:10:42+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "5de0ccfe78b7",
+ "code_version": "14bcb9c501b2",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -254,7 +254,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Financial Services",
+    "dominant_sector_fired": "Technology",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -755,7 +755,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 126,
+      "n": 143,
       "fired_expectancy": null,
       "non_fired_expectancy": NaN
      },
@@ -865,8 +865,8 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 116,
-      "fired_expectancy": -0.06753,
+      "n": 133,
+      "fired_expectancy": -0.06738,
       "non_fired_expectancy": NaN
      },
      "60": {
@@ -975,7 +975,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 126,
+      "n": 143,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -1085,7 +1085,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 116,
+      "n": 133,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -2507,5 +2507,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "4de2794d544dd41cdc0accfc9c6990f2c21c7bb650c947d8b6c36750ead6c7f5"
+ "state_hash": "62af08077c5637c0a52a328246ae47e37493dd20c41949ff7d14f9b7329e3320"
 }
