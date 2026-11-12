@@ -1,5 +1,20 @@
 {
- "at": "2026-11-11T19:50:42+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-11-12T17:45:26+00:00",
+ "changes": [
+  {
+   "source_id": "finra_short_interest",
+   "type": "recovery",
+   "from": "DEGRADED",
+   "to": "HEALTHY",
+   "error": null
+  },
+  {
+   "source_id": "nhc_storms",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest WARN: DQ: SCALE_SHIFT; Data-Quality-Befund schwerwiegend"
+  }
+ ],
+ "mail": "sent"
 }
