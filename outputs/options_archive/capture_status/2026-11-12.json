@@ -10,10 +10,10 @@
     "n_new_decisions": 0,
     "n_trade": 0
   },
-  "targets": 73,
-  "already_captured": 0,
-  "requested": 73,
-  "quotes": 72,
+  "targets": 4,
+  "already_captured": 2,
+  "requested": 2,
+  "quotes": 1,
   "missing": [
     "KVUE270219C00019000"
   ],
@@ -26,7 +26,7 @@
   "alpha_link_coverage": {
     "schema": "alpha-option-link-coverage-v1",
     "as_of": "2026-11-12",
-    "generated_at": "2026-11-12T17:43:37+00:00",
+    "generated_at": "2026-11-12T18:52:35+00:00",
     "link_version": "alpha-option-link-v1",
     "link_start": "2026-11-02",
     "rule_version": "alpha-option-rule-v1",
@@ -607,7 +607,7 @@
   "paper_account": {
     "schema": "github-paper-account-report-v1",
     "status": "ACTIVE",
-    "generated_at": "2026-11-12T17:43:37+00:00",
+    "generated_at": "2026-11-12T18:52:35+00:00",
     "activated_at": "2026-11-09T20:00:47+00:00",
     "starting_cash_usd": 100000.0,
     "cash_usd": 100000.0,
@@ -641,5 +641,5 @@
     "new_open_or_skip": 0,
     "new_close": 0
   },
-  "observed_at": "2026-11-12T17:43:37.838808+00:00"
+  "observed_at": "2026-11-12T18:52:35.467821+00:00"
 }
