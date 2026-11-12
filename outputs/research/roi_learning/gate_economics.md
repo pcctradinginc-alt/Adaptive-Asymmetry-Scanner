@@ -6,6 +6,7 @@
 
 | Datum | Sektor | Quote-Probes | Budget-untersucht: nein | Earnings-Reject | Haiku | Sonnet | Quick-MC | ROI OK | Trades |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2026-11-12 | 208 | 8 | 200 | 0 | 8 | 3 | 1 | 0 | 0 |
 | 2026-11-11 | 173 | 8 | 165 | 1 | 7 | 3 | 1 | 0 | 0 |
 | 2026-11-10 | 175 | 8 | 167 | 1 | 7 | 2 | 1 | 0 | 0 |
 | 2026-11-09 | 145 | 8 | 137 | 2 | 6 | 3 | 1 | 0 | 0 |
@@ -15,7 +16,6 @@
 | 2026-11-03 | 140 | 8 | 132 | 3 | 5 | 1 | 0 | 0 | 0 |
 | 2026-11-02 | 123 | 8 | 115 | 2 | 6 | 1 | 0 | 0 | 0 |
 | 2026-10-30 | 291 | 8 | 283 | 0 | 8 | 2 | 0 | 0 | 0 |
-| 2026-10-29 | 375 | 8 | 367 | 1 | 7 | 3 | 0 | 0 | 0 |
 
 Budget-bedingt nicht untersuchte Kandidaten sind **keine** nachgewiesenen
 ökonomischen Rejects. Für unbepreiste Aktien existieren keine realen Options-Outcomes.
@@ -47,17 +47,17 @@ Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.
 
 | Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |
 |---|---:|---:|---:|---:|---:|---:|
-| prescreen_no | 3937 | 0 | 3915 | 0.5% | 3309 | 2.1% |
-| economics_first_quote_probe_budget | 2568 | 0 | 2099 | n/v | 0 | n/v |
-| sector_momentum_weak | 938 | 1 | 845 | 0.8% | 467 | 2.8% |
+| prescreen_no | 3941 | 0 | 3915 | 0.5% | 3309 | 2.1% |
+| economics_first_quote_probe_budget | 2768 | 0 | 2099 | n/v | 0 | n/v |
+| sector_momentum_weak | 972 | 1 | 845 | 0.8% | 467 | 2.8% |
 | earnings_gate | 439 | 43 | 439 | -0.3% | 281 | 0.5% |
-| mismatch_below_min | 346 | 346 | 343 | 0.3% | 294 | -0.5% |
+| mismatch_below_min | 347 | 347 | 343 | 0.3% | 294 | -0.5% |
 | bearish_disabled | 313 | 313 | 310 | -0.1% | 286 | 0.7% |
 | time_budget_exceeded | 253 | 0 | 252 | n/v | 252 | n/v |
 | pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 189 | 6.8% |
-| options_design_roi_or_edge | 167 | 167 | 165 | 0.2% | 145 | -2.5% |
+| options_design_roi_or_edge | 168 | 168 | 165 | 0.2% | 145 | -2.5% |
 | deep_analysis_veto_or_invalid | 162 | 0 | 162 | -0.4% | 144 | -3.8% |
-| mc_below_threshold | 100 | 100 | 100 | 1.0% | 90 | 5.0% |
+| mc_below_threshold | 101 | 101 | 100 | 1.0% | 90 | 5.0% |
 | prescreen_bearish_prefilter | 39 | 0 | 39 | n/v | 0 | n/v |
 | impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 30 | 2.0% |
 | economics_first_earnings_gate | 22 | 0 | 18 | n/v | 0 | n/v |

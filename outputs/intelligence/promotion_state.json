@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-12T01:38:22+00:00",
+ "generated": "2026-11-12T21:53:50+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "5444ed8a1b9b",
+ "code_version": "88ad46fdcbb1",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -254,7 +254,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Technology",
+    "dominant_sector_fired": "Financial Services",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -1694,9 +1694,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 0,
-      "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "n": 62,
+      "fired_expectancy": 0.00161,
+      "non_fired_expectancy": 0.04617
      },
      "120": {
       "n": 0,
@@ -1802,9 +1802,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 0,
+      "n": 62,
       "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "non_fired_expectancy": 0.02604
      },
      "120": {
       "n": 0,
@@ -1910,9 +1910,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 0,
+      "n": 28,
       "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "non_fired_expectancy": 0.00161
      },
      "120": {
       "n": 0,
@@ -2106,9 +2106,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 0,
-      "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "n": 58,
+      "fired_expectancy": -0.07503,
+      "non_fired_expectancy": 0.0466
      },
      "120": {
       "n": 0,
@@ -2221,9 +2221,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 0,
-      "fired_expectancy": null,
-      "non_fired_expectancy": null
+      "n": 65,
+      "fired_expectancy": 0.03248,
+      "non_fired_expectancy": -0.06938
      },
      "120": {
       "n": 0,
@@ -2507,5 +2507,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "714420ffddcba61e9490ec0920cdb2ac1f4879cda81b5886ebe1daa0425b15bc"
+ "state_hash": "87fe53a5ef8296c2d6f88ac4ad3712a3a324ecb3727715bbf63e98e0985c0d0f"
 }
