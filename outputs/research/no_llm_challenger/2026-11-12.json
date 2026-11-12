@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-12",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "f6dcdd8746a2",
+  "action": "ABSTAIN",
+  "candidates_seen": 242,
+  "eligible_contracts": 37,
+  "watchlist": [
+    {
+      "ticker": "ASML",
+      "signal_id": "e018db679ef545628917d8c8480302c2",
+      "contract": "ASML270319C01520000",
+      "model_net_estimate": -0.032109,
+      "entry_ask_debit": 68.7,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "MPC",
+      "signal_id": "0b111ff665be4152bde048a16ca51665",
+      "contract": "MPC270319C00420000",
+      "model_net_estimate": -0.053639,
+      "entry_ask_debit": 18.9,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "PDD",
+      "signal_id": "d28c6e6a308543a1ab82fed057f65aa8",
+      "contract": "PDD270319C00075000",
+      "model_net_estimate": -0.054357,
+      "entry_ask_debit": 8.55,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "BAC",
+      "signal_id": "af96ac5b6d374bab946ada5bea59f7ec",
+      "contract": "BAC270319C00050000",
+      "model_net_estimate": -0.061414,
+      "entry_ask_debit": 2.2,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "PM",
+      "signal_id": "f4fb72bcd85948a6b85db3e3200bc035",
+      "contract": "PM270319C00200000",
+      "model_net_estimate": -0.068885,
+      "entry_ask_debit": 13.5,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "21052f4d070160a2",
+  "recorded_at": "2026-11-12T18:08:54.277091+00:00"
+}

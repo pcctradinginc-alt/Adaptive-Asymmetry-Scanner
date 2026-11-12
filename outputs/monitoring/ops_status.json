@@ -1,20 +1,20 @@
 {
  "schema": "ops-report-v1",
- "as_of": "2026-11-11",
- "generated": "2026-11-11T17:51:43+00:00",
+ "as_of": "2026-11-12",
+ "generated": "2026-11-12T18:09:03+00:00",
  "read_only": true,
  "status": {
   "schema": "ops-status-v1",
-  "generated": "2026-11-11T17:51:43+00:00",
-  "as_of": "2026-11-11",
+  "generated": "2026-11-12T18:09:03+00:00",
+  "as_of": "2026-11-12",
   "read_only": true,
   "run": {
    "workflows": {
     "external_data": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-11-11T14:26:38Z",
-     "delay_hours": 8.2
+     "last_run": "2026-11-12T15:18:48Z",
+     "delay_hours": 9.0
     },
     "source_health": {
      "state": "RECOVERY_TRIGGERED",
@@ -23,7 +23,7 @@
      "delay_hours": null
     },
     "scanner": {
-     "state": "PENDING",
+     "state": "MISSED",
      "conclusion": null,
      "last_run": null,
      "delay_hours": null
@@ -31,11 +31,11 @@
     "feedback": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-11-11T00:07:36Z",
-     "delay_hours": -15.4
+     "last_run": "2026-11-12T01:35:37Z",
+     "delay_hours": -13.9
     }
    },
-   "report_date": "2026-11-11",
+   "report_date": "2026-11-12",
    "report_is_today": true,
    "scanner": {
     "universe": 518,
@@ -207,12 +207,20 @@
      "oldest_pending_days": null
     },
     "real_opt_ret_20d": {
-     "due": 553,
-     "marked": 549,
+     "due": 593,
+     "marked": 589,
      "pending": 3,
      "late_marks": 50,
      "unavailable": 1,
-     "oldest_pending_days": 2
+     "oldest_pending_days": 3
+    },
+    "real_opt_ret_45d": {
+     "due": 18,
+     "marked": 18,
+     "pending": 0,
+     "late_marks": 17,
+     "unavailable": 0,
+     "oldest_pending_days": null
     },
     "real_strat_ret_5d": {
      "due": 894,
@@ -223,12 +231,20 @@
      "oldest_pending_days": null
     },
     "real_strat_ret_20d": {
-     "due": 553,
-     "marked": 549,
+     "due": 593,
+     "marked": 589,
      "pending": 3,
      "late_marks": 50,
      "unavailable": 1,
-     "oldest_pending_days": 2
+     "oldest_pending_days": 3
+    },
+    "real_strat_ret_45d": {
+     "due": 18,
+     "marked": 18,
+     "pending": 0,
+     "late_marks": 17,
+     "unavailable": 0,
+     "oldest_pending_days": null
     }
    }
   },
@@ -257,7 +273,7 @@
      "note": "Altbestand vor Quote-Archiv/Consume-once (2026-10-10); nie lernbar bzw. ohne Schlüssel gelernt – keine Exactly-once-Verletzung"
     },
     "exactly_once": {
-     "learned_keys": 50,
+     "learned_keys": 56,
      "duplicate_closed_trades": 0,
      "duplicate_learnable_trades": 0,
      "learned_not_eligible": 0,
@@ -268,15 +284,15 @@
     }
    },
    "candidates": {
-    "SIGNAL": 1044,
-    "CONTRACT_SELECTED": 678,
-    "ENTRY_OBSERVED": 678,
+    "SIGNAL": 1047,
+    "CONTRACT_SELECTED": 681,
+    "ENTRY_OBSERVED": 681,
     "OUTCOME_FINAL": 669,
     "LATE_MARK": 0,
     "PRICE_BASIS_CHANGED": 2,
     "MARK_UNAVAILABLE": 1,
     "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 366,
-    "EXIT_PENDING": 8
+    "EXIT_PENDING": 11
    },
    "definitions": {
     "LEARNED": "Consume-once-Schlüssel <trade_id>:close:<Ziel> vorhanden (feedback.learn_on_close)",
@@ -977,25 +993,24 @@
     }
    },
    "meta_label": {
-    "generated": "2026-11-11T00:10:41+00:00",
-    "as_of": "2026-11-11",
+    "generated": "2026-11-12T01:38:21+00:00",
+    "as_of": "2026-11-12",
     "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
-    "n_labels": 198,
-    "n_label_dates": 14,
+    "n_labels": 207,
+    "n_label_dates": 15,
     "required": {
      "min_labels": 200,
      "min_dates": 20
     },
-    "n_labels_target_population": 198,
+    "n_labels_target_population": 207,
     "population_shift": {
      "status": "OK",
-     "n_target": 237,
-     "n_other": 804,
-     "n_shifted": 11,
+     "n_target": 238,
+     "n_other": 806,
+     "n_shifted": 10,
      "shifted": [
       "final_mc_hit_rate",
       "mismatch",
-      "ml_disagreement_sd",
       "ml_exp_dd_60",
       "ml_exp_ret_60",
       "ml_q10_ret_60",
@@ -1008,49 +1023,49 @@
      "top": [
       {
        "feature": "ml_q10_ret_60",
-       "smd": -1.249,
+       "smd": -1.25,
        "missing_target": 0.118,
        "missing_other": 0.052
       },
       {
        "feature": "sigma_30d",
-       "smd": 1.031,
+       "smd": 1.036,
        "missing_target": 0.0,
        "missing_other": 0.872
       },
       {
        "feature": "ml_exp_ret_60",
-       "smd": 0.994,
+       "smd": 0.991,
        "missing_target": 0.118,
        "missing_other": 0.052
       },
       {
        "feature": "ml_exp_dd_60",
-       "smd": -0.473,
+       "smd": -0.476,
        "missing_target": 0.118,
        "missing_other": 0.052
       },
       {
        "feature": "sentiment_score",
-       "smd": 0.378,
+       "smd": 0.379,
        "missing_target": 0.063,
        "missing_other": 0.025
       },
       {
        "feature": "ml_disagreement_sd",
-       "smd": 0.254,
+       "smd": 0.244,
        "missing_target": 0.118,
        "missing_other": 0.052
       },
       {
        "feature": "sentiment_drift",
-       "smd": 0.184,
+       "smd": 0.19,
        "missing_target": 0.063,
        "missing_other": 0.025
       },
       {
        "feature": "scan_day_ret",
-       "smd": 0.169,
+       "smd": 0.18,
        "missing_target": 0.063,
        "missing_other": 0.025
       }
@@ -1062,28 +1077,28 @@
    },
    "scorecard": {
     "CANDIDATE_5d|ALL": {
-     "n": 1033,
-     "n_signal_days": 25,
+     "n": 1035,
+     "n_signal_days": 26,
      "n_entities": 336,
-     "mean_net": -0.0,
+     "mean_net": 3.1e-05,
      "median_net": 0.0019,
-     "hit_rate": 0.5276,
-     "mean_gross": 0.002,
+     "hit_rate": 0.5275,
+     "mean_gross": 0.002031,
      "worst": -0.2024,
      "ci": [
-      -0.005621,
-      0.00562
+      -0.005637,
+      0.005145
      ],
      "verdict": "INCONCLUSIVE"
     },
     "CANDIDATE_5d|LATE_STAGE": {
-     "n": 235,
-     "n_signal_days": 18,
+     "n": 236,
+     "n_signal_days": 19,
      "n_entities": 137,
-     "mean_net": -0.000851,
-     "median_net": 0.0023,
-     "hit_rate": 0.5149,
-     "mean_gross": 0.001149,
+     "mean_net": -0.000876,
+     "median_net": 0.00225,
+     "hit_rate": 0.5127,
+     "mean_gross": 0.001124,
      "worst": -0.1679,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1099,24 +1114,24 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|ALL": {
-     "n": 855,
-     "n_signal_days": 14,
-     "n_entities": 312,
-     "mean_net": -0.004059,
+     "n": 917,
+     "n_signal_days": 15,
+     "n_entities": 323,
+     "mean_net": -0.002848,
      "median_net": 0.0108,
-     "hit_rate": 0.5427,
-     "mean_gross": -0.002059,
+     "hit_rate": 0.5485,
+     "mean_gross": -0.000848,
      "worst": -0.3968,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|LATE_STAGE": {
-     "n": 198,
-     "n_signal_days": 14,
-     "n_entities": 122,
-     "mean_net": -0.031371,
-     "median_net": -0.00685,
-     "hit_rate": 0.4899,
-     "mean_gross": -0.029371,
+     "n": 207,
+     "n_signal_days": 15,
+     "n_entities": 126,
+     "mean_net": -0.029587,
+     "median_net": 0.001,
+     "hit_rate": 0.5072,
+     "mean_gross": -0.027587,
      "worst": -0.3684,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1132,28 +1147,28 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_5d|ALL": {
-     "n": 667,
-     "n_signal_days": 25,
+     "n": 669,
+     "n_signal_days": 26,
      "n_entities": 288,
-     "mean_net": -0.093931,
+     "mean_net": -0.093769,
      "median_net": -0.102946,
-     "hit_rate": 0.3178,
-     "mean_gross": -0.092621,
+     "hit_rate": 0.3184,
+     "mean_gross": -0.092462,
      "worst": -0.98239,
      "ci": [
-      -0.132249,
-      -0.058817
+      -0.126134,
+      -0.059578
      ],
      "verdict": "NEGATIVE"
     },
     "CANDIDATE_OPTION_5d|LATE_STAGE": {
-     "n": 154,
-     "n_signal_days": 18,
-     "n_entities": 102,
-     "mean_net": -0.092575,
-     "median_net": -0.106742,
-     "hit_rate": 0.3377,
-     "mean_gross": -0.091597,
+     "n": 155,
+     "n_signal_days": 19,
+     "n_entities": 103,
+     "mean_net": -0.093745,
+     "median_net": -0.107697,
+     "hit_rate": 0.3355,
+     "mean_gross": -0.092769,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1169,24 +1184,24 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|ALL": {
-     "n": 510,
-     "n_signal_days": 14,
-     "n_entities": 252,
-     "mean_net": -0.043292,
-     "median_net": -0.112035,
-     "hit_rate": 0.4255,
-     "mean_gross": -0.042009,
+     "n": 549,
+     "n_signal_days": 15,
+     "n_entities": 264,
+     "mean_net": -0.038576,
+     "median_net": -0.097549,
+     "hit_rate": 0.4299,
+     "mean_gross": -0.037279,
      "worst": -0.93267,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|LATE_STAGE": {
-     "n": 121,
-     "n_signal_days": 14,
-     "n_entities": 86,
-     "mean_net": -0.184022,
-     "median_net": -0.272057,
-     "hit_rate": 0.3058,
-     "mean_gross": -0.182967,
+     "n": 126,
+     "n_signal_days": 15,
+     "n_entities": 89,
+     "mean_net": -0.178841,
+     "median_net": -0.226637,
+     "hit_rate": 0.3095,
+     "mean_gross": -0.177799,
      "worst": -0.93267,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1202,28 +1217,28 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_5d|ALL": {
-     "n": 617,
-     "n_signal_days": 25,
-     "n_entities": 281,
-     "mean_net": -0.136949,
-     "median_net": -0.142062,
-     "hit_rate": 0.282,
-     "mean_gross": -0.134954,
+     "n": 619,
+     "n_signal_days": 26,
+     "n_entities": 282,
+     "mean_net": -0.137379,
+     "median_net": -0.142705,
+     "hit_rate": 0.2811,
+     "mean_gross": -0.135385,
      "worst": -0.98239,
      "ci": [
-      -0.18826,
-      -0.093141
+      -0.185393,
+      -0.093325
      ],
      "verdict": "NEGATIVE"
     },
     "CANDIDATE_STRATEGY_5d|LATE_STAGE": {
-     "n": 138,
-     "n_signal_days": 18,
-     "n_entities": 97,
-     "mean_net": -0.18485,
-     "median_net": -0.20219,
-     "hit_rate": 0.2391,
-     "mean_gross": -0.182714,
+     "n": 139,
+     "n_signal_days": 19,
+     "n_entities": 98,
+     "mean_net": -0.186259,
+     "median_net": -0.202608,
+     "hit_rate": 0.2374,
+     "mean_gross": -0.18412,
      "worst": -0.8198,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1239,24 +1254,24 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|ALL": {
-     "n": 510,
-     "n_signal_days": 14,
-     "n_entities": 252,
-     "mean_net": -0.082318,
-     "median_net": -0.143658,
-     "hit_rate": 0.402,
-     "mean_gross": -0.080493,
-     "worst": -1.001444,
+     "n": 549,
+     "n_signal_days": 15,
+     "n_entities": 264,
+     "mean_net": -0.07769,
+     "median_net": -0.137405,
+     "hit_rate": 0.4062,
+     "mean_gross": -0.075847,
+     "worst": -1.00486,
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|LATE_STAGE": {
-     "n": 121,
-     "n_signal_days": 14,
-     "n_entities": 86,
-     "mean_net": -0.278019,
-     "median_net": -0.385684,
-     "hit_rate": 0.2479,
-     "mean_gross": -0.275806,
+     "n": 126,
+     "n_signal_days": 15,
+     "n_entities": 89,
+     "mean_net": -0.269109,
+     "median_net": -0.34731,
+     "hit_rate": 0.254,
+     "mean_gross": -0.266954,
      "worst": -1.001444,
      "verdict": "NEED_MORE_DATA"
     },
@@ -1286,13 +1301,13 @@
   },
   "training": {
    "status": "NEED_MORE_DATA",
-   "n_labels": 198,
-   "n_label_dates": 14,
+   "n_labels": 207,
+   "n_label_dates": 15,
    "required": {
     "min_labels": 200,
     "min_dates": 20
    },
-   "as_of": "2026-11-11",
+   "as_of": "2026-11-12",
    "versions": 0,
    "active": null,
    "hold": null,
@@ -1300,7 +1315,7 @@
    "manifest_violations": []
   },
   "promotion": {
-   "generated": "2026-11-11T00:10:42+00:00",
+   "generated": "2026-11-12T01:38:22+00:00",
    "max_automatic_influence": "ABSTENTION_ONLY",
    "kill_switch_active": false,
    "safe_mode": true,
@@ -1502,20 +1517,20 @@
    "registry_problems": [],
    "decision_ledger_duplicates": 0,
    "trade_outcome_duplicates": 0,
-   "quote_records_30d": 5425,
+   "quote_records_30d": 5687,
    "quote_duplicate_ids": 0,
-   "quote_reobserved_ids": 11,
+   "quote_reobserved_ids": 0,
    "quote_non_observed_prices": 0,
    "closed_trade_quarantine": 7,
    "external_archive": {
-    "ok": 12806,
-    "legacy": 5628
+    "ok": 12880,
+    "legacy": 5521
    },
    "issues": []
   },
   "data_health": {
    "nasdaq100_source_check": {
-    "date": "2026-11-11",
+    "date": "2026-11-12",
     "mismatch": 0,
     "only_official": [],
     "only_production": [],
@@ -1524,12 +1539,11 @@
     "production_source": "nasdaq_official"
    },
    "source_health": {
-    "generated": "2026-11-11T17:27:39+00:00",
+    "generated": "2026-11-12T17:45:26+00:00",
     "by_status": {
      "HEALTHY": 47,
      "UNVALIDATED": 13,
-     "DEGRADED": 2,
-     "STALE": 1
+     "DEGRADED": 3
     },
     "inactive_by_design": {
      "disabled": 2,
@@ -1539,22 +1553,37 @@
    },
    "external_data": {
     "by_status": {
-     "PASS": 40,
-     "DEFERRED": 17
+     "PASS": 39,
+     "DEFERRED": 17,
+     "WARN": 1
     }
    },
    "quote_archive_days": {
+    "2026-11-12": {
+     "n": 285,
+     "by_context": {
+      "exit_mark": 19,
+      "trade_mark_rth": 4,
+      "candidate_mark_rth": 70,
+      "candidate_mark": 73,
+      "candidate_entry": 119
+     },
+     "by_quality": {
+      "OK": 277,
+      "SUSPECT": 8
+     }
+    },
     "2026-11-11": {
-     "n": 414,
+     "n": 421,
      "by_context": {
       "trade_mark_rth": 4,
       "candidate_mark_rth": 141,
       "candidate_mark": 142,
       "candidate_entry": 119,
-      "exit_mark": 8
+      "exit_mark": 15
      },
      "by_quality": {
-      "OK": 400,
+      "OK": 407,
       "SUSPECT": 14
      }
     },
@@ -1669,23 +1698,9 @@
       "OK": 101,
       "SUSPECT": 2
      }
-    },
-    "2026-10-29": {
-     "n": 157,
-     "by_context": {
-      "trade_mark_rth": 6,
-      "candidate_mark_rth": 49,
-      "candidate_mark": 55,
-      "candidate_entry": 5,
-      "exit_mark": 42
-     },
-     "by_quality": {
-      "OK": 147,
-      "SUSPECT": 10
-     }
     }
    },
-   "quote_archive_median_14d": 222.5,
+   "quote_archive_median_14d": 255.5,
    "quote_archive_root_exists": true
   },
   "timing": {
@@ -1720,12 +1735,12 @@
   },
   "learning_eta": {
    "meta_label": {
-    "have": 198,
+    "have": 207,
     "need": 200,
-    "have_dates": 14,
+    "have_dates": 15,
     "need_dates": 20,
-    "pending_maturing": 40,
-    "new_rows_per_day": 0.21,
+    "pending_maturing": 32,
+    "new_rows_per_day": 0.29,
     "eta": "2026-12-01",
     "basis": "Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T"
    },
@@ -1735,20 +1750,64 @@
     "have_days": 7,
     "need_days": 20,
     "evaluable_per_day_30d": 0.167,
-    "eta": "2027-03-23"
+    "eta": "2027-03-24"
    },
    "note": "Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage"
   },
   "workflows": {
    "status": "OK",
    "window_hours": 26,
-   "since": "2026-11-10T15:51:43Z",
-   "runs_total": 38,
-   "failed": [],
-   "failed_by_workflow": {},
+   "since": "2026-11-11T16:09:03Z",
+   "runs_total": 36,
+   "failed": [
+    {
+     "workflow": "PortWatch HDX Shadow (OCHA mirror, no fallback)",
+     "file": ".github/workflows/portwatch_hdx_shadow.yml",
+     "run_id": 43136109888,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43136109888",
+     "created_at": "2026-11-12T01:40:23Z",
+     "event": "schedule",
+     "conclusion": "failure",
+     "failed_jobs": [
+      "validate"
+     ],
+     "failed_steps": [
+      "Fail check on stale, empty or unverified HDX data"
+     ],
+     "error_lines": [
+      "##[error]HDX shadow failed validation (no primary-source recovery and no Safe Mode override)",
+      "##[error]Process completed with exit code 1."
+     ]
+    },
+    {
+     "workflow": "Tests (Pflicht-Check)",
+     "file": ".github/workflows/tests.yml",
+     "run_id": 43092457004,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43092457004",
+     "created_at": "2026-11-11T20:00:40Z",
+     "event": "push",
+     "conclusion": "failure",
+     "failed_jobs": [
+      "pytest"
+     ],
+     "failed_steps": [
+      "Gesamte Testsuite"
+     ],
+     "error_lines": [
+      "FAILED tests/test_candidate_ledger.py::test_flush_real_option_pre_market_signal_is_entry_pending - assert False is True",
+      "FAILED tests/test_candidate_ledger.py::test_flush_adds_liquid_contract_variant_for_timing_v2 - assert False is True",
+      "FAILED tests/test_timing_independent.py::test_G_neue_zeilen_tragen_timing_v2_und_entry_nur_ueber_das_archiv - assert (False is True)",
+      "##[error]Process completed with exit code 1."
+     ]
+    }
+   ],
+   "failed_by_workflow": {
+    "PortWatch HDX Shadow (OCHA mirror, no fallback)": 1,
+    "Tests (Pflicht-Check)": 1
+   },
    "scanner_start": {
-    "started_et": "2026-11-11T12:28-05:00",
-    "run_id": 43068407465,
+    "started_et": "2026-11-12T12:46-05:00",
+    "run_id": 43272804471,
     "late": false,
     "late_after_et": "15:00",
     "trading_day": true
@@ -1756,8 +1815,8 @@
    "recent_outcomes": [
     {
      "workflow": "Adaptive Asymmetry Scanner",
-     "run_id": 43068407465,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43068407465",
+     "run_id": 43272804471,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43272804471",
      "conclusion": "unknown",
      "effective_status": "UNVERIFIED",
      "skipped_jobs": [],
@@ -1766,8 +1825,8 @@
     },
     {
      "workflow": "Source Health Check (täglich, vor dem Scanner)",
-     "run_id": 43068173831,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43068173831",
+     "run_id": 43272541184,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43272541184",
      "conclusion": "success",
      "effective_status": "TECHNICALLY_SUCCESSFUL",
      "skipped_jobs": [],
@@ -1776,8 +1835,8 @@
     },
     {
      "workflow": "Options-Capture (RTH, nur Quote-Archiv)",
-     "run_id": 43068024697,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43068024697",
+     "run_id": 43272402464,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43272402464",
      "conclusion": "success",
      "effective_status": "TECHNICALLY_SUCCESSFUL",
      "skipped_jobs": [],
@@ -1786,8 +1845,8 @@
     },
     {
      "workflow": "Research – Technische Verbesserungsvorschläge (täglich P0, manuell)",
-     "run_id": 42938929703,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/42938929703",
+     "run_id": 43141619875,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43141619875",
      "conclusion": "success",
      "effective_status": "TECHNICALLY_SUCCESSFUL",
      "skipped_jobs": [],
@@ -1796,8 +1855,8 @@
     },
     {
      "workflow": "Feedback Loop (Exit-Alarme + Lernen)",
-     "run_id": 42928856521,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/42928856521",
+     "run_id": 43135562396,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43135562396",
      "conclusion": "success",
      "effective_status": "TECHNICALLY_SUCCESSFUL",
      "skipped_jobs": [],
@@ -1814,6 +1873,17 @@
     "merged_checked": 15,
     "codeowner_patterns": 66,
     "unreviewed_codeowner_merges": [
+     {
+      "number": 196,
+      "title": "P0 audit: freeze decision-time fills, deterministic MC, hard risk cap, honest champion statistics",
+      "merged_at": "2026-11-11T20:00:37Z",
+      "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/pull/196",
+      "codeowner_paths": [
+       "config/champion_protocol.yaml",
+       "modules/champion_protocol.py"
+      ],
+      "n_codeowner_paths": 2
+     },
      {
       "number": 194,
       "title": "Research: no-LLM paper challenger, independent LLM census, verifiable options labels and gated 80-snapshot trial",
@@ -1948,16 +2018,6 @@
        "modules/hypothesis_factory.py"
       ],
       "n_codeowner_paths": 1
-     },
-     {
-      "number": 177,
-      "title": "[DRAFT] Alpha E2E 3.0: GitHub paper account runtime audit and provable feedback into existing Research Memory",
-      "merged_at": "2026-11-08T07:05:13Z",
-      "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/pull/177",
-      "codeowner_paths": [
-       ".github/workflows/ml_research.yml"
-      ],
-      "n_codeowner_paths": 1
      }
     ]
    }
@@ -1965,8 +2025,8 @@
  },
  "row": {
   "schema": "ops-history-v1",
-  "as_of": "2026-11-11",
-  "generated": "2026-11-11T17:51:43+00:00",
+  "as_of": "2026-11-12",
+  "generated": "2026-11-12T18:09:03+00:00",
   "run.scanner.universe": 518,
   "run.scanner.analyzed": 3,
   "run.scanner.champion_candidates": 1,
@@ -1974,9 +2034,9 @@
   "run.scanner.trades": 0,
   "run.scanner.direction_conflicts": 0,
   "run.scanner.direction_conflict_share": 0.0,
-  "workflows.failed_runs": 0,
+  "workflows.failed_runs": 2,
   "data.nasdaq100_mismatch": 0,
-  "learning.meta_label.have": 198,
+  "learning.meta_label.have": 207,
   "learning.champion_evidence.have": 8,
   "run.report_is_today": true,
   "quote.entry.7d.coverage": null,
@@ -2018,7 +2078,7 @@
   "lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE": 0,
   "lifecycle.champion.exactly_once_ok": true,
   "lifecycle.candidates.EXIT_OVERDUE": 0,
-  "lifecycle.candidates.EXIT_PENDING": 8,
+  "lifecycle.candidates.EXIT_PENDING": 11,
   "lifecycle.candidates.OUTCOME_FINAL": 669,
   "forward.champion.n": 8,
   "forward.champion.n_independent_days": 7,
@@ -2026,18 +2086,17 @@
   "forward.champion.sum_net": -2.372801,
   "forward.champion.verdict": "NEED_MORE_DATA",
   "training.status": "NEED_MORE_DATA",
-  "training.n_labels": 198,
+  "training.n_labels": 207,
   "promotion.active_influence": 0,
   "promotion.unjustified_influence": 0,
   "promotion.kill_switch_active": false,
   "integrity.issues": 0,
-  "data.source_health.DEGRADED": 2,
+  "data.source_health.DEGRADED": 3,
   "data.source_health.HEALTHY": 47,
-  "data.source_health.STALE": 1,
   "data.source_health.UNVALIDATED": 13,
   "data.source_health.n_bad": 3,
-  "data.quote_archive_median_14d": 222.5,
-  "data.quote_archive_today": 414
+  "data.quote_archive_median_14d": 255.5,
+  "data.quote_archive_today": 285
  },
  "deltas": {
   "run.scanner.universe": {
@@ -2051,11 +2110,11 @@
   },
   "run.scanner.analyzed": {
    "value": 3,
-   "prev": 2,
-   "d7": 1,
+   "prev": 3,
+   "d7": 3,
    "d30": null,
-   "diff_prev": 1,
-   "diff_d7": 2,
+   "diff_prev": 0,
+   "diff_d7": 0,
    "diff_d30": null
   },
   "run.scanner.champion_candidates": {
@@ -2104,12 +2163,12 @@
    "diff_d30": null
   },
   "workflows.failed_runs": {
-   "value": 0,
+   "value": 2,
    "prev": 0,
    "d7": 0,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 0,
+   "diff_prev": 2,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "data.nasdaq100_mismatch": {
@@ -2122,12 +2181,12 @@
    "diff_d30": null
   },
   "learning.meta_label.have": {
-   "value": 198,
-   "prev": 181,
-   "d7": 144,
+   "value": 207,
+   "prev": 198,
+   "d7": 158,
    "d30": null,
-   "diff_prev": 17,
-   "diff_d7": 54,
+   "diff_prev": 9,
+   "diff_d7": 49,
    "diff_d30": null
   },
   "learning.champion_evidence.have": {
@@ -2455,20 +2514,20 @@
    "diff_d30": null
   },
   "lifecycle.candidates.EXIT_PENDING": {
-   "value": 8,
-   "prev": 7,
-   "d7": 3,
+   "value": 11,
+   "prev": 8,
+   "d7": 6,
    "d30": null,
-   "diff_prev": 1,
+   "diff_prev": 3,
    "diff_d7": 5,
    "diff_d30": null
   },
   "lifecycle.candidates.OUTCOME_FINAL": {
    "value": 669,
-   "prev": 667,
+   "prev": 669,
    "d7": 661,
    "d30": null,
-   "diff_prev": 2,
+   "diff_prev": 0,
    "diff_d7": 8,
    "diff_d30": null
   },
@@ -2509,12 +2568,12 @@
    "diff_d30": null
   },
   "training.n_labels": {
-   "value": 198,
-   "prev": 181,
-   "d7": 144,
+   "value": 207,
+   "prev": 198,
+   "d7": 158,
    "d30": null,
-   "diff_prev": 17,
-   "diff_d7": 54,
+   "diff_prev": 9,
+   "diff_d7": 49,
    "diff_d30": null
   },
   "promotion.active_influence": {
@@ -2545,66 +2604,66 @@
    "diff_d30": null
   },
   "data.source_health.DEGRADED": {
-   "value": 2,
+   "value": 3,
    "prev": 2,
-   "d7": 2,
+   "d7": 1,
    "d30": null,
-   "diff_prev": 0,
-   "diff_d7": 0,
+   "diff_prev": 1,
+   "diff_d7": 2,
    "diff_d30": null
   },
   "data.source_health.HEALTHY": {
    "value": 47,
-   "prev": 46,
-   "d7": 42,
+   "prev": 47,
+   "d7": 50,
    "d30": null,
-   "diff_prev": 1,
-   "diff_d7": 5,
-   "diff_d30": null
-  },
-  "data.source_health.STALE": {
-   "value": 1,
-   "prev": 2,
-   "d7": 1,
-   "d30": null,
-   "diff_prev": -1,
-   "diff_d7": 0,
+   "diff_prev": 0,
+   "diff_d7": -3,
    "diff_d30": null
   },
   "data.source_health.UNVALIDATED": {
    "value": 13,
    "prev": 13,
-   "d7": 8,
+   "d7": 9,
    "d30": null,
    "diff_prev": 0,
-   "diff_d7": 5,
+   "diff_d7": 4,
    "diff_d30": null
   },
   "data.source_health.n_bad": {
    "value": 3,
-   "prev": 4,
-   "d7": 5,
+   "prev": 3,
+   "d7": 4,
    "d30": null,
-   "diff_prev": -1,
-   "diff_d7": -2,
+   "diff_prev": 0,
+   "diff_d7": -1,
    "diff_d30": null
   },
   "data.quote_archive_median_14d": {
-   "value": 222.5,
+   "value": 255.5,
    "prev": 222.5,
    "d7": 218.0,
    "d30": null,
-   "diff_prev": 0.0,
-   "diff_d7": 4.5,
+   "diff_prev": 33.0,
+   "diff_d7": 37.5,
    "diff_d30": null
   },
   "data.quote_archive_today": {
-   "value": 414,
-   "prev": 448,
-   "d7": 304,
+   "value": 285,
+   "prev": 414,
+   "d7": 217,
    "d30": null,
-   "diff_prev": -34,
-   "diff_d7": 110,
+   "diff_prev": -129,
+   "diff_d7": 68,
+   "diff_d30": null
+  },
+  "data.source_health.STALE": {
+   "value": null,
+   "prev": 1,
+   "d7": 1,
+   "d30": null,
+   "diff_prev": null,
+   "diff_d7": null,
    "diff_d30": null
   },
   "learning.rl_arming.have": {
@@ -2627,16 +2686,40 @@
   }
  },
  "delta_refs": {
-  "prev": "2026-11-10",
-  "d7": "2026-11-04",
+  "prev": "2026-11-11",
+  "d7": "2026-11-05",
   "d30": null
  },
  "alerts": [
   {
+   "id": "SCANNER_FAILED:scanner",
+   "severity": "WARNING",
+   "component": "Lauf",
+   "cause": "Workflow „scanner“ heute nicht ausgeführt (verpasst): Status MISSED, Ergebnis N/A, letzter Lauf N/A",
+   "since": "2026-11-12",
+   "status": "NEW"
+  },
+  {
+   "id": "WORKFLOW_FAILED:PortWatch HDX Shadow (OCHA mirror, no fallback)",
+   "severity": "WARNING",
+   "component": "Lauf",
+   "cause": "„PortWatch HDX Shadow (OCHA mirror, no fallback)“: 1 fehlgeschlagene(r) Lauf/Läufe seit 2026-11-11T16:09:03Z; Schritte: Fail check on stale, empty or unverified HDX data; letzte Fehlerzeile: ##[error]Process completed with exit code 1.; https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43136109888",
+   "since": "2026-11-12",
+   "status": "NEW"
+  },
+  {
+   "id": "WORKFLOW_FAILED:Tests (Pflicht-Check)",
+   "severity": "WARNING",
+   "component": "Lauf",
+   "cause": "„Tests (Pflicht-Check)“: 1 fehlgeschlagene(r) Lauf/Läufe seit 2026-11-11T16:09:03Z; Schritte: Gesamte Testsuite; letzte Fehlerzeile: ##[error]Process completed with exit code 1.; https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/43092457004",
+   "since": "2026-11-12",
+   "status": "NEW"
+  },
+  {
    "id": "UNREVIEWED_CRITICAL_MERGE",
    "severity": "WARNING",
    "component": "Governance",
-   "cause": "12 PR(s) mit CODEOWNERS-Pfaden ohne freigebendes Review gemergt (letzte 14 Tage): #194 (.github/workflows/llm_census_offline.yml, .github/workflows/options_learning_evidence.yml, .github/workflows/scanner.yml); #189 (config/champion_protocol.yaml, modules/champion_protocol.py); #187 (.github/CODEOWNERS, .github/workflows/ml_research.yml, .github/workflows/weekly_report.yml); #186 (.github/workflows/feature_discovery_tests.yml, .github/workflows/ml_research.yml, modules/research_memory.py); #185 (.github/workflows/feature_discovery_tests.yml, .github/workflows/ml_research.yml, modules/research_memory.py)",
+   "cause": "12 PR(s) mit CODEOWNERS-Pfaden ohne freigebendes Review gemergt (letzte 14 Tage): #196 (config/champion_protocol.yaml, modules/champion_protocol.py); #194 (.github/workflows/llm_census_offline.yml, .github/workflows/options_learning_evidence.yml, .github/workflows/scanner.yml); #189 (config/champion_protocol.yaml, modules/champion_protocol.py); #187 (.github/CODEOWNERS, .github/workflows/ml_research.yml, .github/workflows/weekly_report.yml); #186 (.github/workflows/feature_discovery_tests.yml, .github/workflows/ml_research.yml, modules/research_memory.py)",
    "since": "2026-11-10",
    "status": "CHANGED"
   },
@@ -2657,7 +2740,7 @@
   "recipients": [
    "p***@gmail.com"
   ],
-  "subject": "[Scanner-Monitor] 2026-11-11: 1 neue Warnung(en)"
+  "subject": "[Scanner-Monitor] 2026-11-12: 4 neue Warnung(en)"
  },
  "history": {
   "appended": true,

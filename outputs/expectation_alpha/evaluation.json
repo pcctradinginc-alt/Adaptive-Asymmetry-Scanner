@@ -1,19 +1,19 @@
 {
- "generated": "2026-11-12T01:37:57+00:00",
+ "generated": "2026-11-12T18:08:51+00:00",
  "mode": "SHADOW – Research, keine Handelsempfehlung",
  "config_hash": "9772eff4a0fef81d",
  "population": {
-  "n": 566,
-  "dates": 21,
-  "event_clusters": 289,
+  "n": 569,
+  "dates": 22,
+  "event_clusters": 291,
   "by_status": {
-   "ABSTAIN": 501,
-   "WAIT": 61,
+   "ABSTAIN": 503,
+   "WAIT": 62,
    "TRADE": 4
   },
   "by_group": {
-   "C": 388,
-   "A": 122,
+   "C": 390,
+   "A": 123,
    "X": 4,
    "E": 22,
    "B": 25,
@@ -25,8 +25,8 @@
  "groups": {
   "20": {
    "A": {
-    "n": 0,
-    "independent_dates": 0,
+    "n": 9,
+    "independent_dates": 1,
     "status": "NEED_MORE_DATA"
    },
    "B": {
@@ -35,9 +35,21 @@
     "status": "NEED_MORE_DATA"
    },
    "C": {
-    "n": 0,
-    "independent_dates": 0,
-    "status": "NEED_MORE_DATA"
+    "n": 49,
+    "independent_dates": 1,
+    "status": "OK",
+    "mean": 0.0466,
+    "median": 0.05825,
+    "hit_rate": 0.7143,
+    "mean_gross": 0.0486,
+    "mae": -0.06998,
+    "mfe": 0.14744,
+    "path_drawdown": -0.1229,
+    "risk_adjusted": 0.3047,
+    "ci95": [
+     null,
+     null
+    ]
    },
    "D": {
     "n": 0,
@@ -45,13 +57,13 @@
     "status": "NEED_MORE_DATA"
    },
    "E": {
-    "n": 0,
-    "independent_dates": 0,
+    "n": 4,
+    "independent_dates": 1,
     "status": "NEED_MORE_DATA"
    },
    "X": {
-    "n": 0,
-    "independent_dates": 0,
+    "n": 3,
+    "independent_dates": 1,
     "status": "NEED_MORE_DATA"
    }
   },
@@ -160,14 +172,26 @@
     "status": "NEED_MORE_DATA"
    },
    "WAIT": {
-    "n": 0,
-    "independent_dates": 0,
+    "n": 9,
+    "independent_dates": 1,
     "status": "NEED_MORE_DATA"
    },
    "ABSTAIN": {
-    "n": 0,
-    "independent_dates": 0,
-    "status": "NEED_MORE_DATA"
+    "n": 56,
+    "independent_dates": 1,
+    "status": "OK",
+    "mean": 0.03248,
+    "median": 0.04527,
+    "hit_rate": 0.6964,
+    "mean_gross": 0.03448,
+    "mae": -0.07729,
+    "mfe": 0.13974,
+    "path_drawdown": -0.12858,
+    "risk_adjusted": 0.2031,
+    "ci95": [
+     null,
+     null
+    ]
    },
    "ERROR": {
     "n": 0,
@@ -358,7 +382,7 @@
   "stale_components": {
    "indpro_3m": 1
   },
-  "median_runtime_seconds": 33.92
+  "median_runtime_seconds": 33.27
  },
  "contracts": [
   {
@@ -498,8 +522,8 @@
    250
   ],
   "selection": "keine (alle Horizonte berichtet)",
-  "lead_lag_status": "NEED_MORE_DATA",
-  "n_blocks_ok": 0,
+  "lead_lag_status": "OK",
+  "n_blocks_ok": 12,
   "families": {
    "expectation_gap": [
     "macro_alignment",
@@ -540,10 +564,46 @@
     "source": "row:macro_alignment",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 62,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": -0.2475,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "tercile",
+      "forward_return_spread": -0.05565,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.5714,
+      "hit_rate_bottom": 0.8,
+      "mae_top": -0.10082,
+      "mfe_top": 0.09604,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 62,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": -0.2475,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "tercile",
+        "forward_return_spread": -0.05565,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.5714,
+        "hit_rate_bottom": 0.8,
+        "mae_top": -0.10082,
+        "mfe_top": 0.09604
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -570,10 +630,46 @@
     "source": "env:ea_gap_abs_z",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 62,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": 0.1834,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "binary",
+      "forward_return_spread": 0.06742,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.6897,
+      "hit_rate_bottom": 0.25,
+      "mae_top": -0.0857,
+      "mfe_top": 0.13613,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 62,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": 0.1834,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "binary",
+        "forward_return_spread": 0.06742,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.6897,
+        "hit_rate_bottom": 0.25,
+        "mae_top": -0.0857,
+        "mfe_top": 0.13613
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -600,10 +696,46 @@
     "source": "env:ea_gap_aligned",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 62,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": -0.1938,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "binary",
+      "forward_return_spread": -0.04455,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.5714,
+      "hit_rate_bottom": 0.7353,
+      "mae_top": -0.10082,
+      "mfe_top": 0.09604,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 62,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": -0.1938,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "binary",
+        "forward_return_spread": -0.04455,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.5714,
+        "hit_rate_bottom": 0.7353,
+        "mae_top": -0.10082,
+        "mfe_top": 0.09604
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -630,10 +762,46 @@
     "source": "gap:gap_percentile",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 62,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": 0.1834,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "binary",
+      "forward_return_spread": 0.06742,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.6897,
+      "hit_rate_bottom": 0.25,
+      "mae_top": -0.0857,
+      "mfe_top": 0.13613,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 62,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": 0.1834,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "binary",
+        "forward_return_spread": 0.06742,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.6897,
+        "hit_rate_bottom": 0.25,
+        "mae_top": -0.0857,
+        "mfe_top": 0.13613
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -660,10 +828,46 @@
     "source": "env:ea_gap_accel_aligned",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 62,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": 0.1938,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "binary",
+      "forward_return_spread": 0.04455,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.7353,
+      "hit_rate_bottom": 0.5714,
+      "mae_top": -0.07383,
+      "mfe_top": 0.1607,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 62,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": 0.1938,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "binary",
+        "forward_return_spread": 0.04455,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.7353,
+        "hit_rate_bottom": 0.5714,
+        "mae_top": -0.07383,
+        "mfe_top": 0.1607
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -690,10 +894,46 @@
     "source": "row:sector_alignment",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 64,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": -0.4069,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "tercile",
+      "forward_return_spread": -0.11467,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.5556,
+      "hit_rate_bottom": 0.8214,
+      "mae_top": -0.10561,
+      "mfe_top": 0.08533,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 64,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": -0.4069,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "tercile",
+        "forward_return_spread": -0.11467,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.5556,
+        "hit_rate_bottom": 0.8214,
+        "mae_top": -0.10561,
+        "mfe_top": 0.08533
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -720,10 +960,46 @@
     "source": "env:ea_confirmation_ratio",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 65,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": 0.1653,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "tercile",
+      "forward_return_spread": 0.0222,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.7692,
+      "hit_rate_bottom": 0.5641,
+      "mae_top": -0.06479,
+      "mfe_top": 0.12408,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 65,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": 0.1653,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "tercile",
+        "forward_return_spread": 0.0222,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.7692,
+        "hit_rate_bottom": 0.5641,
+        "mae_top": -0.06479,
+        "mfe_top": 0.12408
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -750,10 +1026,46 @@
     "source": "env:ea_effective_confirmation_ratio",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 65,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": 0.0606,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "tercile",
+      "forward_return_spread": 0.00306,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.8261,
+      "hit_rate_bottom": 0.76,
+      "mae_top": -0.0414,
+      "mfe_top": 0.12654,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 65,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": 0.0606,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "tercile",
+        "forward_return_spread": 0.00306,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.8261,
+        "hit_rate_bottom": 0.76,
+        "mae_top": -0.0414,
+        "mfe_top": 0.12654
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -780,10 +1092,46 @@
     "source": "env:ea_confirmation_family_count",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 65,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": 0.0659,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "tercile",
+      "forward_return_spread": -0.0004,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.6429,
+      "hit_rate_bottom": 0.6486,
+      "mae_top": -0.12217,
+      "mfe_top": 0.15924,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 65,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": 0.0659,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "tercile",
+        "forward_return_spread": -0.0004,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.6429,
+        "hit_rate_bottom": 0.6486,
+        "mae_top": -0.12217,
+        "mfe_top": 0.15924
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -810,10 +1158,16 @@
     "source": "row:regime_uncertainty",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
+      "n": 65,
+      "independent_signal_days": 1,
       "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 65,
+        "independent_signal_days": 1,
+        "status": "NEED_MORE_DATA"
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -840,10 +1194,46 @@
     "source": "row:regime_transition_probability",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 62,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": -0.1834,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "binary",
+      "forward_return_spread": -0.06742,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.25,
+      "hit_rate_bottom": 0.6897,
+      "mae_top": -0.09066,
+      "mfe_top": 0.06422,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 62,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": -0.1834,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "binary",
+        "forward_return_spread": -0.06742,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.25,
+        "hit_rate_bottom": 0.6897,
+        "mae_top": -0.09066,
+        "mfe_top": 0.06422
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -870,10 +1260,16 @@
     "source": "env:ea_verified_claim_fraction",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
+      "n": 9,
+      "independent_signal_days": 1,
       "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 9,
+        "independent_signal_days": 1,
+        "status": "NEED_MORE_DATA"
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -900,10 +1296,46 @@
     "source": "news:impact",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 65,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": -0.0107,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "tercile",
+      "forward_return_spread": 0.00484,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.6071,
+      "hit_rate_bottom": 0.6757,
+      "mae_top": -0.09665,
+      "mfe_top": 0.13169,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 65,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": -0.0107,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "tercile",
+        "forward_return_spread": 0.00484,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.6071,
+        "hit_rate_bottom": 0.6757,
+        "mae_top": -0.09665,
+        "mfe_top": 0.13169
+       }
+      }
      },
      "60": {
       "n": 0,
@@ -930,10 +1362,46 @@
     "source": "news:surprise",
     "horizons": {
      "20": {
-      "n": 0,
-      "independent_signal_days": 0,
-      "status": "NEED_MORE_DATA",
-      "regime_breakdown": {}
+      "n": 65,
+      "independent_signal_days": 1,
+      "status": "OK",
+      "ic": -0.0439,
+      "ic_ci90": [
+       null,
+       null
+      ],
+      "split": "tercile",
+      "forward_return_spread": -0.038,
+      "spread_ci90": [
+       null,
+       null
+      ],
+      "hit_rate_top": 0.7,
+      "hit_rate_bottom": 1.0,
+      "mae_top": -0.09312,
+      "mfe_top": 0.13524,
+      "regime_breakdown": {
+       "vix_normal": {
+        "n": 65,
+        "independent_signal_days": 1,
+        "status": "OK",
+        "ic": -0.0439,
+        "ic_ci90": [
+         null,
+         null
+        ],
+        "split": "tercile",
+        "forward_return_spread": -0.038,
+        "spread_ci90": [
+         null,
+         null
+        ],
+        "hit_rate_top": 0.7,
+        "hit_rate_bottom": 1.0,
+        "mae_top": -0.09312,
+        "mfe_top": 0.13524
+       }
+      }
      },
      "60": {
       "n": 0,
