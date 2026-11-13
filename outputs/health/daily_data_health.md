@@ -4,11 +4,6 @@
 
 Status: HEALTHY 49 · DEGRADED 1 · STALE 0 · BROKEN 0 · UNVALIDATED 13
 
-## Neue Änderungen
-
-- recovery: estat_jp_truck DEGRADED → HEALTHY
-- recovery: nhc_storms DEGRADED → HEALTHY
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
@@ -26,6 +21,6 @@ Status: HEALTHY 49 · DEGRADED 1 · STALE 0 · BROKEN 0 · UNVALIDATED 13
 - nicht verfügbare Features: keine
 - Cache (stale) genutzt: keine
 
-Wiederkehrende Instabilität (30 T): ['destatis_truck_toll', 'estat_jp_truck', 'finra_short_interest', 'imf_portwatch_chokepoints', 'imf_portwatch_disruptions', 'imf_portwatch_ports', 'nhc_storms', 'noaa_storm_events']
+Wiederkehrende Instabilität (30 T): ['destatis_truck_toll', 'estat_jp_truck', 'finra_short_interest', 'imf_portwatch_chokepoints', 'imf_portwatch_disruptions', 'imf_portwatch_ports', 'nhc_storms', 'noaa_storm_events', 'sec_13f_holdings']
 
 _Regel: Ein fehlendes Signal ist besser als ein Signal aus falschen oder unbekannt alten Daten._
