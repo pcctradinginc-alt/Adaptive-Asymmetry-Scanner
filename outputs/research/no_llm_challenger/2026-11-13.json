@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-13",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "76f5dc0c8cc1",
+  "action": "PAPER_ONLY",
+  "candidates_seen": 105,
+  "eligible_contracts": 38,
+  "watchlist": [
+    {
+      "ticker": "VRT",
+      "signal_id": "36b51423402e437b81c5223c77f8adf7",
+      "contract": "VRT270319C00200000",
+      "model_net_estimate": 0.102939,
+      "entry_ask_debit": 10.55,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "PLTR",
+      "signal_id": "868391ac2ac54fc19adad3a16e0fc253",
+      "contract": "PLTR270319C00170000",
+      "model_net_estimate": 0.09791,
+      "entry_ask_debit": 21.6,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "QCOM",
+      "signal_id": "d69d91d9fdf34993a66206a23bf2287e",
+      "contract": "QCOM270319C00170000",
+      "model_net_estimate": 0.089922,
+      "entry_ask_debit": 6.9,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "PANW",
+      "signal_id": "e38c988185d94e778e8ca1fbd09fdc77",
+      "contract": "PANW270319C00320000",
+      "model_net_estimate": 0.086577,
+      "entry_ask_debit": 16.0,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "LRCX",
+      "signal_id": "f82f0f1138684c01a73fc5a0fa16408b",
+      "contract": "LRCX270319C00220000",
+      "model_net_estimate": 0.084336,
+      "entry_ask_debit": 10.45,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "9e322c9cfa0c26f2",
+  "recorded_at": "2026-11-13T16:50:53.904294+00:00"
+}

@@ -1,0 +1,360 @@
+{
+ "date": "2026-11-13",
+ "horizon": 20,
+ "model_available": true,
+ "experiment_id": "4a0f886d1979",
+ "model_id": "e250f357a2779a00",
+ "reference_model_id": "4c1579f83fcf2141",
+ "verified_labels": 356,
+ "walk_forward": {
+  "n": 0,
+  "dates": 0,
+  "independent_periods": 0,
+  "mean_all": null,
+  "ic_mean": null,
+  "ic_t": null,
+  "n_selected": 0,
+  "selected_dates": 0,
+  "mean_selected": null,
+  "selected_ci95": null,
+  "trades": 0,
+  "abstained": 0,
+  "unevaluable": {},
+  "coverage": null,
+  "mean_selected_unevaluable_as_loss": null,
+  "chosen_forms": {},
+  "by_expression": {},
+  "vs_default": {
+   "n": 0,
+   "dates": 0,
+   "independent_periods": 0,
+   "mean_diff": null,
+   "ci95": null
+  },
+  "representativeness": {
+   "by_sample": {},
+   "by_direction": {},
+   "span_days": 0,
+   "warnings": []
+  },
+  "mean_selected_adverse_entry": null,
+  "segments": {
+   "overall_mean": null,
+   "by": {},
+   "weak": []
+  },
+  "verdict": "NEED_MORE_DATA",
+  "vs_reference": {
+   "candidates": 0,
+   "due_candidates": 0,
+   "coverage": null,
+   "days": 0,
+   "independent_periods": 0,
+   "ci_level": 0.95,
+   "decisions_differ": 0,
+   "excluded": {},
+   "daily_mean": {
+    "learning": null,
+    "reference": null,
+    "trade_all": null,
+    "no_trade": 0.0
+   },
+   "learning_minus_reference": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_trade_all": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_no_trade": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "verdict": "NEED_MORE_DATA",
+   "mode": "retrospective",
+   "reference_cutoff": null
+  }
+ },
+ "forward": {
+  "n": 0,
+  "dates": 0,
+  "independent_periods": 0,
+  "mean_all": null,
+  "ic_mean": null,
+  "ic_t": null,
+  "n_selected": 0,
+  "selected_dates": 0,
+  "mean_selected": null,
+  "selected_ci95": null,
+  "trades": 0,
+  "abstained": 0,
+  "unevaluable": {},
+  "coverage": null,
+  "mean_selected_unevaluable_as_loss": null,
+  "chosen_forms": {},
+  "by_expression": {},
+  "vs_default": {
+   "n": 0,
+   "dates": 0,
+   "independent_periods": 0,
+   "mean_diff": null,
+   "ci95": null
+  },
+  "representativeness": {
+   "by_sample": {},
+   "by_direction": {},
+   "span_days": 0,
+   "warnings": []
+  },
+  "mean_selected_adverse_entry": null,
+  "segments": {
+   "overall_mean": null,
+   "by": {},
+   "weak": []
+  },
+  "verdict": "NEED_MORE_DATA",
+  "experiment_id": "4a0f886d1979",
+  "valid_decisions": 199,
+  "valid_predictions": 512,
+  "pending_decisions": 199,
+  "model_instances": 0,
+  "excluded": {},
+  "journal_by_experiment": {
+   "4a0f886d1979": 910
+  },
+  "vs_reference": {
+   "candidates": 0,
+   "due_candidates": 0,
+   "coverage": null,
+   "days": 0,
+   "independent_periods": 0,
+   "ci_level": 0.95,
+   "decisions_differ": 0,
+   "excluded": {},
+   "daily_mean": {
+    "learning": null,
+    "reference": null,
+    "trade_all": null,
+    "no_trade": 0.0
+   },
+   "learning_minus_reference": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_trade_all": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "learning_minus_no_trade": {
+    "mean": null,
+    "ci95": null,
+    "independent_periods": 0
+   },
+   "verdict": "NEED_MORE_DATA",
+   "mode": "forward",
+   "reference_models": [
+    "4c1579f83fcf2141"
+   ]
+  }
+ },
+ "forward_sequential": {
+  "experiment_id": "4a0f886d1979",
+  "horizon": 20,
+  "evaluated_as_of": "2026-11-13",
+  "looks_evaluated": [],
+  "binding": null,
+  "status": "AWAITING_LOOK",
+  "plan_id": "FWD-20d-4a0f886d1979",
+  "plan_sha256": "440069c2a964bda206c5d1faa57d3d79038dc0a580b2fca337046fdb1f69d9e5",
+  "start_date": "2026-11-02",
+  "look_cutoffs": [
+   "2027-02-10",
+   "2027-05-21",
+   "2027-08-29"
+  ],
+  "looks": 3,
+  "alpha": 0.05,
+  "look_alpha": [
+   0.0006868948682239306,
+   0.01568777158182444,
+   0.033625333549951675
+  ],
+  "look": 0,
+  "valid_decisions": 199,
+  "next_look": {
+   "look": 1,
+   "cutoff": "2027-02-10",
+   "ready_after": "2027-03-12"
+  }
+ },
+ "release": {
+  "allowed": false,
+  "reasons": [
+   "walk_forward: NEED_MORE_DATA (verlangt VALIDATED)",
+   "walk_forward: Testtage 0 < 20",
+   "walk_forward: Auswahl n=0 < 30",
+   "walk_forward: unabh\u00e4ngige Perioden 0 < 5",
+   "walk_forward: 95-%-KI None nicht \u00fcber 0",
+   "walk_forward: \u00d8 netto der Auswahl nicht > 0",
+   "walk_forward: Abdeckung gepr\u00fcfter Ergebnisse None < 0.8",
+   "walk_forward: Rang-IC t None <= 2.0",
+   "forward: NEED_MORE_DATA (verlangt FORWARD_POSITIVE)",
+   "forward: Testtage 0 < 20",
+   "forward: Auswahl n=0 < 30",
+   "forward: unabh\u00e4ngige Perioden 0 < 5",
+   "forward: 95-%-KI None nicht \u00fcber 0",
+   "forward: \u00d8 netto der Auswahl nicht > 0",
+   "forward: Abdeckung gepr\u00fcfter Ergebnisse None < 0.8",
+   "forward_sequential: AWAITING_LOOK (verlangt CONFIRMED an einem vorab festgelegten Pr\u00fcfzeitpunkt)"
+  ]
+ },
+ "mail_eligible": false,
+ "recommendations": [],
+ "watchlist": [
+  {
+   "date": "2026-11-13",
+   "signal_id": "9e03ab4e957e48a9984ae4e7a00db42c",
+   "ticker": "JNJ",
+   "option_sample": "research_census",
+   "horizon": 20,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-13T16:50:56+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "e250f357a2779a00",
+   "train_cutoff": "2026-11-13",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "JNJ261231C00280000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 14.55,
+   "entry_mid_net": 14.125,
+   "pred_net": 0.188778
+  },
+  {
+   "date": "2026-11-13",
+   "signal_id": "88401acdc9ce4e00907bcf4244ba8e8a",
+   "ticker": "PG",
+   "option_sample": "research_census",
+   "horizon": 20,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-13T16:50:56+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "e250f357a2779a00",
+   "train_cutoff": "2026-11-13",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "PG261231C00170000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 5.85,
+   "entry_mid_net": 5.525,
+   "pred_net": 0.11804
+  },
+  {
+   "date": "2026-11-13",
+   "signal_id": "cb1376a98da0485594dec7f538c213a0",
+   "ticker": "ALNY",
+   "option_sample": "research_census",
+   "horizon": 20,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-13T16:50:56+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "e250f357a2779a00",
+   "train_cutoff": "2026-11-13",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "ALNY270115C00160000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 17.5,
+   "entry_mid_net": 17.0,
+   "pred_net": 0.015629
+  },
+  {
+   "date": "2026-11-13",
+   "signal_id": "4b2b42a8a4c047b6880277b30980f5d2",
+   "ticker": "SPCX",
+   "option_sample": "research_census",
+   "horizon": 20,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-13T16:50:56+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "e250f357a2779a00",
+   "train_cutoff": "2026-11-13",
+   "kind": "decision",
+   "role": "learning",
+   "action": "TRADE",
+   "reason": null,
+   "expression": "single_alt",
+   "contract": [
+    "SPCX261231C00140000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 11.2,
+   "entry_mid_net": 10.7,
+   "pred_net": 0.008131
+  },
+  {
+   "date": "2026-11-13",
+   "signal_id": "2e254291d7b146d890d4ab722c8b06bc",
+   "ticker": "FISV",
+   "option_sample": "research_census",
+   "horizon": 20,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-13T16:50:56+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "e250f357a2779a00",
+   "train_cutoff": "2026-11-13",
+   "kind": "decision",
+   "role": "learning",
+   "action": "ABSTAIN",
+   "reason": "PRED_NOT_POSITIVE",
+   "expression": "single_alt",
+   "contract": [
+    "FISV261231C00062000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 4.3,
+   "entry_mid_net": 4.0,
+   "pred_net": -0.095944
+  }
+ ],
+ "journaled": 189,
+ "decisions": 40,
+ "variant_runs": {
+  "OLV-1e2e744f73": 40,
+  "OLV-fe53357fa6": 40,
+  "OLV-51bacb5204": 40
+ },
+ "production_influence": "NONE",
+ "orders_created": 0
+}

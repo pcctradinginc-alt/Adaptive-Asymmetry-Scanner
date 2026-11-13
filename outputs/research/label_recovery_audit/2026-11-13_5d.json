@@ -1,0 +1,4714 @@
+{
+  "schema": "historical_entry_audit_v1",
+  "horizon": 5,
+  "assessed_option_outcomes": 893,
+  "counts": {
+    "ENTRY_NOT_ARCHIVED": 272,
+    "VERIFIED": 621
+  },
+  "historical_missing_entry_count": 272,
+  "missing": [
+    {
+      "date": "2026-09-28",
+      "ticker": "ALL",
+      "signal_id": "5d3fb301bcbd4edf8cb50982627d1b09",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "ALL270319P00230000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "ABBV",
+      "signal_id": "0e788065401e43c28824fe1ed063ca8e",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "ABBV270219C00270000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "MMM",
+      "signal_id": "2c832a465070472aae7d77a205f51f13",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "MMM270319C00170000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "AKAM",
+      "signal_id": "8f69e76d9c8742c99a9b0d082d9c0c58",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "AKAM270219C00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "AMZN",
+      "signal_id": "7a015646c1644010a7af25ab2ae3837f",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "AMZN270219P00245000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "APH",
+      "signal_id": "b21ba66aa45247e1a8a3ad752ec538c0",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "APH270319C00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "AMAT",
+      "signal_id": "e6ca26caf3e043fc971a6da242b9dfe5",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "AMAT270219C00480000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "APP",
+      "signal_id": "4346c26b499a462eafd028fdcfc36d19",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "APP270219C00310000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "AMGN",
+      "signal_id": "94e6f630063c42cc9f51fbae67761e30",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "AMGN270319C00420000",
+        "AMGN270319C00460000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "AIG",
+      "signal_id": "1e66946dc57040f8aecb57b4fc6c14a3",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "AIG270219C00072500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "ADM",
+      "signal_id": "65eae3865a064c91a5c889a7c3a41cf4",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "ADM270319C00080000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "APO",
+      "signal_id": "01920b71c94d40aebfd5ee0a2fe5e01d",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "APO270219C00120000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "APTV",
+      "signal_id": "1ccbbe3a75bf437a9c0ddb1da381bd8e",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "APTV270219C00042500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "ARES",
+      "signal_id": "0837b6d75339455188d610a480b0c88f",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "ARES270219C00120000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "ANET",
+      "signal_id": "f089240851d74db18fd849dce310e608",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "ANET270319C00200000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "BDX",
+      "signal_id": "d2df8ad0aecf41479b263c380cf4b849",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "BDX270319C00185000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "CBRE",
+      "signal_id": "551a2005130e4fbc91b540a353294d2f",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "CBRE270319P00130000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "CME",
+      "signal_id": "e403b299bf5540dc859a114a9b8bc286",
+      "entry_day": "2026-09-28",
+      "symbols": [
+        "CME270319C00260000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "AKAM",
+      "signal_id": "ecebd8f791b949dfb0116ecf8bad28b3",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "AKAM270219C00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "GOOGL",
+      "signal_id": "2427b10105f848cf9ba1255c1c1ca650",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "GOOGL270219P00345000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "ALL",
+      "signal_id": "2ba0622ae14444898251216a82a294b6",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "ALL270319C00230000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "AMZN",
+      "signal_id": "5521076b210c416096c350ff2e3519a1",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "AMZN270219P00245000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "APH",
+      "signal_id": "c792430c095841219827639fa8b6be65",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "APH270319C00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "APO",
+      "signal_id": "24c418746a0b489b8dc3807893cc472a",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "APO270219P00120000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "AMAT",
+      "signal_id": "58567bd292e7421faeefeda185c2773e",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "AMAT270219C00490000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "APP",
+      "signal_id": "da574e243a644db58dcd952ddffb117e",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "APP270219C00310000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "APTV",
+      "signal_id": "4b1b255a71154003a3048374bbbe9ee5",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "APTV270219C00042500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "ADM",
+      "signal_id": "0942a16ac6db40ec9e0f7b570dadb11c",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "ADM270319C00080000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "T",
+      "signal_id": "2f52b8e9ed75467c90ee2b9b4347aa85",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "T270319C00025000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "ANET",
+      "signal_id": "0168d5985fd8483ea5d0352c2950ce04",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "ANET270319C00200000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "ARES",
+      "signal_id": "f2543e5c8c584612b99192e7bd4c578e",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "ARES270219C00120000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "BBY",
+      "signal_id": "1b71a4d8022e4632a25683feef42111f",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "BBY270319C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "XYZ",
+      "signal_id": "0366547336a34c778cc578d37674dd0c",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "XYZ270319C00072500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "BMY",
+      "signal_id": "85b26f6f064f47e893a07f4dfbf69dcb",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "BMY270319P00065000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-28",
+      "ticker": "BSX",
+      "signal_id": "63f31c6e5bc9401d911b60abdd6a06a3",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "BSX270219P00045000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "IT",
+      "signal_id": "59c62768c0334406b4cf532d154e3010",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "IT270319C00185000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "OKE",
+      "signal_id": "4e86c5d38bca4e73aca187aea2c2a675",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "OKE270319P00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "NDAQ",
+      "signal_id": "a4fd0854a7db43c09d92ea7b983c9e54",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "NDAQ270319C00092500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "SBUX",
+      "signal_id": "a4f13a4eeb494adf86ce2ee5b28f7ee8",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "SBUX270219P00095000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "TER",
+      "signal_id": "342d2dc3ab0346c4b6069472d118f77b",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "TER270416C00400000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "FDXF",
+      "signal_id": "e0ec196496a74f2f819c81e8607986ac",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "FDXF270319P00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "ZS",
+      "signal_id": "66ceb5842c9841b7a5f42b1966138ec0",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "ZS270219C00200000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "DDOG",
+      "signal_id": "efb869d83b624e6c8aa9af648d10bfd6",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "DDOG270319C00270000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "BR",
+      "signal_id": "b8f74324723044a09776b6e562bdc4c3",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "BR270319C00160000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "HPE",
+      "signal_id": "1fcb3b7fb34b4b2c8306f9008ebfb143",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "HPE270219C00060000",
+        "HPE270219C00065000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "TT",
+      "signal_id": "e5a409f9f959495fa915a29489a27e9c",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "TT270319C00460000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "MRSH",
+      "signal_id": "badd284cf7e443719e43f18c8ffe5046",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "MRSH270319P00170000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "FLEX",
+      "signal_id": "8b9984f9774a4d2492f8c0f17918921e",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "FLEX270219C00115000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "BG",
+      "signal_id": "8a8765009b164950903037821b35f62a",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "BG270416C00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-29",
+      "ticker": "CMG",
+      "signal_id": "1746b110c4c9460fb5455ad60167a3a1",
+      "entry_day": "2026-09-29",
+      "symbols": [
+        "CMG270319C00032500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "KKR",
+      "signal_id": "da0a2b55507f4ba4991e6953a6a682e6",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "KKR270319P00092500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "SCHW",
+      "signal_id": "97343d11717e429f9aef8583ed321296",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "SCHW270219P00097500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "PSX",
+      "signal_id": "874ab3b7da63493b9327544928de023f",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "PSX270219P00260000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "RCL",
+      "signal_id": "2b8e46dbf47f419b95265078958801e5",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "RCL270319C00270000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "PLTR",
+      "signal_id": "4e39b7ede8ef4b47a3b8aa56ec482247",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "PLTR270219C00190000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "MRVL",
+      "signal_id": "dcd95ac2b173434d814ca1f5544e600f",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "MRVL270219C00260000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "CVNA",
+      "signal_id": "3f0118d188204ab6a9580ae2375a20ff",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "CVNA270219P00065000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "ABNB",
+      "signal_id": "66f6a4bdc7a4486b8661b0c752924c66",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "ABNB270319P00160000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "LLY",
+      "signal_id": "65a332a5858c4316a5f7736efaa098be",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "LLY270319C01160000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "NTAP",
+      "signal_id": "7523c09152454721b42226595f3883bd",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "NTAP270319C00210000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "MS",
+      "signal_id": "4efba3cbcf59440cb603e173ff2b7c1c",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "MS270319P00190000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "COIN",
+      "signal_id": "79fe5ec7b2014b87800a5e17ec4763b3",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "COIN270219C00185000",
+        "COIN270219C00200000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "UNH",
+      "signal_id": "7e6c998e707a44ae9c01477ee686a968",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "UNH270319P00370000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "D",
+      "signal_id": "8afe86b71e2a41be93d4cac01d6f22fc",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "D270319P00060000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "RDDT",
+      "signal_id": "d1b06209b70145c991a2a813be177561",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "RDDT270219P00145000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "FDX",
+      "signal_id": "79ff4ac6710d4608adac95ba37ffafbe",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "FDX1270319P00290000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "MDT",
+      "signal_id": "0d79659e772249cdb8684781be1a7ff0",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "MDT270219C00087500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "CCL",
+      "signal_id": "89a2e53b6b4f4917806f1cfcb73c9127",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "CCL270319P00025000",
+        "CCL270319P00022000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "IRM",
+      "signal_id": "06102f5c504b48b7b061043c436fbeb8",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "IRM270319C00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "TSLA",
+      "signal_id": "1e8f9820a79b46bdb1519b589d542f7e",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "TSLA270219P00355000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "CAT",
+      "signal_id": "86551111d5c34143906656943d2ed894",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "CAT270219C00820000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-09-30",
+      "ticker": "CPRT",
+      "signal_id": "2e9c7d97cadb41d99add2ff02539b7b0",
+      "entry_day": "2026-09-30",
+      "symbols": [
+        "CPRT270219P00027500",
+        "CPRT270219P00025000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "CNC",
+      "signal_id": "04e41e6ca464437f94dab3a8031ab1de",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "CNC270319P00062500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "MAS",
+      "signal_id": "fbafd5a7f41140f7b6bcbdede2ac8d75",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "MAS270416C00070000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "MU",
+      "signal_id": "b1e408e941e94b609b2dcc4232f39b8b",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "MU270219P01080000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "AAPL",
+      "signal_id": "4906d158a92c4238908084c637760052",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "AAPL270219P00330000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "JNJ",
+      "signal_id": "9b60e44cdd6547f0b001f75885dea777",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "JNJ270319P00260000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "PHM",
+      "signal_id": "5e77cdc5c54341feab94d1287a8c1f5f",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "PHM270319P00115000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "HSIC",
+      "signal_id": "92f02fc35bfc499e807962dfe5adacd3",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "HSIC270416C00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "WSM",
+      "signal_id": "acbbc085812c47db8af3536def25e7da",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "WSM270219C00230000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "ZS",
+      "signal_id": "687b74e6cc5a4188939341780d701f82",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "ZS270219C00195000",
+        "ZS270219C00210000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "CARR",
+      "signal_id": "c09bef221c604cbab81e799e4799353e",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "CARR270319C00055000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "T",
+      "signal_id": "92a52e49e1fa4e0891cfe67e661ee370",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "T270319P00024000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "EXPD",
+      "signal_id": "38aec29dd60147dd8e57fc28b111a404",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "EXPD270219C00190000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "CAT",
+      "signal_id": "7fdc0d75d5a7497d99466b3fd8e8cb1f",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "CAT270219C00850000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "MCHP",
+      "signal_id": "34bd627c4f7848e0a39cae11d2ee5598",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "MCHP270319C00082500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "CI",
+      "signal_id": "8fa567b254014538a945349f5abfb8e9",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "CI270319C00270000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "VRT",
+      "signal_id": "abac4e385b3846f898141fb5c39374fa",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "VRT270319C00250000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "XYZ",
+      "signal_id": "93f1084ff7914b94b44ad04ff50a00a2",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "XYZ270319C00075000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "ELV",
+      "signal_id": "6eb245def21b4372abdb955dc1951b4a",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "ELV270319C00390000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "KKR",
+      "signal_id": "5cfb4e3dc3164a7bb251625a7f3d0d11",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "KKR270319C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "APTV",
+      "signal_id": "0d17b385a8c8416b802b66bf51c4bf6f",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "APTV270219P00042500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "MRSH",
+      "signal_id": "45316fcd340b491ba24ac2516b4dc699",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "MRSH270319C00170000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "MAR",
+      "signal_id": "c51f3c00f2e644749c1999cfe74436dc",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "MAR270319C00360000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "JCI",
+      "signal_id": "f174f442d6bc4c3a9fca3e808d21168e",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "JCI270319C00155000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "ARM",
+      "signal_id": "f6ad56b96eb74a18bf3c05b11cf4f91e",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "ARM270219P00310000",
+        "ARM270219P00280000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "LYB",
+      "signal_id": "fe9a899a72864b3caf35e7d5f94d394d",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "LYB270319P00057500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "UNH",
+      "signal_id": "fb41ce1aad8e41cb9b9d6b2804c3412d",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "UNH270319P00370000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "IRM",
+      "signal_id": "9ee54149d244426ca0ff1f1b083af7b4",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "IRM270319C00115000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "CVS",
+      "signal_id": "c2bff671b2fd4e17af8223a374b949c1",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "CVS270219P00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "KHC",
+      "signal_id": "959cf5dc1d0142bf968509d0e3715fc8",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "KHC270319P00022500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "HPE",
+      "signal_id": "1c3982e2c1244f67acc47ca2e9eab3de",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "HPE270219C00070000",
+        "HPE270219C00075000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "ABT",
+      "signal_id": "77a7a0f82f604e61b44feb6107d01cf9",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "ABT270219C00097500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "SLB",
+      "signal_id": "057139cad28b40d8b39e4430d9979bb3",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "SLB270219C00050000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "ANET",
+      "signal_id": "3eb370ef86a14c09b0f1e857714ba703",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "ANET270319C00210000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "IQV",
+      "signal_id": "c39cd7c586194060968a8f56a152cba3",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "IQV270219C00260000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "ORCL",
+      "signal_id": "a0ae232d7293491e90d4f5963dacf625",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "ORCL270219C00140000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "SYF",
+      "signal_id": "55e31afdd7ed4b6697e054aafdc3a72b",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "SYF270319C00072500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "GNRC",
+      "signal_id": "a331be2be69347948d509c9092f213ff",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "GNRC270219C00220000",
+        "GNRC270219C00240000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "OKE",
+      "signal_id": "d51e629d3b3c415c8aa1c9ac3b6005b2",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "OKE270319C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "MRVL",
+      "signal_id": "f300ae2a540846fda2da7be5626d29c7",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "MRVL270219C00270000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-02",
+      "ticker": "MO",
+      "signal_id": "84ed042e43e34c7b839502e562a99b18",
+      "entry_day": "2026-10-02",
+      "symbols": [
+        "MO270319P00067500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "HBAN",
+      "signal_id": "1f45ae8ef4f64fb596ab3594e75f1331",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "HBAN270416C00015000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "DASH",
+      "signal_id": "d5283b7d789f4aa9868f67a6ace12c2b",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "DASH270219C00195000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "CBOE",
+      "signal_id": "26e1a763fd744afdb32f4cbc853c7577",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "CBOE270319C00280000",
+        "CBOE270319C00310000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "CEG",
+      "signal_id": "31c2f90f95cf4e598aa3d5a286f0c34a",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "CEG270219P00300000",
+        "CEG270219P00270000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "KLAC",
+      "signal_id": "b61ba7ae858c4a4993c7e884fe662926",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "KLAC270319C00198000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "COF",
+      "signal_id": "d822dad00f9c490facf9040acf0b8ddf",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "COF270319C00195000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "PNC",
+      "signal_id": "1a5ea435a15646ce8bce136fb51f053c",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "PNC270219P00220000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "P",
+      "signal_id": "a49b86e70bed4c7780137e30a67bc9b2",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "P270219P00150000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "PRU",
+      "signal_id": "8062405893714530a1d5fc610eb5bcb4",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "PRU270319C00115000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "COHR",
+      "signal_id": "9c74c6f005004b1795e12f9c92766c80",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "COHR270319C00340000",
+        "COHR270319C00370000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "PWR",
+      "signal_id": "e9e7f89f1263408f87e3cce476511750",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "PWR270219C00720000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "SMCI",
+      "signal_id": "897a9c999ceb47fab71ad96b9449790c",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "SMCI270219C00044000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "IFF",
+      "signal_id": "7e24d7ac821046288cda3c2a36a49714",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "IFF270219C00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "KEYS",
+      "signal_id": "204dcc8b4e904674a95266d90f0057b3",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "KEYS270219C00390000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "SNPS",
+      "signal_id": "4308ba720e96475781d2543a587f7360",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "SNPS270319C00500000",
+        "SNPS270319C00550000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "SWKS",
+      "signal_id": "bba42f1f4ba84acf9a4dfb1d17ae57d7",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "SWKS270219C00082500",
+        "SWKS270219C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "BE",
+      "signal_id": "e3a0763cade74b598e07e884ccb23f79",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "BE270219C00300000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "CVS",
+      "signal_id": "4fd70751430849a0b15261045cead294",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "CVS270219P00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "CRWD",
+      "signal_id": "272a1dcf7819431db6653cf5812bc131",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "CRWD270219C00280000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "SYK",
+      "signal_id": "7b3e473444f443b4b19bde14d6c5f7d2",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "SYK270319P00280000",
+        "SYK270319P00250000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "CNC",
+      "signal_id": "70214bf36a2344329033953eed49b478",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "CNC270319P00065000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "NUE",
+      "signal_id": "3c58013488fa4b579ca93fd4ad2427fb",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "NUE270319C00250000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "CHRW",
+      "signal_id": "5c0db80c4c7e49eaa60b040b87dc0622",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "CHRW270219C00135000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "CVX",
+      "signal_id": "df5f152072b24fd9845f17c4460425ce",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "CVX270319C00210000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "INCY",
+      "signal_id": "be61ebe1e9bc449cbda92632a55c2762",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "INCY270319C00115000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "DIS",
+      "signal_id": "e6c78b6ee5d44f00a0c3cb0b682ed96d",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "DIS270319P00105000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "GOOG",
+      "signal_id": "4f1906e1c72d4dad9fd8420cbb7244cc",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "GOOG270319P00345000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "COP",
+      "signal_id": "8ef9aa1f14164a74a287101d3ad2e727",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "COP270219C00130000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "CIEN",
+      "signal_id": "a6097fb492a343f5ae26b989ef3aac43",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "CIEN270319C00440000",
+        "CIEN270319C00480000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "EFX",
+      "signal_id": "439d46488cd640d5ba3c94c53ec8aa83",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "EFX270416C00145000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "LITE",
+      "signal_id": "541d221ef49a40f2a00bdae3dae46311",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "LITE270219C01140000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "GFS",
+      "signal_id": "4b66f75311d34679935cf8f3fcb4857c",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "GFS270319C00050000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "DLR",
+      "signal_id": "bdd6984b309c40de942529a85ebca4d0",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "DLR270319C00185000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "EL",
+      "signal_id": "4a71e2cd1e2a486dbae444ac7f72ad1b",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "EL270319P00095000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "GEHC",
+      "signal_id": "67b2a0a3113d438dab0b08e61273d344",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "GEHC270319P00065000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "WDAY",
+      "signal_id": "c97b209bc2e34975ad13011cb784514e",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "WDAY270319C00185000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "BKR",
+      "signal_id": "9562601efc1e47cd9efeeacf845f3740",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "BKR270319C00055000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "STLD",
+      "signal_id": "c0691f3bc2814ad8977b5e1f58edc551",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "STLD270219P00240000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "HOOD",
+      "signal_id": "98871d0212964997bade08df8b14fd46",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "HOOD270219C00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-06",
+      "ticker": "NOW",
+      "signal_id": "9161745f278749e39884cf08ba23fce4",
+      "entry_day": "2026-10-06",
+      "symbols": [
+        "NOW270219C00140000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "CFG",
+      "signal_id": "4958cffbd146424cb2f861621844d4d9",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "CFG270219C00062500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "BKR",
+      "signal_id": "431077970651404b8b7171d0241b39f7",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "BKR270319C00055000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "PPG",
+      "signal_id": "807c478289ae45359efb022b4a8aa8d4",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "PPG270219C00105000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "DLR",
+      "signal_id": "687fe4063bc045b0a78272a7587531c4",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "DLR270319P00180000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "MMM",
+      "signal_id": "e2c46425e5b64b2b84497d6860d1787f",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "MMM270319C00160000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "PLTR",
+      "signal_id": "5f99c988a8d44051b34433253e29cc83",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "PLTR270219P00195000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "VMC",
+      "signal_id": "ec3ebd6695354a08975d2f3b55d7ca83",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "VMC270219P00240000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "RVTY",
+      "signal_id": "cfe59a0ae1fc44a391c0f366c7af230e",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "RVTY270319C00155000",
+        "RVTY270319C00170000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "ZBH",
+      "signal_id": "6dcc35c3005c45e399ee9adfa05c136d",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "ZBH270319P00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "ELV",
+      "signal_id": "662e90ce7cad41129c08cf36572c562f",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "ELV270319C00400000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "DLTR",
+      "signal_id": "c89a25a5973548db9c53b7902b0c25fe",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "DLTR270219C00115000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "TXN",
+      "signal_id": "c9ba8ccb3282476ca2821db5725a059f",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "TXN270219C00290000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "HPQ",
+      "signal_id": "fc7bc52fc6aa41078fdd09cfe0ca2667",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "HPQ270219C00032000",
+        "HPQ270219C00035000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "SNPS",
+      "signal_id": "e6df5563503a4870803fc485f5360db2",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "SNPS270319C00500000",
+        "SNPS270319C00550000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "IBKR",
+      "signal_id": "d417ab5fe24742ad97b9bdf8a9a72870",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "IBKR270319C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "GFS",
+      "signal_id": "837f7d816c0c4c08828531156d833c91",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "GFS270319C00050000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "SWKS",
+      "signal_id": "4aae8cac937948f4b8127496b29af0e8",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "SWKS270219C00082500",
+        "SWKS270219C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "RCL",
+      "signal_id": "136df0c106e64c6fb8c714c7450898e9",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "RCL270319C00280000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "EW",
+      "signal_id": "8dea368300114a7bbb010e5b09b0e522",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "EW270219C00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "COP",
+      "signal_id": "dc05c462407847bc95698d8fb7ac7733",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "COP270219C00130000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "RDDT",
+      "signal_id": "1f6c211079be406fa213f4fe8a827cd7",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "RDDT270219C00155000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "FDX",
+      "signal_id": "cdf1525cd6924580b37b92d7a75eea8e",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "FDX1270319C00290000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "TEAM",
+      "signal_id": "5e00a90e6cae47a6a9bb43af25a61410",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "TEAM270319C00195000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "ETN",
+      "signal_id": "c39d142cc1a549058d11e3cf42c7a0c7",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "ETN270319C00430000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "GE",
+      "signal_id": "fc476d9402254041814f6120dd024525",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "GE270319P00300000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "BDX",
+      "signal_id": "ef428ef146744c0a96ee692f95a8a2e3",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "BDX270319C00180000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "AMD",
+      "signal_id": "23c3ca3744e94300ae9102a13e9fb9c6",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "AMD270219C00650000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "VEEV",
+      "signal_id": "8c02a05ea3d44123b18c61f7c3ada61a",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "VEEV270319C00280000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "CCL",
+      "signal_id": "3fdb6feffc4f44a788d0538c802dad5e",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "CCL270319C00026000",
+        "CCL270319C00029000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "KEYS",
+      "signal_id": "5098c30c1b94465887c4a04a6dd0168b",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "KEYS270219P00380000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "TSCO",
+      "signal_id": "a702fb0bafac4162b6d824926ecba119",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "TSCO270319C00035000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "MU",
+      "signal_id": "ed3abeddc0e1493481b96f413b516f94",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "MU270219C01090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "DHR",
+      "signal_id": "76aeda27c409470d89125742f2a3a15e",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "DHR270319C00220000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "PFE",
+      "signal_id": "8223e418be994eb7a06907880ad85aa3",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "PFE270319C00028000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "IFF",
+      "signal_id": "2751d099385d41708b5c23577dcd976b",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "IFF270219C00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "HPE",
+      "signal_id": "64e1bc448c5e40c283d83d4e3053db64",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "HPE270219C00070000",
+        "HPE270219C00075000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "DE",
+      "signal_id": "3dd308dee3fe40e1af9b48703f8fe51b",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "DE270219P00660000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "PYPL",
+      "signal_id": "1189654246b4496caa2645a618faafa9",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "PYPL270319C00055000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "PRU",
+      "signal_id": "4c0ca66396304e668ff85745064d7271",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "PRU270319C00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-07",
+      "ticker": "OKE",
+      "signal_id": "851b02ee87bb4fa7bfaaccb2c912a3af",
+      "entry_day": "2026-10-07",
+      "symbols": [
+        "OKE270319C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "CNC",
+      "signal_id": "919de10f6cb245f481e706b71c6d6ecb",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "CNC270319C00062500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "ORCL",
+      "signal_id": "9141cb1a1d0444339d105ab8c1e35f63",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "ORCL270219P00135000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "JBL",
+      "signal_id": "89b270ca59bb4598823a5a458fe41c2e",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "JBL270319C00300000",
+        "JBL270319C00330000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "DLR",
+      "signal_id": "911d849ae4c64f518b0b359b4bbbc8bb",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "DLR270319C00180000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "DVN",
+      "signal_id": "55627e605bf6499a97e5f4ddaa2f5480",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "DVN270319C00050000",
+        "DVN270319C00055000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "BDX",
+      "signal_id": "eff222325c554d3c926025a98104f424",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "BDX270319P00180000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "CMI",
+      "signal_id": "14cd9486e99a4392bf6584c0600e5ab4",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "CMI270319C00520000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "CBOE",
+      "signal_id": "af1352870c6f4bcdb35afc7d14253ee1",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "CBOE270319C00300000",
+        "CBOE270319C00330000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "VTRS",
+      "signal_id": "2ee8927edc124e40b86bfa329ac15d24",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "VTRS270416C00017000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "CVS",
+      "signal_id": "644f88ec670e4dc68c8b0b788ef68c23",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "CVS270219P00087500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "FLEX",
+      "signal_id": "44781cbb257c46c7ba6a5287b4ceac5b",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "FLEX270219C00115000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "MPC",
+      "signal_id": "8d2bef122f82479e9f9a37050f0636ad",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "MPC270319C00470000",
+        "MPC270319C00520000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "BMY",
+      "signal_id": "d95fdf5d94ca4afeba603186efaa39bf",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "BMY270319C00060000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "DASH",
+      "signal_id": "ecd8c79035054a5a8d2acd11ce111f41",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "DASH270219P00190000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "RF",
+      "signal_id": "fc96b615de3c47278215661b5f288c1f",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "RF270219C00027000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "CL",
+      "signal_id": "9a99f8e9b73c4e06b98961b35a484f67",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "CL270219C00087500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "VEEV",
+      "signal_id": "d504906d7bd14b7db6737b623253f3fd",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "VEEV270319C00280000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "CAH",
+      "signal_id": "771599d436f34360bff4625413ddc7c8",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "CAH270319C00240000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "WDAY",
+      "signal_id": "135e0b10c4304f09962aff068c415979",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "WDAY270319P00185000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "DD",
+      "signal_id": "7169e0fff7314e72bab42a16eb996687",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "DD270319C00130000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "DHI",
+      "signal_id": "c612dbab1d104404988046edeac8ce37",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "DHI270219P00135000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "CMG",
+      "signal_id": "225734db4a214af1b1e035dfd204d476",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "CMG270319C00032500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "HOOD",
+      "signal_id": "d7e5c951e1bc4135a09dc3081b72fef2",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "HOOD270219P00105000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "KLAC",
+      "signal_id": "845499c8e4a140868dd243dcf6b1ff8f",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "KLAC270319P00198000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "SNDK",
+      "signal_id": "0ed0033a4e084d049a76aee3b5e9e6c8",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "SNDK270219P01610000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "TRGP",
+      "signal_id": "c32426d543984832824f30f0f0fa92d7",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "TRGP270319C00290000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "HSIC",
+      "signal_id": "802aea95d97641858233e0414f63a12d",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "HSIC270416P00080000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "FANG",
+      "signal_id": "f6cdb86f941b438db80e50dfd9d2d758",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "FANG270319C00190000",
+        "FANG270319C00210000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "ADP",
+      "signal_id": "ca8bfe701d6c444ea1e8845a6ae76764",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "ADP270219C00270000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "AMAT",
+      "signal_id": "98cd0d1fb5e6433a978a1a30e94f901d",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "AMAT270219C00510000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "GFS",
+      "signal_id": "8fcf34ef4b814de5a018b659f1e98224",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "GFS270319C00050000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "HAL",
+      "signal_id": "03513a2f41004b5fa8799f0959323625",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "HAL270319P00033000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "PWR",
+      "signal_id": "283ada33a5874867b6c3b4736a8d6be5",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "PWR270219C00680000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "GM",
+      "signal_id": "a8aaf522929248e19462012f891b2e20",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "GM270319C00082500",
+        "GM270319C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "HAS",
+      "signal_id": "f677386dc74047dabf0feb31f759d5a7",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "HAS270319C00092500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "OKE",
+      "signal_id": "dc4f90b8dc7b4002828e0e99633d3951",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "OKE270319C00090000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "PTC",
+      "signal_id": "a816f8017c1946b29c7bbbc62c621d70",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "PTC270416C00195000",
+        "PTC270416C00210000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "TEAM",
+      "signal_id": "f43a27a9848a46e3a382fc1d258b246e",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "TEAM270319C00200000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "ABBV",
+      "signal_id": "af128167bd30425d90c0e806e0c7d582",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "ABBV270219C00270000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-08",
+      "ticker": "SLB",
+      "signal_id": "31414d90606c41948b42265d6c62fa79",
+      "entry_day": "2026-10-08",
+      "symbols": [
+        "SLB270219C00050000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "BE",
+      "signal_id": "fa3e8e2f27a64acc935d97132fb079cd",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "BE270219P00280000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "KO",
+      "signal_id": "e856f86753eb4469ab1953c646a3d33f",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "KO270219P00087500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "ALL",
+      "signal_id": "23b9f0dc45844a1e9210fb906cad7f60",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "ALL270319C00230000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "T",
+      "signal_id": "422d1309aac441ab8de000a8681f908b",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "T270319P00022000",
+        "T270319P00020000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "RDDT",
+      "signal_id": "d317bf3c2d7a4be999bdafc71e6f8a2e",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "RDDT270219C00160000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "PHM",
+      "signal_id": "bddc7a0e3f6f4d4aaa18526892126d73",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "PHM270319C00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "ACN",
+      "signal_id": "6989f978fb934f759da3f64034a7b300",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "ACN270219C00210000",
+        "ACN270219C00230000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "BBY",
+      "signal_id": "d59cdb0361e44140b049a8e5198f4fa3",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "BBY270319C00087500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "COHR",
+      "signal_id": "7cd5caf3e34b4538a064846323e02f95",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "COHR270319C00310000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "KDP",
+      "signal_id": "96adc506d9a24e91a4455f717e546112",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "KDP270319C00032000",
+        "KDP270319C00035000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "QCOM",
+      "signal_id": "4a8a287e31084cb7a1b84e2c154f5bad",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "QCOM270219P00175000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "DVN",
+      "signal_id": "3d8df068cac6481d9ba72892fc6369af",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "DVN270319C00047500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "BSX",
+      "signal_id": "b174bbb8396f4e63b2bbe88320a475fc",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "BSX270319C00040000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "AAPL",
+      "signal_id": "414e5991c8e249c096c9140040017d0e",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "AAPL270219P00340000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "CAT",
+      "signal_id": "e95371ab31314ac885d020b6087fb3c5",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "CAT270219P00800000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "AXP",
+      "signal_id": "99504276de2a4d18a70d2833ed586e70",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "AXP270219P00310000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "DDOG",
+      "signal_id": "4d1920d0bfcf473398a3b4d7b069c9ff",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "DDOG270319C00290000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "GDDY",
+      "signal_id": "b43ce8c4624842989390848a54c6f74a",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "GDDY270219C00105000",
+        "GDDY270219C00115000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "JBL",
+      "signal_id": "67ebe456c83541618f5d11cbe8313b99",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "JBL270319C00310000",
+        "JBL270319C00340000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "CVS",
+      "signal_id": "70074297ee5246ec9ed8fb3dde507d29",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "CVS270219P00087500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "SWKS",
+      "signal_id": "53d5c35caca94b6b8845e24f9d6cf12c",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "SWKS270219P00077500",
+        "SWKS270219P00070000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "LLY",
+      "signal_id": "3dfa8d80abc94177bc2d5ae0e38cbe21",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "LLY270219C01180000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "PTC",
+      "signal_id": "669c48b0ae6e4658814326b49aee2911",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "PTC270416P00195000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "BMY",
+      "signal_id": "94b6f2aef3ab4fbca37de3ca03365898",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "BMY270319C00060000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "CIEN",
+      "signal_id": "d2cdbefcfdc04e10aaeaab29483a37f1",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "CIEN270319C00450000",
+        "CIEN270319C00500000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0,
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "SNDK",
+      "signal_id": "33b38f7f1f924e99a1e900ba9003162d",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "SNDK270219P01580000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "GEHC",
+      "signal_id": "5eb358e407cd47a88014253c9f7f2ef6",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "GEHC270319C00065000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "HOOD",
+      "signal_id": "7dad2122fe4d488f9429859d7c0f02ad",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "HOOD270219C00110000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "EW",
+      "signal_id": "2896d097b46f49f4a773ed23a0ae337c",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "EW270219C00085000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "TECH",
+      "signal_id": "17d7a0f7f30d472a86f775cb33bb55ad",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "TECH270319C00070000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "CNC",
+      "signal_id": "3734cd9c2fe9470ebd327bfedeb50a88",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "CNC270319P00065000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "KEYS",
+      "signal_id": "0ccc947f45c840e9b84f233cc70ac86b",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "KEYS270219P00380000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "KLAC",
+      "signal_id": "09470c1967334c44a527796cab1c812e",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "KLAC270319C00196000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "JCI",
+      "signal_id": "4cebbb50c8ef4397b35022bbbd9e7df7",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "JCI270319C00160000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "GFS",
+      "signal_id": "52eb77c9128242a08e7dae47f3f39f92",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "GFS270319C00050000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "SYK",
+      "signal_id": "17a63054d6434d7eb4b11abfcfc08504",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "SYK270319P00280000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "FDX",
+      "signal_id": "0c5e26a6fd114df1b682934815ec9d4f",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "FDX1270319C00290000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "SYY",
+      "signal_id": "fef11a9980754354bc81a72ba44d032e",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "SYY270219P00077500"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "PWR",
+      "signal_id": "966c83c7e25f42ecbe7fa26a77083840",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "PWR270219P00700000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    },
+    {
+      "date": "2026-10-09",
+      "ticker": "GEV",
+      "signal_id": "1b48b97bfba14161a9906ba3db051a84",
+      "entry_day": "2026-10-09",
+      "symbols": [
+        "GEV270319P01000000"
+      ],
+      "reason": "ENTRY_NOT_ARCHIVED",
+      "entry_record_ids": [],
+      "recovered": false,
+      "missing_record_ids": [],
+      "same_day_usable_quotes_per_leg": [
+        0
+      ],
+      "possible_archive_research": false
+    }
+  ],
+  "restored_labels": 0,
+  "production_influence": "NONE",
+  "no_synthetic_prices": true,
+  "note": "Possible archive evidence requires manual independent provenance review. An absent contemporaneous quote cannot be reconstructed from Black-Scholes, current quotes, stock closes, or unverified vendor history.",
+  "as_of": "2026-11-13",
+  "generated_at": "2026-11-13T16:50:55.792317+00:00"
+}
