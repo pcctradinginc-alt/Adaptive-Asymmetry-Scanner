@@ -287,7 +287,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-12T21:53:09+00:00",
+        "evaluated_at": "2026-11-13T00:36:44+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -563,7 +563,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-12T21:53:09+00:00",
+        "evaluated_at": "2026-11-13T00:36:44+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -88982,1057 +88982,6 @@
   },
   "shadow_trades": [
     {
-      "ticker": "TER",
-      "entry_date": "2026-09-29",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 404.27,
-        "target_price": 478.54,
-        "hit_rate": 0.6816,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0548,
-        "sigma_source": "measured",
-        "alpha": 0.00493
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 4,
-        "mismatch": 0.814,
-        "z_score": 0.837,
-        "sigma_30d": 0.0419,
-        "price_move_48h": 0.0351,
-        "price_move_48h_signed": 0.0351,
-        "z_score_2d_scaled": 0.592,
-        "eps_drift": 0.0041,
-        "bin_impact": "mid",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.6458
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 5,
-        "surprise": 4,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null,
-      "final_mc_shadow": {
-        "dte_used": 45,
-        "hit_rate_used": 0.6816,
-        "dte_shadow": 120,
-        "hit_rate_shadow": 0.7071,
-        "would_pass_shadow": true,
-        "mode": "legacy_45"
-      },
-      "external_context_entry": {
-        "snapshot_id": "15022e292a2d700c",
-        "feature_version": {
-          "road_freight": "v1",
-          "maritime": "v1",
-          "weather": "v1",
-          "real_economy": "v1",
-          "divergences": "v1",
-          "context": "v1"
-        },
-        "available_at": "2026-09-29T15:22:21+00:00",
-        "primitives": {
-          "freight_global_z": -0.8593665498960744,
-          "freight_us_z": -2.6040129784507187,
-          "freight_eu_z": 0.6790886478663127,
-          "freight_asia_z": -0.6531753191038174,
-          "freight_breadth": 0.3333333333333333,
-          "de_truck_z_1y": 1.3656647435562117,
-          "de_truck_acceleration": 0.005224785998337415,
-          "us_freight_tsi_yoy": -0.017479970866715263,
-          "us_freight_tsi_z": -2.6040129784507187,
-          "shipping_global_z": 0.30385386065398823,
-          "shipping_container_z": 0.6894660191550944,
-          "shipping_drybulk_z": -0.4694801867859404,
-          "shipping_tanker_z": 0.3309751932662976,
-          "shipping_negative_breadth": 0.375,
-          "shipping_valid_port_count": 24,
-          "suez_z": -0.34976558208291475,
-          "panama_z": 0.9233805168766382,
-          "hormuz_z": -1.365775297534484,
-          "malacca_z": -1.3771156607782402,
-          "bab_el_mandeb_z": 0.1894863619804037,
-          "asia_export_z": -0.5032640402329999,
-          "port_disruption_active_events": 2,
-          "port_disruption_curated_ports": 0,
-          "port_disruption_curated_max_level": 0,
-          "weather_disruption_index": 0.0,
-          "us_cpi_yoy": 0.03353016322755642,
-          "us_cpi_yoy_3m_ago": 0.04166614684049641,
-          "nfci_credit": -0.07,
-          "nfci": -0.555,
-          "fed_assets_13w_chg": 0.0017903259450282594,
-          "usd_63d_chg": -0.004604315118466373,
-          "wti_63d_chg": 0.2920128651835967,
-          "de_power_price_7d": 153.97805714285712,
-          "de_power_price_z": 1.393483014961661,
-          "de_load_yoy": -0.022796715048480798,
-          "hdd_anomaly": -2.4253294328484087,
-          "cdd_anomaly": 0.20609685669499184,
-          "forecast_revision_hdd": -0.36470154357790335,
-          "forecast_revision_cdd": 0.36470154357790335,
-          "active_tropical_system": true,
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "possible_weather_confounded_freight": false,
-          "hard_data_vs_survey_divergence": 0.11534540944072366,
-          "industry_shipping_z": -0.9645830702137421
-        },
-        "states": {
-          "us_freight_state": "STRONG_CONTRACTION",
-          "us_freight_confidence": 0.3,
-          "us_freight_source_count": 1,
-          "eu_freight_state": "NEUTRAL",
-          "eu_freight_confidence": 0.2093,
-          "eu_freight_source_count": 12,
-          "asia_freight_state": "CONTRACTION",
-          "asia_freight_confidence": 0.3,
-          "asia_freight_source_count": 1,
-          "global_maritime_state": "NEUTRAL",
-          "global_maritime_confidence": 0.1454,
-          "global_freight_state": "STRONG_CONTRACTION",
-          "global_freight_confidence": 0.2187
-        },
-        "ticker_exposure": {
-          "industry": "Semiconductors",
-          "level": "industry",
-          "road_freight_relevance": "LOW",
-          "maritime_relevance": "MEDIUM",
-          "weather_relevance": "LOW",
-          "exposure_source": "industry",
-          "hub_codes": null,
-          "catalyst_relevance": null
-        },
-        "divergences": {
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
-          "hard_data_vs_survey_agreement": "MIXED"
-        },
-        "quality": {
-          "eu_source_count": 12,
-          "eu_sources": [
-            "destatis_truck_toll",
-            "eurostat_road_freight:AT",
-            "eurostat_road_freight:BE",
-            "eurostat_road_freight:CZ",
-            "eurostat_road_freight:DE",
-            "eurostat_road_freight:ES",
-            "eurostat_road_freight:EU27_2020",
-            "eurostat_road_freight:FR",
-            "eurostat_road_freight:IT",
-            "eurostat_road_freight:NL",
-            "eurostat_road_freight:PL",
-            "eurostat_road_freight:SE"
-          ]
-        },
-        "relation": {
-          "relation": "NEUTRAL",
-          "materiality": "LOW",
-          "confidence": 0.72,
-          "mechanism": "1. MECHANISMUS: Teradyne (TER) ist Halbleiter-Test-Equipment-Hersteller. Maritime/Fracht-Primitive k\u00f6nnten \u00fcber Supply-Chain-St\u00f6rungen (Komponenten-Lieferketten, Logistik zu Kunden) oder \u00fcber Nachfrage-Signale (Industrie-Aktivit\u00e4t) wirken. 2. EXPOSURE: TER hat MEDIUM maritime_relevance und LOW road_freight_relevance. Die maritime_relevance ist gering genug f\u00fcr Equipment-Herstellung (nicht operativ versand-abh\u00e4ngig). 3. KATALYSATOR-BEZUG: Der Katalysator ist Magnum E2 Kommerzialisierung & Q3 2026 Earnings-Guidance durch HBM-Testvolumen. Das ist ein Halbleiter-spezifisches Timing (2-3 Monate). Die Fracht/Maritime-Primitive (Suez_z: -0.35, Malacca_z: -1.38, Hormuz_z: -1.37, port_disruption: 2 aktive Events, aber curated_level: 0) deuten auf keine akuten Supply-Chain-Krisen hin. Global Freight ist in STRONG_CONTRACTION, aber TER's Catalyst ist kein Nachfrage-Play (es ist Testvolumen-driven, nicht Gesamtindustrie-Demand). Keine operativen oder Nachfrage-Widersprechungen erkannt.",
-          "relevant_sources": [
-            "maritime_relevance",
-            "global_freight_state",
-            "port_disruption_active_events",
-            "malacca_z",
-            "hormuz_z",
-            "suez_z"
-          ],
-          "source": "llm_shadow",
-          "reason": ""
-        },
-        "policy": {
-          "mode": "shadow",
-          "score_delta": 0.0,
-          "veto": false
-        }
-      }
-    },
-    {
-      "ticker": "HPE",
-      "entry_date": "2026-09-29",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 61.4,
-        "target_price": 70.18,
-        "hit_rate": 0.5376,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0426,
-        "sigma_source": "measured",
-        "alpha": 0.00035
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.426,
-        "z_score": 0.315,
-        "sigma_30d": 0.0445,
-        "price_move_48h": 0.014,
-        "price_move_48h_signed": -0.014,
-        "z_score_2d_scaled": 0.223,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5272
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "4-8 Wochen"
-      },
-      "outcome": null,
-      "final_mc_shadow": {
-        "dte_used": 45,
-        "hit_rate_used": 0.5376,
-        "dte_shadow": 120,
-        "hit_rate_shadow": 0.5566,
-        "would_pass_shadow": true,
-        "mode": "legacy_45"
-      },
-      "external_context_entry": {
-        "snapshot_id": "15022e292a2d700c",
-        "feature_version": {
-          "road_freight": "v1",
-          "maritime": "v1",
-          "weather": "v1",
-          "real_economy": "v1",
-          "divergences": "v1",
-          "context": "v1"
-        },
-        "available_at": "2026-09-29T15:22:21+00:00",
-        "primitives": {
-          "freight_global_z": -0.8593665498960744,
-          "freight_us_z": -2.6040129784507187,
-          "freight_eu_z": 0.6790886478663127,
-          "freight_asia_z": -0.6531753191038174,
-          "freight_breadth": 0.3333333333333333,
-          "de_truck_z_1y": 1.3656647435562117,
-          "de_truck_acceleration": 0.005224785998337415,
-          "us_freight_tsi_yoy": -0.017479970866715263,
-          "us_freight_tsi_z": -2.6040129784507187,
-          "shipping_global_z": 0.30385386065398823,
-          "shipping_container_z": 0.6894660191550944,
-          "shipping_drybulk_z": -0.4694801867859404,
-          "shipping_tanker_z": 0.3309751932662976,
-          "shipping_negative_breadth": 0.375,
-          "shipping_valid_port_count": 24,
-          "suez_z": -0.34976558208291475,
-          "panama_z": 0.9233805168766382,
-          "hormuz_z": -1.365775297534484,
-          "malacca_z": -1.3771156607782402,
-          "bab_el_mandeb_z": 0.1894863619804037,
-          "asia_export_z": -0.5032640402329999,
-          "port_disruption_active_events": 2,
-          "port_disruption_curated_ports": 0,
-          "port_disruption_curated_max_level": 0,
-          "weather_disruption_index": 0.0,
-          "us_cpi_yoy": 0.03353016322755642,
-          "us_cpi_yoy_3m_ago": 0.04166614684049641,
-          "nfci_credit": -0.07,
-          "nfci": -0.555,
-          "fed_assets_13w_chg": 0.0017903259450282594,
-          "usd_63d_chg": -0.004604315118466373,
-          "wti_63d_chg": 0.2920128651835967,
-          "de_power_price_7d": 153.97805714285712,
-          "de_power_price_z": 1.393483014961661,
-          "de_load_yoy": -0.022796715048480798,
-          "hdd_anomaly": -2.4253294328484087,
-          "cdd_anomaly": 0.20609685669499184,
-          "forecast_revision_hdd": -0.36470154357790335,
-          "forecast_revision_cdd": 0.36470154357790335,
-          "active_tropical_system": true,
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "possible_weather_confounded_freight": false,
-          "hard_data_vs_survey_divergence": 0.11534540944072366,
-          "industry_shipping_z": null
-        },
-        "states": {
-          "us_freight_state": "STRONG_CONTRACTION",
-          "us_freight_confidence": 0.3,
-          "us_freight_source_count": 1,
-          "eu_freight_state": "NEUTRAL",
-          "eu_freight_confidence": 0.2093,
-          "eu_freight_source_count": 12,
-          "asia_freight_state": "CONTRACTION",
-          "asia_freight_confidence": 0.3,
-          "asia_freight_source_count": 1,
-          "global_maritime_state": "NEUTRAL",
-          "global_maritime_confidence": 0.1454,
-          "global_freight_state": "STRONG_CONTRACTION",
-          "global_freight_confidence": 0.2187
-        },
-        "ticker_exposure": {
-          "industry": "Technology / Software",
-          "level": "sector",
-          "road_freight_relevance": "NONE",
-          "maritime_relevance": "NONE",
-          "weather_relevance": "NONE",
-          "exposure_source": "sector",
-          "hub_codes": null,
-          "catalyst_relevance": null
-        },
-        "divergences": {
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
-          "hard_data_vs_survey_agreement": "MIXED"
-        },
-        "quality": {
-          "eu_source_count": 12,
-          "eu_sources": [
-            "destatis_truck_toll",
-            "eurostat_road_freight:AT",
-            "eurostat_road_freight:BE",
-            "eurostat_road_freight:CZ",
-            "eurostat_road_freight:DE",
-            "eurostat_road_freight:ES",
-            "eurostat_road_freight:EU27_2020",
-            "eurostat_road_freight:FR",
-            "eurostat_road_freight:IT",
-            "eurostat_road_freight:NL",
-            "eurostat_road_freight:PL",
-            "eurostat_road_freight:SE"
-          ]
-        },
-        "relation": {
-          "relation": "NEUTRAL",
-          "materiality": "NONE",
-          "confidence": 0.98,
-          "mechanism": "1. MECHANISMUS: HPE ist ein Datacenter-Hardware-Anbieter (Server, Storage); externe Primitive erfassen Fracht-, Schifffahrts- und Wetter-Signale, die auf Logistik-, Transport- und Energiekosten wirken. Ein Kanal w\u00e4re: Globale Fracht-Kontraktion \u2192 h\u00f6here Transportkosten \u2192 Margendruck auf Server-Verk\u00e4ufe. 2. EXPOSURE: HPE_exposure zeigt road_freight_relevance=NONE, maritime_relevance=NONE, weather_relevance=NONE. Der Ticker hat explizit KEINE Exponierung in diesen Kan\u00e4len laut ticker_exposure. 3. KATALYSATOR-BEZUG: Der Katalysator ist HPE Investor Day mit AMD-AI-Datacenter-Spotlight (Umsatz- und Margen-Guidance). Dieser ist unternehmens-intern und Produkt-getrieben, nicht extern-logistik-getrieben. Externe Fracht/Schifffahrts-Signale (global_freight_state=STRONG_CONTRACTION, us_freight_tsi_z=-2.6, freight_global_z=-0.86) sind zeitlich und kausalmechanisch entkoppelt vom 4-8-Wochen-Investor-Day-Fenster.",
-          "relevant_sources": [],
-          "source": "llm_shadow",
-          "reason": ""
-        },
-        "policy": {
-          "mode": "shadow",
-          "score_delta": 0.0,
-          "veto": false
-        }
-      }
-    },
-    {
-      "ticker": "FLEX",
-      "entry_date": "2026-09-29",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 113.17,
-        "target_price": 133.19,
-        "hit_rate": 0.5566,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0527,
-        "sigma_source": "measured",
-        "alpha": 0.00039
-      },
-      "features": {
-        "impact": 5,
-        "surprise": 3,
-        "mismatch": 4.089,
-        "z_score": 0.182,
-        "sigma_30d": 0.0313,
-        "price_move_48h": 0.0057,
-        "price_move_48h_signed": 0.0057,
-        "z_score_2d_scaled": 0.129,
-        "eps_drift": 0.0,
-        "bin_impact": "mid",
-        "bin_mismatch": "good",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5332
-      },
-      "sector": "Technology",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 5,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null,
-      "final_mc_shadow": {
-        "dte_used": 45,
-        "hit_rate_used": 0.5566,
-        "dte_shadow": 120,
-        "hit_rate_shadow": 0.5491,
-        "would_pass_shadow": true,
-        "mode": "legacy_45"
-      },
-      "external_context_entry": {
-        "snapshot_id": "15022e292a2d700c",
-        "feature_version": {
-          "road_freight": "v1",
-          "maritime": "v1",
-          "weather": "v1",
-          "real_economy": "v1",
-          "divergences": "v1",
-          "context": "v1"
-        },
-        "available_at": "2026-09-29T15:22:21+00:00",
-        "primitives": {
-          "freight_global_z": -0.8593665498960744,
-          "freight_us_z": -2.6040129784507187,
-          "freight_eu_z": 0.6790886478663127,
-          "freight_asia_z": -0.6531753191038174,
-          "freight_breadth": 0.3333333333333333,
-          "de_truck_z_1y": 1.3656647435562117,
-          "de_truck_acceleration": 0.005224785998337415,
-          "us_freight_tsi_yoy": -0.017479970866715263,
-          "us_freight_tsi_z": -2.6040129784507187,
-          "shipping_global_z": 0.30385386065398823,
-          "shipping_container_z": 0.6894660191550944,
-          "shipping_drybulk_z": -0.4694801867859404,
-          "shipping_tanker_z": 0.3309751932662976,
-          "shipping_negative_breadth": 0.375,
-          "shipping_valid_port_count": 24,
-          "suez_z": -0.34976558208291475,
-          "panama_z": 0.9233805168766382,
-          "hormuz_z": -1.365775297534484,
-          "malacca_z": -1.3771156607782402,
-          "bab_el_mandeb_z": 0.1894863619804037,
-          "asia_export_z": -0.5032640402329999,
-          "port_disruption_active_events": 2,
-          "port_disruption_curated_ports": 0,
-          "port_disruption_curated_max_level": 0,
-          "weather_disruption_index": 0.0,
-          "us_cpi_yoy": 0.03353016322755642,
-          "us_cpi_yoy_3m_ago": 0.04166614684049641,
-          "nfci_credit": -0.07,
-          "nfci": -0.555,
-          "fed_assets_13w_chg": 0.0017903259450282594,
-          "usd_63d_chg": -0.004604315118466373,
-          "wti_63d_chg": 0.2920128651835967,
-          "de_power_price_7d": 153.97805714285712,
-          "de_power_price_z": 1.393483014961661,
-          "de_load_yoy": -0.022796715048480798,
-          "hdd_anomaly": -2.4253294328484087,
-          "cdd_anomaly": 0.20609685669499184,
-          "forecast_revision_hdd": -0.36470154357790335,
-          "forecast_revision_cdd": 0.36470154357790335,
-          "active_tropical_system": true,
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "possible_weather_confounded_freight": false,
-          "hard_data_vs_survey_divergence": 0.11534540944072366,
-          "industry_shipping_z": null
-        },
-        "states": {
-          "us_freight_state": "STRONG_CONTRACTION",
-          "us_freight_confidence": 0.3,
-          "us_freight_source_count": 1,
-          "eu_freight_state": "NEUTRAL",
-          "eu_freight_confidence": 0.2093,
-          "eu_freight_source_count": 12,
-          "asia_freight_state": "CONTRACTION",
-          "asia_freight_confidence": 0.3,
-          "asia_freight_source_count": 1,
-          "global_maritime_state": "NEUTRAL",
-          "global_maritime_confidence": 0.1454,
-          "global_freight_state": "STRONG_CONTRACTION",
-          "global_freight_confidence": 0.2187
-        },
-        "ticker_exposure": {
-          "industry": "Technology / Software",
-          "level": "sector",
-          "road_freight_relevance": "NONE",
-          "maritime_relevance": "NONE",
-          "weather_relevance": "NONE",
-          "exposure_source": "sector",
-          "hub_codes": null,
-          "catalyst_relevance": null
-        },
-        "divergences": {
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
-          "hard_data_vs_survey_agreement": "MIXED"
-        },
-        "quality": {
-          "eu_source_count": 12,
-          "eu_sources": [
-            "destatis_truck_toll",
-            "eurostat_road_freight:AT",
-            "eurostat_road_freight:BE",
-            "eurostat_road_freight:CZ",
-            "eurostat_road_freight:DE",
-            "eurostat_road_freight:ES",
-            "eurostat_road_freight:EU27_2020",
-            "eurostat_road_freight:FR",
-            "eurostat_road_freight:IT",
-            "eurostat_road_freight:NL",
-            "eurostat_road_freight:PL",
-            "eurostat_road_freight:SE"
-          ]
-        },
-        "relation": {
-          "relation": "NEUTRAL",
-          "materiality": "NONE",
-          "confidence": 0.95,
-          "mechanism": "MECHANISMUS: Frachtverf\u00fcgbarkeit und Logistikkosten k\u00f6nnten Advanced Networking Segment-Margen und Reshoring-Investitionen beeinflussen, wenn FLEX als EMS-Dienstleister von Lieferketten-Stabilit\u00e4t abh\u00e4ngt. EXPOSURE: ticker_exposure weist road_freight_relevance=NONE, maritime_relevance=NONE, weather_relevance=NONE aus. FLEX ist laut exposure_source als sector-Play klassifiziert, nicht als Logistik-Operator. Keine Exposure in den drei transportalen Kan\u00e4len. KATALYSATOR-BEZUG: Der Katalysator (JBL Q4 Earnings, Reshoring-Guidance FY27) ist sektoral/angelagert und zeitlich 2-3 Monate entfernt. Externe Primitive (freight_global_z=-0.86, asia_export_z=-0.50, freight_us_z=-2.60, global_freight_state=STRONG_CONTRACTION) deuten auf Nachfrageschw\u00e4che hin, aber diese sind f\u00fcr FLEX irrelevant, da keine Exposure existiert.",
-          "relevant_sources": [],
-          "source": "llm_shadow",
-          "reason": ""
-        },
-        "policy": {
-          "mode": "shadow",
-          "score_delta": 0.0,
-          "veto": false
-        }
-      }
-    },
-    {
-      "ticker": "CMG",
-      "entry_date": "2026-09-29",
-      "reject_reason": "final_mc_survivor",
-      "strategy": "",
-      "simulation": {
-        "current_price": 32.26,
-        "target_price": 35.15,
-        "hit_rate": 0.614,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0267,
-        "sigma_source": "measured",
-        "alpha": 0.00095
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.851,
-        "z_score": 0.23,
-        "sigma_30d": 0.0218,
-        "price_move_48h": 0.005,
-        "price_move_48h_signed": -0.005,
-        "z_score_2d_scaled": 0.162,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5542
-      },
-      "sector": "Consumer Cyclical",
-      "sector_etf": "",
-      "deep_analysis": {
-        "direction": "BULLISH",
-        "impact": 4,
-        "surprise": 3,
-        "time_to_materialization": "2-3 Monate"
-      },
-      "outcome": null,
-      "final_mc_shadow": {
-        "dte_used": 45,
-        "hit_rate_used": 0.614,
-        "dte_shadow": 120,
-        "hit_rate_shadow": 0.6393,
-        "would_pass_shadow": true,
-        "mode": "legacy_45"
-      },
-      "external_context_entry": {
-        "snapshot_id": "15022e292a2d700c",
-        "feature_version": {
-          "road_freight": "v1",
-          "maritime": "v1",
-          "weather": "v1",
-          "real_economy": "v1",
-          "divergences": "v1",
-          "context": "v1"
-        },
-        "available_at": "2026-09-29T15:22:21+00:00",
-        "primitives": {
-          "freight_global_z": -0.8593665498960744,
-          "freight_us_z": -2.6040129784507187,
-          "freight_eu_z": 0.6790886478663127,
-          "freight_asia_z": -0.6531753191038174,
-          "freight_breadth": 0.3333333333333333,
-          "de_truck_z_1y": 1.3656647435562117,
-          "de_truck_acceleration": 0.005224785998337415,
-          "us_freight_tsi_yoy": -0.017479970866715263,
-          "us_freight_tsi_z": -2.6040129784507187,
-          "shipping_global_z": 0.30385386065398823,
-          "shipping_container_z": 0.6894660191550944,
-          "shipping_drybulk_z": -0.4694801867859404,
-          "shipping_tanker_z": 0.3309751932662976,
-          "shipping_negative_breadth": 0.375,
-          "shipping_valid_port_count": 24,
-          "suez_z": -0.34976558208291475,
-          "panama_z": 0.9233805168766382,
-          "hormuz_z": -1.365775297534484,
-          "malacca_z": -1.3771156607782402,
-          "bab_el_mandeb_z": 0.1894863619804037,
-          "asia_export_z": -0.5032640402329999,
-          "port_disruption_active_events": 2,
-          "port_disruption_curated_ports": 0,
-          "port_disruption_curated_max_level": 0,
-          "weather_disruption_index": 0.0,
-          "us_cpi_yoy": 0.03353016322755642,
-          "us_cpi_yoy_3m_ago": 0.04166614684049641,
-          "nfci_credit": -0.07,
-          "nfci": -0.555,
-          "fed_assets_13w_chg": 0.0017903259450282594,
-          "usd_63d_chg": -0.004604315118466373,
-          "wti_63d_chg": 0.2920128651835967,
-          "de_power_price_7d": 153.97805714285712,
-          "de_power_price_z": 1.393483014961661,
-          "de_load_yoy": -0.022796715048480798,
-          "hdd_anomaly": -2.4253294328484087,
-          "cdd_anomaly": 0.20609685669499184,
-          "forecast_revision_hdd": -0.36470154357790335,
-          "forecast_revision_cdd": 0.36470154357790335,
-          "active_tropical_system": true,
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "possible_weather_confounded_freight": false,
-          "hard_data_vs_survey_divergence": 0.11534540944072366,
-          "industry_shipping_z": 0.11290648942424748
-        },
-        "states": {
-          "us_freight_state": "STRONG_CONTRACTION",
-          "us_freight_confidence": 0.3,
-          "us_freight_source_count": 1,
-          "eu_freight_state": "NEUTRAL",
-          "eu_freight_confidence": 0.2093,
-          "eu_freight_source_count": 12,
-          "asia_freight_state": "CONTRACTION",
-          "asia_freight_confidence": 0.3,
-          "asia_freight_source_count": 1,
-          "global_maritime_state": "NEUTRAL",
-          "global_maritime_confidence": 0.1454,
-          "global_freight_state": "STRONG_CONTRACTION",
-          "global_freight_confidence": 0.2187
-        },
-        "ticker_exposure": {
-          "industry": "Retail",
-          "level": "sector",
-          "road_freight_relevance": "MEDIUM",
-          "maritime_relevance": "LOW",
-          "weather_relevance": "MEDIUM",
-          "exposure_source": "sector",
-          "hub_codes": null,
-          "catalyst_relevance": null
-        },
-        "divergences": {
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
-          "hard_data_vs_survey_agreement": "MIXED"
-        },
-        "quality": {
-          "eu_source_count": 12,
-          "eu_sources": [
-            "destatis_truck_toll",
-            "eurostat_road_freight:AT",
-            "eurostat_road_freight:BE",
-            "eurostat_road_freight:CZ",
-            "eurostat_road_freight:DE",
-            "eurostat_road_freight:ES",
-            "eurostat_road_freight:EU27_2020",
-            "eurostat_road_freight:FR",
-            "eurostat_road_freight:IT",
-            "eurostat_road_freight:NL",
-            "eurostat_road_freight:PL",
-            "eurostat_road_freight:SE"
-          ]
-        },
-        "relation": {
-          "relation": "CONTRADICT",
-          "materiality": "MEDIUM",
-          "confidence": 0.72,
-          "mechanism": "1. MECHANISMUS: Schwache US-Fracht (freight_us_z: -2.604, STRONG_CONTRACTION) signalisiert reduzierte Konsumaktivit\u00e4t und Lieferkettenverspannungen, die direkt auf Chipotle-Transporte, Supply-Chain-Effizienz und damit auf Digital-Order-Fulfillment-Geschwindigkeit wirken. 2. EXPOSURE: CMG hat MEDIUM road_freight_relevance als QSR mit hoher Lieferkettendichte (Frische-sensitive Ingredients, schnelle Restaurantswappings). Die Kontraktionssignale treffen diese Exposure direkt. 3. KATALYSATOR-BEZUG: Der Katalysator (Chipotlane-500-Milestone Q4 2026, Digital-Sales-\u00dcbertreffen) setzt schnelle, zuverl\u00e4ssige Fulfillment-Logistik voraus. Ein STRONG_CONTRACTION in US-Freight (confidence 0.3, aber kristallklar negativ bei z=-2.604) widerspricht der Annahme reibungsloser operativer Skalierung in den n\u00e4chsten 2-3 Monaten.",
-          "relevant_sources": [
-            "freight_us_z",
-            "us_freight_tsi_z",
-            "us_freight_state",
-            "us_freight_confidence",
-            "road_freight_relevance",
-            "freight_global_z",
-            "global_freight_state",
-            "port_disruption_active_events"
-          ],
-          "source": "llm_shadow",
-          "reason": ""
-        },
-        "policy": {
-          "mode": "shadow",
-          "score_delta": 0.0,
-          "veto": false
-        }
-      }
-    },
-    {
-      "ticker": "HPE",
-      "entry_date": "2026-09-29",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "EARNINGS",
-      "strategy": "BULL_CALL_SPREAD",
-      "entry_debit": 12.7,
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 60.0,
-        "bid": 11.45,
-        "ask": 12.7,
-        "open_interest": 3395,
-        "implied_vol": 0.6601,
-        "spread_ratio": 0.0984,
-        "dte": 170,
-        "delta": 0.6255,
-        "data_source": "tradier",
-        "spread_leg": {
-          "strike": 65.0,
-          "bid": 9.7,
-          "ask": 10.15
-        },
-        "net_debit": 3.0
-      },
-      "simulation": {
-        "current_price": 61.4,
-        "target_price": 70.18,
-        "hit_rate": 0.5376,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0426,
-        "sigma_source": "measured",
-        "alpha": 0.00035
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.426,
-        "z_score": 0.315,
-        "sigma_30d": 0.0445,
-        "price_move_48h": 0.014,
-        "price_move_48h_signed": -0.014,
-        "z_score_2d_scaled": 0.223,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5272
-      },
-      "roi_net": 0.4232,
-      "roi_hurdle": 0.07,
-      "roi_gap": 0.3532,
-      "vix": 16.13,
-      "mc_hit_rate": 0.5272,
-      "outcome": null,
-      "external_context_entry": {
-        "snapshot_id": "15022e292a2d700c",
-        "feature_version": {
-          "road_freight": "v1",
-          "maritime": "v1",
-          "weather": "v1",
-          "real_economy": "v1",
-          "divergences": "v1",
-          "context": "v1"
-        },
-        "available_at": "2026-09-29T15:22:21+00:00",
-        "primitives": {
-          "freight_global_z": -0.8593665498960744,
-          "freight_us_z": -2.6040129784507187,
-          "freight_eu_z": 0.6790886478663127,
-          "freight_asia_z": -0.6531753191038174,
-          "freight_breadth": 0.3333333333333333,
-          "de_truck_z_1y": 1.3656647435562117,
-          "de_truck_acceleration": 0.005224785998337415,
-          "us_freight_tsi_yoy": -0.017479970866715263,
-          "us_freight_tsi_z": -2.6040129784507187,
-          "shipping_global_z": 0.30385386065398823,
-          "shipping_container_z": 0.6894660191550944,
-          "shipping_drybulk_z": -0.4694801867859404,
-          "shipping_tanker_z": 0.3309751932662976,
-          "shipping_negative_breadth": 0.375,
-          "shipping_valid_port_count": 24,
-          "suez_z": -0.34976558208291475,
-          "panama_z": 0.9233805168766382,
-          "hormuz_z": -1.365775297534484,
-          "malacca_z": -1.3771156607782402,
-          "bab_el_mandeb_z": 0.1894863619804037,
-          "asia_export_z": -0.5032640402329999,
-          "port_disruption_active_events": 2,
-          "port_disruption_curated_ports": 0,
-          "port_disruption_curated_max_level": 0,
-          "weather_disruption_index": 0.0,
-          "us_cpi_yoy": 0.03353016322755642,
-          "us_cpi_yoy_3m_ago": 0.04166614684049641,
-          "nfci_credit": -0.07,
-          "nfci": -0.555,
-          "fed_assets_13w_chg": 0.0017903259450282594,
-          "usd_63d_chg": -0.004604315118466373,
-          "wti_63d_chg": 0.2920128651835967,
-          "de_power_price_7d": 153.97805714285712,
-          "de_power_price_z": 1.393483014961661,
-          "de_load_yoy": -0.022796715048480798,
-          "hdd_anomaly": -2.4253294328484087,
-          "cdd_anomaly": 0.20609685669499184,
-          "forecast_revision_hdd": -0.36470154357790335,
-          "forecast_revision_cdd": 0.36470154357790335,
-          "active_tropical_system": true,
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "possible_weather_confounded_freight": false,
-          "hard_data_vs_survey_divergence": 0.11534540944072366,
-          "industry_shipping_z": null
-        },
-        "states": {
-          "us_freight_state": "STRONG_CONTRACTION",
-          "us_freight_confidence": 0.3,
-          "us_freight_source_count": 1,
-          "eu_freight_state": "NEUTRAL",
-          "eu_freight_confidence": 0.2093,
-          "eu_freight_source_count": 12,
-          "asia_freight_state": "CONTRACTION",
-          "asia_freight_confidence": 0.3,
-          "asia_freight_source_count": 1,
-          "global_maritime_state": "NEUTRAL",
-          "global_maritime_confidence": 0.1454,
-          "global_freight_state": "STRONG_CONTRACTION",
-          "global_freight_confidence": 0.2187
-        },
-        "ticker_exposure": {
-          "industry": "Technology / Software",
-          "level": "sector",
-          "road_freight_relevance": "NONE",
-          "maritime_relevance": "NONE",
-          "weather_relevance": "NONE",
-          "exposure_source": "sector",
-          "hub_codes": null,
-          "catalyst_relevance": null
-        },
-        "divergences": {
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
-          "hard_data_vs_survey_agreement": "MIXED"
-        },
-        "quality": {
-          "eu_source_count": 12,
-          "eu_sources": [
-            "destatis_truck_toll",
-            "eurostat_road_freight:AT",
-            "eurostat_road_freight:BE",
-            "eurostat_road_freight:CZ",
-            "eurostat_road_freight:DE",
-            "eurostat_road_freight:ES",
-            "eurostat_road_freight:EU27_2020",
-            "eurostat_road_freight:FR",
-            "eurostat_road_freight:IT",
-            "eurostat_road_freight:NL",
-            "eurostat_road_freight:PL",
-            "eurostat_road_freight:SE"
-          ]
-        },
-        "relation": {
-          "relation": "NEUTRAL",
-          "materiality": "NONE",
-          "confidence": 0.98,
-          "mechanism": "1. MECHANISMUS: HPE ist ein Datacenter-Hardware-Anbieter (Server, Storage); externe Primitive erfassen Fracht-, Schifffahrts- und Wetter-Signale, die auf Logistik-, Transport- und Energiekosten wirken. Ein Kanal w\u00e4re: Globale Fracht-Kontraktion \u2192 h\u00f6here Transportkosten \u2192 Margendruck auf Server-Verk\u00e4ufe. 2. EXPOSURE: HPE_exposure zeigt road_freight_relevance=NONE, maritime_relevance=NONE, weather_relevance=NONE. Der Ticker hat explizit KEINE Exponierung in diesen Kan\u00e4len laut ticker_exposure. 3. KATALYSATOR-BEZUG: Der Katalysator ist HPE Investor Day mit AMD-AI-Datacenter-Spotlight (Umsatz- und Margen-Guidance). Dieser ist unternehmens-intern und Produkt-getrieben, nicht extern-logistik-getrieben. Externe Fracht/Schifffahrts-Signale (global_freight_state=STRONG_CONTRACTION, us_freight_tsi_z=-2.6, freight_global_z=-0.86) sind zeitlich und kausalmechanisch entkoppelt vom 4-8-Wochen-Investor-Day-Fenster.",
-          "relevant_sources": [],
-          "source": "llm_shadow",
-          "reason": ""
-        },
-        "policy": {
-          "mode": "shadow",
-          "score_delta": 0.0,
-          "veto": false
-        }
-      }
-    },
-    {
-      "ticker": "CMG",
-      "entry_date": "2026-09-29",
-      "reject_reason": "roi_gate",
-      "catalyst_type": "EARNINGS",
-      "strategy": "LONG_CALL",
-      "entry_debit": 5.35,
-      "option": {
-        "expiry": "2027-03-19",
-        "strike": 30.0,
-        "bid": 5.0,
-        "ask": 5.35,
-        "open_interest": 441,
-        "implied_vol": 0.4186,
-        "spread_ratio": 0.0654,
-        "dte": 170,
-        "delta": 0.6835,
-        "data_source": "tradier"
-      },
-      "simulation": {
-        "current_price": 32.26,
-        "target_price": 35.15,
-        "hit_rate": 0.614,
-        "n_paths": 10000,
-        "days": 45,
-        "sigma": 0.0267,
-        "sigma_source": "measured",
-        "alpha": 0.00095
-      },
-      "features": {
-        "impact": 4,
-        "surprise": 3,
-        "mismatch": 2.851,
-        "z_score": 0.23,
-        "sigma_30d": 0.0218,
-        "price_move_48h": 0.005,
-        "price_move_48h_signed": -0.005,
-        "z_score_2d_scaled": 0.162,
-        "eps_drift": 0.0,
-        "bin_impact": "low",
-        "bin_mismatch": "weak",
-        "bin_eps_drift": "noise",
-        "quick_mc_hit_rate": 0.5542
-      },
-      "roi_net": 0.0524,
-      "roi_hurdle": 0.07,
-      "roi_gap": -0.0176,
-      "vix": 16.13,
-      "mc_hit_rate": 0.5542,
-      "outcome": null,
-      "external_context_entry": {
-        "snapshot_id": "15022e292a2d700c",
-        "feature_version": {
-          "road_freight": "v1",
-          "maritime": "v1",
-          "weather": "v1",
-          "real_economy": "v1",
-          "divergences": "v1",
-          "context": "v1"
-        },
-        "available_at": "2026-09-29T15:22:21+00:00",
-        "primitives": {
-          "freight_global_z": -0.8593665498960744,
-          "freight_us_z": -2.6040129784507187,
-          "freight_eu_z": 0.6790886478663127,
-          "freight_asia_z": -0.6531753191038174,
-          "freight_breadth": 0.3333333333333333,
-          "de_truck_z_1y": 1.3656647435562117,
-          "de_truck_acceleration": 0.005224785998337415,
-          "us_freight_tsi_yoy": -0.017479970866715263,
-          "us_freight_tsi_z": -2.6040129784507187,
-          "shipping_global_z": 0.30385386065398823,
-          "shipping_container_z": 0.6894660191550944,
-          "shipping_drybulk_z": -0.4694801867859404,
-          "shipping_tanker_z": 0.3309751932662976,
-          "shipping_negative_breadth": 0.375,
-          "shipping_valid_port_count": 24,
-          "suez_z": -0.34976558208291475,
-          "panama_z": 0.9233805168766382,
-          "hormuz_z": -1.365775297534484,
-          "malacca_z": -1.3771156607782402,
-          "bab_el_mandeb_z": 0.1894863619804037,
-          "asia_export_z": -0.5032640402329999,
-          "port_disruption_active_events": 2,
-          "port_disruption_curated_ports": 0,
-          "port_disruption_curated_max_level": 0,
-          "weather_disruption_index": 0.0,
-          "us_cpi_yoy": 0.03353016322755642,
-          "us_cpi_yoy_3m_ago": 0.04166614684049641,
-          "nfci_credit": -0.07,
-          "nfci": -0.555,
-          "fed_assets_13w_chg": 0.0017903259450282594,
-          "usd_63d_chg": -0.004604315118466373,
-          "wti_63d_chg": 0.2920128651835967,
-          "de_power_price_7d": 153.97805714285712,
-          "de_power_price_z": 1.393483014961661,
-          "de_load_yoy": -0.022796715048480798,
-          "hdd_anomaly": -2.4253294328484087,
-          "cdd_anomaly": 0.20609685669499184,
-          "forecast_revision_hdd": -0.36470154357790335,
-          "forecast_revision_cdd": 0.36470154357790335,
-          "active_tropical_system": true,
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "possible_weather_confounded_freight": false,
-          "hard_data_vs_survey_divergence": 0.11534540944072366,
-          "industry_shipping_z": 0.11290648942424748
-        },
-        "states": {
-          "us_freight_state": "STRONG_CONTRACTION",
-          "us_freight_confidence": 0.3,
-          "us_freight_source_count": 1,
-          "eu_freight_state": "NEUTRAL",
-          "eu_freight_confidence": 0.2093,
-          "eu_freight_source_count": 12,
-          "asia_freight_state": "CONTRACTION",
-          "asia_freight_confidence": 0.3,
-          "asia_freight_source_count": 1,
-          "global_maritime_state": "NEUTRAL",
-          "global_maritime_confidence": 0.1454,
-          "global_freight_state": "STRONG_CONTRACTION",
-          "global_freight_confidence": 0.2187
-        },
-        "ticker_exposure": {
-          "industry": "Retail",
-          "level": "sector",
-          "road_freight_relevance": "MEDIUM",
-          "maritime_relevance": "LOW",
-          "weather_relevance": "MEDIUM",
-          "exposure_source": "sector",
-          "hub_codes": null,
-          "catalyst_relevance": null
-        },
-        "divergences": {
-          "road_shipping_divergence_z": -1.1632204105500628,
-          "road_shipping_agreement": "A_STRONGER",
-          "hard_data_vs_survey_divergence_z": 0.11534540944072366,
-          "hard_data_vs_survey_agreement": "MIXED"
-        },
-        "quality": {
-          "eu_source_count": 12,
-          "eu_sources": [
-            "destatis_truck_toll",
-            "eurostat_road_freight:AT",
-            "eurostat_road_freight:BE",
-            "eurostat_road_freight:CZ",
-            "eurostat_road_freight:DE",
-            "eurostat_road_freight:ES",
-            "eurostat_road_freight:EU27_2020",
-            "eurostat_road_freight:FR",
-            "eurostat_road_freight:IT",
-            "eurostat_road_freight:NL",
-            "eurostat_road_freight:PL",
-            "eurostat_road_freight:SE"
-          ]
-        },
-        "relation": {
-          "relation": "CONTRADICT",
-          "materiality": "MEDIUM",
-          "confidence": 0.72,
-          "mechanism": "1. MECHANISMUS: Schwache US-Fracht (freight_us_z: -2.604, STRONG_CONTRACTION) signalisiert reduzierte Konsumaktivit\u00e4t und Lieferkettenverspannungen, die direkt auf Chipotle-Transporte, Supply-Chain-Effizienz und damit auf Digital-Order-Fulfillment-Geschwindigkeit wirken. 2. EXPOSURE: CMG hat MEDIUM road_freight_relevance als QSR mit hoher Lieferkettendichte (Frische-sensitive Ingredients, schnelle Restaurantswappings). Die Kontraktionssignale treffen diese Exposure direkt. 3. KATALYSATOR-BEZUG: Der Katalysator (Chipotlane-500-Milestone Q4 2026, Digital-Sales-\u00dcbertreffen) setzt schnelle, zuverl\u00e4ssige Fulfillment-Logistik voraus. Ein STRONG_CONTRACTION in US-Freight (confidence 0.3, aber kristallklar negativ bei z=-2.604) widerspricht der Annahme reibungsloser operativer Skalierung in den n\u00e4chsten 2-3 Monaten.",
-          "relevant_sources": [
-            "freight_us_z",
-            "us_freight_tsi_z",
-            "us_freight_state",
-            "us_freight_confidence",
-            "road_freight_relevance",
-            "freight_global_z",
-            "global_freight_state",
-            "port_disruption_active_events"
-          ],
-          "source": "llm_shadow",
-          "reason": ""
-        },
-        "policy": {
-          "mode": "shadow",
-          "score_delta": 0.0,
-          "veto": false
-        }
-      }
-    },
-    {
       "ticker": "PLTR",
       "entry_date": "2026-09-30",
       "reject_reason": "final_mc_survivor",
@@ -148512,10 +147461,10 @@
   "feature_stats_external": {
     "freight_state": {
       "STRONG_CONTRACTION": {
-        "count": 9,
-        "mean": 0.06245555555555556,
-        "_m2": 3.104928542222222,
-        "wins": 4,
+        "count": 11,
+        "mean": -0.015609090909090899,
+        "_m2": 4.0838011690909095,
+        "wins": 5,
         "outcomes": [
           -0.5079,
           -0.1818,
@@ -148525,10 +147474,12 @@
           0.8932,
           -0.314,
           0.6075,
-          0.5347
+          0.5347,
+          -0.9488,
+          0.215
         ],
-        "strat_ret_sum": 0.5620999999999999,
-        "strat_ret_count": 9
+        "strat_ret_sum": -0.17170000000000005,
+        "strat_ret_count": 11
       }
     },
     "maritime_state": {
@@ -148545,10 +147496,10 @@
         "strat_ret_count": 2
       },
       "NEUTRAL": {
-        "count": 7,
-        "mean": 0.21972857142857144,
-        "_m2": 2.3249902742857143,
-        "wins": 4,
+        "count": 9,
+        "mean": 0.08936666666666668,
+        "_m2": 3.5375236200000004,
+        "wins": 5,
         "outcomes": [
           -0.1818,
           0.7336,
@@ -148556,18 +147507,20 @@
           0.8932,
           -0.314,
           0.6075,
-          0.5347
+          0.5347,
+          -0.9488,
+          0.215
         ],
-        "strat_ret_sum": 1.5381,
-        "strat_ret_count": 7
+        "strat_ret_sum": 0.8043,
+        "strat_ret_count": 9
       }
     },
     "weather_operational_risk": {
       "elevated": {
-        "count": 9,
-        "mean": 0.06245555555555556,
-        "_m2": 3.104928542222222,
-        "wins": 4,
+        "count": 11,
+        "mean": -0.015609090909090899,
+        "_m2": 4.0838011690909095,
+        "wins": 5,
         "outcomes": [
           -0.5079,
           -0.1818,
@@ -148577,17 +147530,19 @@
           0.8932,
           -0.314,
           0.6075,
-          0.5347
+          0.5347,
+          -0.9488,
+          0.215
         ],
-        "strat_ret_sum": 0.5620999999999999,
-        "strat_ret_count": 9
+        "strat_ret_sum": -0.17170000000000005,
+        "strat_ret_count": 11
       }
     },
     "external_relation": {
       "NEUTRAL": {
-        "count": 9,
-        "mean": 0.06245555555555556,
-        "_m2": 3.104928542222222,
+        "count": 10,
+        "mean": -0.03866999999999999,
+        "_m2": 4.025302561,
         "wins": 4,
         "outcomes": [
           -0.5079,
@@ -148598,10 +147553,22 @@
           0.8932,
           -0.314,
           0.6075,
-          0.5347
+          0.5347,
+          -0.9488
         ],
-        "strat_ret_sum": 0.5620999999999999,
-        "strat_ret_count": 9
+        "strat_ret_sum": -0.38670000000000004,
+        "strat_ret_count": 10
+      },
+      "CONTRADICT": {
+        "count": 1,
+        "mean": 0.215,
+        "_m2": 0.0,
+        "wins": 1,
+        "outcomes": [
+          0.215
+        ],
+        "strat_ret_sum": 0.215,
+        "strat_ret_count": 1
       }
     },
     "road_shipping_agreement": {
@@ -148618,10 +147585,10 @@
         "strat_ret_count": 2
       },
       "A_STRONGER": {
-        "count": 7,
-        "mean": 0.21972857142857144,
-        "_m2": 2.3249902742857143,
-        "wins": 4,
+        "count": 9,
+        "mean": 0.08936666666666668,
+        "_m2": 3.5375236200000004,
+        "wins": 5,
         "outcomes": [
           -0.1818,
           0.7336,
@@ -148629,10 +147596,12 @@
           0.8932,
           -0.314,
           0.6075,
-          0.5347
+          0.5347,
+          -0.9488,
+          0.215
         ],
-        "strat_ret_sum": 1.5381,
-        "strat_ret_count": 7
+        "strat_ret_sum": 0.8043,
+        "strat_ret_count": 9
       }
     },
     "shipping_breadth_bucket": {
@@ -148649,10 +147618,10 @@
         "strat_ret_count": 2
       },
       "0.33-0.66": {
-        "count": 7,
-        "mean": 0.21972857142857144,
-        "_m2": 2.3249902742857143,
-        "wins": 4,
+        "count": 9,
+        "mean": 0.08936666666666668,
+        "_m2": 3.5375236200000004,
+        "wins": 5,
         "outcomes": [
           -0.1818,
           0.7336,
@@ -148660,10 +147629,12 @@
           0.8932,
           -0.314,
           0.6075,
-          0.5347
+          0.5347,
+          -0.9488,
+          0.215
         ],
-        "strat_ret_sum": 1.5381,
-        "strat_ret_count": 7
+        "strat_ret_sum": 0.8043,
+        "strat_ret_count": 9
       }
     },
     "divergence_bucket": {
@@ -148680,15 +147651,17 @@
         "strat_ret_count": 2
       },
       "medium": {
-        "count": 1,
-        "mean": -0.1818,
-        "_m2": 0.0,
-        "wins": 0,
+        "count": 3,
+        "mean": -0.3052,
+        "_m2": 0.7000565599999999,
+        "wins": 1,
         "outcomes": [
-          -0.1818
+          -0.1818,
+          -0.9488,
+          0.215
         ],
-        "strat_ret_sum": -0.1818,
-        "strat_ret_count": 1
+        "strat_ret_sum": -0.9156000000000001,
+        "strat_ret_count": 3
       },
       "low": {
         "count": 6,
@@ -149027,7 +148000,9 @@
     "shadow:8a9be0c3aad15a55:45d:feature_stats_external": "2026-11-12",
     "shadow:a3aad6d3441279a2:45d:feature_stats_external": "2026-11-12",
     "shadow:de4a50a6ca92e827:45d:feature_stats_external": "2026-11-12",
-    "shadow:dd5872d6f4b4bff7:45d:feature_stats_external": "2026-11-12"
+    "shadow:dd5872d6f4b4bff7:45d:feature_stats_external": "2026-11-12",
+    "shadow:c4d2cc08c0b0504e:45d:feature_stats_external": "2026-11-13",
+    "shadow:b0f4201435ba86d9:45d:feature_stats_external": "2026-11-13"
   },
   "processed_outcomes_meta": {
     "duplicate_skips": 0,

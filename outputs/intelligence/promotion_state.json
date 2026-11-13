@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-12T21:53:50+00:00",
+ "generated": "2026-11-13T00:38:35+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "88ad46fdcbb1",
+ "code_version": "1d7e30dba327",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -254,7 +254,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Financial Services",
+    "dominant_sector_fired": "Technology",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -755,7 +755,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 153,
+      "n": 165,
       "fired_expectancy": null,
       "non_fired_expectancy": NaN
      },
@@ -865,7 +865,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 142,
+      "n": 154,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -975,7 +975,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 153,
+      "n": 165,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -1085,7 +1085,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 142,
+      "n": 154,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -1195,7 +1195,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 136,
+      "n": 148,
       "fired_expectancy": null,
       "non_fired_expectancy": NaN
      },
@@ -1694,9 +1694,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 62,
-      "fired_expectancy": 0.00161,
-      "non_fired_expectancy": 0.04617
+      "n": 144,
+      "fired_expectancy": -0.00562,
+      "non_fired_expectancy": 0.05294
      },
      "120": {
       "n": 0,
@@ -1802,9 +1802,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 62,
-      "fired_expectancy": null,
-      "non_fired_expectancy": 0.02604
+      "n": 140,
+      "fired_expectancy": 0.0343,
+      "non_fired_expectancy": 0.02517
      },
      "120": {
       "n": 0,
@@ -1910,9 +1910,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 28,
+      "n": 65,
       "fired_expectancy": null,
-      "non_fired_expectancy": 0.00161
+      "non_fired_expectancy": -0.00562
      },
      "120": {
       "n": 0,
@@ -2106,9 +2106,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 58,
-      "fired_expectancy": -0.07503,
-      "non_fired_expectancy": 0.0466
+      "n": 133,
+      "fired_expectancy": -0.0629,
+      "non_fired_expectancy": 0.04427
      },
      "120": {
       "n": 0,
@@ -2221,8 +2221,8 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 65,
-      "fired_expectancy": 0.03248,
+      "n": 147,
+      "fired_expectancy": 0.02914,
       "non_fired_expectancy": -0.06938
      },
      "120": {
@@ -2507,5 +2507,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "87fe53a5ef8296c2d6f88ac4ad3712a3a324ecb3727715bbf63e98e0985c0d0f"
+ "state_hash": "cb111b6d7f1f51689a948ff7c06c745f046210df4bda47320a6b0a83415352bc"
 }

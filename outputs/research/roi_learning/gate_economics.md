@@ -1,4 +1,4 @@
-# Gate- und Optionsökonomie – 2026-11-12
+# Gate- und Optionsökonomie – 2026-11-13
 
 **READ-ONLY SHADOW – keine Handels- oder Gate-Freigabe.**
 
@@ -47,19 +47,19 @@ Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.
 
 | Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |
 |---|---:|---:|---:|---:|---:|---:|
-| prescreen_no | 3941 | 0 | 3915 | 0.5% | 3309 | 2.1% |
+| prescreen_no | 3941 | 0 | 3915 | 0.5% | 3518 | 2.0% |
 | economics_first_quote_probe_budget | 2768 | 0 | 2099 | n/v | 0 | n/v |
-| sector_momentum_weak | 972 | 1 | 845 | 0.8% | 467 | 2.8% |
-| earnings_gate | 439 | 43 | 439 | -0.3% | 281 | 0.5% |
-| mismatch_below_min | 347 | 347 | 343 | 0.3% | 294 | -0.5% |
-| bearish_disabled | 313 | 313 | 310 | -0.1% | 286 | 0.7% |
+| sector_momentum_weak | 972 | 1 | 845 | 0.8% | 499 | 2.8% |
+| earnings_gate | 439 | 43 | 439 | -0.3% | 329 | 0.5% |
+| mismatch_below_min | 347 | 347 | 343 | 0.3% | 312 | -0.4% |
+| bearish_disabled | 313 | 313 | 310 | -0.1% | 293 | 0.5% |
 | time_budget_exceeded | 253 | 0 | 252 | n/v | 252 | n/v |
-| pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 189 | 6.8% |
-| options_design_roi_or_edge | 168 | 168 | 165 | 0.2% | 145 | -2.5% |
-| deep_analysis_veto_or_invalid | 162 | 0 | 162 | -0.4% | 144 | -3.8% |
-| mc_below_threshold | 101 | 101 | 100 | 1.0% | 90 | 5.0% |
-| prescreen_bearish_prefilter | 39 | 0 | 39 | n/v | 0 | n/v |
-| impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 30 | 2.0% |
+| pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 195 | 6.7% |
+| options_design_roi_or_edge | 168 | 168 | 165 | 0.2% | 153 | -2.3% |
+| deep_analysis_veto_or_invalid | 162 | 0 | 162 | -0.4% | 150 | -3.9% |
+| mc_below_threshold | 101 | 101 | 100 | 1.0% | 92 | 4.9% |
+| prescreen_bearish_prefilter | 39 | 0 | 39 | n/v | 16 | n/v |
+| impact_x_surprise_below_floor | 36 | 36 | 36 | 0.1% | 32 | 2.0% |
 | economics_first_earnings_gate | 22 | 0 | 18 | n/v | 0 | n/v |
 | unlabeled_after_options_design | 20 | 20 | 20 | n/v | 20 | n/v |
 
