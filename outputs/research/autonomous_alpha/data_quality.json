@@ -1,0 +1,210 @@
+{
+  "active_gap_ids": [
+    "ENTRY_NOT_ARCHIVED",
+    "EXIT_NOT_ARCHIVED",
+    "FEATURE:5d:impact",
+    "FEATURE:5d:surprise",
+    "FEATURE:5d:news_novelty",
+    "FEATURE:5d:options_skew_25d",
+    "FEATURE:5d:options_skew_ratio",
+    "FEATURE:5d:dealer_oi_ratio",
+    "FEATURE:20d:news_novelty",
+    "NO_PREREGISTERED_ALPHA_OPTION_FORWARD_PLANS",
+    "INDEPENDENT_PERIODS:5d",
+    "INDEPENDENT_PERIODS:20d"
+  ],
+  "alpha_option_forward_plans": 0,
+  "alpha_option_status": "NEED_MORE_DATA",
+  "blocked_hypotheses_by_structure": {
+    "BULL_CALL_SPREAD": 8,
+    "LONG_CALL": 8
+  },
+  "data_gaps": [
+    {
+      "action": "Increase future RTH entry capture; never backfill historical execution quotes",
+      "cause": "No authentic archived quote at entry (historic rows may predate capture)",
+      "count": 272,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "ENTRY_NOT_ARCHIVED",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Monitor and capture due exit legs at RTH; do not fabricate exit prices",
+      "cause": "No verified exit quote at required valuation time",
+      "count": 1,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "EXIT_NOT_ARCHIVED",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Inspect existing feature producer and timestamps; never fill gaps as zero",
+      "cause": "Missing or invalid point-in-time feature in observed label sample",
+      "count": null,
+      "coverage_fraction": 0.487,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "FEATURE:5d:impact",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Inspect existing feature producer and timestamps; never fill gaps as zero",
+      "cause": "Missing or invalid point-in-time feature in observed label sample",
+      "count": null,
+      "coverage_fraction": 0.487,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "FEATURE:5d:surprise",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Inspect existing feature producer and timestamps; never fill gaps as zero",
+      "cause": "Missing or invalid point-in-time feature in observed label sample",
+      "count": null,
+      "coverage_fraction": 0.0,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "FEATURE:5d:news_novelty",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Inspect existing feature producer and timestamps; never fill gaps as zero",
+      "cause": "Missing or invalid point-in-time feature in observed label sample",
+      "count": null,
+      "coverage_fraction": 0.487,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "FEATURE:5d:options_skew_25d",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Inspect existing feature producer and timestamps; never fill gaps as zero",
+      "cause": "Missing or invalid point-in-time feature in observed label sample",
+      "count": null,
+      "coverage_fraction": 0.4891,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "FEATURE:5d:options_skew_ratio",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Inspect existing feature producer and timestamps; never fill gaps as zero",
+      "cause": "Missing or invalid point-in-time feature in observed label sample",
+      "count": null,
+      "coverage_fraction": 0.459,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "FEATURE:5d:dealer_oi_ratio",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Inspect existing feature producer and timestamps; never fill gaps as zero",
+      "cause": "Missing or invalid point-in-time feature in observed label sample",
+      "count": null,
+      "coverage_fraction": 0.0,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "FEATURE:20d:news_novelty",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Collect post-registration quote-verified exits and independent forward windows",
+      "cause": "Economically and statistically qualified new alpha-option candidates not available",
+      "count": 0,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "NO_PREREGISTERED_ALPHA_OPTION_FORWARD_PLANS",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Await new nonoverlapping prospective windows",
+      "cause": "3 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 2 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind",
+      "count": null,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "INDEPENDENT_PERIODS:5d",
+      "recoverable_historically": false
+    },
+    {
+      "action": "Await new nonoverlapping prospective windows",
+      "cause": "0 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 0 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind",
+      "count": null,
+      "first_observed_in_monitoring": "2026-11-14",
+      "historical_start_date_known": false,
+      "id": "INDEPENDENT_PERIODS:20d",
+      "recoverable_historically": false
+    }
+  ],
+  "decision_type": "RESEARCH_ONLY",
+  "evidence_discovery_as_of": "2026-11-14",
+  "evidence_population_rows": 9928,
+  "evidence_provenance_counts": {
+    "ENTRY_NOT_ARCHIVED": 272,
+    "EXIT_NOT_ARCHIVED": 1,
+    "VERIFIED": 317
+  },
+  "existing_option_learner": {
+    "20": {
+      "archive_sample_total": 665,
+      "archive_sample_verified_fraction": 0.53534,
+      "as_of": "2026-11-14",
+      "candidate_ledger_rows_7d": 933,
+      "entry_not_archived": 308,
+      "exit_not_archived": 1,
+      "feature_coverage_below_80pct": {
+        "news_novelty": 0.0
+      },
+      "fraction_scope": "HISTORICAL_ARCHIVE_SAMPLE_NOT_INDEPENDENT_FORWARD_COVERAGE",
+      "horizon_trading_days": 20,
+      "independent_periods": null,
+      "min_independent_periods": 5,
+      "model_status": null,
+      "option_snapshots_7d": 200,
+      "status": "HISTORICAL_PROVENANCE_ONLY",
+      "verified_quote_labels": 356,
+      "verified_signal_dates": null
+    },
+    "5": {
+      "archive_sample_total": 1271,
+      "archive_sample_verified_fraction": 0.75767,
+      "as_of": "2026-11-14",
+      "candidate_ledger_rows_7d": 933,
+      "entry_not_archived": 308,
+      "exit_not_archived": 0,
+      "feature_coverage_below_80pct": {
+        "dealer_oi_ratio": 0.459,
+        "impact": 0.487,
+        "news_novelty": 0.0,
+        "options_skew_25d": 0.487,
+        "options_skew_ratio": 0.4891,
+        "surprise": 0.487
+      },
+      "fraction_scope": "HISTORICAL_ARCHIVE_SAMPLE_NOT_INDEPENDENT_FORWARD_COVERAGE",
+      "horizon_trading_days": 5,
+      "independent_periods": null,
+      "min_independent_periods": 5,
+      "model_status": null,
+      "option_snapshots_7d": 200,
+      "status": "HISTORICAL_PROVENANCE_ONLY",
+      "verified_quote_labels": 963,
+      "verified_signal_dates": null
+    }
+  },
+  "generated_at": "2026-11-14T15:24:16.010381+00:00",
+  "largest_observed_count_gaps": [
+    "ENTRY_NOT_ARCHIVED"
+  ],
+  "link_as_of": "2026-11-14",
+  "link_decisions": 104,
+  "link_outcomes_status": "PENDING_OR_MISSING_NOT_TREATED_AS_VERIFIED",
+  "link_settled_outcomes": 0,
+  "link_signals": 135,
+  "link_status": "NEED_MORE_DATA",
+  "no_fake_alpha": true,
+  "no_reconstructed_quotes": true,
+  "observed_option_economic_status": "NEED_MORE_DATA",
+  "priority_note": "Counts rank historical missing data, not expected alpha; actionable priority is future entry/exit capture and independent forward evidence.",
+  "production_influence": "NONE",
+  "schema": "autonomous-alpha-data-quality-v1"
+}

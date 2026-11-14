@@ -1,0 +1,160 @@
+{
+  "as_of": "2026-11-14",
+  "global_alpha_ledger_slot_allocated": false,
+  "hypotheses": {
+    "bea_beta_v1": {
+      "source": "bea_release_calendar",
+      "structures": {
+        "BULL_CALL_SPREAD": {
+          "all_registered_paired_dates": 0,
+          "bootstrap_95pct_ci": null,
+          "both_arms_quote_verified_dates": 0,
+          "coverage_gaps": {},
+          "economically_positive_alpha_proven": false,
+          "independent_quote_verified_windows": 0,
+          "mean_adverse_net_roi_delta": null,
+          "mean_net_roi_delta": null,
+          "paper_outcomes_only": true,
+          "positive_delta_fraction": null,
+          "pre_registered_confirmatory_test_required": true,
+          "quote_provenance": [],
+          "required_independent_windows": 8,
+          "status": "NEED_MORE_PAIRED_RTH_QUOTES"
+        },
+        "LONG_CALL": {
+          "all_registered_paired_dates": 0,
+          "bootstrap_95pct_ci": null,
+          "both_arms_quote_verified_dates": 0,
+          "coverage_gaps": {},
+          "economically_positive_alpha_proven": false,
+          "independent_quote_verified_windows": 0,
+          "mean_adverse_net_roi_delta": null,
+          "mean_net_roi_delta": null,
+          "paper_outcomes_only": true,
+          "positive_delta_fraction": null,
+          "pre_registered_confirmatory_test_required": true,
+          "quote_provenance": [],
+          "required_independent_windows": 8,
+          "status": "NEED_MORE_PAIRED_RTH_QUOTES"
+        }
+      }
+    },
+    "bls_beta_v1": {
+      "source": "bls_release_calendar",
+      "structures": {
+        "BULL_CALL_SPREAD": {
+          "all_registered_paired_dates": 0,
+          "bootstrap_95pct_ci": null,
+          "both_arms_quote_verified_dates": 0,
+          "coverage_gaps": {},
+          "economically_positive_alpha_proven": false,
+          "independent_quote_verified_windows": 0,
+          "mean_adverse_net_roi_delta": null,
+          "mean_net_roi_delta": null,
+          "paper_outcomes_only": true,
+          "positive_delta_fraction": null,
+          "pre_registered_confirmatory_test_required": true,
+          "quote_provenance": [],
+          "required_independent_windows": 8,
+          "status": "NEED_MORE_PAIRED_RTH_QUOTES"
+        },
+        "LONG_CALL": {
+          "all_registered_paired_dates": 0,
+          "bootstrap_95pct_ci": null,
+          "both_arms_quote_verified_dates": 0,
+          "coverage_gaps": {},
+          "economically_positive_alpha_proven": false,
+          "independent_quote_verified_windows": 0,
+          "mean_adverse_net_roi_delta": null,
+          "mean_net_roi_delta": null,
+          "paper_outcomes_only": true,
+          "positive_delta_fraction": null,
+          "pre_registered_confirmatory_test_required": true,
+          "quote_provenance": [],
+          "required_independent_windows": 8,
+          "status": "NEED_MORE_PAIRED_RTH_QUOTES"
+        }
+      }
+    },
+    "fomc_beta_v1": {
+      "source": "fomc_calendar",
+      "structures": {
+        "BULL_CALL_SPREAD": {
+          "all_registered_paired_dates": 0,
+          "bootstrap_95pct_ci": null,
+          "both_arms_quote_verified_dates": 0,
+          "coverage_gaps": {},
+          "economically_positive_alpha_proven": false,
+          "independent_quote_verified_windows": 0,
+          "mean_adverse_net_roi_delta": null,
+          "mean_net_roi_delta": null,
+          "paper_outcomes_only": true,
+          "positive_delta_fraction": null,
+          "pre_registered_confirmatory_test_required": true,
+          "quote_provenance": [],
+          "required_independent_windows": 8,
+          "status": "NEED_MORE_PAIRED_RTH_QUOTES"
+        },
+        "LONG_CALL": {
+          "all_registered_paired_dates": 0,
+          "bootstrap_95pct_ci": null,
+          "both_arms_quote_verified_dates": 0,
+          "coverage_gaps": {},
+          "economically_positive_alpha_proven": false,
+          "independent_quote_verified_windows": 0,
+          "mean_adverse_net_roi_delta": null,
+          "mean_net_roi_delta": null,
+          "paper_outcomes_only": true,
+          "positive_delta_fraction": null,
+          "pre_registered_confirmatory_test_required": true,
+          "quote_provenance": [],
+          "required_independent_windows": 8,
+          "status": "NEED_MORE_PAIRED_RTH_QUOTES"
+        }
+      }
+    },
+    "liq_beta_v1": {
+      "source": "fred_liquidity",
+      "structures": {
+        "BULL_CALL_SPREAD": {
+          "all_registered_paired_dates": 0,
+          "bootstrap_95pct_ci": null,
+          "both_arms_quote_verified_dates": 0,
+          "coverage_gaps": {},
+          "economically_positive_alpha_proven": false,
+          "independent_quote_verified_windows": 0,
+          "mean_adverse_net_roi_delta": null,
+          "mean_net_roi_delta": null,
+          "paper_outcomes_only": true,
+          "positive_delta_fraction": null,
+          "pre_registered_confirmatory_test_required": true,
+          "quote_provenance": [],
+          "required_independent_windows": 8,
+          "status": "NEED_MORE_PAIRED_RTH_QUOTES"
+        },
+        "LONG_CALL": {
+          "all_registered_paired_dates": 0,
+          "bootstrap_95pct_ci": null,
+          "both_arms_quote_verified_dates": 0,
+          "coverage_gaps": {},
+          "economically_positive_alpha_proven": false,
+          "independent_quote_verified_windows": 0,
+          "mean_adverse_net_roi_delta": null,
+          "mean_net_roi_delta": null,
+          "paper_outcomes_only": true,
+          "positive_delta_fraction": null,
+          "pre_registered_confirmatory_test_required": true,
+          "quote_provenance": [],
+          "required_independent_windows": 8,
+          "status": "NEED_MORE_PAIRED_RTH_QUOTES"
+        }
+      }
+    }
+  },
+  "method": "paired_alpha_option_link_bid_ask_one_contract_20d",
+  "option_edge_confirmed": false,
+  "orders_created": 0,
+  "protocol_sha256": "c1d9b94f967b0526d4bbf04e0f1f8d8e3f3f85726999bd68ddd5a5d9a8f1b77c",
+  "research_only": true,
+  "status": "QUOTE_GAP"
+}

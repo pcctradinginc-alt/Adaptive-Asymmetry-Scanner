@@ -1,5 +1,5 @@
 {
-  "appended": 6,
+  "appended": 114,
   "by_kind": {
     "factory_battery": 7,
     "factory_plan": 39,
@@ -18,13 +18,13 @@
     "SELECTED": 1,
     "VALID": 1
   },
-  "generated": "2026-11-07T15:07:00+00:00",
+  "generated": "2026-11-14T15:24:20+00:00",
   "locked_holdout_policy": "CONTAMINATED",
   "n_experiments": 120,
   "n_forward_observation_sets_unvalidated": 6,
   "n_historically_tested": 75,
   "n_prospectively_confirmed": 0,
-  "n_unique_events": 215,
+  "n_unique_events": 329,
   "next_action": "KEEP_SHADOW_AND_COLLECT_FORWARD",
   "production_effect": "NONE",
   "schema": "alpha-experiment-v1",
@@ -46,7 +46,7 @@
       "ml_forward": {
         "path": "outputs/research/ml_forward.json",
         "records": 6,
-        "sha256": "5f7156768348a3cc35411360f71c0fb51a75acbf75f80d31235f4f61a30c5552"
+        "sha256": "7528186dc87839295795fa7841389f624c4289985624cf7747be17197362ef4d"
       },
       "ml_models": {
         "path": "outputs/research/ml_research.json",
@@ -60,5 +60,5 @@
       }
     }
   },
-  "total_unique": 215
+  "total_unique": 329
 }

@@ -1,0 +1,26 @@
+{
+ "policy": "uniform-without-replacement-v1",
+ "as_of": "2026-11-14",
+ "analyzed_rows": 0,
+ "days": 0,
+ "production_influence": "NONE",
+ "horizons": {
+  "20d": {
+   "n": 0,
+   "mean_dir_return": null,
+   "ic_census_impact": null,
+   "ic_census_mismatch": null,
+   "ic_census_mismatch_dir_48h": null,
+   "ic_census_mismatch_dir_news": null
+  },
+  "45d": {
+   "n": 0,
+   "mean_dir_return": null,
+   "ic_census_impact": null,
+   "ic_census_mismatch": null,
+   "ic_census_mismatch_dir_48h": null,
+   "ic_census_mismatch_dir_news": null
+  }
+ },
+ "note": "Zufallsstichprobe der Hard-Filter-Population (π je Zeile protokolliert); Rangkorrelation mit der richtungsbereinigten Underlying-Rendite; beschreibend, keine Bestätigung."
+}

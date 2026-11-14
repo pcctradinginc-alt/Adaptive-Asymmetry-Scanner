@@ -3,7 +3,7 @@
   "decision_type": "RESEARCH_ONLY",
   "disclaimer": "No return promises. No automatically released trades. Human decision required.",
   "economics_status": "NEED_MORE_DATA",
-  "generated_at": "2026-11-07T15:06:51+00:00",
+  "generated_at": "2026-11-14T15:23:53+00:00",
   "learning": {
     "budget_rule": "Suggestions are never auto-registered; new hypotheses stay within the explorer budget.",
     "economically_unsuitable_structures": {},
@@ -55,10 +55,14 @@
     ],
     "failing_feature_combinations": {},
     "missing_data": {
-      "ABSTAIN:CAPITAL_ABOVE_MAX": 11,
-      "ABSTAIN:LONG_OPEN_INTEREST_BELOW_MIN": 6,
-      "ABSTAIN:SHORT_OPEN_INTEREST_BELOW_MIN": 1,
-      "ABSTAIN:SHORT_SPREAD_TOO_WIDE": 3,
+      "ABSTAIN:CAPITAL_ABOVE_MAX": 19,
+      "ABSTAIN:LONG_OPEN_INTEREST_BELOW_MIN": 36,
+      "ABSTAIN:LONG_SPREAD_TOO_WIDE": 6,
+      "ABSTAIN:NO_EXPIRY_IN_DTE_WINDOW": 6,
+      "ABSTAIN:SHORT_BID_BELOW_MIN": 1,
+      "ABSTAIN:SHORT_OPEN_INTEREST_BELOW_MIN": 15,
+      "ABSTAIN:SHORT_QUOTE_NOT_USABLE_RTH": 1,
+      "ABSTAIN:SHORT_SPREAD_TOO_WIDE": 8,
       "NO_EXECUTED_TRADES_WITH_EX_ANTE_SIGNAL_ID": 1,
       "PRE_LINK_PREDICTIONS_WITHOUT_OPTION_DECISION": 48
     },
@@ -69,10 +73,10 @@
     "signals_without_pit_features": 0,
     "structure_labels": {
       "BULL_CALL_SPREAD": {
-        "NEED_MORE_DATA": 6
+        "NEED_MORE_DATA": 8
       },
       "LONG_CALL": {
-        "NEED_MORE_DATA": 6
+        "NEED_MORE_DATA": 8
       }
     },
     "suggested_hypotheses": []
@@ -89,9 +93,12 @@
   "test_budget": {
     "exhausted": false,
     "frozen_by_registry": false,
+    "ledger_registered": 0,
     "max_tests": 20,
+    "next_alpha": 0.005741900759991398,
     "remaining": 20,
     "slot_alpha": 0.0025,
+    "source": "alpha-ledger-v1",
     "total_alpha": 0.05,
     "used": 0
   }

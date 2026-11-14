@@ -1,5 +1,5 @@
 {
- "as_of": "2026-11-07",
+ "as_of": "2026-11-14",
  "horizon": 20,
  "experiment": {
   "name": "option_learner_ridge",
@@ -86,24 +86,24 @@
   "min_coverage": 0.8,
   "due_grace_days": 10
  },
- "verified_labels": 130,
- "label_dates": 3,
+ "verified_labels": 356,
+ "label_dates": 8,
  "provenance_counts": {
   "ENTRY_NOT_ARCHIVED": 308,
   "EXIT_NOT_ARCHIVED": 1,
-  "VERIFIED": 130
+  "VERIFIED": 356
  },
- "ledger_rows_7d": 1307,
- "option_snapshots_7d": 196,
+ "ledger_rows_7d": 933,
+ "option_snapshots_7d": 200,
  "manifest": {
-  "cutoff": "2026-11-07",
-  "n_labels": 130,
-  "labels_sha256": "aba9b2466af768ff",
+  "cutoff": "2026-11-14",
+  "n_labels": 356,
+  "labels_sha256": "f590f582a227c450",
   "first_signal": "2026-10-14",
-  "last_signal": "2026-10-16",
+  "last_signal": "2026-10-23",
   "by_expression": {
-   "single": 119,
-   "spread": 11
+   "single": 317,
+   "spread": 39
   },
   "all_labels_verified": true,
   "trains_model": true
@@ -118,35 +118,35 @@
   "news_novelty": 0.0,
   "rel_volume": 1.0,
   "scan_day_ret": 1.0,
-  "short_mom": 1.0,
+  "short_mom": 0.9972,
   "log_market_cap": 1.0,
-  "short_pct_float": 1.0,
-  "options_skew_25d": 1.0,
+  "short_pct_float": 0.986,
+  "options_skew_25d": 0.9944,
   "options_skew_ratio": 1.0,
-  "dealer_oi_ratio": 0.9462,
-  "ml_exp_ret_60": 0.9308,
-  "ml_q10_ret_60": 0.9308,
-  "ml_q90_ret_60": 0.9308,
-  "ml_exp_dd_60": 0.9308,
-  "ml_p_gt10_60": 0.9308,
-  "ml_disagreement_sd": 0.9308,
-  "ml_hgb_xs20_v1": 0.9308,
-  "ml_enet_xs20_v1": 0.9308,
+  "dealer_oi_ratio": 0.9466,
+  "ml_exp_ret_60": 0.9494,
+  "ml_q10_ret_60": 0.9494,
+  "ml_q90_ret_60": 0.9494,
+  "ml_exp_dd_60": 0.9494,
+  "ml_p_gt10_60": 0.9494,
+  "ml_disagreement_sd": 0.9494,
+  "ml_hgb_xs20_v1": 0.9494,
+  "ml_enet_xs20_v1": 0.9494,
   "c_entry_spread": 1.0,
   "c_is_spread": 1.0,
   "c_is_call": 1.0,
-  "c_iv": 0.9846,
+  "c_iv": 0.9916,
   "c_dte": 1.0,
   "c_moneyness": 1.0,
-  "c_delta": 0.9846,
+  "c_delta": 0.9916,
   "c_log_oi": 1.0,
   "c_iv_rank": 1.0,
   "c_rv_score": 1.0,
   "c_term_score": 1.0
  },
  "variant_feature_coverage": {
-  "news_novelty__novelty_max": 0.3077,
-  "news_novelty__novelty_mean": 0.3077
+  "news_novelty__novelty_max": 0.7219,
+  "news_novelty__novelty_mean": 0.7219
  },
  "walk_forward": {
   "n": 0,
@@ -221,6 +221,253 @@
    "reference_cutoff": null
   }
  },
+ "acquisition": {
+  "policy": "ts-acq-v1",
+  "estimator": "Horvitz-Thompson je Tag (Block-Bootstrap \u00fcber Haltefenster) + SNIPS",
+  "sampled_due": 0,
+  "labelled": 0,
+  "coverage": null,
+  "propensity_sources": {
+   "ts-acq-v1": 749,
+   "uniform-hash": 401
+  },
+  "max_weight": null,
+  "effective_n": 0.0,
+  "values": {
+   "trade_all": {
+    "ht": null,
+    "snips": null
+   },
+   "acq_model_positive": {
+    "ht": null,
+    "snips": null
+   }
+  },
+  "never_trade": 0.0,
+  "production_influence": "NONE",
+  "note": "Populationswert je Kandidat ohne Richtung; Coverage < 1 hei\u00dft: fehlende Labels gezogener Kandidaten sind ausgeschlossen (berichtet). Beschreibende Research-Evidenz, keine Freigabe."
+ },
+ "options_native": {
+  "policy": "ev-decomposed-v1",
+  "decomposed": 356,
+  "reasons": {
+   "OK": 356
+  },
+  "execution": {
+   "limit_fraction": 0.5,
+   "n": 356,
+   "overall": {
+    "cost": {
+     "n": 356,
+     "dates": 8,
+     "independent_periods": 1,
+     "mean_diff": -0.137199,
+     "ci95": null
+    },
+    "exec_ret": {
+     "n": 356,
+     "dates": 8,
+     "independent_periods": 1,
+     "mean_diff": -0.034121,
+     "ci95": null
+    },
+    "limit_scenario": {
+     "n": 356,
+     "dates": 8,
+     "independent_periods": 1,
+     "mean_diff": 0.029203,
+     "ci95": null
+    }
+   },
+   "by_entry_spread": {
+    "0%\u20132%": {
+     "n": 65,
+     "cost": {
+      "n": 65,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": -0.0436,
+      "ci95": null
+     },
+     "exec_ret": {
+      "n": 65,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": 0.065685,
+      "ci95": null
+     },
+     "limit_scenario": {
+      "n": 65,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": 0.086841,
+      "ci95": null
+     }
+    },
+    "2%\u20135%": {
+     "n": 154,
+     "cost": {
+      "n": 154,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": -0.078957,
+      "ci95": null
+     },
+     "exec_ret": {
+      "n": 154,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": -0.031495,
+      "ci95": null
+     },
+     "limit_scenario": {
+      "n": 154,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": 0.006707,
+      "ci95": null
+     }
+    },
+    "5%\u201310%": {
+     "n": 76,
+     "cost": {
+      "n": 76,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": -0.158825,
+      "ci95": null
+     },
+     "exec_ret": {
+      "n": 76,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": 0.044487,
+      "ci95": null
+     },
+     "limit_scenario": {
+      "n": 76,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": 0.120134,
+      "ci95": null
+     }
+    },
+    ">=10%": {
+     "n": 61,
+     "cost": {
+      "n": 61,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": -0.357032,
+      "ci95": null
+     },
+     "exec_ret": {
+      "n": 61,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": -0.245039,
+      "ci95": null
+     },
+     "limit_scenario": {
+      "n": 61,
+      "dates": 8,
+      "independent_periods": 1,
+      "mean_diff": -0.088712,
+      "ci95": null
+     }
+    }
+   },
+   "note": "Spread-Klassen nach Ask/Mid \u2212 1 zum Einstieg; Limit-Szenario NICHT durch Fills verifiziert (nur Spanne zwischen Mid und Ask/Bid); beschreibend, keine Best\u00e4tigung."
+  },
+  "components": {
+   "delta": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": 0.050574,
+    "ci95": null
+   },
+   "gamma": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": 0.086976,
+    "ci95": null
+   },
+   "theta": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": -0.068589,
+    "ci95": null
+   },
+   "vega": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": 0.034117,
+    "ci95": null
+   },
+   "cost": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": -0.137199,
+    "ci95": null
+   },
+   "mid_ret": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": 0.103078,
+    "ci95": null
+   },
+   "exec_ret": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": -0.034121,
+    "ci95": null
+   }
+  },
+  "variance_share": {
+   "delta": 0.9129,
+   "gamma": 0.0475,
+   "theta": 0.0016,
+   "vega": 0.0262
+  },
+  "predictability_ic": {},
+  "ev_choice_walk_forward": {
+   "value_vs_never": null,
+   "minus_always_single": null
+  },
+  "ev_choice_prospective": {
+   "decisions": 200,
+   "pending": 200,
+   "missing_outcomes": 0,
+   "value_vs_never": null
+  },
+  "production_influence": "NONE",
+  "note": "Zerlegung exakt (Summe = Mid-Rendite), Black-Scholes mit konstantem Zins ohne Dividenden; Walk-Forward ist auf gesehenen Daten und nie eine Best\u00e4tigung.",
+  "holding_vs_5d": {
+   "pairs": 356,
+   "exec_ret_long_minus_short": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": 0.067701,
+    "ci95": null
+   },
+   "cost_long_minus_short": {
+    "n": 356,
+    "dates": 8,
+    "independent_periods": 1,
+    "mean_diff": -0.00482,
+    "ci95": null
+   },
+   "note": "Gleiche Kontrakte, nur die Haltedauer unterscheidet sich; beschreibend, keine Best\u00e4tigung."
+  }
+ },
  "baselines": {
   "no_trade": 0.0,
   "trade_all": null,
@@ -231,45 +478,52 @@
  },
  "by_gate": {
   "bearish_disabled": {
-   "n": 52,
-   "dates": 3,
-   "mean": 0.029728,
-   "win_rate": 0.5,
+   "n": 108,
+   "dates": 8,
+   "mean": -0.020371,
+   "win_rate": 0.4167,
    "sufficient": false
   },
   "earnings_gate": {
-   "n": 7,
-   "dates": 2,
-   "mean": -0.376266,
-   "win_rate": 0.0,
+   "n": 27,
+   "dates": 7,
+   "mean": -0.296726,
+   "win_rate": 0.1852,
    "sufficient": false
   },
   "impact_x_surprise_below_floor": {
-   "n": 2,
-   "dates": 2,
-   "mean": -0.042387,
+   "n": 8,
+   "dates": 6,
+   "mean": -0.019712,
    "win_rate": 0.5,
    "sufficient": false
   },
+  "intraday_too_late": {
+   "n": 1,
+   "dates": 1,
+   "mean": 0.708292,
+   "win_rate": 1.0,
+   "sufficient": false
+  },
   "mc_below_threshold": {
-   "n": 10,
-   "dates": 3,
-   "mean": 0.518269,
-   "win_rate": 0.9,
+   "n": 35,
+   "dates": 8,
+   "mean": 0.265991,
+   "win_rate": 0.7143,
    "sufficient": false
   },
   "mismatch_below_min": {
-   "n": 44,
-   "dates": 3,
-   "mean": 0.047435,
-   "win_rate": 0.4773,
+   "n": 135,
+   "dates": 8,
+   "mean": -0.044396,
+   "win_rate": 0.4519,
    "sufficient": false
   },
   "options_design_roi_or_edge": {
-   "n": 11,
-   "dates": 3,
-   "mean": 0.137761,
-   "win_rate": 0.6364,
+   "n": 37,
+   "dates": 8,
+   "mean": -0.165537,
+   "win_rate": 0.3243,
    "sufficient": false
   },
   "proposed": {
@@ -280,10 +534,10 @@
    "sufficient": false
   },
   "unlabeled_after_options_design": {
-   "n": 1,
-   "dates": 1,
-   "mean": 0.038869,
-   "win_rate": 1.0,
+   "n": 2,
+   "dates": 2,
+   "mean": -0.309404,
+   "win_rate": 0.5,
    "sufficient": false
   }
  },
@@ -326,13 +580,13 @@
   },
   "verdict": "NEED_MORE_DATA",
   "experiment_id": "4a0f886d1979",
-  "valid_decisions": 39,
-  "valid_predictions": 97,
-  "pending_decisions": 39,
+  "valid_decisions": 239,
+  "valid_predictions": 621,
+  "pending_decisions": 239,
   "model_instances": 0,
   "excluded": {},
   "journal_by_experiment": {
-   "4a0f886d1979": 175
+   "4a0f886d1979": 1099
   },
   "vs_reference": {
    "candidates": 0,
@@ -374,7 +628,7 @@
  "forward_sequential": {
   "experiment_id": "4a0f886d1979",
   "horizon": 20,
-  "evaluated_as_of": "2026-11-07",
+  "evaluated_as_of": "2026-11-14",
   "looks_evaluated": [],
   "binding": null,
   "status": "AWAITING_LOOK",
@@ -394,7 +648,7 @@
    0.033625333549951675
   ],
   "look": 0,
-  "valid_decisions": 39,
+  "valid_decisions": 239,
   "next_look": {
    "look": 1,
    "cutoff": "2027-02-10",
@@ -404,27 +658,27 @@
  "model": {
   "features": 33,
   "clip": [
-   -0.8675,
-   1.4306
+   -0.8897,
+   1.4062
   ],
-  "intercept": 0.060396,
+  "intercept": -0.038036,
   "top_coefficients": {
-   "ml_q90_ret_60": 0.125421,
-   "options_skew_25d": 0.112513,
-   "c_is_call": 0.099245,
-   "sentiment_drift": -0.08653,
-   "short_pct_float": -0.069607,
-   "options_skew_ratio": -0.068105,
-   "ml_disagreement_sd": -0.064973,
-   "ml_exp_dd_60": -0.064631
+   "ml_q10_ret_60": 0.135694,
+   "c_entry_spread": -0.074344,
+   "c_rv_score": -0.073736,
+   "ml_q90_ret_60": 0.068009,
+   "c_delta": -0.067517,
+   "ml_exp_ret_60": -0.066212,
+   "short_mom": -0.057933,
+   "options_skew_ratio": -0.057726
   }
  },
  "production_influence": "NONE",
  "orders_created": 0,
  "label_pipeline": {
-  "verified": 130,
-  "independent_signal_days": 3,
-  "not_yet_due": 836,
+  "verified": 356,
+  "independent_signal_days": 8,
+  "not_yet_due": 1134,
   "technically_missing": {
    "EXIT_NOT_ARCHIVED": 1
   },
@@ -433,26 +687,26 @@
    "NO_LABEL_AFTER_DUE": 1
   },
   "archive_start": "2026-10-12",
-  "due_after_archive_start": 131,
-  "technical_missing_share": 0.0076
+  "due_after_archive_start": 357,
+  "technical_missing_share": 0.0028
  },
  "learning_status": {
   "state": "NEED_MORE_DATA",
-  "reason": "130 gepr\u00fcfte Labels an 3 Signaltagen, 836 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA",
+  "reason": "356 gepr\u00fcfte Labels an 8 Signaltagen, 1134 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA",
   "alpha_claim": "keiner"
  },
  "model_instances": {
-  "count": 1,
+  "count": 5,
   "latest": {
-   "model_id": "4c1579f83fcf2141",
+   "model_id": "e250f357a2779a00",
    "experiment_id": "4a0f886d1979",
-   "train_cutoff": "2026-11-06",
-   "n_train_labels": 130,
-   "labels_sha256": "aba9b2466af768ff",
-   "weights_sha256": "15c11789da25f3de",
-   "max_label_day": "2026-11-05",
+   "train_cutoff": "2026-11-13",
+   "n_train_labels": 355,
+   "labels_sha256": "1537a37dab3908e5",
+   "weights_sha256": "c131286d40b18044",
+   "max_label_day": "2026-11-12",
    "horizon": 20,
-   "registered_at": "2026-11-06T16:15:49+00:00"
+   "registered_at": "2026-11-13T16:50:56+00:00"
   }
  },
  "reference": {
@@ -473,12 +727,453 @@
    "total_alpha": 0.05,
    "max_tests": 20,
    "slot_alpha": 0.0025,
-   "used": 3,
-   "remaining": 17,
+   "used": 6,
+   "remaining": 14,
    "exhausted": false,
-   "frozen_by_registry": true
+   "frozen_by_registry": true,
+   "source": "alpha-ledger-v1",
+   "ledger_registered": 0,
+   "next_alpha": 0.0007274776333495859
   },
-  "variants": {}
+  "variants": {
+   "OLV-1e2e744f73": {
+    "variant_id": "OLV-1e2e744f73",
+    "overrides": {
+     "ridge_alpha": 30.0
+    },
+    "experiment_id": "501b23ec5bc8",
+    "base_experiment_id": "4a0f886d1979",
+    "proposal_id": "OLP-c4a897fc",
+    "gap_ids": [
+     "model:overfit_risk:20d",
+     "model:untested_alternatives:20d"
+    ],
+    "start_date": "2026-11-08",
+    "days_running": 6,
+    "falsification": {
+     "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
+     "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
+     "comparators": [
+      "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+      "eingefrorene Referenz der Basis",
+      "Nicht-Handeln"
+     ],
+     "looks_days": [
+      67,
+      133,
+      200
+     ],
+     "accept_if": "an einem vorab festgelegten Pr\u00fcfzeitpunkt BEIDE KI ganz \u00fcber 0 (relativ zur Basis UND netto gegen\u00fcber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabh\u00e4ngige Perioden, >= 30 Kandidaten",
+     "reject_if": "relativ KI ganz unter 0 an einem Pr\u00fcfzeitpunkt (FALSIFIED_WORSE); an der letzten Pr\u00fcfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+     "max_days": 200,
+     "test_budget": "total_alpha 0.05 / max_tests 20"
+    },
+    "look_days": [
+     67,
+     133,
+     200
+    ],
+    "look": 0,
+    "looks": 3,
+    "look_cutoff": null,
+    "next_look": {
+     "look": 1,
+     "cutoff": "2027-01-14",
+     "ready_after": "2027-02-13"
+    },
+    "status": "RUNNING",
+    "relative_verdict": "AWAITING_LOOK",
+    "economic_verdict": "AWAITING_LOOK",
+    "current_evidence": {
+     "status": "RUNNING",
+     "look": 0,
+     "relative_verdict": "AWAITING_LOOK",
+     "economic_verdict": "AWAITING_LOOK",
+     "look_report": null,
+     "decision_look_report": null,
+     "contradicts_decision": false
+    },
+    "alpha_slot": 4,
+    "slot_alpha": 0.0025,
+    "alpha_look": 0.0025,
+    "look_report": null,
+    "comparison": {
+     "due_candidates": 0,
+     "compared": 0,
+     "coverage": null,
+     "min_coverage": 0.8,
+     "excluded": {},
+     "decisions_after_cutoff": 200
+    },
+    "valid_decisions": 200,
+    "invalid_entries": {},
+    "vs_base": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "vs_frozen_reference": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "forward": {
+     "n": 0,
+     "dates": 0,
+     "independent_periods": 0,
+     "n_selected": 0,
+     "mean_selected": null,
+     "selected_ci95": null,
+     "coverage": null,
+     "verdict": "NEED_MORE_DATA"
+    }
+   },
+   "OLV-fe53357fa6": {
+    "variant_id": "OLV-fe53357fa6",
+    "overrides": {
+     "drop_feature_group": "ml_scores"
+    },
+    "experiment_id": "4b83387ab2a5",
+    "base_experiment_id": "4a0f886d1979",
+    "proposal_id": "OLP-49d62e6c",
+    "gap_ids": [
+     "model:overfit_risk:20d",
+     "model:untested_alternatives:20d"
+    ],
+    "start_date": "2026-11-08",
+    "days_running": 6,
+    "falsification": {
+     "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
+     "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
+     "comparators": [
+      "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+      "eingefrorene Referenz der Basis",
+      "Nicht-Handeln"
+     ],
+     "looks_days": [
+      67,
+      133,
+      200
+     ],
+     "accept_if": "an einem vorab festgelegten Pr\u00fcfzeitpunkt BEIDE KI ganz \u00fcber 0 (relativ zur Basis UND netto gegen\u00fcber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabh\u00e4ngige Perioden, >= 30 Kandidaten",
+     "reject_if": "relativ KI ganz unter 0 an einem Pr\u00fcfzeitpunkt (FALSIFIED_WORSE); an der letzten Pr\u00fcfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+     "max_days": 200,
+     "test_budget": "total_alpha 0.05 / max_tests 20"
+    },
+    "look_days": [
+     67,
+     133,
+     200
+    ],
+    "look": 0,
+    "looks": 3,
+    "look_cutoff": null,
+    "next_look": {
+     "look": 1,
+     "cutoff": "2027-01-14",
+     "ready_after": "2027-02-13"
+    },
+    "status": "RUNNING",
+    "relative_verdict": "AWAITING_LOOK",
+    "economic_verdict": "AWAITING_LOOK",
+    "current_evidence": {
+     "status": "RUNNING",
+     "look": 0,
+     "relative_verdict": "AWAITING_LOOK",
+     "economic_verdict": "AWAITING_LOOK",
+     "look_report": null,
+     "decision_look_report": null,
+     "contradicts_decision": false
+    },
+    "alpha_slot": 5,
+    "slot_alpha": 0.0025,
+    "alpha_look": 0.0025,
+    "look_report": null,
+    "comparison": {
+     "due_candidates": 0,
+     "compared": 0,
+     "coverage": null,
+     "min_coverage": 0.8,
+     "excluded": {},
+     "decisions_after_cutoff": 200
+    },
+    "valid_decisions": 200,
+    "invalid_entries": {},
+    "vs_base": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "vs_frozen_reference": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "forward": {
+     "n": 0,
+     "dates": 0,
+     "independent_periods": 0,
+     "n_selected": 0,
+     "mean_selected": null,
+     "selected_ci95": null,
+     "coverage": null,
+     "verdict": "NEED_MORE_DATA"
+    }
+   },
+   "OLV-51bacb5204": {
+    "variant_id": "OLV-51bacb5204",
+    "overrides": {
+     "min_pred": 0.02
+    },
+    "experiment_id": "821727613511",
+    "base_experiment_id": "4a0f886d1979",
+    "proposal_id": "OLP-3a41a76f",
+    "gap_ids": [
+     "model:untested_alternatives:20d"
+    ],
+    "start_date": "2026-11-08",
+    "days_running": 6,
+    "falsification": {
+     "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
+     "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
+     "comparators": [
+      "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+      "eingefrorene Referenz der Basis",
+      "Nicht-Handeln"
+     ],
+     "looks_days": [
+      67,
+      133,
+      200
+     ],
+     "accept_if": "an einem vorab festgelegten Pr\u00fcfzeitpunkt BEIDE KI ganz \u00fcber 0 (relativ zur Basis UND netto gegen\u00fcber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabh\u00e4ngige Perioden, >= 30 Kandidaten",
+     "reject_if": "relativ KI ganz unter 0 an einem Pr\u00fcfzeitpunkt (FALSIFIED_WORSE); an der letzten Pr\u00fcfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+     "max_days": 200,
+     "test_budget": "total_alpha 0.05 / max_tests 20"
+    },
+    "look_days": [
+     67,
+     133,
+     200
+    ],
+    "look": 0,
+    "looks": 3,
+    "look_cutoff": null,
+    "next_look": {
+     "look": 1,
+     "cutoff": "2027-01-14",
+     "ready_after": "2027-02-13"
+    },
+    "status": "RUNNING",
+    "relative_verdict": "AWAITING_LOOK",
+    "economic_verdict": "AWAITING_LOOK",
+    "current_evidence": {
+     "status": "RUNNING",
+     "look": 0,
+     "relative_verdict": "AWAITING_LOOK",
+     "economic_verdict": "AWAITING_LOOK",
+     "look_report": null,
+     "decision_look_report": null,
+     "contradicts_decision": false
+    },
+    "alpha_slot": 6,
+    "slot_alpha": 0.0025,
+    "alpha_look": 0.0025,
+    "look_report": null,
+    "comparison": {
+     "due_candidates": 0,
+     "compared": 0,
+     "coverage": null,
+     "min_coverage": 0.8,
+     "excluded": {},
+     "decisions_after_cutoff": 200
+    },
+    "valid_decisions": 200,
+    "invalid_entries": {},
+    "vs_base": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "vs_frozen_reference": {
+     "candidates": 0,
+     "due_candidates": 0,
+     "coverage": null,
+     "days": 0,
+     "independent_periods": 0,
+     "ci_level": 0.9975,
+     "decisions_differ": 0,
+     "excluded": {},
+     "daily_mean": {
+      "learning": null,
+      "reference": null,
+      "trade_all": null,
+      "no_trade": 0.0
+     },
+     "learning_minus_reference": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_trade_all": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "learning_minus_no_trade": {
+      "mean": null,
+      "ci95": null,
+      "independent_periods": 0
+     },
+     "verdict": "NEED_MORE_DATA"
+    },
+    "forward": {
+     "n": 0,
+     "dates": 0,
+     "independent_periods": 0,
+     "n_selected": 0,
+     "mean_selected": null,
+     "selected_ci95": null,
+     "coverage": null,
+     "verdict": "NEED_MORE_DATA"
+    }
+   }
+  }
  },
  "learning_trend": [
   {
@@ -495,13 +1190,18 @@
    "as_of": "2026-11-07",
    "verdict": "NEED_MORE_DATA",
    "mean_diff": null
+  },
+  {
+   "as_of": "2026-11-14",
+   "verdict": "NEED_MORE_DATA",
+   "mean_diff": null
   }
  ],
  "vs_previous": {
-  "previous_as_of": "2026-11-03",
+  "previous_as_of": "2026-11-07",
   "previous_verdict": "NEED_MORE_DATA",
   "delta_mean_selected": null,
   "delta_ic_mean": null,
-  "delta_labels": 130
+  "delta_labels": 226
  }
 }

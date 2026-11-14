@@ -1,11 +1,11 @@
 {
-  "generated": "2026-11-07T15:02:24+00:00",
+  "generated": "2026-11-14T15:18:25+00:00",
   "mode": "weekly",
-  "n_rows": 295135,
+  "n_rows": 295638,
   "n_tickers": 600,
-  "panel_hash": "9d99584f2c2fa5be",
-  "code_sha": "bbb87970d248",
-  "period": "2014-06-06..2026-11-06",
+  "panel_hash": "b04fd73fe2ee4d2c",
+  "code_sha": "45b196c03271",
+  "period": "2014-06-06..2026-11-13",
   "locked_from": "2025-07-01",
   "locked_status": "CONTAMINATED",
   "forward_holdout_from": "2026-09-29",
@@ -23,11 +23,11 @@
     "removed_price_coverage": 0.473,
     "residual_bias": "entfernte Titel ohne Yahoo-Kurse fehlen weiterhin",
     "sector_assignment": "point-in-time: Sektor erst ab erster Beobachtung (Candidate-Ledger/Abrufdatum, outputs/research/sector_history.jsonl); davor 'unknown' – historische Sektor-Attribution daher meist unknown",
-    "sector_pit_coverage": 0.0134,
+    "sector_pit_coverage": 0.0151,
     "survivorship": {
       "available": true,
       "label": "fwd_xs_20",
-      "mean_missing_member_share": 0.1059,
+      "mean_missing_member_share": 0.1058,
       "max_missing_member_share": 0.2455,
       "missing_share_by_year": {
         "2014": 0.2425,
@@ -42,19 +42,19 @@
         "2023": 0.0422,
         "2024": 0.0351,
         "2025": 0.0228,
-        "2026": 0.0077
+        "2026": 0.0075
       },
-      "worst_case_xs_mean_shift": -0.00804,
+      "worst_case_xs_mean_shift": -0.00801,
       "note": "Schranke: fehlende Mitglieder am 10-%-Quantil des Stichtags; verschiebt das Querschnittsmittel (Benchmark der Top-Dezil-Rendite) um diesen Betrag – Top-Dezil-Überrenditen darunter sind nicht von Survivorship unterscheidbar"
     }
   },
   "new_predictions": [
-    "momentum_12_1@2026-11-06",
-    "enet_xs20_v1@2026-11-06",
-    "hgb_xs20_v1@2026-11-06",
-    "hgb_asym20_v1@2026-11-06",
-    "hgb_xs20_momentum_v1@2026-11-06",
-    "hgb_xs20_risk_regime_v1@2026-11-06"
+    "momentum_12_1@2026-11-13",
+    "enet_xs20_v1@2026-11-13",
+    "hgb_xs20_v1@2026-11-13",
+    "hgb_asym20_v1@2026-11-13",
+    "hgb_xs20_momentum_v1@2026-11-13",
+    "hgb_xs20_risk_regime_v1@2026-11-13"
   ],
   "calibration": {
     "status": "ok",
@@ -254,139 +254,139 @@
     "p_up_informative": false
   },
   "cards": {
-    "date": "2026-11-06",
+    "date": "2026-11-13",
     "n": 503
   },
   "forward": {
     "momentum_12_1": {
       "base": {
-        "n_cohorts": 3,
+        "n_cohorts": 5,
         "n_months": 1,
-        "mean": -0.16256,
-        "median": -0.14767,
+        "mean": -0.15185,
+        "median": -0.13847,
         "hit_rate": 0.0,
         "t_months": null,
         "sharpe_ann": null,
         "max_dd": 0.0,
         "years_positive_share": 0.0,
-        "top_mfe": 0.07203,
-        "top_mae": -0.19665,
-        "top_asymmetry": 0.366,
-        "univ_asymmetry": 1.725
+        "top_mfe": 0.07324,
+        "top_mae": -0.20063,
+        "top_asymmetry": 0.365,
+        "univ_asymmetry": 1.669
       },
       "ic": {
-        "n_dates": 3,
-        "mean_ic": -0.30997,
+        "n_dates": 5,
+        "mean_ic": -0.31341,
         "t_months": null
       }
     },
     "enet_xs20_v1": {
       "base": {
-        "n_cohorts": 3,
+        "n_cohorts": 5,
         "n_months": 1,
-        "mean": -0.19708,
-        "median": -0.2031,
+        "mean": -0.16945,
+        "median": -0.14819,
         "hit_rate": 0.0,
         "t_months": null,
         "sharpe_ann": null,
         "max_dd": 0.0,
         "years_positive_share": 0.0,
-        "top_mfe": 0.05344,
-        "top_mae": -0.23497,
-        "top_asymmetry": 0.227,
-        "univ_asymmetry": 1.715
+        "top_mfe": 0.06834,
+        "top_mae": -0.23083,
+        "top_asymmetry": 0.296,
+        "univ_asymmetry": 1.662
       },
       "ic": {
-        "n_dates": 3,
-        "mean_ic": -0.43597,
+        "n_dates": 5,
+        "mean_ic": -0.35562,
         "t_months": null
       }
     },
     "hgb_xs20_v1": {
       "base": {
-        "n_cohorts": 3,
+        "n_cohorts": 5,
         "n_months": 1,
-        "mean": -0.17701,
-        "median": -0.13801,
+        "mean": -0.16696,
+        "median": -0.14155,
         "hit_rate": 0.0,
         "t_months": null,
         "sharpe_ann": null,
         "max_dd": 0.0,
         "years_positive_share": 0.0,
-        "top_mfe": 0.06088,
-        "top_mae": -0.20646,
-        "top_asymmetry": 0.295,
-        "univ_asymmetry": 1.715
+        "top_mfe": 0.06605,
+        "top_mae": -0.21764,
+        "top_asymmetry": 0.303,
+        "univ_asymmetry": 1.662
       },
       "ic": {
-        "n_dates": 3,
-        "mean_ic": -0.3663,
+        "n_dates": 5,
+        "mean_ic": -0.38333,
         "t_months": null
       }
     },
     "hgb_asym20_v1": {
       "base": {
-        "n_cohorts": 3,
+        "n_cohorts": 5,
         "n_months": 1,
-        "mean": -0.04056,
-        "median": -0.0292,
+        "mean": -0.0589,
+        "median": -0.06178,
         "hit_rate": 0.0,
         "t_months": null,
         "sharpe_ann": null,
         "max_dd": 0.0,
         "years_positive_share": 0.0,
-        "top_mfe": 0.08394,
-        "top_mae": -0.08373,
-        "top_asymmetry": 1.003,
-        "univ_asymmetry": 1.715
+        "top_mfe": 0.08154,
+        "top_mae": -0.11396,
+        "top_asymmetry": 0.716,
+        "univ_asymmetry": 1.662
       },
       "ic": {
-        "n_dates": 3,
-        "mean_ic": -0.06407,
+        "n_dates": 5,
+        "mean_ic": -0.12798,
         "t_months": null
       }
     },
     "hgb_xs20_momentum_v1": {
       "base": {
-        "n_cohorts": 3,
+        "n_cohorts": 5,
         "n_months": 1,
-        "mean": -0.11273,
+        "mean": -0.09971,
         "median": -0.10373,
         "hit_rate": 0.0,
         "t_months": null,
         "sharpe_ann": null,
         "max_dd": 0.0,
         "years_positive_share": 0.0,
-        "top_mfe": 0.09148,
-        "top_mae": -0.16666,
-        "top_asymmetry": 0.549,
-        "univ_asymmetry": 1.715
+        "top_mfe": 0.10028,
+        "top_mae": -0.1725,
+        "top_asymmetry": 0.581,
+        "univ_asymmetry": 1.662
       },
       "ic": {
-        "n_dates": 3,
-        "mean_ic": -0.11605,
+        "n_dates": 5,
+        "mean_ic": -0.14394,
         "t_months": null
       }
     },
     "hgb_xs20_risk_regime_v1": {
       "base": {
-        "n_cohorts": 3,
+        "n_cohorts": 5,
         "n_months": 1,
-        "mean": -0.19536,
-        "median": -0.19848,
+        "mean": -0.16888,
+        "median": -0.1469,
         "hit_rate": 0.0,
         "t_months": null,
         "sharpe_ann": null,
         "max_dd": 0.0,
         "years_positive_share": 0.0,
-        "top_mfe": 0.06579,
-        "top_mae": -0.23271,
-        "top_asymmetry": 0.283,
-        "univ_asymmetry": 1.715
+        "top_mfe": 0.08101,
+        "top_mae": -0.23317,
+        "top_asymmetry": 0.347,
+        "univ_asymmetry": 1.662
       },
       "ic": {
-        "n_dates": 3,
-        "mean_ic": -0.34949,
+        "n_dates": 5,
+        "mean_ic": -0.33256,
         "t_months": null
       }
     }

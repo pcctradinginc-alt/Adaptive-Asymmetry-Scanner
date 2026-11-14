@@ -5,8 +5,8 @@
     "random_control": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)"
   },
   "coverage": {
-    "ABSTAIN": 17,
-    "PENDING": 29
+    "ABSTAIN": 61,
+    "PENDING": 43
   },
   "data_origin": "REPOSITORY_JOURNALS_ONLY",
   "decision_type": "RESEARCH_ONLY",
@@ -33,18 +33,435 @@
     "fee_usd_per_contract_per_side": 0.65
   },
   "existing_base_strategy": {
+    "base_decisions": 80,
+    "base_mean_per_decision_verified": 0.0,
+    "base_trades": 41,
+    "base_unverified_or_pending": 41,
     "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+    "common_decision_days": 2,
     "comparability": {
       "execution": "ask/bid + commission (no adverse scenario)",
       "holding_horizon": "20 calendar days vs 20 trading days",
       "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
     },
-    "reason": "no base decision on these decision days",
-    "status": "NO_CONTEMPORANEOUS_DATA",
+    "note": "No superiority claim versus the existing base strategy is possible from these data.",
+    "status": "NOT_COMPARABLE",
     "used_for_superiority": false
   },
-  "generated_at": "2026-11-07T15:06:51+00:00",
+  "generated_at": "2026-11-14T15:23:52+00:00",
   "hypotheses": {
+    "AUTO-9F3C98A8BD0B": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "no_trade_conservative": {
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 3,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+            "LONG_SPREAD_TOO_WIDE": 2,
+            "NO_EXPIRY_IN_DTE_WINDOW": 1,
+            "SHORT_BID_BELOW_MIN": 1,
+            "SHORT_OPEN_INTEREST_BELOW_MIN": 2,
+            "SHORT_QUOTE_NOT_USABLE_RTH": 1,
+            "SHORT_SPREAD_TOO_WIDE": 2
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 0,
+          "settled_verified": 0,
+          "trade_decided": 0,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "9f3c98a8bd0bd050d1617c7bfe703c3a6d2bfda880fd99202963e7024736978f"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "no_trade": {
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "no_trade_conservative": {
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 3,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+            "LONG_SPREAD_TOO_WIDE": 2,
+            "NO_EXPIRY_IN_DTE_WINDOW": 1
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 0,
+          "settled_verified": 0,
+          "trade_decided": 0,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "9f3c98a8bd0bd050d1617c7bfe703c3a6d2bfda880fd99202963e7024736978f"
+        ]
+      }
+    },
+    "AUTO-F34E5C6BBF7D": {
+      "BULL_CALL_SPREAD": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          },
+          "no_trade": {
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "no_trade_conservative": {
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 3,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+            "NO_EXPIRY_IN_DTE_WINDOW": 2
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 0,
+          "settled_verified": 0,
+          "trade_decided": 0,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "f34e5c6bbf7d947e7f6961ab1b39904d5d1b04e686e16f739f337e54d60898fd"
+        ]
+      },
+      "LONG_CALL": {
+        "by_regime": {
+          "vix_ge_20|spy_uptrend": {
+            "capital_weighted_return": null,
+            "n": 0,
+            "net_ev_return": null,
+            "winrate": null
+          }
+        },
+        "comparison_group": "TREATMENT",
+        "comparisons": {
+          "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
+            "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
+            "comparability": {
+              "execution": "ask/bid + commission (no adverse scenario)",
+              "holding_horizon": "20 calendar days vs 20 trading days",
+              "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
+            },
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
+            "used_for_superiority": false
+          },
+          "frozen_ml_benchmark": {
+            "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "no_trade": {
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "no_trade_conservative": {
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
+          },
+          "random_control": {
+            "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
+            "n_dates": 0,
+            "status": "NO_COMMON_POPULATION"
+          }
+        },
+        "coverage": {
+          "abstain": 3,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+            "NO_EXPIRY_IN_DTE_WINDOW": 2
+          },
+          "decisions": 3,
+          "excluded_by_correction": 0,
+          "exit_missing": 0,
+          "failure_reasons": {},
+          "pending": 0,
+          "settled_verified": 0,
+          "trade_decided": 0,
+          "unverifiable": 0
+        },
+        "metrics": {
+          "ADVERSE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          },
+          "BASE": {
+            "n": 0,
+            "status": "NO_VERIFIED_OUTCOMES"
+          }
+        },
+        "research_decision": {
+          "decision_type": "RESEARCH_ONLY",
+          "label": "NEED_MORE_DATA",
+          "next_step": "Keep collecting prospective, quote-verified outcomes",
+          "order": null,
+          "production_influence": "NONE",
+          "quote_coverage": null,
+          "reasons": [
+            "TOO_FEW_VERIFIED_OUTCOMES",
+            "TOO_FEW_INDEPENDENT_PERIODS",
+            "QUOTE_COVERAGE_BELOW_MIN"
+          ]
+        },
+        "versions": [
+          "f34e5c6bbf7d947e7f6961ab1b39904d5d1b04e686e16f739f337e54d60898fd"
+        ]
+      }
+    },
     "CONTROL-UNIVERSE-RANDOM": {
       "BULL_CALL_SPREAD": {
         "by_regime": {
@@ -58,14 +475,19 @@
         "comparison_group": "CONTROL",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -86,19 +508,20 @@
           }
         },
         "coverage": {
-          "abstain": 3,
+          "abstain": 6,
           "abstain_reasons": {
-            "LONG_OPEN_INTEREST_BELOW_MIN": 1,
-            "SHORT_OPEN_INTEREST_BELOW_MIN": 1,
-            "SHORT_SPREAD_TOO_WIDE": 3
+            "LONG_OPEN_INTEREST_BELOW_MIN": 4,
+            "LONG_SPREAD_TOO_WIDE": 1,
+            "SHORT_OPEN_INTEREST_BELOW_MIN": 4,
+            "SHORT_SPREAD_TOO_WIDE": 6
           },
-          "decisions": 5,
+          "decisions": 10,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 2,
+          "pending": 4,
           "settled_verified": 0,
-          "trade_decided": 2,
+          "trade_decided": 4,
           "unverifiable": 0
         },
         "metrics": {
@@ -133,14 +556,19 @@
         "comparison_group": "CONTROL",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -161,17 +589,18 @@
           }
         },
         "coverage": {
-          "abstain": 1,
+          "abstain": 4,
           "abstain_reasons": {
-            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+            "LONG_OPEN_INTEREST_BELOW_MIN": 4,
+            "LONG_SPREAD_TOO_WIDE": 1
           },
-          "decisions": 5,
+          "decisions": 10,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 4,
+          "pending": 6,
           "settled_verified": 0,
-          "trade_decided": 4,
+          "trade_decided": 6,
           "unverifiable": 0
         },
         "metrics": {
@@ -208,14 +637,19 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -238,18 +672,19 @@
           }
         },
         "coverage": {
-          "abstain": 2,
+          "abstain": 4,
           "abstain_reasons": {
             "CAPITAL_ABOVE_MAX": 1,
-            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+            "LONG_OPEN_INTEREST_BELOW_MIN": 3,
+            "SHORT_OPEN_INTEREST_BELOW_MIN": 2
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 1,
+          "pending": 2,
           "settled_verified": 0,
-          "trade_decided": 1,
+          "trade_decided": 2,
           "unverifiable": 0
         },
         "metrics": {
@@ -291,28 +726,48 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
             "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "no_trade": {
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "no_trade_conservative": {
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "random_control": {
             "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
@@ -321,12 +776,12 @@
           }
         },
         "coverage": {
-          "abstain": 2,
+          "abstain": 5,
           "abstain_reasons": {
-            "CAPITAL_ABOVE_MAX": 2,
-            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+            "CAPITAL_ABOVE_MAX": 4,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 3
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
@@ -376,14 +831,19 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -406,15 +866,18 @@
           }
         },
         "coverage": {
-          "abstain": 0,
-          "abstain_reasons": {},
-          "decisions": 3,
+          "abstain": 2,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+            "SHORT_OPEN_INTEREST_BELOW_MIN": 2
+          },
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 3,
+          "pending": 4,
           "settled_verified": 0,
-          "trade_decided": 3,
+          "trade_decided": 4,
           "unverifiable": 0
         },
         "metrics": {
@@ -456,14 +919,19 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -486,15 +954,17 @@
           }
         },
         "coverage": {
-          "abstain": 0,
-          "abstain_reasons": {},
-          "decisions": 3,
+          "abstain": 1,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+          },
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 3,
+          "pending": 5,
           "settled_verified": 0,
-          "trade_decided": 3,
+          "trade_decided": 5,
           "unverifiable": 0
         },
         "metrics": {
@@ -538,14 +1008,19 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -568,15 +1043,18 @@
           }
         },
         "coverage": {
-          "abstain": 0,
-          "abstain_reasons": {},
-          "decisions": 3,
+          "abstain": 1,
+          "abstain_reasons": {
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1,
+            "SHORT_OPEN_INTEREST_BELOW_MIN": 1
+          },
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 3,
+          "pending": 5,
           "settled_verified": 0,
-          "trade_decided": 3,
+          "trade_decided": 5,
           "unverifiable": 0
         },
         "metrics": {
@@ -618,14 +1096,19 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -648,17 +1131,18 @@
           }
         },
         "coverage": {
-          "abstain": 1,
+          "abstain": 3,
           "abstain_reasons": {
-            "CAPITAL_ABOVE_MAX": 1
+            "CAPITAL_ABOVE_MAX": 2,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 1
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 2,
+          "pending": 3,
           "settled_verified": 0,
-          "trade_decided": 2,
+          "trade_decided": 3,
           "unverifiable": 0
         },
         "metrics": {
@@ -702,14 +1186,19 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -732,17 +1221,18 @@
           }
         },
         "coverage": {
-          "abstain": 1,
+          "abstain": 3,
           "abstain_reasons": {
-            "CAPITAL_ABOVE_MAX": 1
+            "CAPITAL_ABOVE_MAX": 1,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 2
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 2,
+          "pending": 3,
           "settled_verified": 0,
-          "trade_decided": 2,
+          "trade_decided": 3,
           "unverifiable": 0
         },
         "metrics": {
@@ -784,28 +1274,48 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
             "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "no_trade": {
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "no_trade_conservative": {
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "random_control": {
             "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
@@ -814,11 +1324,12 @@
           }
         },
         "coverage": {
-          "abstain": 1,
+          "abstain": 4,
           "abstain_reasons": {
-            "CAPITAL_ABOVE_MAX": 1
+            "CAPITAL_ABOVE_MAX": 2,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 2
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
@@ -868,14 +1379,19 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -898,17 +1414,19 @@
           }
         },
         "coverage": {
-          "abstain": 1,
+          "abstain": 3,
           "abstain_reasons": {
-            "CAPITAL_ABOVE_MAX": 1
+            "CAPITAL_ABOVE_MAX": 1,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 2,
+            "SHORT_OPEN_INTEREST_BELOW_MIN": 2
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 2,
+          "pending": 3,
           "settled_verified": 0,
-          "trade_decided": 2,
+          "trade_decided": 3,
           "unverifiable": 0
         },
         "metrics": {
@@ -950,28 +1468,48 @@
         "comparison_group": "TREATMENT",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
             "benchmark": "FROZEN_ML_BENCHMARK – frozen registry benchmark model (role benchmark), identical rule and dates",
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "no_trade": {
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "no_trade_conservative": {
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "random_control": {
             "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
@@ -980,11 +1518,12 @@
           }
         },
         "coverage": {
-          "abstain": 1,
+          "abstain": 4,
           "abstain_reasons": {
-            "CAPITAL_ABOVE_MAX": 1
+            "CAPITAL_ABOVE_MAX": 3,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 2
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
@@ -1034,14 +1573,19 @@
         "comparison_group": "REFERENCE",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
@@ -1062,18 +1606,19 @@
           }
         },
         "coverage": {
-          "abstain": 2,
+          "abstain": 4,
           "abstain_reasons": {
             "CAPITAL_ABOVE_MAX": 1,
-            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+            "LONG_OPEN_INTEREST_BELOW_MIN": 3,
+            "SHORT_OPEN_INTEREST_BELOW_MIN": 2
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
-          "pending": 1,
+          "pending": 2,
           "settled_verified": 0,
-          "trade_decided": 1,
+          "trade_decided": 2,
           "unverifiable": 0
         },
         "metrics": {
@@ -1115,26 +1660,41 @@
         "comparison_group": "REFERENCE",
         "comparisons": {
           "existing_base_strategy": {
+            "base_decisions": 80,
+            "base_mean_per_decision_verified": 0.0,
+            "base_trades": 41,
+            "base_unverified_or_pending": 41,
             "benchmark": "EXISTING_BASE_STRATEGY – existing scanner/option_learner base decisions on scanner candidates (descriptive only: different population and holding horizon)",
+            "common_decision_days": 2,
             "comparability": {
               "execution": "ask/bid + commission (no adverse scenario)",
               "holding_horizon": "20 calendar days vs 20 trading days",
               "population": "DIFFERENT (scanner candidates vs hypothesis signals)"
             },
-            "reason": "no base decision on these decision days",
-            "status": "NO_CONTEMPORANEOUS_DATA",
+            "note": "No superiority claim versus the existing base strategy is possible from these data.",
+            "status": "NOT_COMPARABLE",
             "used_for_superiority": false
           },
           "frozen_ml_benchmark": {
             "status": "SELF"
           },
           "no_trade": {
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "no_trade_conservative": {
-            "n_dates": 0,
-            "status": "NO_COMMON_POPULATION"
+            "ci": null,
+            "ci_level": 0.95,
+            "ci_method": "block_bootstrap_t_non_overlapping_windows",
+            "independent_periods": 1,
+            "mean_difference": 0.0,
+            "n_dates": 1,
+            "status": "DESCRIPTIVE_NOT_A_TEST"
           },
           "random_control": {
             "benchmark": "RANDOM_CONTROL – identical frozen rule on random names of the same PIT universe and signal date (not the existing base strategy)",
@@ -1143,12 +1703,12 @@
           }
         },
         "coverage": {
-          "abstain": 2,
+          "abstain": 5,
           "abstain_reasons": {
-            "CAPITAL_ABOVE_MAX": 2,
-            "LONG_OPEN_INTEREST_BELOW_MIN": 1
+            "CAPITAL_ABOVE_MAX": 4,
+            "LONG_OPEN_INTEREST_BELOW_MIN": 3
           },
-          "decisions": 3,
+          "decisions": 6,
           "excluded_by_correction": 0,
           "exit_missing": 0,
           "failure_reasons": {},
@@ -1191,6 +1751,18 @@
   "primary_scenario": "ADVERSE",
   "production_influence": "NONE",
   "proposals": {
+    "AUTO-9F3C98A8BD0B": {
+      "decision_type": "RESEARCH_ONLY",
+      "order": null,
+      "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
+      "structure": null
+    },
+    "AUTO-F34E5C6BBF7D": {
+      "decision_type": "RESEARCH_ONLY",
+      "order": null,
+      "reason": "NO_STRUCTURE_QUALIFIES_FOR_PROSPECTIVE_RESEARCH",
+      "structure": null
+    },
     "enet_xs20_v1": {
       "decision_type": "RESEARCH_ONLY",
       "order": null,

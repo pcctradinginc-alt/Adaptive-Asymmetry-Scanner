@@ -1,26 +1,26 @@
 {
- "generated": "2026-11-07T17:36:31+00:00",
- "as_of": "2026-11-07",
- "protocol": "error-research-v2",
- "protocol_sha256": "4050314a5ab5cbf95be67c734cf193a9e6ea7840af4aaa9c947cc127c4d64591",
+ "generated": "2026-11-14T15:19:26+00:00",
+ "as_of": "2026-11-14",
+ "protocol": "error-research-v3",
+ "protocol_sha256": "b2a493966867763406a01525bc8c91d36544b34bf9d9dc6e792173e2e3f56823",
  "seen_until": "2026-11-06",
  "window_method": "alternierende Haltefenster mit Purging (v2)",
- "code_sha": "adde21f92fc2",
+ "code_sha": "45b196c03271",
  "forecast_provenance": {
-  "TOO_FEW_MODELS": 386,
-  "VERIFIED": 8590
+  "TOO_FEW_MODELS": 436,
+  "VERIFIED": 9473
  },
  "horizons": {
   "5": {
-   "verified_errors": 7342,
-   "dates": 21,
-   "mean_abs_error": 0.3403,
+   "verified_errors": 8588,
+   "dates": 26,
+   "mean_abs_error": 0.3377,
    "ensemble_ic": {
-    "n_periods": 2,
-    "mean": 0.03012,
-    "t": 0.191,
-    "p_one_sided": 0.43981442821266936,
-    "p_two_sided": 0.8796288564253387
+    "n_periods": 3,
+    "mean": -0.0352,
+    "t": -0.315,
+    "p_one_sided": 0.6085485716097964,
+    "p_two_sided": 0.7829028567804073
    },
    "ensemble_ic_blocks": [
     {
@@ -47,20 +47,34 @@
       "2026-10-15",
       "2026-10-16"
      ]
+    },
+    {
+     "start": "2026-10-26",
+     "end": "2026-11-01",
+     "n_dates": 5,
+     "n_purged": 0,
+     "mean_ic": -0.165862,
+     "dates": [
+      "2026-10-26",
+      "2026-10-27",
+      "2026-10-28",
+      "2026-10-29",
+      "2026-10-30"
+     ]
     }
    ],
    "patterns": {
     "status": "DATA_GAP",
-    "windows": 2,
-    "reason": "2 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 1 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind"
+    "windows": 3,
+    "reason": "3 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 2 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind"
    },
    "candidates": [],
    "unexplained_segments": []
   },
   "20": {
-   "verified_errors": 2963,
-   "dates": 8,
-   "mean_abs_error": 0.3937,
+   "verified_errors": 4012,
+   "dates": 11,
+   "mean_abs_error": 0.3926,
    "ensemble_ic": {
     "n_periods": 0,
     "mean": null,
@@ -197,7 +211,7 @@
    "gap_id": "error:periods:5d",
    "kind": "independent_periods",
    "horizon": 5,
-   "finding": "2 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 1 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind",
+   "finding": "3 unabhängige Haltefenster: Entdeckungsanteil 0.6 ergibt 2 < 3 – Muster erst prüfbar, wenn mehr Fenster fertig sind",
    "severity": 1.0,
    "dimensions": [],
    "sources": [],
@@ -216,6 +230,30 @@
  ],
  "decisions": [],
  "production_influence": "NONE",
+ "alpha_ledger": {
+  "version": "alpha-ledger-v1",
+  "total_alpha": 0.05,
+  "legacy_alpha": 0.017083333333,
+  "w0": 0.032916666667,
+  "allocated": 3,
+  "spent": {
+   "alpha_hypothesis": 0.0088201976,
+   "model_variant": 0.0051165464
+  },
+  "legacy_families_outside_budget": {
+   "challenger": {
+    "alpha_family": 0.1,
+    "registered_before": "2026-11-09",
+    "rule": "0,10/(n_aktiv·Looks), n_aktiv nur Altfamilie"
+   },
+   "promotion_contract": {
+    "alpha_family": 0.05,
+    "registered_before": "2026-11-09",
+    "rule": "0,05/(Familiengröße·12 Looks)"
+   }
+  },
+  "status": "OK"
+ },
  "data_acquisition": [],
  "forward_budget": {
   "total_alpha": 0.05,
@@ -231,7 +269,7 @@
   "problems": []
  },
  "summary": {
-  "verified_forecast_rows": 8590,
+  "verified_forecast_rows": 9473,
   "patterns_recurring": 0,
   "patterns_explained_by_known_factor": 0,
   "registered_total": 1,

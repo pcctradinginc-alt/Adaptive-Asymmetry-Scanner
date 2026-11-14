@@ -1,23 +1,36 @@
 {
- "generated": "2026-11-14T01:42:42+00:00",
+ "generated": "2026-11-14T15:24:13+00:00",
  "last_runs": {
   "weekly": {
-   "generated": "2026-11-07T15:06:55+00:00",
+   "generated": "2026-11-14T15:24:13+00:00",
    "mail_status": "sent",
    "pending": [
-    "IMP-4a0d2d31",
-    "IMP-ce5d574e"
+    "IMP-0db62805",
+    "IMP-444a5c99",
+    "IMP-4d870cdc",
+    "IMP-8c83b133",
+    "IMP-8ea10f58"
    ],
-   "deferred_by_weekly_limit": [],
+   "deferred_by_weekly_limit": [
+    "IMP-8c83b133",
+    "IMP-8ea10f58"
+   ],
    "input_issues": [],
-   "status_changes": [],
+   "status_changes": [
+    {
+     "event": "resolved",
+     "task_id": "IMP-ce5d574e",
+     "reason": "Status HEALTHY"
+    }
+   ],
    "mails": [
     {
      "channel": "digest",
-     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal news_novelty im Options-Lernmodell leer (+1 weitere)",
+     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal options_skew_ratio im Options-Lernmodell kaum befüllt (+2 weitere)",
      "tasks": [
-      "IMP-4a0d2d31",
-      "IMP-ce5d574e"
+      "IMP-0db62805",
+      "IMP-444a5c99",
+      "IMP-4d870cdc"
      ],
      "status": "sent",
      "error": null
@@ -35,6 +48,169 @@
   }
  },
  "tasks": {
+  "IMP-0db62805": {
+   "task_id": "IMP-0db62805",
+   "kind": "empty_feature",
+   "subject": "options_skew_ratio",
+   "priority": "P2",
+   "category": "data",
+   "short": "Merkmal options_skew_ratio im Options-Lernmodell kaum befüllt",
+   "fingerprint": "9a39776fdeb7",
+   "material": {
+    "priority": "P2",
+    "coverage": {
+     "5": "<50%"
+    },
+    "format": [],
+    "top_level": false
+   },
+   "scope": {
+    "feature": "options_skew_ratio",
+    "horizons": [
+     5
+    ]
+   },
+   "finding": "Das Merkmal options_skew_ratio ist in den geprüften Options-Labels kaum befüllt: 5 T 49% von 963 Labels.",
+   "problem": "Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: Information, die erfasst wird, geht verloren, und Varianten mit dieser Merkmalsgruppe testen etwas anderes als beabsichtigt.",
+   "severity_reason": "Merkmal überwiegend leer – betrifft jede Prognose des Options-Lernmodells.",
+   "evidence": [
+    "5 T: options_skew_ratio in 49% der 963 geprüften Options-Labels befüllt (Schwelle 50%) – das Modell verwirft das Merkmal",
+    "Kandidaten-Ledger: options_skew_ratio in 2119 von 9928 Zeilen unter 'features', davon 2119 als Zahl; als eigenes Feld außerhalb von 'features': 0"
+   ],
+   "sources": [
+    "outputs/research/option_learner/improvement.json",
+    "outputs/research/option_learner/status_<h>d.json",
+    "outputs/candidate_ledger/"
+   ],
+   "files": [
+    "modules/option_learner.py (LEDGER_FEATURES, features)",
+    "modules/meta_label.py:46",
+    "modules/option_learner.py:95",
+    "pipeline.py:654"
+   ],
+   "cause": "Das Merkmal wird zum Entscheidungszeitpunkt nicht oder unter anderem Namen ins Ledger geschrieben.",
+   "verify": "In outputs/candidate_ledger/ Format und Speicherort von options_skew_ratio auszählen und mit option_learner.features() vergleichen.",
+   "change": "Entweder einen numerischen Wert von options_skew_ratio dort ablegen bzw. auslesen, wo das Lernmodell ihn erwartet (eine klar dokumentierte Größe), oder das Merkmal bewusst aus LEDGER_FEATURES streichen.",
+   "benefit": "Das Merkmal wird tatsächlich nutzbar oder die Spezifikation ehrlich. Ob es die Prognose verbessert, ist offen und wird erst prospektiv gemessen – kein Renditeversprechen.",
+   "risks": "Eine Änderung der Merkmale ergibt eine neue Experimentversion: Forward-Evidenz, Referenz und Varianten beginnen für diese Version neu.",
+   "effort": "klein (eine Lese- bzw. Erfassungsstelle, Tests)",
+   "costs": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "vernachlässigbar"
+   },
+   "acceptance": [
+    "Abdeckung von options_skew_ratio in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
+    "keine Änderung an Prognosen anderer Merkmale"
+   ],
+   "tests": [
+    "Test: option_learner.features() liefert für eine Ledger-Zeile im tatsächlichen Format von options_skew_ratio den erwarteten Zahlenwert",
+    "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
+   ],
+   "data_as_of": "2026-11-14",
+   "status": "NOTIFIED",
+   "decision_note": null,
+   "first_detected": "2026-11-14T15:24:13+00:00",
+   "last_changed": "2026-11-14T15:24:13+00:00",
+   "resolved_at": null,
+   "resolved_reason": null,
+   "unknown_reason": null,
+   "notifications": [
+    {
+     "at": "2026-11-14T15:24:13+00:00",
+     "channel": "digest",
+     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal options_skew_ratio im Options-Lernmodell kaum befüllt (+2 weitere)",
+     "fingerprint": "9a39776fdeb7",
+     "reason": "NEW"
+    }
+   ],
+   "send_failures": 0,
+   "last_send_error": null
+  },
+  "IMP-444a5c99": {
+   "task_id": "IMP-444a5c99",
+   "kind": "empty_feature",
+   "subject": "surprise",
+   "priority": "P2",
+   "category": "data",
+   "short": "Merkmal surprise im Options-Lernmodell kaum befüllt",
+   "fingerprint": "9a39776fdeb7",
+   "material": {
+    "priority": "P2",
+    "coverage": {
+     "5": "<50%"
+    },
+    "format": [],
+    "top_level": false
+   },
+   "scope": {
+    "feature": "surprise",
+    "horizons": [
+     5
+    ]
+   },
+   "finding": "Das Merkmal surprise ist in den geprüften Options-Labels kaum befüllt: 5 T 49% von 963 Labels.",
+   "problem": "Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: Information, die erfasst wird, geht verloren, und Varianten mit dieser Merkmalsgruppe testen etwas anderes als beabsichtigt.",
+   "severity_reason": "Merkmal überwiegend leer – betrifft jede Prognose des Options-Lernmodells.",
+   "evidence": [
+    "5 T: surprise in 49% der 963 geprüften Options-Labels befüllt (Schwelle 50%) – das Modell verwirft das Merkmal",
+    "Kandidaten-Ledger: surprise in 1049 von 9928 Zeilen unter 'features', davon 1049 als Zahl; als eigenes Feld außerhalb von 'features': 0"
+   ],
+   "sources": [
+    "outputs/research/option_learner/improvement.json",
+    "outputs/research/option_learner/status_<h>d.json",
+    "outputs/candidate_ledger/"
+   ],
+   "files": [
+    "modules/option_learner.py (LEDGER_FEATURES, features)",
+    "modules/abstention_proposals.py:45",
+    "modules/analysis_cache.py:35",
+    "modules/analysis_cache.py:219",
+    "modules/commodity_intelligence.py:555",
+    "modules/deep_analysis.py:138",
+    "modules/deep_analysis.py:215"
+   ],
+   "cause": "Das Merkmal wird zum Entscheidungszeitpunkt nicht oder unter anderem Namen ins Ledger geschrieben.",
+   "verify": "In outputs/candidate_ledger/ Format und Speicherort von surprise auszählen und mit option_learner.features() vergleichen.",
+   "change": "Entweder einen numerischen Wert von surprise dort ablegen bzw. auslesen, wo das Lernmodell ihn erwartet (eine klar dokumentierte Größe), oder das Merkmal bewusst aus LEDGER_FEATURES streichen.",
+   "benefit": "Das Merkmal wird tatsächlich nutzbar oder die Spezifikation ehrlich. Ob es die Prognose verbessert, ist offen und wird erst prospektiv gemessen – kein Renditeversprechen.",
+   "risks": "Eine Änderung der Merkmale ergibt eine neue Experimentversion: Forward-Evidenz, Referenz und Varianten beginnen für diese Version neu.",
+   "effort": "klein (eine Lese- bzw. Erfassungsstelle, Tests)",
+   "costs": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "vernachlässigbar"
+   },
+   "acceptance": [
+    "Abdeckung von surprise in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
+    "keine Änderung an Prognosen anderer Merkmale"
+   ],
+   "tests": [
+    "Test: option_learner.features() liefert für eine Ledger-Zeile im tatsächlichen Format von surprise den erwarteten Zahlenwert",
+    "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
+   ],
+   "data_as_of": "2026-11-14",
+   "status": "NOTIFIED",
+   "decision_note": null,
+   "first_detected": "2026-11-14T15:24:13+00:00",
+   "last_changed": "2026-11-14T15:24:13+00:00",
+   "resolved_at": null,
+   "resolved_reason": null,
+   "unknown_reason": null,
+   "notifications": [
+    {
+     "at": "2026-11-14T15:24:13+00:00",
+     "channel": "digest",
+     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal options_skew_ratio im Options-Lernmodell kaum befüllt (+2 weitere)",
+     "fingerprint": "9a39776fdeb7",
+     "reason": "NEW"
+    }
+   ],
+   "send_failures": 0,
+   "last_send_error": null
+  },
   "IMP-4a0d2d31": {
    "acceptance": [
     "Abdeckung von news_novelty in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
@@ -128,6 +304,233 @@
      "reason": "CHANGED"
     }
    ],
+   "send_failures": 0,
+   "last_send_error": null
+  },
+  "IMP-4d870cdc": {
+   "task_id": "IMP-4d870cdc",
+   "kind": "empty_feature",
+   "subject": "options_skew_25d",
+   "priority": "P2",
+   "category": "data",
+   "short": "Merkmal options_skew_25d im Options-Lernmodell kaum befüllt",
+   "fingerprint": "9a39776fdeb7",
+   "material": {
+    "priority": "P2",
+    "coverage": {
+     "5": "<50%"
+    },
+    "format": [],
+    "top_level": false
+   },
+   "scope": {
+    "feature": "options_skew_25d",
+    "horizons": [
+     5
+    ]
+   },
+   "finding": "Das Merkmal options_skew_25d ist in den geprüften Options-Labels kaum befüllt: 5 T 49% von 963 Labels.",
+   "problem": "Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: Information, die erfasst wird, geht verloren, und Varianten mit dieser Merkmalsgruppe testen etwas anderes als beabsichtigt.",
+   "severity_reason": "Merkmal überwiegend leer – betrifft jede Prognose des Options-Lernmodells.",
+   "evidence": [
+    "5 T: options_skew_25d in 49% der 963 geprüften Options-Labels befüllt (Schwelle 50%) – das Modell verwirft das Merkmal",
+    "Kandidaten-Ledger: options_skew_25d in 2026 von 9928 Zeilen unter 'features', davon 2026 als Zahl; als eigenes Feld außerhalb von 'features': 0"
+   ],
+   "sources": [
+    "outputs/research/option_learner/improvement.json",
+    "outputs/research/option_learner/status_<h>d.json",
+    "outputs/candidate_ledger/"
+   ],
+   "files": [
+    "modules/option_learner.py (LEDGER_FEATURES, features)",
+    "modules/meta_label.py:46",
+    "modules/option_learner.py:95",
+    "pipeline.py:655"
+   ],
+   "cause": "Das Merkmal wird zum Entscheidungszeitpunkt nicht oder unter anderem Namen ins Ledger geschrieben.",
+   "verify": "In outputs/candidate_ledger/ Format und Speicherort von options_skew_25d auszählen und mit option_learner.features() vergleichen.",
+   "change": "Entweder einen numerischen Wert von options_skew_25d dort ablegen bzw. auslesen, wo das Lernmodell ihn erwartet (eine klar dokumentierte Größe), oder das Merkmal bewusst aus LEDGER_FEATURES streichen.",
+   "benefit": "Das Merkmal wird tatsächlich nutzbar oder die Spezifikation ehrlich. Ob es die Prognose verbessert, ist offen und wird erst prospektiv gemessen – kein Renditeversprechen.",
+   "risks": "Eine Änderung der Merkmale ergibt eine neue Experimentversion: Forward-Evidenz, Referenz und Varianten beginnen für diese Version neu.",
+   "effort": "klein (eine Lese- bzw. Erfassungsstelle, Tests)",
+   "costs": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "vernachlässigbar"
+   },
+   "acceptance": [
+    "Abdeckung von options_skew_25d in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
+    "keine Änderung an Prognosen anderer Merkmale"
+   ],
+   "tests": [
+    "Test: option_learner.features() liefert für eine Ledger-Zeile im tatsächlichen Format von options_skew_25d den erwarteten Zahlenwert",
+    "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
+   ],
+   "data_as_of": "2026-11-14",
+   "status": "NOTIFIED",
+   "decision_note": null,
+   "first_detected": "2026-11-14T15:24:13+00:00",
+   "last_changed": "2026-11-14T15:24:13+00:00",
+   "resolved_at": null,
+   "resolved_reason": null,
+   "unknown_reason": null,
+   "notifications": [
+    {
+     "at": "2026-11-14T15:24:13+00:00",
+     "channel": "digest",
+     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal options_skew_ratio im Options-Lernmodell kaum befüllt (+2 weitere)",
+     "fingerprint": "9a39776fdeb7",
+     "reason": "NEW"
+    }
+   ],
+   "send_failures": 0,
+   "last_send_error": null
+  },
+  "IMP-8c83b133": {
+   "task_id": "IMP-8c83b133",
+   "kind": "empty_feature",
+   "subject": "impact",
+   "priority": "P2",
+   "category": "data",
+   "short": "Merkmal impact im Options-Lernmodell kaum befüllt",
+   "fingerprint": "9a39776fdeb7",
+   "material": {
+    "priority": "P2",
+    "coverage": {
+     "5": "<50%"
+    },
+    "format": [],
+    "top_level": false
+   },
+   "scope": {
+    "feature": "impact",
+    "horizons": [
+     5
+    ]
+   },
+   "finding": "Das Merkmal impact ist in den geprüften Options-Labels kaum befüllt: 5 T 49% von 963 Labels.",
+   "problem": "Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: Information, die erfasst wird, geht verloren, und Varianten mit dieser Merkmalsgruppe testen etwas anderes als beabsichtigt.",
+   "severity_reason": "Merkmal überwiegend leer – betrifft jede Prognose des Options-Lernmodells.",
+   "evidence": [
+    "5 T: impact in 49% der 963 geprüften Options-Labels befüllt (Schwelle 50%) – das Modell verwirft das Merkmal",
+    "Kandidaten-Ledger: impact in 1049 von 9928 Zeilen unter 'features', davon 1049 als Zahl; als eigenes Feld außerhalb von 'features': 0"
+   ],
+   "sources": [
+    "outputs/research/option_learner/improvement.json",
+    "outputs/research/option_learner/status_<h>d.json",
+    "outputs/candidate_ledger/"
+   ],
+   "files": [
+    "modules/option_learner.py (LEDGER_FEATURES, features)",
+    "feedback.py:1251",
+    "modules/abstention_proposals.py:45",
+    "modules/analysis_cache.py:35",
+    "modules/analysis_cache.py:212",
+    "modules/autonomous_alpha/registry.py:153",
+    "modules/deep_analysis.py:137"
+   ],
+   "cause": "Das Merkmal wird zum Entscheidungszeitpunkt nicht oder unter anderem Namen ins Ledger geschrieben.",
+   "verify": "In outputs/candidate_ledger/ Format und Speicherort von impact auszählen und mit option_learner.features() vergleichen.",
+   "change": "Entweder einen numerischen Wert von impact dort ablegen bzw. auslesen, wo das Lernmodell ihn erwartet (eine klar dokumentierte Größe), oder das Merkmal bewusst aus LEDGER_FEATURES streichen.",
+   "benefit": "Das Merkmal wird tatsächlich nutzbar oder die Spezifikation ehrlich. Ob es die Prognose verbessert, ist offen und wird erst prospektiv gemessen – kein Renditeversprechen.",
+   "risks": "Eine Änderung der Merkmale ergibt eine neue Experimentversion: Forward-Evidenz, Referenz und Varianten beginnen für diese Version neu.",
+   "effort": "klein (eine Lese- bzw. Erfassungsstelle, Tests)",
+   "costs": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "vernachlässigbar"
+   },
+   "acceptance": [
+    "Abdeckung von impact in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
+    "keine Änderung an Prognosen anderer Merkmale"
+   ],
+   "tests": [
+    "Test: option_learner.features() liefert für eine Ledger-Zeile im tatsächlichen Format von impact den erwarteten Zahlenwert",
+    "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
+   ],
+   "data_as_of": "2026-11-14",
+   "status": "OPEN",
+   "decision_note": null,
+   "first_detected": "2026-11-14T15:24:13+00:00",
+   "last_changed": "2026-11-14T15:24:13+00:00",
+   "resolved_at": null,
+   "resolved_reason": null,
+   "unknown_reason": null,
+   "notifications": [],
+   "send_failures": 0,
+   "last_send_error": null
+  },
+  "IMP-8ea10f58": {
+   "task_id": "IMP-8ea10f58",
+   "kind": "empty_feature",
+   "subject": "dealer_oi_ratio",
+   "priority": "P2",
+   "category": "data",
+   "short": "Merkmal dealer_oi_ratio im Options-Lernmodell kaum befüllt",
+   "fingerprint": "9a39776fdeb7",
+   "material": {
+    "priority": "P2",
+    "coverage": {
+     "5": "<50%"
+    },
+    "format": [],
+    "top_level": false
+   },
+   "scope": {
+    "feature": "dealer_oi_ratio",
+    "horizons": [
+     5
+    ]
+   },
+   "finding": "Das Merkmal dealer_oi_ratio ist in den geprüften Options-Labels kaum befüllt: 5 T 46% von 963 Labels.",
+   "problem": "Ein Merkmal, das das Modell mangels Werten verwirft, steht nur scheinbar in der Spezifikation: Information, die erfasst wird, geht verloren, und Varianten mit dieser Merkmalsgruppe testen etwas anderes als beabsichtigt.",
+   "severity_reason": "Merkmal überwiegend leer – betrifft jede Prognose des Options-Lernmodells.",
+   "evidence": [
+    "5 T: dealer_oi_ratio in 46% der 963 geprüften Options-Labels befüllt (Schwelle 50%) – das Modell verwirft das Merkmal",
+    "Kandidaten-Ledger: dealer_oi_ratio in 1964 von 9928 Zeilen unter 'features', davon 1964 als Zahl; als eigenes Feld außerhalb von 'features': 0"
+   ],
+   "sources": [
+    "outputs/research/option_learner/improvement.json",
+    "outputs/research/option_learner/status_<h>d.json",
+    "outputs/candidate_ledger/"
+   ],
+   "files": [
+    "modules/option_learner.py (LEDGER_FEATURES, features)",
+    "modules/meta_label.py:46",
+    "modules/option_learner.py:95",
+    "pipeline.py:660"
+   ],
+   "cause": "Das Merkmal wird zum Entscheidungszeitpunkt nicht oder unter anderem Namen ins Ledger geschrieben.",
+   "verify": "In outputs/candidate_ledger/ Format und Speicherort von dealer_oi_ratio auszählen und mit option_learner.features() vergleichen.",
+   "change": "Entweder einen numerischen Wert von dealer_oi_ratio dort ablegen bzw. auslesen, wo das Lernmodell ihn erwartet (eine klar dokumentierte Größe), oder das Merkmal bewusst aus LEDGER_FEATURES streichen.",
+   "benefit": "Das Merkmal wird tatsächlich nutzbar oder die Spezifikation ehrlich. Ob es die Prognose verbessert, ist offen und wird erst prospektiv gemessen – kein Renditeversprechen.",
+   "risks": "Eine Änderung der Merkmale ergibt eine neue Experimentversion: Forward-Evidenz, Referenz und Varianten beginnen für diese Version neu.",
+   "effort": "klein (eine Lese- bzw. Erfassungsstelle, Tests)",
+   "costs": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "vernachlässigbar"
+   },
+   "acceptance": [
+    "Abdeckung von dealer_oi_ratio in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
+    "keine Änderung an Prognosen anderer Merkmale"
+   ],
+   "tests": [
+    "Test: option_learner.features() liefert für eine Ledger-Zeile im tatsächlichen Format von dealer_oi_ratio den erwarteten Zahlenwert",
+    "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
+   ],
+   "data_as_of": "2026-11-14",
+   "status": "OPEN",
+   "decision_note": null,
+   "first_detected": "2026-11-14T15:24:13+00:00",
+   "last_changed": "2026-11-14T15:24:13+00:00",
+   "resolved_at": null,
+   "resolved_reason": null,
+   "unknown_reason": null,
+   "notifications": [],
    "send_failures": 0,
    "last_send_error": null
   },
@@ -250,12 +653,12 @@
     "Regressionstest des Parsers mit dem aktuellen Antwortformat"
    ],
    "verify": "Ingest der Quelle lokal ausführen und Fehlermeldung bzw. Datenstand prüfen.",
-   "status": "NOTIFIED",
+   "status": "RESOLVED",
    "decision_note": null,
    "first_detected": "2026-11-07T15:06:55+00:00",
    "last_changed": "2026-11-07T15:06:55+00:00",
-   "resolved_at": null,
-   "resolved_reason": null,
+   "resolved_at": "2026-11-14T15:24:13+00:00",
+   "resolved_reason": "Status HEALTHY",
    "unknown_reason": null,
    "notifications": [
     {

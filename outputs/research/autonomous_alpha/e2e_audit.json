@@ -1,0 +1,68 @@
+{
+  "broker_connection": "NONE",
+  "capture": {
+    "alpha_link_status": "OK",
+    "latest_session": "2026-11-13",
+    "missing_contracts": 1,
+    "observed_at": "2026-11-13T20:03:38.579792+00:00",
+    "paper_status": "ACTIVE",
+    "recent_failed_attempts": 0,
+    "status": "PARTIAL_MISSING_QUOTES"
+  },
+  "decision_type": "RESEARCH_ONLY",
+  "existing_learning": {
+    "alpha_improvement_proven": false,
+    "engine": "option_validation -> research_memory -> research_director",
+    "forward_confirmed_and_memorized": 0,
+    "frozen_plan_proofs": [],
+    "options_pnl_only_from_existing_economics": true,
+    "paper_account_not_a_training_label": true,
+    "reason_if_unproven": "NO_INDEPENDENT_CONFIRMED_POST_COST_FORWARD_ALPHA",
+    "validation_plans": 0,
+    "verdicts_reconciled_to_memory": 0
+  },
+  "generated_at": "2026-11-14T15:24:16.068935+00:00",
+  "issues": [
+    {
+      "id": "MISSING_CAPTURE_QUOTES",
+      "next_action": "Monitor the existing Tradier market-data access; never backfill missing quotes",
+      "observed_fact": "Some requested contracts had no usable observed RTH quotes",
+      "severity": "NEED_MORE_DATA",
+      "stage": "capture"
+    },
+    {
+      "id": "NO_VERIFIED_ALPHA_OPTION_EXITS",
+      "next_action": "Collect genuine future option entry/exit quotes for the frozen 20-day horizon",
+      "observed_fact": "No quote-verified settled alpha-option trades",
+      "severity": "NEED_MORE_DATA",
+      "stage": "option_link"
+    }
+  ],
+  "n_technical_defects": 0,
+  "next_action": "Monitor the existing Tradier market-data access; never backfill missing quotes",
+  "no_second_learner": true,
+  "paper_account": {
+    "activation_verified_from_events": true,
+    "closed_bookings": 0,
+    "new_live_broker_orders": 0,
+    "open_bookings": 0,
+    "signed_events_are_source_of_truth": true,
+    "snapshot_status": "ACTIVE"
+  },
+  "production_influence": "NONE",
+  "real_orders": false,
+  "safety": "Research only; no new API, broker connection, real order, or production influence.",
+  "schema": "autonomous-alpha-e2e-operations-v1",
+  "source_chain": {
+    "conflicting_records": 0,
+    "dangling_decisions": 0,
+    "dangling_outcomes": 0,
+    "decisions": 104,
+    "outcomes": 0,
+    "pending_economics": 43,
+    "signals": 135,
+    "unverifiable_economics": {},
+    "verified_settled_economics": 0
+  },
+  "status": "NEED_MORE_DATA"
+}

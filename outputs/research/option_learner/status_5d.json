@@ -1,5 +1,5 @@
 {
- "as_of": "2026-11-07",
+ "as_of": "2026-11-14",
  "horizon": 5,
  "experiment": {
   "name": "option_learner_ridge",
@@ -86,30 +86,31 @@
   "min_coverage": 0.8,
   "due_grace_days": 10
  },
- "verified_labels": 495,
- "label_dates": 13,
+ "verified_labels": 963,
+ "label_dates": 18,
  "provenance_counts": {
   "ENTRY_NOT_ARCHIVED": 308,
-  "VERIFIED": 495
+  "VERIFIED": 963
  },
- "ledger_rows_7d": 1307,
- "option_snapshots_7d": 196,
+ "ledger_rows_7d": 933,
+ "option_snapshots_7d": 200,
  "manifest": {
-  "cutoff": "2026-11-07",
-  "n_labels": 495,
-  "labels_sha256": "373704e84e8eb096",
+  "cutoff": "2026-11-14",
+  "n_labels": 963,
+  "labels_sha256": "52a99f801691bdf6",
   "first_signal": "2026-10-14",
-  "last_signal": "2026-10-30",
+  "last_signal": "2026-11-06",
   "by_expression": {
-   "single": 427,
-   "spread": 68
+   "single": 621,
+   "single_alt": 187,
+   "spread": 155
   },
   "all_labels_verified": true,
   "trains_model": true
  },
  "feature_coverage": {
-  "impact": 0.9051,
-  "surprise": 0.9051,
+  "impact": 0.487,
+  "surprise": 0.487,
   "sentiment_score": 1.0,
   "sentiment_confidence": 1.0,
   "sentiment_drift": 1.0,
@@ -117,54 +118,67 @@
   "news_novelty": 0.0,
   "rel_volume": 1.0,
   "scan_day_ret": 1.0,
-  "short_mom": 0.998,
+  "short_mom": 0.9969,
   "log_market_cap": 1.0,
-  "short_pct_float": 0.9899,
-  "options_skew_25d": 0.901,
-  "options_skew_ratio": 0.9051,
-  "dealer_oi_ratio": 0.8465,
-  "ml_exp_ret_60": 0.9576,
-  "ml_q10_ret_60": 0.9576,
-  "ml_q90_ret_60": 0.9576,
-  "ml_exp_dd_60": 0.9576,
-  "ml_p_gt10_60": 0.9576,
-  "ml_disagreement_sd": 0.9576,
-  "ml_hgb_xs20_v1": 0.9576,
-  "ml_enet_xs20_v1": 0.9576,
+  "short_pct_float": 0.9896,
+  "options_skew_25d": 0.487,
+  "options_skew_ratio": 0.4891,
+  "dealer_oi_ratio": 0.459,
+  "ml_exp_ret_60": 0.9553,
+  "ml_q10_ret_60": 0.9553,
+  "ml_q90_ret_60": 0.9553,
+  "ml_exp_dd_60": 0.9553,
+  "ml_p_gt10_60": 0.9553,
+  "ml_disagreement_sd": 0.9553,
+  "ml_hgb_xs20_v1": 0.9553,
+  "ml_enet_xs20_v1": 0.9553,
   "c_entry_spread": 1.0,
   "c_is_spread": 1.0,
   "c_is_call": 1.0,
-  "c_iv": 0.9899,
+  "c_iv": 0.9896,
   "c_dte": 1.0,
   "c_moneyness": 1.0,
-  "c_delta": 0.9899,
+  "c_delta": 0.9896,
   "c_log_oi": 1.0,
-  "c_iv_rank": 0.998,
-  "c_rv_score": 0.998,
-  "c_term_score": 0.998
+  "c_iv_rank": 0.999,
+  "c_rv_score": 0.999,
+  "c_term_score": 0.999
  },
  "variant_feature_coverage": {
-  "news_novelty__novelty_max": 0.798,
-  "news_novelty__novelty_mean": 0.798
+  "news_novelty__novelty_max": 0.893,
+  "news_novelty__novelty_mean": 0.893
  },
  "walk_forward": {
-  "n": 0,
-  "dates": 0,
+  "n": 3,
+  "dates": 1,
   "independent_periods": 0,
-  "mean_all": null,
-  "ic_mean": null,
+  "mean_all": 0.032116,
+  "ic_mean": 0.7,
   "ic_t": null,
   "n_selected": 0,
   "selected_dates": 0,
   "mean_selected": null,
   "selected_ci95": null,
   "trades": 0,
-  "abstained": 0,
+  "abstained": 3,
   "unevaluable": {},
   "coverage": null,
   "mean_selected_unevaluable_as_loss": null,
   "chosen_forms": {},
-  "by_expression": {},
+  "by_expression": {
+   "single": {
+    "n": 3,
+    "mean_all": 0.20905,
+    "n_selected": 1,
+    "mean_selected": 0.207228
+   },
+   "spread": {
+    "n": 2,
+    "mean_all": -0.233285,
+    "n_selected": 0,
+    "mean_selected": null
+   }
+  },
   "vs_default": {
    "n": 0,
    "dates": 0,
@@ -186,55 +200,408 @@
   },
   "verdict": "NEED_MORE_DATA",
   "vs_reference": {
-   "candidates": 0,
-   "due_candidates": 0,
-   "coverage": null,
-   "days": 0,
-   "independent_periods": 0,
+   "candidates": 3,
+   "due_candidates": 3,
+   "coverage": 1.0,
+   "days": 1,
+   "independent_periods": 1,
    "ci_level": 0.95,
    "decisions_differ": 0,
    "excluded": {},
    "daily_mean": {
-    "learning": null,
-    "reference": null,
-    "trade_all": null,
+    "learning": 0.0,
+    "reference": 0.0,
+    "trade_all": -0.010845,
     "no_trade": 0.0
    },
    "learning_minus_reference": {
-    "mean": null,
+    "mean": 0.0,
     "ci95": null,
-    "independent_periods": 0
+    "independent_periods": 1
    },
    "learning_minus_trade_all": {
-    "mean": null,
+    "mean": 0.010845,
     "ci95": null,
-    "independent_periods": 0
+    "independent_periods": 1
    },
    "learning_minus_no_trade": {
-    "mean": null,
+    "mean": 0.0,
     "ci95": null,
-    "independent_periods": 0
+    "independent_periods": 1
    },
    "verdict": "NEED_MORE_DATA",
    "mode": "retrospective",
-   "reference_cutoff": null
+   "reference_cutoff": "2026-10-29"
   }
+ },
+ "acquisition": {
+  "policy": "ts-acq-v1",
+  "estimator": "Horvitz-Thompson je Tag (Block-Bootstrap \u00fcber Haltefenster) + SNIPS",
+  "sampled_due": 0,
+  "labelled": 0,
+  "coverage": null,
+  "propensity_sources": {
+   "ts-acq-v1": 749,
+   "uniform-hash": 401
+  },
+  "max_weight": null,
+  "effective_n": 0.0,
+  "values": {
+   "trade_all": {
+    "ht": null,
+    "snips": null
+   },
+   "acq_model_positive": {
+    "ht": null,
+    "snips": null
+   }
+  },
+  "never_trade": 0.0,
+  "production_influence": "NONE",
+  "note": "Populationswert je Kandidat ohne Richtung; Coverage < 1 hei\u00dft: fehlende Labels gezogener Kandidaten sind ausgeschlossen (berichtet). Beschreibende Research-Evidenz, keine Freigabe."
+ },
+ "options_native": {
+  "policy": "ev-decomposed-v1",
+  "decomposed": 957,
+  "reasons": {
+   "NO_IMPLIED_VOL": 2,
+   "NO_UNDERLYING_AT_MARK": 4,
+   "OK": 957
+  },
+  "execution": {
+   "limit_fraction": 0.5,
+   "n": 957,
+   "overall": {
+    "cost": {
+     "n": 957,
+     "dates": 18,
+     "independent_periods": 5,
+     "mean_diff": -0.164322,
+     "ci95": [
+      -0.18619,
+      -0.132848
+     ]
+    },
+    "exec_ret": {
+     "n": 957,
+     "dates": 18,
+     "independent_periods": 5,
+     "mean_diff": -0.120682,
+     "ci95": [
+      -0.141329,
+      -0.083481
+     ]
+    },
+    "limit_scenario": {
+     "n": 957,
+     "dates": 18,
+     "independent_periods": 5,
+     "mean_diff": -0.047495,
+     "ci95": [
+      -0.059983,
+      -0.020727
+     ]
+    }
+   },
+   "by_entry_spread": {
+    "0%\u20132%": {
+     "n": 159,
+     "cost": {
+      "n": 159,
+      "dates": 17,
+      "independent_periods": 5,
+      "mean_diff": -0.037513,
+      "ci95": [
+       -0.040998,
+       -0.034279
+      ]
+     },
+     "exec_ret": {
+      "n": 159,
+      "dates": 17,
+      "independent_periods": 5,
+      "mean_diff": -0.070795,
+      "ci95": [
+       -0.103083,
+       -0.018983
+      ]
+     },
+     "limit_scenario": {
+      "n": 159,
+      "dates": 17,
+      "independent_periods": 5,
+      "mean_diff": -0.052779,
+      "ci95": [
+       -0.086066,
+       0.000298
+      ]
+     }
+    },
+    "2%\u20135%": {
+     "n": 346,
+     "cost": {
+      "n": 346,
+      "dates": 17,
+      "independent_periods": 5,
+      "mean_diff": -0.076462,
+      "ci95": [
+       -0.080778,
+       -0.073371
+      ]
+     },
+     "exec_ret": {
+      "n": 346,
+      "dates": 17,
+      "independent_periods": 5,
+      "mean_diff": -0.028542,
+      "ci95": [
+       -0.06435,
+       0.024157
+      ]
+     },
+     "limit_scenario": {
+      "n": 346,
+      "dates": 17,
+      "independent_periods": 5,
+      "mean_diff": 0.008417,
+      "ci95": [
+       -0.026584,
+       0.062379
+      ]
+     }
+    },
+    "5%\u201310%": {
+     "n": 216,
+     "cost": {
+      "n": 216,
+      "dates": 16,
+      "independent_periods": 5,
+      "mean_diff": -0.143613,
+      "ci95": [
+       -0.15313,
+       -0.138775
+      ]
+     },
+     "exec_ret": {
+      "n": 216,
+      "dates": 16,
+      "independent_periods": 5,
+      "mean_diff": -0.100707,
+      "ci95": [
+       -0.125721,
+       -0.064754
+      ]
+     },
+     "limit_scenario": {
+      "n": 216,
+      "dates": 16,
+      "independent_periods": 5,
+      "mean_diff": -0.032378,
+      "ci95": [
+       -0.056041,
+       0.004969
+      ]
+     }
+    },
+    ">=10%": {
+     "n": 236,
+     "cost": {
+      "n": 236,
+      "dates": 18,
+      "independent_periods": 5,
+      "mean_diff": -0.397524,
+      "ci95": [
+       -0.42847,
+       -0.361107
+      ]
+     },
+     "exec_ret": {
+      "n": 236,
+      "dates": 18,
+      "independent_periods": 5,
+      "mean_diff": -0.307662,
+      "ci95": [
+       -0.355901,
+       -0.281759
+      ]
+     },
+     "limit_scenario": {
+      "n": 236,
+      "dates": 18,
+      "independent_periods": 5,
+      "mean_diff": -0.139742,
+      "ci95": [
+       -0.182892,
+       -0.117193
+      ]
+     }
+    }
+   },
+   "note": "Spread-Klassen nach Ask/Mid \u2212 1 zum Einstieg; Limit-Szenario NICHT durch Fills verifiziert (nur Spanne zwischen Mid und Ask/Bid); beschreibend, keine Best\u00e4tigung."
+  },
+  "components": {
+   "delta": {
+    "n": 957,
+    "dates": 18,
+    "independent_periods": 5,
+    "mean_diff": 0.042519,
+    "ci95": [
+     0.014779,
+     0.059548
+    ]
+   },
+   "gamma": {
+    "n": 957,
+    "dates": 18,
+    "independent_periods": 5,
+    "mean_diff": 0.026703,
+    "ci95": [
+     0.012027,
+     0.04109
+    ]
+   },
+   "theta": {
+    "n": 957,
+    "dates": 18,
+    "independent_periods": 5,
+    "mean_diff": -0.024238,
+    "ci95": [
+     -0.029295,
+     -0.017956
+    ]
+   },
+   "vega": {
+    "n": 957,
+    "dates": 18,
+    "independent_periods": 5,
+    "mean_diff": -0.001344,
+    "ci95": [
+     -0.012982,
+     0.016876
+    ]
+   },
+   "cost": {
+    "n": 957,
+    "dates": 18,
+    "independent_periods": 5,
+    "mean_diff": -0.164322,
+    "ci95": [
+     -0.18619,
+     -0.132848
+    ]
+   },
+   "mid_ret": {
+    "n": 957,
+    "dates": 18,
+    "independent_periods": 5,
+    "mean_diff": 0.04364,
+    "ci95": [
+     0.02581,
+     0.059178
+    ]
+   },
+   "exec_ret": {
+    "n": 957,
+    "dates": 18,
+    "independent_periods": 5,
+    "mean_diff": -0.120682,
+    "ci95": [
+     -0.141329,
+     -0.083481
+    ]
+   }
+  },
+  "variance_share": {
+   "delta": 1.0421,
+   "gamma": 0.0308,
+   "theta": 0.0037,
+   "vega": 0.0866
+  },
+  "predictability_ic": {
+   "delta": {
+    "dates": 11,
+    "mean_ic": 0.0502,
+    "t": 0.483
+   },
+   "dvol": {
+    "dates": 11,
+    "mean_ic": 0.0483,
+    "t": 1.298
+   },
+   "gamma": {
+    "dates": 11,
+    "mean_ic": 0.3754,
+    "t": 3.865
+   },
+   "move": {
+    "dates": 11,
+    "mean_ic": -0.1162,
+    "t": -1.308
+   },
+   "theta": {
+    "dates": 11,
+    "mean_ic": 0.8462,
+    "t": 31.768
+   },
+   "vega": {
+    "dates": 11,
+    "mean_ic": 0.0107,
+    "t": 0.166
+   }
+  },
+  "ev_choice_walk_forward": {
+   "value_vs_never": {
+    "n": 3829,
+    "dates": 12,
+    "independent_periods": 4,
+    "mean_diff": -0.002474,
+    "ci95": [
+     -0.007182,
+     0.006361
+    ]
+   },
+   "minus_always_single": {
+    "n": 381,
+    "dates": 12,
+    "independent_periods": 4,
+    "mean_diff": 0.04976,
+    "ci95": [
+     0.000651,
+     0.069949
+    ]
+   }
+  },
+  "ev_choice_prospective": {
+   "decisions": 200,
+   "pending": 200,
+   "missing_outcomes": 0,
+   "value_vs_never": null
+  },
+  "production_influence": "NONE",
+  "note": "Zerlegung exakt (Summe = Mid-Rendite), Black-Scholes mit konstantem Zins ohne Dividenden; Walk-Forward ist auf gesehenen Daten und nie eine Best\u00e4tigung."
  },
  "baselines": {
   "no_trade": 0.0,
-  "trade_all": null,
-  "model": null,
-  "days": 0,
+  "trade_all": -0.010845,
+  "model": 0.0,
+  "days": 1,
   "beats_no_trade": false,
   "beats_trade_all": false
  },
  "by_gate": {
   "bearish_disabled": {
-   "n": 127,
-   "dates": 12,
-   "mean": -0.122123,
-   "win_rate": 0.2992,
+   "n": 137,
+   "dates": 15,
+   "mean": -0.134064,
+   "win_rate": 0.292,
    "sufficient": true
+  },
+  "deep_analysis_veto_or_invalid": {
+   "n": 2,
+   "dates": 1,
+   "mean": -0.596828,
+   "win_rate": 0.0,
+   "sufficient": false
   },
   "earnings_gate": {
    "n": 34,
@@ -243,11 +610,18 @@
    "win_rate": 0.2941,
    "sufficient": false
   },
+  "economics_first_earnings_gate": {
+   "n": 7,
+   "dates": 2,
+   "mean": -0.613782,
+   "win_rate": 0.0,
+   "sufficient": false
+  },
   "economics_first_quote_probe_budget": {
-   "n": 44,
-   "dates": 1,
-   "mean": -0.026392,
-   "win_rate": 0.5,
+   "n": 400,
+   "dates": 6,
+   "mean": -0.141276,
+   "win_rate": 0.315,
    "sufficient": false
   },
   "impact_x_surprise_below_floor": {
@@ -272,24 +646,24 @@
    "sufficient": true
   },
   "mismatch_below_min": {
-   "n": 171,
-   "dates": 12,
-   "mean": -0.10271,
-   "win_rate": 0.3392,
+   "n": 179,
+   "dates": 15,
+   "mean": -0.09552,
+   "win_rate": 0.3464,
    "sufficient": true
   },
   "options_design_roi_or_edge": {
-   "n": 51,
-   "dates": 10,
-   "mean": -0.132696,
-   "win_rate": 0.2353,
+   "n": 54,
+   "dates": 11,
+   "mean": -0.144453,
+   "win_rate": 0.2222,
    "sufficient": true
   },
   "prescreen_no": {
-   "n": 2,
-   "dates": 1,
-   "mean": 0.6307,
-   "win_rate": 1.0,
+   "n": 6,
+   "dates": 3,
+   "mean": 0.002358,
+   "win_rate": 0.3333,
    "sufficient": false
   },
   "proposed": {
@@ -300,10 +674,10 @@
    "sufficient": false
   },
   "sector_momentum_weak": {
-   "n": 1,
-   "dates": 1,
-   "mean": 0.360416,
-   "win_rate": 1.0,
+   "n": 79,
+   "dates": 6,
+   "mean": -0.059389,
+   "win_rate": 0.3924,
    "sufficient": false
   },
   "unlabeled_after_options_design": {
@@ -353,16 +727,16 @@
   },
   "verdict": "NEED_MORE_DATA",
   "experiment_id": "4a0f886d1979",
-  "valid_decisions": 196,
-  "valid_predictions": 472,
-  "pending_decisions": 196,
+  "valid_decisions": 396,
+  "valid_predictions": 996,
+  "pending_decisions": 396,
   "model_instances": 0,
   "excluded": {
    "OTHER_EXPERIMENT": 40
   },
   "journal_by_experiment": {
    "298be00d41bc": 40,
-   "4a0f886d1979": 864
+   "4a0f886d1979": 1788
   },
   "vs_reference": {
    "candidates": 0,
@@ -404,7 +778,7 @@
  "forward_sequential": {
   "experiment_id": "4a0f886d1979",
   "horizon": 5,
-  "evaluated_as_of": "2026-11-07",
+  "evaluated_as_of": "2026-11-14",
   "looks_evaluated": [],
   "binding": null,
   "status": "AWAITING_LOOK",
@@ -424,7 +798,7 @@
    0.033625333549951675
   ],
   "look": 0,
-  "valid_decisions": 196,
+  "valid_decisions": 396,
   "next_look": {
    "look": 1,
    "cutoff": "2026-12-12",
@@ -432,55 +806,55 @@
   }
  },
  "model": {
-  "features": 33,
+  "features": 28,
   "clip": [
-   -0.773,
-   0.5922
+   -0.8733,
+   0.7622
   ],
-  "intercept": -0.093329,
+  "intercept": -0.123775,
   "top_coefficients": {
-   "c_is_spread": -0.085344,
-   "ml_exp_dd_60": -0.066612,
-   "ml_q90_ret_60": -0.044386,
-   "c_is_call": 0.044303,
-   "c_log_oi": 0.033678,
-   "c_iv": -0.033078,
-   "ml_p_gt10_60": 0.031597,
-   "c_entry_spread": -0.031496
+   "c_is_spread": -0.094114,
+   "ml_q90_ret_60": -0.086138,
+   "ml_q10_ret_60": -0.070969,
+   "c_entry_spread": -0.044258,
+   "ml_enet_xs20_v1": 0.034826,
+   "log_market_cap": 0.027248,
+   "c_is_call": 0.022736,
+   "ml_exp_ret_60": 0.01771
   }
  },
  "production_influence": "NONE",
  "orders_created": 0,
  "label_pipeline": {
-  "verified": 495,
-  "independent_signal_days": 13,
-  "not_yet_due": 472,
+  "verified": 963,
+  "independent_signal_days": 18,
+  "not_yet_due": 528,
   "technically_missing": {},
   "historical_gap": {
    "ENTRY_NOT_ARCHIVED": 308,
    "NO_LABEL_AFTER_DUE": 1
   },
   "archive_start": "2026-10-12",
-  "due_after_archive_start": 495,
+  "due_after_archive_start": 963,
   "technical_missing_share": 0.0
  },
  "learning_status": {
   "state": "NEED_MORE_DATA",
-  "reason": "495 gepr\u00fcfte Labels an 13 Signaltagen, 472 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA",
+  "reason": "963 gepr\u00fcfte Labels an 18 Signaltagen, 528 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA",
   "alpha_claim": "keiner"
  },
  "model_instances": {
-  "count": 4,
+  "count": 7,
   "latest": {
-   "model_id": "e2ace215d8a8976c",
+   "model_id": "602c83f0d8843061",
    "experiment_id": "4a0f886d1979",
-   "train_cutoff": "2026-11-05",
-   "n_train_labels": 495,
-   "labels_sha256": "373704e84e8eb096",
-   "weights_sha256": "58758e29827a14c1",
-   "max_label_day": "2026-11-04",
+   "train_cutoff": "2026-11-12",
+   "n_train_labels": 963,
+   "labels_sha256": "52a99f801691bdf6",
+   "weights_sha256": "e744c7ba3498b02e",
+   "max_label_day": "2026-11-11",
    "horizon": 5,
-   "registered_at": "2026-11-05T18:03:14+00:00"
+   "registered_at": "2026-11-12T18:08:59+00:00"
   }
  },
  "reference": {
@@ -501,10 +875,13 @@
    "total_alpha": 0.05,
    "max_tests": 20,
    "slot_alpha": 0.0025,
-   "used": 3,
-   "remaining": 17,
+   "used": 6,
+   "remaining": 14,
    "exhausted": false,
-   "frozen_by_registry": true
+   "frozen_by_registry": true,
+   "source": "alpha-ledger-v1",
+   "ledger_registered": 0,
+   "next_alpha": 0.0007274776333495859
   },
   "variants": {
    "OLV-17f09b47ea": {
@@ -520,7 +897,7 @@
      "model:untested_alternatives:5d"
     ],
     "start_date": "2026-11-01",
-    "days_running": 6,
+    "days_running": 13,
     "falsification": {
      "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
      "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
@@ -574,9 +951,9 @@
      "coverage": null,
      "min_coverage": 0.8,
      "excluded": {},
-     "decisions_after_cutoff": 196
+     "decisions_after_cutoff": 396
     },
-    "valid_decisions": 196,
+    "valid_decisions": 396,
     "invalid_entries": {},
     "vs_base": {
      "candidates": 0,
@@ -666,7 +1043,7 @@
      "model:untested_alternatives:5d"
     ],
     "start_date": "2026-11-01",
-    "days_running": 6,
+    "days_running": 13,
     "falsification": {
      "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
      "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
@@ -720,9 +1097,9 @@
      "coverage": null,
      "min_coverage": 0.8,
      "excluded": {},
-     "decisions_after_cutoff": 196
+     "decisions_after_cutoff": 396
     },
-    "valid_decisions": 196,
+    "valid_decisions": 396,
     "invalid_entries": {},
     "vs_base": {
      "candidates": 0,
@@ -811,7 +1188,7 @@
      "model:untested_alternatives:5d"
     ],
     "start_date": "2026-11-01",
-    "days_running": 6,
+    "days_running": 13,
     "falsification": {
      "primary_metric": "mittlere Tagesdifferenz netto (Variante \u2212 Basis), gleiche Kandidaten, gleiches Budget",
      "economic_metric": "Tagesrendite netto der Variante gegen\u00fcber Nicht-Handeln (gleiches Budget je Kandidat)",
@@ -865,9 +1242,9 @@
      "coverage": null,
      "min_coverage": 0.8,
      "excluded": {},
-     "decisions_after_cutoff": 196
+     "decisions_after_cutoff": 396
     },
-    "valid_decisions": 196,
+    "valid_decisions": 396,
     "invalid_entries": {},
     "vs_base": {
      "candidates": 0,
@@ -961,13 +1338,18 @@
    "as_of": "2026-11-07",
    "verdict": "NEED_MORE_DATA",
    "mean_diff": null
+  },
+  {
+   "as_of": "2026-11-14",
+   "verdict": "NEED_MORE_DATA",
+   "mean_diff": null
   }
  ],
  "vs_previous": {
-  "previous_as_of": "2026-11-03",
+  "previous_as_of": "2026-11-07",
   "previous_verdict": "NEED_MORE_DATA",
   "delta_mean_selected": null,
   "delta_ic_mean": null,
-  "delta_labels": 54
+  "delta_labels": 468
  }
 }
