@@ -34,7 +34,8 @@ jobs:
       - name: Lint NCEI audit module and tests
         run: ruff check modules/ncei_missingness_audit.py tests/test_ncei_missingness_audit.py
       - name: Compile modified Python modules
-        run: python -m compileall -q modules/external/sources/maritime.py modules/external/orchestrator.py modules/ncei_missingness_audit.py
+        run: |
+          python -c "import py_compile; [py_compile.compile(p, doraise=True) for p in ('modules/external/sources/maritime.py', 'modules/external/orchestrator.py', 'modules/ncei_missingness_audit.py')]"
       - name: Rate-limit, upstream, connector, source-health and NCEI regressions
         run: |
           python -m pytest -q -p no:cacheprovider \
