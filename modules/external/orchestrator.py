@@ -105,6 +105,10 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
     run_id = now.strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     manifest_entries = []
     summary = {"run_id": run_id, "now": _now_iso(now), "sources": {}}
+    # ArcGIS host-level breaker and measured request counts belong to ONE ingest
+    # run only (never leak a prior failed run into a subsequent recovery check).
+    from modules.external.sources import maritime as _maritime
+    _maritime.reset_rate_limit_breaker()
 
     for source_cfg in registry.iter_sources():
         source_id = source_cfg["source_id"]
@@ -346,6 +350,12 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         registry.save_health(health)
         archive.storage_telemetry()
 
+    # Actual requests/429 responses are observable. ArcGIS request UNITS are
+    # publisher-side and cannot be calculated from request counts here.
+    summary["arcgis_request_telemetry"] = _maritime.arcgis_request_telemetry()
+    if summary["arcgis_request_telemetry"]:
+        _log("[ingest] ArcGIS host request counts (not request units): "
+             + json.dumps(summary["arcgis_request_telemetry"], sort_keys=True))
     alerts = decide_alerts(health_before, health)
     summary["alerts"] = alerts
     if not dry_run:
