@@ -932,7 +932,8 @@ def test_flush_timing_v2_never_uses_unarchived_or_inadmissible_chain_quote(monke
         "symbol": "AAPL261120C00100000", "strike": 100.0, "expiry": "2026-11-20", "dte": 55, "bid": 5.0, "ask": 5.4,
         "mid": 5.2, "iv": 0.3, "delta": 0.5, "open_interest": 500, "quote_ts": "t"})
     cl.start_run("2026-09-26")
-    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen",
+            decision_frozen_at="2026-09-26T15:00:00+00:00")
     cl.flush(reports_dir_root=ledger_root)
     row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
     ro = row["real_option"]
@@ -1000,6 +1001,7 @@ def test_flush_real_option_pre_market_signal_is_entry_pending(monkeypatch, ledge
     """Optionen handeln nur in der regulären Session: ein pre/post/closed
     ausgewählter Kontrakt darf NICHT sofort mit seiner (stale) Quote als
     Entry gebucht werden — dieselbe Look-ahead-Falle wie beim Underlying."""
+    monkeypatch.setattr(cl, "_now_utc", lambda: datetime(2026, 9, 26, 15, 0, tzinfo=timezone.utc))
     monkeypatch.setattr(cl.market_snapshot, "us_market_session", lambda ts: "pre")
     monkeypatch.setattr(cl.market_snapshot, "fetch_underlying_quotes",
                          lambda tickers: {t: {"bid": 100.0, "ask": 100.4, "mid": 100.2,
@@ -1011,7 +1013,8 @@ def test_flush_real_option_pre_market_signal_is_entry_pending(monkeypatch, ledge
     monkeypatch.setattr(cl.market_snapshot, "select_contract", lambda t, d, f, s: fake_contract)
 
     cl.start_run("2026-09-26")
-    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen",
+            decision_frozen_at="2026-09-26T15:00:00+00:00")
     cl.flush(reports_dir_root=ledger_root)
 
     row = _read_jsonl(ledger_root / "2026-09.jsonl")[0]
@@ -2340,8 +2343,10 @@ def test_flush_adds_liquid_contract_variant_for_timing_v2(monkeypatch, ledger_ro
         "symbol": f"{ticker}261218C00100000", "strike": 100.0, "expiry": "2026-12-18", "dte": 60,
         "bid": 4.9, "ask": 5.0, "mid": 4.95, "iv": 0.3, "delta": 0.5, "open_interest": 4000, "quote_ts": "t"})
 
+    monkeypatch.setattr(cl, "_now_utc", lambda: datetime(2026, 10, 30, 15, 0, tzinfo=timezone.utc))
     cl.start_run("2026-10-30")
-    cl.note("AAA", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.note("AAA", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen",
+            decision_frozen_at="2026-10-30T15:00:00+00:00")
     cl.flush(reports_dir_root=ledger_root)
 
     row = _read_jsonl(ledger_root / "2026-10.jsonl")[0]
