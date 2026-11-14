@@ -271,6 +271,44 @@ def test_decide_records_legs_quotes_and_economics(tmp_path, market):
     assert sum(c[0] == "chain" for c in market["calls"]) == len(tickers)
 
 
+
+def test_subsecond_archived_quotes_allow_real_paper_bookings(tmp_path, market):
+    """Regression: a .818s archived quote must not be later than its decision."""
+    from modules.autonomous_alpha import paper_account as paper
+
+    _registered(tmp_path)
+    shutil.copy(REPO / paper.CONFIG, tmp_path / paper.CONFIG)
+    activated = paper.sync(tmp_path, now=DECIDE - timedelta(minutes=3),
+                           capture=True, persist_report=False)
+    assert activated["note"] == "ACTIVATED_NO_HISTORICAL_BACKFILL"
+
+    observed_at = DECIDE.replace(microsecond=818123)
+    al.decide(tmp_path, now=observed_at)
+    treatment = [d for d in _decisions(tmp_path)
+                 if d["comparison_group"] == "TREATMENT" and d["decision"] == "TRADE"
+                 and d["structure"] == "LONG_CALL"]
+    assert treatment
+    entry = treatment[0]
+    archived = oq.by_ids([leg["quote_record_id"] for leg in entry["legs"]],
+                         entry["decision_day"], root=tmp_path / oq.ROOT)
+    assert archived
+    assert entry["decided_at"].endswith(".818123+00:00")
+    assert all(datetime.fromisoformat(q["retrieved_at"])
+               <= datetime.fromisoformat(entry["decided_at"]) for q in archived.values())
+    assert paper._entry_archived(tmp_path, entry)
+
+    # Reproduce the production bug: the exact same verified quote is rejected
+    # if the historical decision timestamp is truncated to whole seconds.
+    legacy = {**entry, "decided_at": DECIDE.isoformat(timespec="seconds")}
+    assert paper._entry_archived(tmp_path, legacy) is False
+
+    booked = paper.sync(tmp_path, now=observed_at + timedelta(seconds=30),
+                        capture=True, persist_report=False)
+    assert booked["open_trades"] > 0
+    assert any(event["type"] == "OPEN" for event in paper.events(tmp_path))
+    assert booked["broker_orders"] == 0
+
+
 @pytest.mark.parametrize("kw, reason", [
     ({"spread": 3.0}, "LONG_SPREAD_TOO_WIDE"),
     ({"oi": 3}, "LONG_OPEN_INTEREST_BELOW_MIN"),

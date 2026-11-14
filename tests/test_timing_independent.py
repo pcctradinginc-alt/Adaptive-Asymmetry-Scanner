@@ -1425,7 +1425,8 @@ def test_G_neue_zeilen_tragen_timing_v2_und_entry_nur_ueber_das_archiv(monkeypat
     monkeypatch.setattr(cl.market_snapshot, "fetch_term_iv_point", lambda *a, **k: None)
     root = ledger["root"]
     cl.start_run("2026-10-13")
-    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen")
+    cl.note("AAPL", stage="deep_analysis", direction="BULLISH", ttm="4-8 Wochen",
+            decision_frozen_at=ny("2026-10-13T11:00").isoformat())
     cl.flush(reports_dir_root=root)
     row = read_ledger(root / "2026-10.jsonl")[0]
     assert row["timing_policy"] == "timing-v2"

@@ -139,6 +139,53 @@ def _age(iso, now: datetime) -> float | None:
         return None
 
 
+
+def _entry_clock_skips(root: Path, skipped: dict, decisions: dict) -> tuple[int, int]:
+    """Identify false paper SKIPs caused *only* by a lost subsecond timestamp.
+
+    No decision, quote or historical signed event is modified. Rechecking a
+    copy with the exact archived retrieval time is diagnostic, never a fill.
+    """
+    from modules import option_quotes as oq
+
+    by_signal = {}
+    for d in decisions.values():
+        by_signal.setdefault(d["signal_id"], []).append(d)
+    legacy, current = set(), set()
+    for sid, event in skipped.items():
+        rejected = set(event.get("reason") or [])
+        for d in by_signal.get(sid, []):
+            if (d.get("decision") != "TRADE"
+                    or d.get("evidence_class_at_entry") != "QUOTE_VERIFIED_PAPER"
+                    or d.get("structure", "") + ":ENTRY_QUOTE_NOT_VERIFIED" not in rejected):
+                continue
+            t = link._ts(d.get("decided_at"))
+            legs = d.get("legs") or []
+            if t is None or not legs or any(not leg.get("quote_record_id") for leg in legs):
+                continue
+            from datetime import timedelta
+            day = d["decision_day"]
+            start = (datetime.fromisoformat(day) - timedelta(days=1)).date().isoformat()
+            end = (datetime.fromisoformat(day) + timedelta(days=1)).date().isoformat()
+            quotes = oq.by_ids([leg["quote_record_id"] for leg in legs], start, end,
+                               root=root / oq.ROOT)
+            if len(quotes) != len(legs):
+                continue
+            retrieved = [link._ts(quotes[leg["quote_record_id"]].get("retrieved_at"))
+                         for leg in legs]
+            if any(x is None for x in retrieved):
+                continue
+            latest = max(retrieved)
+            # A same-second timestamp inversion, with every other quote check
+            # passing, is specifically the historic second-truncation bug.
+            if not (latest > t and latest.replace(microsecond=0) == t.replace(microsecond=0)):
+                continue
+            if account._entry_archived(root, {**d, "decided_at": latest.isoformat()}):
+                key = "current" if "." in d["decided_at"].split("+")[0] else "legacy"
+                (current if key == "current" else legacy).add(sid)
+    return len(legacy), len(current)
+
+
 def _existing_memory(root: Path) -> dict:
     return memory.latest(memory.load(root / MEMORY))
 
@@ -185,6 +232,17 @@ def build(root: Path = Path("."), *, now: datetime | None = None) -> dict:
                              "No genuine PA-INIT event has been committed",
                              "Check the next regular in-window capture; do not backfill old signals"))
     booked = state["positions"] if state["activated"] else {}
+    legacy_skips, current_skips = _entry_clock_skips(root, state["skips"], decisions)
+    if legacy_skips:
+        issues.append(_issue("PAPER_LEGACY_QUOTE_CLOCK_TRUNCATION", "DEGRADED", "paper_account",
+                             str(legacy_skips) + " historical SKIP signals had authentic same-second quotes "
+                             "but whole-second decisions; old signed SKIPs remain immutable",
+                             "Retain old receipts; use precise timestamps only for future paper entries"))
+    if current_skips:
+        issues.append(_issue("PAPER_QUOTE_CLOCK_ORDER_DEFECT", "TECHNICAL_DEFECT", "paper_account",
+                             str(current_skips) + " new SKIP signals have a verified archived quote "
+                             "rejected solely because quote retrieval follows the stored decision time",
+                             "Fix the decision/quote timestamp order; never retroactively book trades"))
     for did, p in sorted(booked.items()):
         if did not in decisions:
             issues.append(_issue("BOOKING_SOURCE_MISSING", "TECHNICAL_DEFECT", "paper_account",

@@ -261,6 +261,17 @@ def _iso(t: datetime) -> str:
     return t.astimezone(timezone.utc).isoformat(timespec="seconds")
 
 
+def _iso_precise(t: datetime) -> str:
+    """Preserve quote acquisition time for immutable ex-ante option decisions.
+
+    The quote archive retains milliseconds. Truncating a decision to seconds
+    made its archived entry quote appear to arrive *after* the decision and
+    falsely caused the broker-free paper account to SKIP valid candidates.
+    Leave existing second-resolution signal timestamps unchanged.
+    """
+    return t.astimezone(timezone.utc).isoformat(timespec="microseconds")
+
+
 def _ny_day(t: datetime) -> date:
     from modules import market_snapshot as ms
     return t.astimezone(ms.NY_TZ).date()
@@ -749,7 +760,7 @@ def _observe(ticker: str, uq: dict | None, now: datetime, cfg: dict, *, root: Pa
         srec = _archive(next(o for k, o in calls if k == sk))
         if srec is not None:
             legs["short"] = _leg(srec, "short", oq.usable_rth_quote(srec))
-    return {**base, "observed_at": _iso(retrieved), "status": "OBSERVED", "expiry": chosen[0],
+    return {**base, "observed_at": _iso_precise(retrieved), "status": "OBSERVED", "expiry": chosen[0],
             "dte": chosen[1], "legs": legs}
 
 
@@ -788,7 +799,7 @@ def _decision(sig: dict, structure: str, obs: dict, cfg: dict, now: datetime) ->
         "comparison_group": sig["comparison_group"], "ticker": sig["ticker"],
         "pit_data_date": sig["pit_data_date"], "signal_registered_at": sig["registered_at"],
         "rule_version": rule["rule_version"], "rule_hash": rule_hash(cfg),
-        "decided_at": _iso(now), "decision_day": day.isoformat(),
+        "decided_at": _iso_precise(now), "decision_day": day.isoformat(),
         "underlying": obs.get("underlying"), "expiry": obs.get("expiry"), "dte": obs.get("dte"),
         "legs": [], "decision": "ABSTAIN", "abstain_reasons": [],
         "net_debit_ask": None, "capital_usd": None, "max_loss_usd": None, "breakeven_move": None,
