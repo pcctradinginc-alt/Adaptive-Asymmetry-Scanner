@@ -1,4 +1,5 @@
 """Offline analysis and safe handling of NCEI missing data."""
+import math
 from datetime import date
 from types import SimpleNamespace
 
@@ -23,8 +24,9 @@ def test_null_breakdown_never_fills_missing_values():
     assert r["missing_fraction"] == 0.6667
     assert r["unique_stations"] == 2 and r["unique_metrics"] == 2
     assert r["stations_by_missing_count"][0]["key"] == "ST02"
-    assert all((x is y) or (x != x and y != y) for x, y in zip(
-        [r.value for r in rows], original))
+    assert all((x is y) or (isinstance(x, float) and isinstance(y, float)
+                          and math.isnan(x) and math.isnan(y))
+               for x, y in zip([r.value for r in rows], original))
 
 
 def test_empty_archive_is_not_misrepresented_as_zero_missing():
