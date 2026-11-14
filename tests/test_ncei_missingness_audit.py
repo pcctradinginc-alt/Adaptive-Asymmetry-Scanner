@@ -23,7 +23,8 @@ def test_null_breakdown_never_fills_missing_values():
     assert r["numeric"] == 2 and r["missing"] == 4
     assert r["missing_fraction"] == 0.6667
     assert r["unique_stations"] == 2 and r["unique_metrics"] == 2
-    assert r["stations_by_missing_count"][0]["key"] == "ST02"
+    assert [x["key"] for x in r["stations_by_missing_count"]] == ["ST01", "ST02"]
+    assert [x["missing"] for x in r["stations_by_missing_count"]] == [2, 2]
     assert all((x is y) or (isinstance(x, float) and isinstance(y, float)
                           and math.isnan(x) and math.isnan(y))
                for x, y in zip([r.value for r in rows], original))
