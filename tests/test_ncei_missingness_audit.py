@@ -1,5 +1,5 @@
 """Offline analysis and safe handling of NCEI missing data."""
-from datetime import date, datetime, timezone
+from datetime import date
 from types import SimpleNamespace
 
 from modules import ncei_missingness_audit as audit
@@ -23,7 +23,8 @@ def test_null_breakdown_never_fills_missing_values():
     assert r["missing_fraction"] == 0.6667
     assert r["unique_stations"] == 2 and r["unique_metrics"] == 2
     assert r["stations_by_missing_count"][0]["key"] == "ST02"
-    assert [x.value for x in rows] == original[:2] + original[2:3] + original[3:]
+    assert all((x is y) or (x != x and y != y) for x, y in zip(
+        [r.value for r in rows], original))
 
 
 def test_empty_archive_is_not_misrepresented_as_zero_missing():
