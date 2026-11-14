@@ -1,12 +1,12 @@
 """Offline contract tests for the read-only options feature cohort diagnosis."""
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from datetime import date
-import json
 
-from modules import option_learner as ol
 from modules import option_feature_diagnostics as diag
+from modules import option_learner as ol
 
 
 def _row(day, ticker, *, sample, features, gate="proposed"):
