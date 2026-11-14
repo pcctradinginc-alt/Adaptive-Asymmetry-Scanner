@@ -9,16 +9,16 @@
  "safe_mode_effect": "Wirkt nur auf den Research-Einfluss: keine positiven Boosts/Gewichte des Production Intelligence Adapters (validierte Abstinenz bleibt erlaubt), Promotionen pausiert, Meta-Learning nicht aktiv. Champion-Entscheidungen (Gates, Filter, Optionsauswahl) unverändert.",
  "data_health": {
   "status": "OK",
-  "data_quality": 0.992,
+  "data_quality": 0.951,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-11-13T19:59:59+00:00",
+  "generated": "2026-11-14T18:28:35+00:00",
   "counts": {
-   "HEALTHY": 49,
-   "DEGRADED": 1,
+   "HEALTHY": 46,
+   "DEGRADED": 4,
    "STALE": 0,
    "BROKEN": 0,
    "UNVALIDATED": 13
@@ -97,7 +97,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 0.992
+    "data_quality": 0.951
    }
   },
   "reasons": [
@@ -112,7 +112,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-14T15:23:31+00:00",
-  "drift_input_age_days": 0.0,
+  "drift_input_age_days": 0.1,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -186,15 +186,15 @@
  "inputs": {
   "model_health": "9e3001546e8a",
   "meta_learning": "34f9025c549a",
-  "data_health": "fb4a811e0536",
+  "data_health": "c60e27bc041c",
   "promotion": "5067937d286a",
   "model_registry": "a0c0ce90b949",
   "champion_config": "9aaf7a892de0",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "b5cafb7536db"
  },
- "state_version": 124,
- "fingerprint": "62866cad3f99261f",
- "updated_at": "2026-11-14T15:23:46+00:00",
- "code_version": "45b196c03271"
+ "state_version": 125,
+ "fingerprint": "4b757ebccfa7321b",
+ "updated_at": "2026-11-14T18:28:35+00:00",
+ "code_version": "620bc412dcca"
 }

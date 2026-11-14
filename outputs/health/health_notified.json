@@ -1,5 +1,27 @@
 {
- "at": "2026-11-13T19:59:59+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-11-14T18:28:35+00:00",
+ "changes": [
+  {
+   "source_id": "imf_portwatch_ports",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: [UPSTREAM_RATE_LIMITED] ArcGIS-Query-Fehler trotz Wartezeit (höchstens 3 Versuche, Wartebudget 130s je Host): {'code': 429, 'message': 'Unable to perform query. Too many requests.', 'details': ['API c; Data-Quality-Befund schwerwiegend"
+  },
+  {
+   "source_id": "imf_portwatch_chokepoints",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: UPSTREAM_RATE_LIMITED host=services9.arcgis.com: Kontingent in diesem Lauf bereits erschöpft (Unable to perform query. Too many requests.) – kein weiterer Abruf (Kreisunterbrecher), kein Rückgriff auf; Data-Quality-Befund schwerwiegend"
+  },
+  {
+   "source_id": "imf_portwatch_disruptions",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: UPSTREAM_RATE_LIMITED host=services9.arcgis.com: Kontingent in diesem Lauf bereits erschöpft (Unable to perform query. Too many requests.) – kein weiterer Abruf (Kreisunterbrecher), kein Rückgriff auf"
+  }
+ ],
+ "mail": "sent"
 }
