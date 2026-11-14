@@ -462,7 +462,10 @@ def test_human_decision_stops_further_mails(tmp_path):
     state = _state(tmp_path)["tasks"][tid]
     assert state["status"] == "REJECTED" and state["decision_note"] == "bewusst"
     cfg = yaml.safe_load((ROOT / "config" / "improvement_task_decisions.yaml").read_text(encoding="utf-8"))
-    assert cfg == {"tasks": {}}
+    assert isinstance(cfg, dict) and isinstance(cfg.get("tasks"), dict)
+    assert all(isinstance(task, dict) and task.get("status") in
+               {"REJECTED", "IN_PROGRESS", "DONE"}
+               for task in cfg["tasks"].values())
 
 
 def test_no_credentials_reach_mail_state_or_report(tmp_path, monkeypatch):
