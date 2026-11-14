@@ -125,8 +125,10 @@ def horizon_diagnostic(rows: list[dict], cands: list[dict], horizon: int) -> dic
         raise ValueError("Only the frozen 5- and 20-day cohorts are supported")
     items, unmatched = _items(rows, cands)
     all_row_count = sum(isinstance(r, dict) and bool(r.get("date")) and bool(r.get("ticker")) for r in rows)
-    raw_by_key = {_key(r): r for r in reversed(rows)
-                  if isinstance(r, dict) and r.get("date") and r.get("ticker")}
+    raw_by_key = {}
+    for r in rows:
+        if isinstance(r, dict) and r.get("date") and r.get("ticker"):
+            raw_by_key.setdefault(_key(r), r)
     all_coverage = {f: sum(
         isinstance(r.get("features"), dict) and ol._num(r["features"].get(f)) is not None
         for r in raw_by_key.values()) for f in FEATURES}
