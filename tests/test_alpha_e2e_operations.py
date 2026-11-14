@@ -58,6 +58,36 @@ def test_missing_real_market_observations_are_not_errors_or_alpha(configured):
     assert result["real_orders"] is False and result["broker_connection"] == "NONE"
 
 
+
+def test_audit_detects_legacy_subsecond_quote_skip_without_rebooking(configured):
+    """An authentic archived entry cannot become a trade by rewriting history."""
+    from modules import option_quotes as oq
+
+    retrieved = datetime(2026, 11, 10, 17, 15, 38, 818000, tzinfo=timezone.utc)
+    raw = {"symbol": "XYZ270115C00100000", "bid": 2.0, "ask": 2.2,
+           "open_interest": 100, "iv": 0.3,
+           "bid_date": int(retrieved.replace(microsecond=0).timestamp() * 1000)}
+    q = oq.normalize(raw, underlying="XYZ", source="tradier",
+                     context="alpha_link_entry", retrieved_at=retrieved)
+    assert q is not None and oq.usable_rth_quote(q)
+    assert oq.archive([q], root=configured / oq.ROOT) == 1
+
+    d = {"signal_id": "ALS-synthetic", "structure": "LONG_CALL", "decision": "TRADE",
+         "decision_day": "2026-11-10", "decided_at": "2026-11-10T17:15:38+00:00",
+         "evidence_class_at_entry": "QUOTE_VERIFIED_PAPER",
+         "legs": [{"occ_symbol": q["occ_symbol"], "quote_record_id": q["record_id"],
+                   "bid": q["bid"], "ask": q["ask"]}]}
+    skip = {"ALS-synthetic": {"reason": ["LONG_CALL:ENTRY_QUOTE_NOT_VERIFIED"]}}
+    assert audit._entry_clock_skips(configured, skip, {"d": d}) == (1, 0)
+    # The updated format would cause a genuine time inversion to be red,
+    # not merely a historical note.
+    current = {**d, "decided_at": "2026-11-10T17:15:38.100000+00:00"}
+    assert audit._entry_clock_skips(configured, skip, {"d": current}) == (0, 1)
+    correct = {**d, "decided_at": "2026-11-10T17:15:38.818000+00:00"}
+    assert audit._entry_clock_skips(configured, skip, {"d": correct}) == (0, 0)
+    assert not list((configured / pa.JOURNAL).glob("PA-OPEN*"))
+
+
 def test_capture_step_errors_are_technical_defects_but_missing_quotes_are_not(configured):
     capture(configured, capture_status="PARTIAL_MISSING_QUOTES",
             paper_account={"status": "ERROR", "error": "missing journal"},
