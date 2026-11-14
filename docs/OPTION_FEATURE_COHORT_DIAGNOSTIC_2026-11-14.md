@@ -130,7 +130,8 @@ Features umschreiben, Features künstlich mit Null füllen oder die
 Experimentversion und prospektive Tests. Kein Alpha-Nachweis aus
 Abdeckungsstatistiken.
 
-Der Wochenlauf erzeugt den Diagnosebericht unmittelbar nach den
-kanonischen beiden Options-Lernmodell-Statusläufen; seine Ausgabe wird vom
+Der Wochenlauf erzeugt den Diagnosebericht nach den kanonischen
+Options-Lernmodell-Statusläufen und den bestehenden Improvement-/Mail-Schritten,
+ohne deren bisherige Reihenfolge zu ändern. Seine Ausgabe wird vom
 bestehenden Research-Push archiviert. Ein technischer Diagnose-Ausfall
 steht in der Stufen-Bilanz als **DEGRADED**, nicht als Handelserlaubnis.
