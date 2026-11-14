@@ -555,6 +555,21 @@ def build_where_clause(start: date, end: date, date_field: str = "date",
 # Host für den laufenden Prozess: danach kein weiterer Abruf, der Fehler bleibt sichtbar (nie veraltete Daten).
 _RATE_LIMITED_HOSTS: dict[str, str] = {}
 _RATE_LIMIT_WAITED_S: dict[str, float] = {}   # Summe der Rate-Limit-Wartezeiten je Host in diesem Lauf
+_ARCGIS_REQUEST_TELEMETRY: dict[str, dict[str, int]] = {}  # tatsächlich versuchte Requests je Host; keine Units-Schätzung
+
+def arcgis_request_telemetry() -> dict[str, dict[str, int]]:
+    """Messbare Host-Requests und 429-Antworten seit letztem Reset. ArcGIS-Units sind NICHT bekannt."""
+    return {host: dict(stats) for host, stats in sorted(_ARCGIS_REQUEST_TELEMETRY.items())}
+
+def _measured_arcgis_json(url: str, http_fetch: FetchFn, params: dict) -> Any:
+    host = _host(url)
+    stats = _ARCGIS_REQUEST_TELEMETRY.setdefault(host, {"requests": 0, "rate_limited": 0})
+    stats["requests"] += 1
+    data = http_fetch(url, params=params).json()
+    if isinstance(data, dict) and arcgis_rate_limited(data.get("error")):
+        stats["rate_limited"] += 1
+    return data
+
 
 
 def _host(url: str) -> str:
@@ -586,6 +601,7 @@ def _check_rate_limit_breaker(url: str) -> None:
 def reset_rate_limit_breaker() -> None:
     _RATE_LIMITED_HOSTS.clear()
     _RATE_LIMIT_WAITED_S.clear()
+    _ARCGIS_REQUEST_TELEMETRY.clear()
 
 
 # Das Kontingent ist ein MINUTEN-Limit (live 2026-11-06: "quota exceeded (6380 request units)! maximum allowed request
@@ -613,7 +629,8 @@ def _arcgis_json(url: str, http_fetch: FetchFn, params: dict):
     genannte Wartezeit eingehalten und höchstens RATE_LIMIT_RETRIES-mal erneut gefragt (insgesamt höchstens
     RATE_LIMIT_WAIT_BUDGET_S Wartezeit je Host und Lauf). Gibt die letzte Antwort zurück
     (bei anhaltendem Rate-Limit das Fehlerobjekt); der Aufrufer meldet den Fehler und setzt den Kreisunterbrecher."""
-    data = http_fetch(url, params=params).json()
+    _check_rate_limit_breaker(url)
+    data = _measured_arcgis_json(url, http_fetch, params)
     for attempt in range(RATE_LIMIT_RETRIES):
         err = data.get("error") if isinstance(data, dict) else None
         if not (isinstance(err, dict) and arcgis_rate_limited(err)):
@@ -627,7 +644,7 @@ def _arcgis_json(url: str, http_fetch: FetchFn, params: dict):
         log.warning("ArcGIS-Rate-Limit (%s): warte %.0f s, Versuch %d/%d", host, wait, attempt + 2,
                     RATE_LIMIT_RETRIES + 1)
         _sleep(wait)
-        data = http_fetch(url, params=params).json()
+        data = _measured_arcgis_json(url, http_fetch, params)
     return data
 
 
@@ -810,6 +827,7 @@ def query_distinct_values(
     query_url = f"{service_url}/{layer_id}/query"
     offset = 0
     all_features: list[dict] = []
+    _check_rate_limit_breaker(query_url)
     for _ in range(MAX_PAGES_SAFETY):
         params = {
             "where": "1=1",
@@ -820,9 +838,15 @@ def query_distinct_values(
             "resultRecordCount": page_size,
             "f": "json",
         }
-        res = http_fetch(query_url, params=params)
-        data = res.json()
+        data = _arcgis_json(query_url, http_fetch, params)
         if isinstance(data, dict) and "error" in data:
+            if arcgis_rate_limited(data["error"]):
+                _note_rate_limit(query_url, data["error"])
+                raise ArcGISQueryError(
+                    f"[UPSTREAM_RATE_LIMITED] ArcGIS-Distinct-Query nach begrenztem Retry fehlgeschlagen "
+                    f"(Host { _host(query_url) }, Requests dieser Prozess "
+                    f"{arcgis_request_telemetry()[_host(query_url)]['requests']}): {data['error']}"
+                )
             raise FetchError(
                 f"ArcGIS-Distinct-Query-Fehler: {data['error']} (outFields={out}, "
                 f"service_url={service_url}/{layer_id})"
@@ -847,6 +871,36 @@ def query_distinct_values(
             seen.add(key)
             deduped.append(feat if "attributes" in feat else {"attributes": attrs})
     return deduped
+
+
+def verified_daily_reference(
+    raw_features: list[dict], wanted: list[dict],
+    id_field: str, name_field: str, country_field: str | None,
+    alias_map: dict[str, list[str]] | None = None,
+) -> list[dict] | None:
+    """Avoid an unbounded historical DISTINCT query iff the just-fetched official
+    daily window uniquely resolves EVERY configured entity. Otherwise do the
+    original full reference query; never guess IDs or silently lose coverage.
+    Repetitions of the same port across days are deduplicated first.
+    """
+    seen: set[tuple[str, str, str]] = set()
+    references: list[dict] = []
+    for feat in raw_features:
+        attrs = feat.get("attributes", feat)
+        if not isinstance(attrs, dict) or not attrs.get(id_field) or not attrs.get(name_field):
+            continue
+        key = (str(attrs[id_field]), str(attrs[name_field]),
+               str(attrs.get(country_field, "")) if country_field else "")
+        if key not in seen:
+            seen.add(key)
+            references.append({"attributes": {id_field: attrs[id_field],
+                              name_field: attrs[name_field],
+                              **({country_field: attrs.get(country_field)} if country_field else {})}})
+    if not references:
+        return None
+    resolutions = resolve_entities_by_name(wanted, references, id_field, name_field,
+                                            country_field=country_field, alias_map=alias_map)
+    return references if resolutions and all(x.status == "resolved" for x in resolutions) else None
 
 
 def incremental_window(now: datetime, days: int = INCREMENTAL_WINDOW_DAYS) -> tuple[date, date]:
@@ -1335,6 +1389,9 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 supports_pagination=pagination_supported(meta),
             )
 
+            universe = load_port_universe(self._universe_path)
+            wanted = flatten_port_universe(universe)
+            reference_origin = "VERIFIED_REFERENCE_LAYER"
             if ref_ep.get("fallback_to_daily_layer"):
                 # Ports-Referenz-Layer konnte nicht org-verifiziert gefunden
                 # werden (item 1 im Fix) -> Id/Name/Land werden per
@@ -1347,10 +1404,18 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 ref_out_fields = [ref_schema["id_field"], ref_schema["name_field"]]
                 if ref_schema.get("country_field"):
                     ref_out_fields.append(ref_schema["country_field"])
-                ref_features = query_distinct_values(
-                    ep["service_url"], ep["layer_id"], ref_out_fields, self._fetch,
-                    max_record_count=max_rc,
+                ref_features = verified_daily_reference(
+                    raw_features, wanted, ref_schema["id_field"], ref_schema["name_field"],
+                    ref_schema.get("country_field"), load_port_aliases(universe),
                 )
+                if ref_features is None:
+                    reference_origin = "HISTORICAL_DISTINCT_QUERY"
+                    ref_features = query_distinct_values(
+                        ep["service_url"], ep["layer_id"], ref_out_fields, self._fetch,
+                        max_record_count=max_rc,
+                    )
+                else:
+                    reference_origin = "VERIFIED_DAILY_WINDOW"
             else:
                 ref_meta = fetch_layer_metadata(ref_ep["service_url"], ref_ep["layer_id"], self._fetch)
                 ref_schema = resolve_ports_reference_schema(ref_meta, ref_ep["service_url"], ref_ep["layer_id"])
@@ -1362,8 +1427,6 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                     ref_out_fields, self._fetch,
                     max_record_count=ref_meta.get("maxRecordCount", 2000),
                 )
-            universe = load_port_universe(self._universe_path)
-            wanted = flatten_port_universe(universe)
             resolved = resolve_entities_by_name(
                 wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"],
                 country_field=ref_schema.get("country_field"),
@@ -1379,6 +1442,8 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 "available_ports": available_ports[:60],
                 "n_available_ports": len(available_ports),
                 "ports_reference_fallback_to_daily_layer": bool(ref_ep.get("fallback_to_daily_layer")),
+                "reference_origin": reference_origin,
+                "arcgis_requests_by_host": arcgis_request_telemetry(),
                 "unresolved_ports_close_matches": {
                     name: close_name_matches(name, available_ports) for name in unresolved
                 },
@@ -1495,16 +1560,27 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                 supports_pagination=pagination_supported(meta),
             )
 
+            universe = load_port_universe(self._universe_path)
+            wanted = flatten_chokepoint_universe(universe)
+            reference_origin = "VERIFIED_REFERENCE_LAYER"
             if ref_ep.get("fallback_to_daily_layer"):
                 # Chokepoints-Referenz-Layer nicht org-verifiziert gefunden
                 # -> Id/Name per Distinct-Values-Query aus dem
                 # Daily-Chokepoints-Layer selbst ableiten.
                 ref_schema = {"id_field": schema["id_field"], "name_field": schema["name_field"]}
-                ref_features = query_distinct_values(
-                    ep["service_url"], ep["layer_id"],
-                    [ref_schema["id_field"], ref_schema["name_field"]], self._fetch,
-                    max_record_count=max_rc,
+                ref_features = verified_daily_reference(
+                    raw_features, wanted, ref_schema["id_field"], ref_schema["name_field"],
+                    None, load_chokepoint_aliases(universe),
                 )
+                if ref_features is None:
+                    reference_origin = "HISTORICAL_DISTINCT_QUERY"
+                    ref_features = query_distinct_values(
+                        ep["service_url"], ep["layer_id"],
+                        [ref_schema["id_field"], ref_schema["name_field"]], self._fetch,
+                        max_record_count=max_rc,
+                    )
+                else:
+                    reference_origin = "VERIFIED_DAILY_WINDOW"
             else:
                 ref_meta = fetch_layer_metadata(ref_ep["service_url"], ref_ep["layer_id"], self._fetch)
                 ref_schema = resolve_chokepoints_reference_schema(ref_meta, ref_ep["service_url"], ref_ep["layer_id"])
@@ -1513,8 +1589,6 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                     [ref_schema["id_field"], ref_schema["name_field"]], self._fetch,
                     max_record_count=ref_meta.get("maxRecordCount", 2000),
                 )
-            universe = load_port_universe(self._universe_path)
-            wanted = flatten_chokepoint_universe(universe)
             alias_map = load_chokepoint_aliases(universe)
             resolved = resolve_entities_by_name(
                 wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"], country_field=None,
@@ -1530,6 +1604,8 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                 "available_chokepoints": available_chokepoints[:60],
                 "n_available_chokepoints": len(available_chokepoints),
                 "chokepoints_reference_fallback_to_daily_layer": bool(ref_ep.get("fallback_to_daily_layer")),
+                "reference_origin": reference_origin,
+                "arcgis_requests_by_host": arcgis_request_telemetry(),
                 "unresolved_chokepoints_close_matches": {
                     name: close_name_matches(name, available_chokepoints) for name in unresolved
                 },
