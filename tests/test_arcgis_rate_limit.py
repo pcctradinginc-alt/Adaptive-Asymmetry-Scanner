@@ -123,3 +123,38 @@ def test_other_hosts_and_other_errors_keep_the_existing_isolation():
     ok = _Fetch(OK)
     assert m.query_features("https://other.example.org/FeatureServer", 0, "1=1", ["portid"], ok) == [
         {"attributes": {"portid": "p1"}}]
+
+
+def test_distinct_query_rate_limit_exhaustion_is_fail_closed_and_shared(_reset):
+    """Previously DISTINCT bypassed JSON-429 backoff and the host breaker."""
+    fetch = _Fetch(QUOTA)
+    with pytest.raises(m.ArcGISQueryError, match=r"^\[UPSTREAM_RATE_LIMITED\]"):
+        m.query_distinct_values(SERVICE, 0, ["portid", "portname"], fetch)
+    assert len(fetch.calls) == 1 + m.RATE_LIMIT_RETRIES
+    assert _reset == [60.0, 60.0]
+    host = "services9.arcgis.com"
+    stats = m.arcgis_request_telemetry()[host]
+    assert stats == {"requests": 3, "rate_limited": 3}
+    with pytest.raises(m.PortWatchUpstreamUnavailable, match="UPSTREAM_RATE_LIMITED"):
+        m.query_distinct_values(SERVICE, 0, ["portid"], fetch)
+    assert len(fetch.calls) == 3
+    m.reset_rate_limit_breaker()
+    assert m.arcgis_request_telemetry() == {}
+
+
+def test_distinct_query_obeys_retry_after_and_can_recover(_reset):
+    good = {"features": [{"attributes": {"portid": "p1", "portname": "Port One"}}]}
+    fetch = _Fetch(QUOTA, good)
+    assert m.query_distinct_values(SERVICE, 0, ["portid", "portname"], fetch) == good["features"]
+    assert _reset == [60.0]
+    assert m.arcgis_request_telemetry()["services9.arcgis.com"] == {"requests": 2, "rate_limited": 1}
+
+
+def test_existing_breaker_blocks_distinct_without_a_network_call(_reset):
+    fetch = _Fetch(QUOTA)
+    with pytest.raises(m.ArcGISQueryError):
+        m.query_features(SERVICE, 0, "1=1", ["portid"], fetch)
+    n = len(fetch.calls)
+    with pytest.raises(m.PortWatchUpstreamUnavailable):
+        m.query_distinct_values(SERVICE, 0, ["portid"], fetch)
+    assert len(fetch.calls) == n

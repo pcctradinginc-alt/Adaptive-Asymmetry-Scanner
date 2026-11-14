@@ -145,6 +145,13 @@ downstream_extra:
   eia_petroleum_weekly: ["commodity_intelligence (RESEARCH): Öl-Fundamentaldaten (WPSR)"]
   eia_natural_gas: ["commodity_intelligence (RESEARCH): Gasspeicher/-produktion/LNG"]
   cftc_cot: ["commodity_intelligence (RESEARCH): Positionierung (Disaggregated COT)"]
+  # Reale Konsumenten: modules/external/context.py, SHADOW/RESEARCH; keine
+  # Champion-Features oder Produktionsfreigabe. Explizit sichtbar im Health-Report,
+  # ohne eine falsche CRITICAL-Entscheidungsabhängigkeit zu behaupten.
+  imf_portwatch_ports: ["external_context (SHADOW): maritime_freight global/container/tanker, country_export_z, industry_shipping_z"]
+  imf_portwatch_chokepoints: ["external_context (SHADOW): maritime_freight Suez/Panama/Hormuz/Malacca z-Scores"]
+  imf_portwatch_disruptions: ["external_context (SHADOW): port_disruption_active_events, betroffene Häfen"]
+  ncei_normals: ["external_context (SHADOW): HDD/CDD-Abweichungen ggü. Klimanormalwerten"]
   fred_market_expectations: ["expectation_alpha (SHADOW): Marktseite Inflations-/Zins-Gap (T5YIE, DGS2-DFF)"]
   fred_world_macro: ["expectation_alpha (SHADOW): Modellseite Wachstums-/Zins-Gap (PAYEMS, ICSA, RSAFS)"]
 

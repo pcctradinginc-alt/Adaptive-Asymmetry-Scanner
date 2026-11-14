@@ -1,0 +1,47 @@
+name: PortWatch Rate-Limit and Health Tests (offline)
+
+on:
+  pull_request:
+    paths:
+      - 'modules/external/sources/maritime.py'
+      - 'modules/external/orchestrator.py'
+      - 'modules/ncei_missingness_audit.py'
+      - 'tests/test_arcgis_rate_limit.py'
+      - 'tests/test_maritime_source.py'
+      - 'tests/test_ncei_missingness_audit.py'
+      - 'tests/test_portwatch_health_dependencies_20261114.py'
+      - 'config/source_health.yaml'
+      - '.github/workflows/portwatch_reliability.yml'
+      - '.github/workflows/ml_research.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  portwatch-reliability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install project dependencies
+        run: pip install -r requirements.txt pytest ruff
+      - name: Lint NCEI audit module and tests
+        run: ruff check modules/ncei_missingness_audit.py tests/test_ncei_missingness_audit.py
+      - name: Compile modified Python modules
+        run: |
+          python -c "import py_compile; [py_compile.compile(p, doraise=True) for p in ('modules/external/sources/maritime.py', 'modules/external/orchestrator.py', 'modules/ncei_missingness_audit.py')]"
+      - name: Rate-limit, upstream, connector, source-health and NCEI regressions
+        run: |
+          python -m pytest -q -p no:cacheprovider \
+            tests/test_arcgis_rate_limit.py \
+            tests/test_maritime_source.py \
+            tests/test_portwatch_upstream_outage_20261104.py \
+            tests/test_source_health.py \
+            tests/test_portwatch_health_dependencies_20261114.py \
+            tests/test_ncei_missingness_audit.py

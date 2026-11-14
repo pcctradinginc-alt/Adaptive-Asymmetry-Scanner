@@ -716,3 +716,57 @@ def test_membership_aggregates_only_for_used_metrics():
     assert ("COUNTRY:CHN", "portcalls_tanker") not in keys
     assert {m for e, m in keys if e == "INDUSTRY:Metals"} == {"portcalls_total"}
     assert ("GLOBAL", "export_container") in keys
+
+
+def test_verified_daily_reference_avoids_historical_distinct_only_when_complete():
+    """Deduplicate daily snapshots, require all curated IDs and reject ambiguity."""
+    rows = [
+        {"attributes": {"portid": "p1", "portname": "Port One", "country": "US"}},
+        {"attributes": {"portid": "p1", "portname": "Port One", "country": "US"}},
+        {"attributes": {"portid": "p2", "portname": "Port Two", "country": "DE"}},
+    ]
+    wanted = [{"name": "Port One", "country": "US"},
+              {"name": "Port Two", "country": "DE"}]
+    refs = mw.verified_daily_reference(rows, wanted, "portid", "portname", "country")
+    assert refs is not None and len(refs) == 2
+    assert mw.verified_daily_reference(rows[:2], wanted, "portid", "portname", "country") is None
+    assert mw.verified_daily_reference(rows + [{"attributes": {
+        "portid": "conflict", "portname": "Port Two", "country": "DE"}}],
+        wanted, "portid", "portname", "country") is None
+    assert mw.verified_daily_reference([], wanted, "portid", "portname", "country") is None
+
+
+def test_daily_reference_only_accepts_explicit_documented_alias():
+    rows = [{"attributes": {"chokepointid": "c1", "chokepointname": "Known Strait"}}]
+    wanted = [{"name": "Custom Strait"}]
+    assert mw.verified_daily_reference(rows, wanted, "chokepointid",
+                                        "chokepointname", None) is None
+    assert mw.verified_daily_reference(
+        rows, wanted, "chokepointid", "chokepointname", None,
+        {"Custom Strait": ["Known Strait"]}) is not None
+
+def test_ports_membership_rate_limit_is_exposed_as_incomplete(monkeypatch, tmp_path):
+    """A 429 in optional industry membership must not make partial context look healthy."""
+    normal_fetch, _ = make_fake_fetch()
+    quota = {"error": {"code": 429, "message": "Too many requests",
+                       "details": ["Retry after 60 sec."]}}
+    waits = []
+    mw.reset_rate_limit_breaker()
+    monkeypatch.setattr(mw, "_sleep", waits.append)
+
+    def fetch(url, params=None, **kwargs):
+        if url.startswith(mw.PORTS_DATABASE_URL):
+            return FakeResponse(quota)
+        return normal_fetch(url, params=params, **kwargs)
+
+    try:
+        connector = mw.PortWatchPortsConnector(http_fetch=fetch,
+            cache_path=str(tmp_path / "endpoints.json"))
+        result = connector.fetch(NOW)
+        assert result.status == SourceStatus.WARN
+        diag = result.discovered_ids["diagnostics"]
+        assert diag["ports_database_rate_limited"] is True
+        assert diag["arcgis_requests_by_host"]["services9.arcgis.com"]["rate_limited"] >= 3
+        assert waits == [60.0, 60.0]
+    finally:
+        mw.reset_rate_limit_breaker()
