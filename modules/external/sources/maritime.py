@@ -1503,12 +1503,17 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 diagnostics["ports_database_rows"] = len(pdb)
             except Exception as e:  # noqa: BLE001
                 diagnostics["ports_database_error"] = repr(e)
+                # Optional country/industry memberships failed: never present
+                # the missing aggregates as fully recovered when it was a 429.
+                diagnostics["ports_database_rate_limited"] = "UPSTREAM_RATE_LIMITED" in str(e)
+            diagnostics["arcgis_requests_by_host"] = arcgis_request_telemetry()
             observations = reduce_port_observations(observations, curated_groups, memberships)
             diagnostics["n_observations_before_reduction"] = n_raw_obs
 
             raw = [self._raw_record(f"{ep['service_url']}/{ep['layer_id']}/query", where, retrieved_at)]
             latest = max((o.observation_time for o in observations), default=None)
-            status = SourceStatus.WARN if unresolved else SourceStatus.PASS
+            status = (SourceStatus.WARN if unresolved or diagnostics.get("ports_database_rate_limited")
+                      else SourceStatus.PASS)
             return ConnectorResult(
                 source_id=self.source_id, status=status, observations=observations, raw=raw,
                 message=(f"{len(observations)} observations (kuratierte Häfen + GLOBAL/Gruppen-Aggregate "
