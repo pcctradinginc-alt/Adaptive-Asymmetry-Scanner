@@ -308,16 +308,6 @@ jobs:
           python -m modules.option_learner evaluate --as-of "$(date -u +%Y-%m-%d)" --horizon 5
           python -m modules.option_learner evaluate --as-of "$(date -u +%Y-%m-%d)" --horizon 20
 
-      # Read-only diagnosis of the SAME verified 5d/20d option-label cohorts.
-      # Stratify feature coverage by signal day, research-census vs directional,
-      # gate and option structure. No model refit, training change, LLM, API, order
-      # or historical data change. Persist alongside the existing research reports.
-      - name: Options-Merkmalsdiagnose – Kohorten und Point-in-Time-Prüflücken
-        id: option_feature_diagnostics
-        if: steps.option_learner.outcome == 'success'
-        continue-on-error: true
-        run: python -m modules.option_feature_diagnostics --as-of "$(date -u +%Y-%m-%d)"
-
       # Autonomous Research Improvement (nur Research, kein Handel): messbare Lücken des Options-Lernmodells,
       # strukturierte Vorschläge mit Kosten und Falsifikation, Registrierung freigegebener Varianten
       # (config/option_learner_variants.yaml, Start am Folgetag im Scanner), Research Memory. Kein LLM, keine
@@ -341,6 +331,16 @@ jobs:
           GMAIL_APP_PW: ${{ secrets.GMAIL_APP_PW }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         run: python -m modules.research_director --notify
+
+      # Read-only diagnosis of the SAME verified 5d/20d option-label cohorts.
+      # Stratify feature coverage by signal day, research-census vs directional,
+      # gate and option structure. No model refit, training change, LLM, API, order
+      # or historical data change. Persist alongside the existing research reports.
+      - name: Options-Merkmalsdiagnose – Kohorten und Point-in-Time-Prüflücken
+        id: option_feature_diagnostics
+        if: steps.option_learner.outcome == 'success'
+        continue-on-error: true
+        run: python -m modules.option_feature_diagnostics --as-of "$(date -u +%Y-%m-%d)"
 
       # Existing research evidence only. Never recreates missing past option quotes.
       # Dated gap observations are append-only and included in the normal research push.
