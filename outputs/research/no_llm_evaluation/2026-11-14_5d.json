@@ -1,0 +1,63 @@
+{
+  "schema": "no_llm_forward_v1",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "predictions": 3,
+  "selected": 5,
+  "verified": 0,
+  "unverified": 5,
+  "observed_entry_days": 0,
+  "mean_of_day_means": null,
+  "never_trade_baseline": 0.0,
+  "claim_proven_alpha": false,
+  "rows": [
+    {
+      "day": "2026-11-13",
+      "ticker": "VRT",
+      "contract": "VRT270319C00200000",
+      "status": "UNVERIFIED",
+      "reason": [
+        "NO_LABEL"
+      ]
+    },
+    {
+      "day": "2026-11-13",
+      "ticker": "PLTR",
+      "contract": "PLTR270319C00170000",
+      "status": "UNVERIFIED",
+      "reason": [
+        "NO_LABEL"
+      ]
+    },
+    {
+      "day": "2026-11-13",
+      "ticker": "QCOM",
+      "contract": "QCOM270319C00170000",
+      "status": "UNVERIFIED",
+      "reason": [
+        "NO_LABEL"
+      ]
+    },
+    {
+      "day": "2026-11-13",
+      "ticker": "PANW",
+      "contract": "PANW270319C00320000",
+      "status": "UNVERIFIED",
+      "reason": [
+        "NO_LABEL"
+      ]
+    },
+    {
+      "day": "2026-11-13",
+      "ticker": "LRCX",
+      "contract": "LRCX270319C00220000",
+      "status": "UNVERIFIED",
+      "reason": [
+        "NO_LABEL"
+      ]
+    }
+  ],
+  "horizon": 5,
+  "as_of": "2026-11-14",
+  "generated_at": "2026-11-14T22:58:17.394538+00:00"
+}
