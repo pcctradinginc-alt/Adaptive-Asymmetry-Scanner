@@ -24,7 +24,9 @@ jobs:
           python-version: '3.11'
           cache: pip
       - name: Install offline research dependencies
-        run: pip install -r requirements.txt pytest
+        run: pip install -r requirements.txt pytest ruff
+      - name: Ruff – changed diagnostic code only
+        run: ruff check modules/option_feature_diagnostics.py tests/test_option_feature_diagnostics.py
       - name: Contract regression tests
         run: python -m pytest -q -p no:cacheprovider tests/test_option_feature_diagnostics.py
       - name: Reconcile actual archived 5d and 20d cohorts
