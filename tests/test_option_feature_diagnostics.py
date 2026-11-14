@@ -170,6 +170,6 @@ def test_diagnostics_run_after_canonical_option_learner_not_before():
     from pathlib import Path
     wf = (Path(__file__).resolve().parents[1] / ".github/workflows/ml_research.yml").read_text()
     assert wf.index("id: option_learner") < wf.index("id: option_feature_diagnostics")
-    assert wf.index("id: option_feature_diagnostics") < wf.index("id: research_improvement")
+    assert wf.index("id: research_improvement") < wf.index("id: option_feature_diagnostics")
     assert "option_feature_diagnostics" in wf
     assert "model_or_protocol_changed" not in wf  # research step, not a model gate
