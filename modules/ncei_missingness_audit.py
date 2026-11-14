@@ -6,10 +6,10 @@ features, risk rules or normalize missing values into invented observations.
 from __future__ import annotations
 
 import argparse
-from collections import defaultdict
-from datetime import date, datetime, time, timezone
 import json
 import math
+from collections import defaultdict
+from datetime import UTC, date, datetime, time
 from pathlib import Path
 
 from modules.external.archive import ExternalArchive
@@ -75,7 +75,7 @@ def run(as_of: date, archive: ExternalArchive | None = None, out: Path = OUTPUT)
     if isinstance(as_of, str):
         as_of = date.fromisoformat(as_of)
     archive = archive or ExternalArchive()
-    end = datetime.combine(as_of, time.max, timezone.utc)
+    end = datetime.combine(as_of, time.max, UTC)
     report = diagnose(archive.as_of(SOURCE, end), as_of)
     out.mkdir(parents=True, exist_ok=True)
     path = out / f"ncei_missingness_{as_of.isoformat()}.json"
