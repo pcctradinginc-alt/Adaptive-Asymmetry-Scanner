@@ -55,9 +55,9 @@ def _source_audit(items: list[dict]) -> dict:
     """
     result = {}
     for feature in FEATURES:
-        counter = dict(numeric_in_source=0, valid_and_extracted=0, missing_key=0,
-                       null_value=0, invalid_non_numeric=0, reader_mismatch=0,
-                       reader_without_valid_source=0, numeric_top_level_only=0)
+        counter = {"numeric_in_source": 0, "valid_and_extracted": 0, "missing_key": 0,
+                   "null_value": 0, "invalid_non_numeric": 0, "reader_mismatch": 0,
+                   "reader_without_valid_source": 0, "numeric_top_level_only": 0}
         for item in items:
             raw = item["source_features"]
             value = raw.get(feature)
@@ -160,8 +160,8 @@ def horizon_diagnostic(rows: list[dict], cands: list[dict], horizon: int) -> dic
             "Coverage describes verified labels, not the full tradable population.",
             "One candidate may contribute multiple option expressions (non-independent labels).",
             "5d and 20d have different maturity windows; raw percentages are not a paired experiment.",
-            "Existing ledger does not record a separate timestamp for each feature; its exact ex-ante "
-            "availability cannot be independently certified from this report.",
+            ("Existing ledger does not record a separate timestamp for each feature; its exact ex-ante "
+             "availability cannot be independently certified from this report."),
             "Missing features are not imputed, backfilled, or set to zero.",
         ],
     }
@@ -237,8 +237,8 @@ def render(report: dict) -> str:
     for h in HORIZONS:
         v = report["horizons"][str(h)]
         lines += ["", f"## {h} Tage – {v['total']['labels']} archivverifizierte Labels",
-                  f"Bestandsstatus: {v['stored_status_reconciliation']['status']}; "
-                  f"Reader: {v['reader_consistency']}.", "",
+                  (f"Bestandsstatus: {v['stored_status_reconciliation']['status']}; "
+                   f"Reader: {v['reader_consistency']}."), "",
                   "| Kandidatengruppe | Labels | surprise | skew_ratio | skew_25d |",
                   "|---|---:|---:|---:|---:|"]
         for group, stat in v["by_sample"].items():
@@ -259,15 +259,15 @@ def render(report: dict) -> str:
                          f"{count['invalid_non_numeric']} | "
                          f"{count['reader_mismatch'] + count['reader_without_valid_source']} |")
     lines += ["", "## Interpretation", "",
-              "Genaue Aufschlüsselungen nach Signaltag, Ablehnungsgrund und Optionsstruktur stehen "
-              "in der begleitenden JSON-Datei. Die Gruppen sind beschreibend und keine kausale Identifikation.",
-              "Einzelne Features besitzen im Ledger keine separat belegten Erfassungszeitpunkte: "
-              "die Point-in-Time-Korrektheit ist damit **nicht unabhängig nachgewiesen**.",
+              ("Genaue Aufschlüsselungen nach Signaltag, Ablehnungsgrund und Optionsstruktur stehen "
+               "in der begleitenden JSON-Datei. Die Gruppen sind beschreibend und keine kausale Identifikation."),
+              ("Einzelne Features besitzen im Ledger keine separat belegten Erfassungszeitpunkte: "
+               "die Point-in-Time-Korrektheit ist damit **nicht unabhängig nachgewiesen**."),
               "Historische Daten, Modelle und Optionen bleiben unverändert.", ""]
     return "\n".join(lines)
 
 
-def run(as_of: date, *, ledger: Path = None, quotes: Path = None, out: Path = OUT) -> dict:
+def run(as_of: date, *, ledger: Path | None = None, quotes: Path | None = None, out: Path = OUT) -> dict:
     out = Path(out)
     report = diagnose(as_of, ledger=Path(ledger or ol.red.LEDGER),
                       quotes=Path(quotes or ol.red.QUOTES), out=out)
