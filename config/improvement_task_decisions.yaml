@@ -11,4 +11,17 @@
 # Beispiel:
 # tasks:
 #   IMP-4a0d2d31: {status: IN_PROGRESS, note: "Claude-Code-Aufgabe gestartet"}
-tasks: {}
+# Zur Freigabe in PR #198: drei irreführende Code-Fix-Aufträge.
+# REJECTED betrifft die vorgeschlagene Erfassung-/Lese-Reparatur, nicht das
+# Problem einer gemischten Trainingspopulation. Separater, vorregistrierter
+# Census-/Directional-Challenger wäre eine eigene Forschungsentscheidung.
+tasks:
+  IMP-0db62805:
+    status: REJECTED
+    note: "Kein Reader-Fehler: 5d directional 469/469 skew_ratio; census 2/494. 20d directional 356/356; Archiv-Manifest reproduziert. Keine künstliche Befüllung oder stilles Entfernen; vgl. Audit PR #198."
+  IMP-444a5c99:
+    status: REJECTED
+    note: "Kein Reader-Fehler: 5d directional 469/469 surprise, census 0/494; 20d directional 356/356. Fehlquote durch zusätzliche Research-Census-Kohorte, nicht falsches Ledger-Feld; vgl. Audit PR #198."
+  IMP-4d870cdc:
+    status: REJECTED
+    note: "Kein Reader-Fehler: 5d directional 467/469 skew_25d, census 2/494; 20d directional 354/356. Null Reader-Mismatches. Keine historische Backfill-/Feature-Umbenennung; vgl. Audit PR #198."
