@@ -36,4 +36,5 @@ jobs:
       - name: Archive result and error evidence without rewriting unrelated sources
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash scripts/ci_push.sh "chore: bounded PortWatch recovery $(date -u +%Y-%m-%dT%H:%M)" outputs/external_data/
+        run: |
+          bash scripts/ci_push.sh "chore: bounded PortWatch recovery $(date -u +%Y-%m-%dT%H:%M)" outputs/external_data/
