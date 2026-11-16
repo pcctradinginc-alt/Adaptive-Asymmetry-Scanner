@@ -761,9 +761,13 @@ def data_safe_mode(snap: dict, cfg: dict) -> dict:
         domains = {}
         for sid in imp:
             domains.setdefault(provider_domains.get(sid, sid), []).append(sid)
-        glob.append(f"{len(imp)} wichtige Quellen ausgefallen aus {len(domains)} "
-                    f"unabhängigen Ausfall-Domänen: {sorted(imp)} "
-                    f"(Domänen: {sorted(domains)}; Safe-Mode-Schwelle unverändert)")
+        if len(domains) == len(imp):
+            # Preserve the established semantics and wording for independent providers.
+            glob.append(f"{len(imp)} unabhängige wichtige Quellen ausgefallen: {sorted(imp)}")
+        else:
+            glob.append(f"{len(imp)} wichtige Quellen ausgefallen aus {len(domains)} "
+                        f"unabhängigen Ausfall-Domänen: {sorted(imp)} "
+                        f"(Domänen: {sorted(domains)}; Safe-Mode-Schwelle unverändert)")
     if dq < g["min_data_quality"]:
         glob.append(f"gewichtete Data Quality {dq} < {g['min_data_quality']}")
     return {"active": bool(glob), "global_reasons": glob, "reasons": reasons, "data_quality": dq,
