@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-14T00:26:20+00:00",
+ "generated": "2026-11-16T23:48:24+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "d8acb060c2c0",
+ "code_version": "58f663a33c2d",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -2420,7 +2420,9 @@
  "safe_mode": {
   "active": true,
   "reasons": [
-   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-5.33"
+   "DATA: 2 wichtige Quellen ausgefallen aus 1 unabhängigen Ausfall-Domänen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Domänen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unverändert)",
+   "MODEL: EXCESSIVE MODEL DISAGREEMENT",
+   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
   ]
  },
  "multiple_testing": {
@@ -2507,5 +2509,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "aba7f700212a371747ef57a79a41d089cf88d9ca836dc8c5142e1c27840c6d75"
+ "state_hash": "e9556ab8e4ee77a9cd84b158e21e6a524b376c7e73f982cd5da2affa0285b460"
 }
