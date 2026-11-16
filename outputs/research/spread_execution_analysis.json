@@ -1,5 +1,5 @@
 {
- "n_spreads": 95,
+ "n_spreads": 98,
  "buckets": {
   "<5%": {
    "n_candidates": 2,
@@ -42,24 +42,24 @@
    "median_dte": 58.5
   },
   "20-30%": {
-   "n_candidates": 16,
+   "n_candidates": 18,
    "n_with_outcome": 10,
    "n_reliable": 2,
    "status": "NEED_MORE_DATA",
    "mean_outcome_exploratory": -0.2147,
    "stop_frequency": 0.3,
    "false_stop_frequency": 0.333,
-   "median_dte": 160.0
+   "median_dte": 157.5
   },
   ">=30%": {
-   "n_candidates": 50,
-   "n_with_outcome": 23,
-   "n_reliable": 7,
+   "n_candidates": 51,
+   "n_with_outcome": 25,
+   "n_reliable": 9,
    "status": "NEED_MORE_DATA",
-   "mean_outcome_exploratory": -0.505,
-   "stop_frequency": 0.174,
+   "mean_outcome_exploratory": -0.542,
+   "stop_frequency": 0.16,
    "false_stop_frequency": 0.5,
-   "median_dte": 167.0
+   "median_dte": 167
   }
  },
  "label": "EXPLORATORY (überwiegend NON_RELIABLE Outcomes)",
@@ -68,29 +68,29 @@
   "label": "SHADOW_ONLY – keine Produktionsentscheidung, keine Schwellensuche",
   "ivrv_spread_min": 1.0,
   "iv_rank_vs_contract_iv": {
-   "n": 873,
-   "rank_corr": 0.0487,
+   "n": 1073,
+   "rank_corr": 0.0636,
    "note": "Rangkorrelation 'IV-Rank' (Produktionsformel) gegen die IV des Kontrakts"
   },
   "entry_cost_vs_mid_median": {
-   "spread": 0.2209,
-   "long": 0.0407
+   "spread": 0.193,
+   "long": 0.04
   },
-  "rows_with_ivrv": 0,
-  "rows_with_spread_counterfactual": 0,
+  "rows_with_ivrv": 200,
+  "rows_with_spread_counterfactual": 71,
   "horizons": {
    "5d": {
     "executable": {
      "production_minus_long_only": {
-      "n": 688,
-      "days": 21,
-      "mean_daily_diff": -0.052,
+      "n": 882,
+      "days": 26,
+      "mean_daily_diff": -0.0716,
       "ci95": [
-       -0.0794,
-       -0.0321
+       -0.0998,
+       -0.0469
       ],
-      "t": -4.15,
-      "days_negative": 19,
+      "t": -5.07,
+      "days_negative": 24,
       "verdict": "A_WORSE"
      },
      "ivrv_minus_long_only": {
@@ -108,15 +108,15 @@
     },
     "mid": {
      "production_minus_long_only": {
-      "n": 688,
-      "days": 21,
-      "mean_daily_diff": -0.0027,
+      "n": 882,
+      "days": 26,
+      "mean_daily_diff": -0.0032,
       "ci95": [
-       -0.011,
-       0.0047
+       -0.0116,
+       0.0044
       ],
-      "t": -0.64,
-      "days_negative": 12,
+      "t": -0.76,
+      "days_negative": 15,
       "verdict": "NO_SIGNIFICANT_DIFFERENCE"
      },
      "ivrv_minus_long_only": {
@@ -136,15 +136,15 @@
    "20d": {
     "executable": {
      "production_minus_long_only": {
-      "n": 381,
-      "days": 11,
-      "mean_daily_diff": -0.0398,
+      "n": 579,
+      "days": 16,
+      "mean_daily_diff": -0.0387,
       "ci95": [
-       -0.0541,
-       -0.0258
+       -0.0505,
+       -0.0265
       ],
-      "t": -5.14,
-      "days_negative": 11,
+      "t": -6.2,
+      "days_negative": 16,
       "verdict": "A_WORSE"
      },
      "ivrv_minus_long_only": {
@@ -162,15 +162,15 @@
     },
     "mid": {
      "production_minus_long_only": {
-      "n": 381,
-      "days": 11,
+      "n": 579,
+      "days": 16,
       "mean_daily_diff": -0.0017,
       "ci95": [
-       -0.0079,
-       0.005
+       -0.0068,
+       0.0036
       ],
-      "t": -0.47,
-      "days_negative": 7,
+      "t": -0.63,
+      "days_negative": 10,
       "verdict": "NO_SIGNIFICANT_DIFFERENCE"
      },
      "ivrv_minus_long_only": {
@@ -192,7 +192,7 @@
  "sources": {
   "closed": 118,
   "active": 2,
-  "shadow_view": 372,
+  "shadow_view": 317,
   "archive": true
  }
 }
