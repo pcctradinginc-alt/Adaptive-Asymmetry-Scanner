@@ -750,7 +750,24 @@ def data_safe_mode(snap: dict, cfg: dict) -> dict:
     if blocked:
         glob.append(f"kritische Pflichtdaten fehlen: {sorted(blocked)}")
     if len(imp) >= g["max_unhealthy_important"]:
-        glob.append(f"{len(imp)} unabhängige wichtige Quellen ausgefallen: {sorted(imp)}")
+        # Two separate datasets are not necessarily independent provider failures.
+        # Preserve the conservative gate (number of affected IMPORTANT sources),
+        # but report upstream common-cause incidents truthfully.
+        provider_domains = {
+            "imf_portwatch_ports": "imf_portwatch_arcgis",
+            "imf_portwatch_chokepoints": "imf_portwatch_arcgis",
+            "imf_portwatch_disruptions": "imf_portwatch_arcgis",
+        }
+        domains = {}
+        for sid in imp:
+            domains.setdefault(provider_domains.get(sid, sid), []).append(sid)
+        if len(domains) == len(imp):
+            # Preserve the established semantics and wording for independent providers.
+            glob.append(f"{len(imp)} unabhängige wichtige Quellen ausgefallen: {sorted(imp)}")
+        else:
+            glob.append(f"{len(imp)} wichtige Quellen ausgefallen aus {len(domains)} "
+                        f"unabhängigen Ausfall-Domänen: {sorted(imp)} "
+                        f"(Domänen: {sorted(domains)}; Safe-Mode-Schwelle unverändert)")
     if dq < g["min_data_quality"]:
         glob.append(f"gewichtete Data Quality {dq} < {g['min_data_quality']}")
     return {"active": bool(glob), "global_reasons": glob, "reasons": reasons, "data_quality": dq,

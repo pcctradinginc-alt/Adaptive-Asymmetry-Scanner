@@ -231,3 +231,34 @@ def test_all_eight_country_ids_and_global_chokepoints_are_pinned():
         "djibouti", "kenya", "lebanon", "mozambique", "oman", "somalia", "sudan", "yemen"]
     assert hdx.RESOURCES["chokepoints"].metric == "n_total"
     assert hdx.DEFAULT_KEYS == ("djibouti", "chokepoints")
+
+def test_verified_hdx_redirect_to_pinned_s3_host_is_shadow_only():
+    storage = "https://s3.us-east-1.amazonaws.com/verified-hdx/test.csv"
+
+    class S3RedirectSession(Session):
+        def get(self, url, **kwargs):
+            if url == storage:
+                return Response(body=self.body)
+            return super().get(url, **kwargs)
+
+    session = S3RedirectSession(redirect=storage)
+    report = hdx.check_resources(NOW, keys=("chokepoints",), session=session)
+    assert report["status"] == "PASS_SHADOW"
+    assert report["production_fallback_enabled"] is False
+    assert session.calls[-1][0] == URL  # requests may only reach S3 via the validated redirect
+
+
+def test_s3_direct_resource_url_and_untrusted_redirect_remain_blocked():
+    storage = "https://s3.us-east-1.amazonaws.com/verified-hdx/test.csv"
+    with pytest.raises(hdx.HDXShadowError, match="UNTRUSTED_DOWNLOAD_URL"):
+        hdx._validate_url(storage)
+
+    class UnexpectedRedirect(Session):
+        def get(self, url, **kwargs):
+            if url == URL:
+                return Response(headers={"Location": "https://s3.eu-west-1.amazonaws.com/x.csv"}, code=302)
+            return super().get(url, **kwargs)
+
+    report = hdx.check_resources(NOW, keys=("chokepoints",), session=UnexpectedRedirect())
+    assert report["status"] == "FAIL_SHADOW"
+    assert report["resources"]["chokepoints"]["rejected_stage"] == "redirect"
