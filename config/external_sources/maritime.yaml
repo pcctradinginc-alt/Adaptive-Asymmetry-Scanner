@@ -22,34 +22,6 @@
 # IMF PortWatch (portwatch.imf.org); derived/aggregated by this project."
 
 sources:
-  - source_id: imf_portwatch_ports
-    display_name: "IMF PortWatch – Daily Ports Data"
-    max_fetch_seconds: 600   # ~260 Seiten Paginierung; Standard 300s (orchestrator)
-    # Volumen-Guard je Lauf, bemessen am natürlichen Volumen: 21-Tage-Fenster × ~800 Beob./Tag
-    # × ~630 B ≈ 10,6 MB. Der globale Standard (2 MB) erzeugte einen Deadlock: nach 3 Tagen
-    # Rückstand blockierte der Guard jeden Lauf, der Rückstand wuchs (Archiv stand 09-18..10-03).
-    max_new_normalized_bytes_per_run: 12000000
-    family: maritime
-    authority: "IMF PortWatch (IMF & University of Oxford)"
-    official_homepage: "https://portwatch.imf.org"
-    machine_endpoint: null  # discovered at runtime; verify in preflight if overridden
-    access_method: "ArcGIS FeatureServer REST (query)"
-    requires_auth: false
-    auth_env_variable: null
-    license_reference: "IMF Copyright and Terms (imf.org/en/about/copyright-and-terms): Nutzung mit Attribution; kommerzielle Wiederverwendung genehmigungspflichtig"
-    license_status: OK
-    usage_restriction: "private, non-commercial research only"
-    commercial_use_status_if_known: "requires permission (copyright@imf.org)"
-    attribution: "Source: International Monetary Fund, IMF PortWatch (portwatch.imf.org); derived/aggregated by this project."
-    frequency: daily
-    expected_update_cadence: 7d
-    supports_history: true
-    supports_vintages: false
-    supports_release_time: false
-    pit_quality: CONSERVATIVE_DATE
-    enabled: true
-    criticality: medium
-
   - source_id: imf_portwatch_chokepoints
     display_name: "IMF PortWatch – Daily Chokepoints Data"
     family: maritime
@@ -101,4 +73,32 @@ sources:
       Ereignisse seit 2019, Felder eventid/eventtype/alertlevel/fromdate/
       todate/affectedports. available_at = Abrufzeit (Ereignisdatum nie als
       Verfügbarkeit); Verlängerungen erzeugen neue Vintages (disruption_end_ts).
+
+  - source_id: imf_portwatch_ports
+    display_name: "IMF PortWatch – Daily Ports Data"
+    max_fetch_seconds: 600   # ~260 Seiten Paginierung; Standard 300s (orchestrator)
+    # Volumen-Guard je Lauf, bemessen am natürlichen Volumen: 21-Tage-Fenster × ~800 Beob./Tag
+    # × ~630 B ≈ 10,6 MB. Der globale Standard (2 MB) erzeugte einen Deadlock: nach 3 Tagen
+    # Rückstand blockierte der Guard jeden Lauf, der Rückstand wuchs (Archiv stand 09-18..10-03).
+    max_new_normalized_bytes_per_run: 12000000
+    family: maritime
+    authority: "IMF PortWatch (IMF & University of Oxford)"
+    official_homepage: "https://portwatch.imf.org"
+    machine_endpoint: null  # discovered at runtime; verify in preflight if overridden
+    access_method: "ArcGIS FeatureServer REST (query)"
+    requires_auth: false
+    auth_env_variable: null
+    license_reference: "IMF Copyright and Terms (imf.org/en/about/copyright-and-terms): Nutzung mit Attribution; kommerzielle Wiederverwendung genehmigungspflichtig"
+    license_status: OK
+    usage_restriction: "private, non-commercial research only"
+    commercial_use_status_if_known: "requires permission (copyright@imf.org)"
+    attribution: "Source: International Monetary Fund, IMF PortWatch (portwatch.imf.org); derived/aggregated by this project."
+    frequency: daily
+    expected_update_cadence: 7d
+    supports_history: true
+    supports_vintages: false
+    supports_release_time: false
+    pit_quality: CONSERVATIVE_DATE
+    enabled: true
+    criticality: medium
 

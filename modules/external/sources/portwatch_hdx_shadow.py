@@ -20,6 +20,9 @@ import requests
 
 HDX_API = "https://data.humdata.org/api/3/action"
 ALLOWED_HOSTS = frozenset({"data.humdata.org"})
+# Only the verified HDX resource URL may redirect to this HTTPS storage host.
+# Never accept an S3 URL as the initial CKAN resource URL or as a production source.
+HDX_REDIRECT_STORAGE_HOSTS = frozenset({"s3.us-east-1.amazonaws.com"})
 USER_AGENT = "AdaptiveAsymmetryScanner/1.0 (research; IMF-PortWatch-HDX-shadow)"
 MAX_CSV_BYTES = 96 * 1024 * 1024
 MAX_ROWS = 1_000_000
@@ -73,12 +76,12 @@ def _untrusted(url, stage: str) -> HDXShadowError:
     return err
 
 
-def _validate_url(url: str, stage: str = "request") -> str:
+def _validate_url(url: str, stage: str = "request", *, allowed_hosts=ALLOWED_HOSTS) -> str:
     if not isinstance(url, str) or len(url) > 2048:
         raise _untrusted(url, stage)
     try:
         p = urlsplit(url)
-        if (p.scheme != "https" or p.hostname not in ALLOWED_HOSTS
+        if (p.scheme != "https" or p.hostname not in allowed_hosts
                 or p.username is not None or p.password is not None
                 or p.port not in (None, 443) or not p.path.startswith("/")):
             raise _untrusted(url, stage)
@@ -89,8 +92,9 @@ def _validate_url(url: str, stage: str = "request") -> str:
 
 def _safe_get(session, url: str, **kwargs):
     """Restrict every hop, not only the initial HDX URL (SSRF/redirect guard)."""
+    allowed_hosts = ALLOWED_HOSTS
     for _ in range(REDIRECT_LIMIT + 1):
-        _validate_url(url)
+        _validate_url(url, allowed_hosts=allowed_hosts)
         response = session.get(
             url, allow_redirects=False,
             headers={"User-Agent": USER_AGENT, "Accept": "text/csv,application/json,*/*"},
@@ -101,7 +105,13 @@ def _safe_get(session, url: str, **kwargs):
             response.close()
             if not location:
                 raise HDXShadowError("REDIRECT_WITHOUT_LOCATION")
-            url = _validate_url(urljoin(url, location), "redirect")
+            # The official HDX host may issue a signed redirect to public S3.
+            # No S3 initial URL, arbitrary host or chained S3->third-party redirect.
+            current_host = urlsplit(url).hostname
+            next_hosts = (ALLOWED_HOSTS | HDX_REDIRECT_STORAGE_HOSTS
+                          if current_host in ALLOWED_HOSTS else ALLOWED_HOSTS)
+            url = _validate_url(urljoin(url, location), "redirect", allowed_hosts=next_hosts)
+            allowed_hosts = next_hosts
             continue
         response.raise_for_status()
         return response

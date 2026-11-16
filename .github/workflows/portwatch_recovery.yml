@@ -1,0 +1,39 @@
+name: PortWatch Recovery (read-only source, fail-closed)
+
+# Second daily attempt at a different UTC window. The public ArcGIS minute quota
+# is shared with other clients; success cannot be guaranteed. Only maritime
+# sources are ingested; shared archive-write concurrency prevents write races.
+on:
+  schedule:
+    - cron: '47 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: external-data-write
+  cancel-in-progress: false
+
+jobs:
+  retry-maritime:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: python -m pip install -r requirements.txt
+      - name: Retry official maritime sources with existing quotas, gates and PIT checks
+        env:
+          PYTHONUNBUFFERED: '1'
+        run: python -m modules.external.orchestrator ingest --family maritime
+      - name: Archive result and error evidence without rewriting unrelated sources
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/ci_push.sh "chore: bounded PortWatch recovery $(date -u +%Y-%m-%dT%H:%M)" outputs/external_data/
