@@ -2,7 +2,7 @@
  "schema": "system-state-v2",
  "safe_mode": true,
  "safe_mode_reason": [
-  "DATA: 2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']",
+  "DATA: 2 wichtige Quellen ausgefallen aus 1 unabhängigen Ausfall-Domänen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Domänen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unverändert)",
   "MODEL: EXCESSIVE MODEL DISAGREEMENT",
   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
  ],
@@ -16,12 +16,12 @@
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [
-   "2 unabhängige wichtige Quellen ausgefallen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports']"
+   "2 wichtige Quellen ausgefallen aus 1 unabhängigen Ausfall-Domänen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Domänen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unverändert)"
   ],
-  "generated": "2026-11-16T16:03:46+00:00",
+  "generated": "2026-11-16T22:29:12+00:00",
   "counts": {
-   "HEALTHY": 46,
-   "DEGRADED": 1,
+   "HEALTHY": 45,
+   "DEGRADED": 2,
    "STALE": 0,
    "BROKEN": 3,
    "UNVALIDATED": 13
@@ -116,7 +116,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-14T15:23:31+00:00",
-  "drift_input_age_days": 2.0,
+  "drift_input_age_days": 2.3,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -172,7 +172,7 @@
   "stalled_or_broken": [],
   "paths": {
    "outcome_ingestion": "OK",
-   "shadow_lifecycle": "NEED_MORE_DATA",
+   "shadow_lifecycle": "ACTIVE",
    "gate_counterfactuals": "ACTIVE",
    "research_generation": "FROZEN",
    "hypothesis_testing": "OK",
@@ -190,15 +190,15 @@
  "inputs": {
   "model_health": "9e3001546e8a",
   "meta_learning": "34f9025c549a",
-  "data_health": "8f55f2c5c4b7",
+  "data_health": "0cef082e11d7",
   "promotion": "5067937d286a",
   "model_registry": "a0c0ce90b949",
   "champion_config": "9aaf7a892de0",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "b5cafb7536db"
  },
- "state_version": 128,
- "fingerprint": "19fd9f41a992c58d",
- "updated_at": "2026-11-16T16:03:46+00:00",
- "code_version": "79fb8f4e2fac"
+ "state_version": 129,
+ "fingerprint": "edd4a181863e1522",
+ "updated_at": "2026-11-16T22:29:12+00:00",
+ "code_version": "2028fa720881"
 }

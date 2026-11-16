@@ -1,5 +1,13 @@
 {
- "at": "2026-11-16T16:03:46+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-11-16T22:29:12+00:00",
+ "changes": [
+  {
+   "source_id": "options_chain_yfinance",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "leere Antwort: keine Verfallstermine"
+  }
+ ],
+ "mail": "sent"
 }
