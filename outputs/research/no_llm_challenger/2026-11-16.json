@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-16",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "94f59457e0aa",
+  "action": "PAPER_ONLY",
+  "candidates_seen": 69,
+  "eligible_contracts": 38,
+  "watchlist": [
+    {
+      "ticker": "BA",
+      "signal_id": "6d4a8dcfb8a4426baa499fbaff39e779",
+      "contract": "BA270319C00165000",
+      "model_net_estimate": 0.019198,
+      "entry_ask_debit": 6.95,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "DIS",
+      "signal_id": "3b2ca2890e504c42bc99b255a1ef7c76",
+      "contract": "DIS270319C00120000",
+      "model_net_estimate": 0.004836,
+      "entry_ask_debit": 8.2,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "HD",
+      "signal_id": "1104edc8b6684b058d1246d0e6138649",
+      "contract": "HD270319C00350000",
+      "model_net_estimate": -0.003588,
+      "entry_ask_debit": 16.65,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "TSLA",
+      "signal_id": "e95b5a7b3a004f90a21786d15de7fe0f",
+      "contract": "TSLA270319C00380000",
+      "model_net_estimate": -0.00665,
+      "entry_ask_debit": 17.7,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "AVGO",
+      "signal_id": "c2b51029ab4c4b25b3e54f0c8bdc9762",
+      "contract": "AVGO270319C00330000",
+      "model_net_estimate": -0.009558,
+      "entry_ask_debit": 13.65,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "3e265efd67dc48c2",
+  "recorded_at": "2026-11-16T16:22:49.523913+00:00"
+}

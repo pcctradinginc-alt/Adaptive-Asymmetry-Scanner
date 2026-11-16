@@ -2,22 +2,29 @@
  "BRANCH_UNPROTECTED": {
   "fingerprint": "56422ebe1ea059ca",
   "first_seen": "2026-11-10",
-  "last_seen": "2026-11-13",
+  "last_seen": "2026-11-16",
   "severity": "WARNING",
   "component": "Governance"
  },
  "UNREVIEWED_CRITICAL_MERGE": {
-  "fingerprint": "1887b328a2c1b9ff",
+  "fingerprint": "1243979d48b592c9",
   "first_seen": "2026-11-10",
-  "last_seen": "2026-11-13",
+  "last_seen": "2026-11-16",
   "severity": "WARNING",
   "component": "Governance"
  },
  "OUTCOMES_OVERDUE:marks": {
   "fingerprint": "5c2394f5607e71ab",
   "first_seen": "2026-11-13",
-  "last_seen": "2026-11-13",
+  "last_seen": "2026-11-16",
   "severity": "WARNING",
   "component": "Quote-Abdeckung"
+ },
+ "DATA_DEGRADATION:source_health": {
+  "fingerprint": "c75828944beea880",
+  "first_seen": "2026-11-16",
+  "last_seen": "2026-11-16",
+  "severity": "WARNING",
+  "component": "Daten"
  }
 }
