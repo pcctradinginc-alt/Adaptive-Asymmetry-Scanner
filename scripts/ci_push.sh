@@ -20,6 +20,31 @@ if [ -n "${GITHUB_REF:-}" ] && [ "${GITHUB_REF}" != "refs/heads/main" ]; then
   echo "::notice::Lauf auf ${GITHUB_REF} (nicht main) – kein Commit/Push nach main"
   exit 0
 fi
+# Defense in depth: this bot is permitted to persist observational outputs and
+# the three explicitly inventoried generated research/config state files only.
+# Never accept arbitrary repo code/workflows from CI or path traversal.
+# A Ruleset with review requirements is still needed to protect main itself.
+ci_allowed_path() {
+  local path="$1"
+  case "$path" in
+    ""|/*|../*|*/../*|*/..|*//*|./*|*/./*|*/.) return 1 ;;
+  esac
+  case "$path" in
+    outputs|outputs/*|challengers.yaml|config/faf_exposure.yaml|config/challenger_proposals_auto.yaml)
+      return 0 ;;
+  esac
+  return 1
+}
+if [ "$#" -eq 0 ]; then
+  echo "::error::ci_push requires at least one allowlisted data path"
+  exit 2
+fi
+for path in "$@"; do
+  if ! ci_allowed_path "$path"; then
+    echo "::error::ci_push refuses non-data or traversal path: $path"
+    exit 2
+  fi
+done
 git config user.name  "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 for p in "$@"; do
@@ -62,6 +87,15 @@ for attempt in 1 2 3 4 5; do
   if ! git pull --rebase -q origin main; then
     resolve_rebase || exit 1
   fi
+  # Validate the ACTUAL outgoing diff, including any pending local commits.
+  # Checking requested paths alone is insufficient when a previous step
+  # created an unpushed commit. NUL-safe paths avoid shell tokenization.
+  while IFS= read -r -d '' changed; do
+    if ! ci_allowed_path "$changed"; then
+      echo "::error::ci_push refuses non-data commit diff: $changed"
+      exit 2
+    fi
+  done < <(git diff --name-only -z origin/main HEAD)
   if git push -q "$remote" HEAD:main; then
     git update-ref refs/remotes/origin/main HEAD 2>/dev/null || true   # Push per URL aktualisiert origin/main nicht
     echo "Push ok (Versuch $attempt)"; exit 0
