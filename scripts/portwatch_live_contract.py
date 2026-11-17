@@ -64,7 +64,7 @@ def main() -> None:
             ["date", "portid", "ObjectId"], live_fetch,
             order_by="date ASC", isolation_field="ObjectId",
             max_record_count=1000 if name == "Daily_Ports_Data" else 10000,
-            supports_pagination=True,
+            supports_pagination=True, objectid_recovery=True,
         )
         if not rows:
             raise RuntimeError(f"{name}: production query returned no rows for observed day")
