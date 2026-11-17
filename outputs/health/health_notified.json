@@ -1,12 +1,26 @@
 {
- "at": "2026-11-16T22:29:12+00:00",
+ "at": "2026-11-17T16:23:46+00:00",
  "changes": [
   {
    "source_id": "options_chain_yfinance",
+   "type": "recovery",
+   "from": "DEGRADED",
+   "to": "HEALTHY",
+   "error": null
+  },
+  {
+   "source_id": "nws_forecast",
    "type": "degradation",
    "from": "HEALTHY",
    "to": "DEGRADED",
-   "error": "leere Antwort: keine Verfallstermine"
+   "error": "Ingest WARN: 12 von 45 Locations fehlgeschlagen"
+  },
+  {
+   "source_id": "nws_alerts",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: SourceTimeout('Zeitbudget 300s überschritten')"
   }
  ],
  "mail": "sent"
