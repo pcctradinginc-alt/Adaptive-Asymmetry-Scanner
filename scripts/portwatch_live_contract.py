@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
-import re
 import requests
 
 from modules.external.sources import maritime as mw
@@ -52,7 +51,7 @@ def main() -> None:
         # Exercise the production read function against one *observed* provider
         # date. The date comes from a live ArcGIS feature, never a guessed day.
         observed_day = features[0]["attributes"].get("date")
-        if not isinstance(observed_day, str) or not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}", observed_day):
+        if not isinstance(observed_day, str):
             raise RuntimeError(f"{name}: unrecognized provider DateOnly representation: {observed_day!r}")
         day = date.fromisoformat(observed_day)
         query_where = mw.build_where_clause(day, day, date_field="date",
