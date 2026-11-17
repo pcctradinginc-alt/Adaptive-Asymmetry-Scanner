@@ -96,3 +96,43 @@ def test_no_objectid_fallback_when_filtered_where_is_rejected():
                          0, "date INVALID", ["date", "portid"], fetch,
                          order_by="date ASC", isolation_field="ObjectId",
                          max_record_count=2)
+
+
+def test_objectid_enumeration_rate_limit_blocks_shared_host(monkeypatch):
+    m.reset_rate_limit_breaker()
+    monkeypatch.setattr(m, "RATE_LIMIT_RETRIES", 0)
+    def limit_fetch(url, *, params, **kwargs):
+        return Reply({"error": {"code": 429, "message": "Too many requests"}})
+
+    with pytest.raises(FetchError, match="enumeration rejected"):
+        m.query_features_by_verified_ids(
+            "https://services9.arcgis.com/example/FeatureServer",
+            0, "1=1", "portid", limit_fetch, "ObjectId",
+        )
+    with pytest.raises(m.PortWatchUpstreamUnavailable, match="UPSTREAM_RATE_LIMITED"):
+        m.query_features_by_verified_ids(
+            "https://services9.arcgis.com/example/FeatureServer",
+            0, "1=1", "portid", limit_fetch, "ObjectId",
+        )
+    m.reset_rate_limit_breaker()
+
+
+def test_objectid_batch_rate_limit_blocks_shared_host(monkeypatch):
+    m.reset_rate_limit_breaker()
+    monkeypatch.setattr(m, "RATE_LIMIT_RETRIES", 0)
+    def limit_fetch(url, *, params, **kwargs):
+        if params.get("returnIdsOnly") == "true":
+            return Reply({"objectIdFieldName": "ObjectId", "objectIds": [1]})
+        return Reply({"error": {"code": 429, "message": "Too many requests"}})
+
+    with pytest.raises(FetchError, match="batch rejected"):
+        m.query_features_by_verified_ids(
+            "https://services9.arcgis.com/example/FeatureServer",
+            0, "1=1", "portid", limit_fetch, "ObjectId",
+        )
+    with pytest.raises(m.PortWatchUpstreamUnavailable, match="UPSTREAM_RATE_LIMITED"):
+        m.query_features_by_verified_ids(
+            "https://services9.arcgis.com/example/FeatureServer",
+            0, "1=1", "portid", limit_fetch, "ObjectId",
+        )
+    m.reset_rate_limit_breaker()
