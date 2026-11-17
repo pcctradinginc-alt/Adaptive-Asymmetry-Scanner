@@ -116,7 +116,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-14T15:23:31+00:00",
-  "drift_input_age_days": 2.3,
+  "drift_input_age_days": 2.5,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -126,7 +126,7 @@
   "version": "scanner_rules@9aaf7a892de0"
  },
  "promotion_state": {
-  "generated": "2026-11-14T00:26:20+00:00",
+  "generated": "2026-11-16T23:48:24+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -191,14 +191,14 @@
   "model_health": "9e3001546e8a",
   "meta_learning": "34f9025c549a",
   "data_health": "0cef082e11d7",
-  "promotion": "5067937d286a",
+  "promotion": "0ebbddaf2a42",
   "model_registry": "a0c0ce90b949",
   "champion_config": "9aaf7a892de0",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "b5cafb7536db"
  },
- "state_version": 129,
- "fingerprint": "edd4a181863e1522",
- "updated_at": "2026-11-16T22:29:12+00:00",
- "code_version": "2028fa720881"
+ "state_version": 130,
+ "fingerprint": "2a903d838c113dfc",
+ "updated_at": "2026-11-17T02:34:16+00:00",
+ "code_version": "b2cc4d420988"
 }
