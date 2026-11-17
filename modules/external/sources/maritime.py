@@ -730,6 +730,77 @@ def isolation_summary(isolation: dict | None) -> str:
     return " ".join(f"{k}={v['result']}" for k, v in (isolation or {}).items())
 
 
+
+# Completeness-checked fallback for ArcGIS tables that reject offset/sort.
+# It never guesses identifiers or treats partial responses as successful.
+OBJECT_ID_FALLBACK_MAX_IDS = 100_000
+OBJECT_ID_FALLBACK_BATCH_SIZE = 500
+
+
+def query_features_by_verified_ids(
+    service_url: str, layer_id: int, where: str, out_fields: str,
+    http_fetch: FetchFn, oid: str, max_record_count: int | None = None,
+) -> list[dict]:
+    """Fetch rows using provider ObjectIDs, with strict batch reconciliation.
+
+    returnIdsOnly enumerates the filtered population and objectIds fetches
+    each bounded subset. Every ID must occur exactly once; a provider
+    error, quota exhaustion or truncated response aborts the entire fetch.
+    """
+    url = f"{service_url}/{layer_id}/query"
+    response = _arcgis_json(url, http_fetch, {
+        "where": where, "returnIdsOnly": "true", "f": "json",
+    })
+    if not isinstance(response, dict) or response.get("error"):
+        raise FetchError(f"ObjectID enumeration rejected by ArcGIS: {str(response)[:220]}")
+    returned_oid = response.get("objectIdFieldName")
+    if returned_oid and str(returned_oid).casefold() != oid.casefold():
+        raise FetchError("ObjectID enumeration field differs from validated layer metadata")
+    ids = response.get("objectIds")
+    if not isinstance(ids, list) or response.get("exceededTransferLimit"):
+        raise FetchError("Incomplete or invalid ObjectID enumeration")
+    if any(type(x) is not int or x < 0 for x in ids) or len(ids) != len(set(ids)):
+        raise FetchError("Invalid/duplicate provider ObjectIDs")
+    if len(ids) > OBJECT_ID_FALLBACK_MAX_IDS:
+        raise FetchError(f"ObjectID enumeration exceeds bounded limit {OBJECT_ID_FALLBACK_MAX_IDS}")
+    if not ids:
+        return []
+    batch_size = min(OBJECT_ID_FALLBACK_BATCH_SIZE, max_record_count or OBJECT_ID_FALLBACK_BATCH_SIZE)
+    if batch_size < 1:
+        raise FetchError("Invalid ArcGIS maxRecordCount")
+    columns = list(dict.fromkeys([*(v.strip() for v in out_fields.split(",")), oid]))
+    all_features: list[dict] = []
+    for start in range(0, len(ids), batch_size):
+        requested = ids[start:start + batch_size]
+        result = _arcgis_json(url, http_fetch, {
+            "where": "1=1",
+            "objectIds": ",".join(str(x) for x in requested),
+            "outFields": ",".join(columns),
+            "returnGeometry": "false", "f": "json",
+        })
+        if not isinstance(result, dict) or "error" in result:
+            raise FetchError(f"ObjectID batch rejected by ArcGIS: {str(result)[:220]}")
+        features = result.get("features")
+        if not isinstance(features, list) or result.get("exceededTransferLimit"):
+            raise FetchError("ObjectID batch missing feature list or truncated by provider")
+        received: list[int] = []
+        for feature in features:
+            attrs = feature.get("attributes") if isinstance(feature, dict) else None
+            if not isinstance(attrs, dict):
+                raise FetchError("ObjectID batch contains malformed feature")
+            actual_key = next((key for key in attrs if key.casefold() == oid.casefold()), None)
+            value = attrs.get(actual_key) if actual_key else None
+            if type(value) is not int:
+                raise FetchError("ObjectID batch lacks metadata-validated object ID")
+            received.append(value)
+        if len(received) != len(requested) or set(received) != set(requested):
+            raise FetchError("ObjectID batch incomplete, duplicated or changed during retrieval")
+        all_features.extend(features)
+    if len(all_features) != len(ids):
+        raise FetchError("Provider ObjectID enumeration/feature count mismatch")
+    return all_features
+
+
 def query_features(
     service_url: str,
     layer_id: int,
@@ -781,6 +852,33 @@ def query_features(
                                              order_by=order_by, offset=offset, base_field=isolation_field,
                                              page_size=page_size if paging else None)
                          if isolation_field else None)
+            # Some ArcGIS tables reject offset/order-by even though filtered reads work.
+            # Recover only when all isolation controls pass and the failed parameter
+            # is proven unsupported; never archive preceding incomplete pages.
+            isolation_ok = (
+                isolation_field and isolation
+                and isolation.get("basis", {}).get("result") == "OK"
+                and isolation.get("where", {}).get("result", "OK") == "OK"
+                and isolation.get("outFields", {}).get("result", "OK") == "OK"
+                and (isolation.get("orderByFields", {}).get("result") == "FAIL(400)"
+                     or isolation.get("paging", {}).get("result") == "FAIL(400)")
+            )
+            if isolation_ok:
+                try:
+                    complete = query_features_by_verified_ids(
+                        service_url, layer_id, where, out, http_fetch,
+                        isolation_field, max_record_count=page_size,
+                    )
+                    log.warning(
+                        "PortWatch ArcGIS object-ID recovery succeeded with %d completeness-checked rows",
+                        len(complete),
+                    )
+                    return complete
+                except FetchError as recover_error:
+                    raise ArcGISQueryError(
+                        "ObjectID fallback failed closed: " + str(recover_error),
+                        isolation=isolation,
+                    ) from recover_error
             # Isolation vorn: der Source-Health-Snapshot kürzt Meldungen auf 200 Zeichen
             is_backend_down = bool(isolation and
                 "invalid url" in str((isolation.get("basis") or {}).get("detail") or "").lower())
