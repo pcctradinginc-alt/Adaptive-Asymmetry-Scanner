@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - run: python -m pip install pytest pandas numpy
+      - run: python -m pip install -r requirements.txt
       - name: Adversarial provenance regression suite
         run: python -m pytest -q tests/test_forward_cohort_audit.py
       - name: Generate honest independent-date research audit
