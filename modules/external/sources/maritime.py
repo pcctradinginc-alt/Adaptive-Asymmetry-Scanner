@@ -752,6 +752,9 @@ def query_features_by_verified_ids(
         "where": where, "returnIdsOnly": "true", "f": "json",
     })
     if not isinstance(response, dict) or response.get("error"):
+        error = response.get("error") if isinstance(response, dict) else None
+        if isinstance(error, dict) and arcgis_rate_limited(error):
+            _note_rate_limit(url, error)
         raise FetchError(f"ObjectID enumeration rejected by ArcGIS: {str(response)[:220]}")
     returned_oid = response.get("objectIdFieldName")
     if returned_oid and str(returned_oid).casefold() != oid.casefold():
@@ -779,6 +782,9 @@ def query_features_by_verified_ids(
             "returnGeometry": "false", "f": "json",
         })
         if not isinstance(result, dict) or "error" in result:
+            error = result.get("error") if isinstance(result, dict) else None
+            if isinstance(error, dict) and arcgis_rate_limited(error):
+                _note_rate_limit(url, error)
             raise FetchError(f"ObjectID batch rejected by ArcGIS: {str(result)[:220]}")
         features = result.get("features")
         if not isinstance(features, list) or result.get("exceededTransferLimit"):
