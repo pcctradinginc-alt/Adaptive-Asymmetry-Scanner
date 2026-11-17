@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+import re
 import requests
+
+from modules.external.sources import maritime as mw
 
 ROOT = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services"
 SERVICES = ("Daily_Chokepoints_Data", "Daily_Ports_Data")
@@ -46,8 +49,29 @@ def main() -> None:
         result_ids = [r.get("attributes", {}).get("ObjectId") for r in features]
         if len(result_ids) != len(sample) or set(result_ids) != set(sample):
             raise RuntimeError(f"{name}: provider ID reconciliation failed")
+        # Exercise the production read function against one *observed* provider
+        # date. The date comes from a live ArcGIS feature, never a guessed day.
+        observed_day = features[0]["attributes"].get("date")
+        if not isinstance(observed_day, str) or not re.fullmatch(r"\\d{4}-\\d{2}-\\d{2}", observed_day):
+            raise RuntimeError(f"{name}: unrecognized provider DateOnly representation: {observed_day!r}")
+        day = date.fromisoformat(observed_day)
+        query_where = mw.build_where_clause(day, day, date_field="date",
+                                            date_field_type="esriFieldTypeDateOnly")
+        def live_fetch(url, *, params, timeout=30, **kwargs):
+            return requests.get(url, params=params, timeout=timeout)
+        mw.reset_rate_limit_breaker()
+        rows = mw.query_features(
+            f"{ROOT}/{name}/FeatureServer", 0, query_where,
+            ["date", "portid", "ObjectId"], live_fetch,
+            order_by="date ASC", isolation_field="ObjectId",
+            max_record_count=1000 if name == "Daily_Ports_Data" else 10000,
+            supports_pagination=True,
+        )
+        if not rows:
+            raise RuntimeError(f"{name}: production query returned no rows for observed day")
         print(f"::notice::{name}: LIVE provider ObjectID contract passed; "
-              f"population={len(ids)}; sample={len(sample)}")
+              f"population={len(ids)}; sample={len(sample)}; "
+              f"production_query_rows={len(rows)}; observed_day={day}")
     print("LIVE ArcGIS ObjectID contract passed for BOTH important PortWatch datasets")
 
 
