@@ -14,12 +14,12 @@ permissions:
 jobs:
   portwatch-live-contract:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - run: python -m pip install requests
+      - run: python -m pip install requests pyyaml
       - name: Verify actual publisher returnIdsOnly / objectIds behavior
         run: python scripts/portwatch_live_contract.py
