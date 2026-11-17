@@ -4,21 +4,15 @@
 
 Status: HEALTHY 44 · DEGRADED 4 · STALE 0 · BROKEN 2 · UNVALIDATED 13
 
-## Neue Änderungen
-
-- recovery: options_chain_yfinance DEGRADED → HEALTHY
-- degradation: nws_forecast HEALTHY → DEGRADED (Ingest WARN: 12 von 45 Locations fehlgeschlagen)
-- degradation: nws_alerts HEALTHY → DEGRADED (Ingest FAIL: SourceTimeout('Zeitbudget 300s überschritten'))
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| imf_portwatch_chokepoints | BROKEN | IMPORTANT | 6 | 2026-11-08 | – | Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform |
-| imf_portwatch_ports | BROKEN | IMPORTANT | 6 | 2026-11-06 | – | Ingest FAIL: [Isolation basis=OK where=OK outFields=OK orderByFields=FAIL(400) paging=FAIL(400)] ArcGIS-Query-Fehler: {'code': 400, 'message |
-| imf_portwatch_disruptions | DEGRADED | NON_CRITICAL | 0 | 2026-08-14 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
+| imf_portwatch_chokepoints | BROKEN | IMPORTANT | 7 | 2026-11-08 | – | Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform |
+| imf_portwatch_ports | BROKEN | IMPORTANT | 7 | 2026-11-06 | – | Ingest FAIL: [Isolation basis=OK where=OK outFields=OK orderByFields=FAIL(400) paging=FAIL(400)] ArcGIS-Query-Fehler: {'code': 400, 'message |
+| imf_portwatch_disruptions | DEGRADED | NON_CRITICAL | 0 | 2026-08-14 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
-| nws_alerts | DEGRADED | IMPORTANT | 1 | – | – | Ingest FAIL: SourceTimeout('Zeitbudget 300s überschritten') |
+| nws_alerts | DEGRADED | IMPORTANT | 2 | – | – | Ingest FAIL: SourceTimeout('Zeitbudget 300s überschritten') |
 | nws_forecast | DEGRADED | IMPORTANT | 0 | – | – | Ingest WARN: 12 von 45 Locations fehlgeschlagen |
 
 ## Fallbacks

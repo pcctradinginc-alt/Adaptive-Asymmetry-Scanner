@@ -18,7 +18,7 @@
   "global_reasons": [
    "2 wichtige Quellen ausgefallen aus 1 unabhängigen Ausfall-Domänen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Domänen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unverändert)"
   ],
-  "generated": "2026-11-17T16:23:46+00:00",
+  "generated": "2026-11-17T21:17:38+00:00",
   "counts": {
    "HEALTHY": 44,
    "DEGRADED": 4,
@@ -116,7 +116,7 @@
    "safe_mode": false
   },
   "drift_input_timestamp": "2026-11-14T15:23:31+00:00",
-  "drift_input_age_days": 3.0,
+  "drift_input_age_days": 3.2,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -190,15 +190,15 @@
  "inputs": {
   "model_health": "9e3001546e8a",
   "meta_learning": "34f9025c549a",
-  "data_health": "b5313c8120c9",
+  "data_health": "8d767d36a592",
   "promotion": "b75957460736",
   "model_registry": "a0c0ce90b949",
   "champion_config": "9aaf7a892de0",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "b5cafb7536db"
  },
- "state_version": 131,
- "fingerprint": "da2f3da7c39389d3",
- "updated_at": "2026-11-17T16:23:46+00:00",
- "code_version": "fbb645e2e9cc"
+ "state_version": 132,
+ "fingerprint": "241a88eae79a9338",
+ "updated_at": "2026-11-17T21:17:38+00:00",
+ "code_version": "beec726e0b22"
 }

@@ -1,27 +1,5 @@
 {
- "at": "2026-11-17T16:23:46+00:00",
- "changes": [
-  {
-   "source_id": "options_chain_yfinance",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
-  },
-  {
-   "source_id": "nws_forecast",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Ingest WARN: 12 von 45 Locations fehlgeschlagen"
-  },
-  {
-   "source_id": "nws_alerts",
-   "type": "degradation",
-   "from": "HEALTHY",
-   "to": "DEGRADED",
-   "error": "Ingest FAIL: SourceTimeout('Zeitbudget 300s überschritten')"
-  }
- ],
- "mail": "sent"
+ "at": "2026-11-17T21:17:38+00:00",
+ "changes": [],
+ "mail": "no_change"
 }
