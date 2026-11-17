@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-17T02:34:16+00:00",
+ "generated": "2026-11-17T23:03:16+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "b2cc4d420988",
+ "code_version": "453fd5b2018e",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -1694,9 +1694,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 221,
-      "fired_expectancy": -0.0035,
-      "non_fired_expectancy": 0.0423
+      "n": 277,
+      "fired_expectancy": -0.01596,
+      "non_fired_expectancy": 0.04415
      },
      "120": {
       "n": 0,
@@ -1802,9 +1802,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 209,
+      "n": 258,
       "fired_expectancy": 0.03936,
-      "non_fired_expectancy": 0.01768
+      "non_fired_expectancy": 0.01541
      },
      "120": {
       "n": 0,
@@ -1910,9 +1910,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 112,
+      "n": 136,
       "fired_expectancy": null,
-      "non_fired_expectancy": -0.0035
+      "non_fired_expectancy": -0.01596
      },
      "120": {
       "n": 0,
@@ -2106,9 +2106,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 205,
-      "fired_expectancy": -0.04991,
-      "non_fired_expectancy": 0.03511
+      "n": 252,
+      "fired_expectancy": -0.0724,
+      "non_fired_expectancy": 0.03867
      },
      "120": {
       "n": 0,
@@ -2221,8 +2221,8 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 224,
-      "fired_expectancy": 0.02111,
+      "n": 280,
+      "fired_expectancy": 0.01611,
       "non_fired_expectancy": -0.06353
      },
      "120": {
@@ -2509,5 +2509,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "5c882872bf7055cf8509008f31ec9bc11e1283f366a90b6a62a4dedbb00d945e"
+ "state_hash": "3581c4dabfa129be522ee46bf7aae6f76a3980417c2de6e000214ca153444d42"
 }
