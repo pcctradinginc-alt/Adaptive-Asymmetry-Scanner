@@ -1789,3 +1789,16 @@ def test_ci_push_allows_inventoried_generated_config_state(tmp_path):
     result = ci_push(c1, "generated FAF data", "config/faf_exposure.yaml")
     assert result.returncode == 0, (result.stdout, result.stderr)
     assert remote("config/faf_exposure.yaml") == "version: 1\n"
+
+
+def test_ci_push_missing_github_ref_is_not_authorized(tmp_path):
+    c1, _c2, _ci_push, remote = _ci_sandbox(tmp_path)
+    env = os.environ.copy()
+    env.pop("GITHUB_REF", None)
+    (c1 / "outputs" / "history.json").write_text('{"v": "unauthorized"}\n', encoding="utf-8")
+    result = subprocess.run(["bash", str(REPO / "scripts" / "ci_push.sh"),
+                             "missing identity", "outputs/"],
+                            cwd=c1, env=env, capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0
+    assert "kein Commit/Push" in result.stdout
+    assert remote("outputs/history.json") == '{"v": 0}\n'
