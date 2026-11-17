@@ -1,5 +1,5 @@
 {
-  "discovered_at": "2026-11-05T14:49:22.476576+00:00",
+  "discovered_at": "2026-11-17T16:10:16.175129+00:00",
   "endpoints": {
     "chokepoints_daily": {
       "ambiguous": false,
@@ -32,12 +32,12 @@
     "ports_reference": {
       "ambiguous": false,
       "fallback_to_daily_layer": false,
-      "item_id": "423c70d5443f4b818acdaba0d98e0252",
-      "layer_id": 1,
+      "item_id": "acc668d199d1472abaaf2467133d4ca4",
+      "layer_id": 0,
       "orgId": null,
       "owner": "IMF-portwatch_imf_dataviz",
-      "service_url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports/FeatureServer",
-      "title": "PortWatch: Ports"
+      "service_url": "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/PortWatch_ports_database/FeatureServer",
+      "title": "Ports"
     }
   }
 }
