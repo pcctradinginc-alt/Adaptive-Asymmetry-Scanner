@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-17",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "b69390ec7d87",
+  "action": "PAPER_ONLY",
+  "candidates_seen": 122,
+  "eligible_contracts": 39,
+  "watchlist": [
+    {
+      "ticker": "SCHW",
+      "signal_id": "cfe6dd472bae4a63bb52a75dbbdcc599",
+      "contract": "SCHW270319C00090000",
+      "model_net_estimate": 0.048324,
+      "entry_ask_debit": 7.35,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "ADBE",
+      "signal_id": "cb30d52fd72b4f2791ed04f3f8ea0090",
+      "contract": "ADBE270319C00240000",
+      "model_net_estimate": 0.02167,
+      "entry_ask_debit": 27.35,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "TSLA",
+      "signal_id": "2393a628499649e78da3369d833efe87",
+      "contract": "TSLA270319C00380000",
+      "model_net_estimate": 0.007778,
+      "entry_ask_debit": 17.6,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "TJX",
+      "signal_id": "b5afc98c49ca4067b82370d6bc678904",
+      "contract": "TJX270319C00130000",
+      "model_net_estimate": 0.006441,
+      "entry_ask_debit": 7.5,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "BAC",
+      "signal_id": "81fd32627b3d4082b662809e6f26f212",
+      "contract": "BAC270319C00050000",
+      "model_net_estimate": 0.006023,
+      "entry_ask_debit": 2.04,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "17e04281764de530",
+  "recorded_at": "2026-11-17T16:41:42.611420+00:00"
+}

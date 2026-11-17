@@ -1,0 +1,499 @@
+{
+  "date": "2026-11-17",
+  "stats": {
+    "vix": 24.799999237060547,
+    "universe": 518,
+    "candidates": 122,
+    "prescreened": 2,
+    "sector_ok": 95,
+    "pre_mc": 2,
+    "analyzed": 1,
+    "mismatch_ok": 0,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "final_selected": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Alle Signale bearish (Bearish-Trades deaktiviert).",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 0.1156,
+      "month_usd": 0.8906,
+      "warnings": [],
+      "projected_month_usd": 1.73,
+      "monthly_api_budget_usd": 10.0,
+      "soft_pressure": false,
+      "deferred_tiers": []
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.869,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": true,
+      "reasons": [
+        "2 wichtige Quellen ausgefallen aus 1 unabh\u00e4ngigen Ausfall-Dom\u00e4nen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Dom\u00e4nen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unver\u00e4ndert)"
+      ]
+    },
+    "system_state": {
+      "state_version": 131,
+      "active": true,
+      "reasons": [
+        "DATA: 2 wichtige Quellen ausgefallen aus 1 unabh\u00e4ngigen Ausfall-Dom\u00e4nen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Dom\u00e4nen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unver\u00e4ndert)",
+        "MODEL: EXCESSIVE MODEL DISAGREEMENT",
+        "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
+      ],
+      "drift_level": "MODERATE",
+      "known": true
+    },
+    "external_context": {
+      "enabled": true,
+      "mode": "shadow",
+      "snapshot_id": "6287e1421966ade3",
+      "as_of": "2026-11-17T16:28:36+00:00",
+      "sources": {
+        "destatis_truck_toll": "OK",
+        "destatis_truck_toll_download": "NO_DATA",
+        "bts_freight_tsi": "OK",
+        "bts_open_data_tsi": "OK",
+        "eurostat_road_freight": "OK",
+        "eurostat_road_freight_quarterly": "OK",
+        "estat_jp_truck": "OK",
+        "imf_portwatch_ports": "OK",
+        "imf_portwatch_chokepoints": "OK",
+        "imf_portwatch_disruptions": "OK",
+        "nws_forecast": "OK",
+        "nws_alerts": "OK",
+        "ncei_normals": "OK",
+        "nhc_storms": "OK",
+        "eurostat_sentiment": "OK",
+        "eurostat_industrial_production": "OK",
+        "fred_us_macro": "OK",
+        "fred_regime_macro": "OK",
+        "entsoe_power": "OK"
+      },
+      "quality": {
+        "errors": [],
+        "families_with_data": [
+          "road_freight",
+          "maritime",
+          "weather",
+          "real_economy"
+        ],
+        "hard_data_vs_survey_divergence_reason": null
+      },
+      "ledger_noted": 122
+    },
+    "economics_first": {
+      "mode": "active",
+      "input": 95,
+      "probed": 8,
+      "quoted_pass": 3,
+      "unknown_selected": 2,
+      "haiku": 5,
+      "audit_haiku": 2,
+      "deferred": 90
+    },
+    "economics_first_candidates": 5,
+    "economics_first_sonnet_input": 2,
+    "economics_first_sonnet_deferred": 0,
+    "direction_conflicts": 0,
+    "expectation_alpha": {
+      "mode": "shadow",
+      "enabled": true,
+      "production_influence": "NONE",
+      "candidate_count": 1,
+      "date": "2026-11-17",
+      "context_id": "a083e792925aee7e",
+      "enriched_count": 1,
+      "recorded": 1,
+      "status_counts": {
+        "TRADE": 0,
+        "WAIT": 0,
+        "ABSTAIN": 1,
+        "ERROR": 0
+      },
+      "shadow_trade_count": 0,
+      "wait_count": 0,
+      "abstain_count": 1,
+      "error_count": 0,
+      "missing_counts": {
+        "credit": "UNAVAILABLE",
+        "equity_earnings": "UNAVAILABLE"
+      },
+      "stale_components": [
+        "indpro_3m",
+        "retail_yoy"
+      ],
+      "gap_z": {
+        "inflation": 0.5585,
+        "policy_rates": -0.5735,
+        "growth": 1.3286,
+        "oil": 0.0918,
+        "credit": null,
+        "equity_earnings": null
+      },
+      "confirmation_ratio": {
+        "n": 1,
+        "min": 0.4444,
+        "median": 0.4444,
+        "max": 0.4444
+      },
+      "effective_vs_raw_confirmation": {
+        "raw": 4,
+        "effective": 4.0,
+        "ratio": 1.0
+      },
+      "claims": {
+        "extraction_status_counts": {
+          "OK": 1
+        },
+        "n_claims": 6,
+        "n_verified": 0,
+        "n_unverified": 6,
+        "n_contradicted": 0,
+        "verified_claim_fraction": {
+          "n": 1,
+          "min": 0.0,
+          "median": 0.0,
+          "max": 0.0
+        }
+      },
+      "insufficient_history_count": {
+        "gaps": 0,
+        "roc_fields": 3,
+        "regime": 0,
+        "signals": 0,
+        "total": 3
+      },
+      "family_diversity": {
+        "n": 1,
+        "min": 8.0,
+        "median": 8.0,
+        "max": 8.0
+      },
+      "regime_uncertainty": 0.523,
+      "groups": {
+        "A": 0,
+        "B": 0,
+        "C": 1,
+        "D": 0,
+        "E": 0,
+        "X": 0
+      },
+      "errors": [],
+      "run_errors": [],
+      "runtime_seconds": 22.22
+    },
+    "throughput_shadow": {
+      "status": "OK",
+      "mode": "research_only",
+      "day": "2026-11-17",
+      "population": 95,
+      "production_influence": "NONE",
+      "probed": 24,
+      "cached_champion_probes": 8,
+      "new_probes": 16,
+      "quoted_pass": 11,
+      "quota_selected": 12,
+      "additional_haiku_inputs": 9,
+      "haiku_yes": 3,
+      "sonnet_inputs": 3,
+      "sonnet_analyzed": 2,
+      "ledger_noted": 95
+    }
+  },
+  "rejects": {
+    "sector_momentum_weak": {
+      "count": 27,
+      "tickers": [
+        "FCX",
+        "NBIS",
+        "MSTR",
+        "DELL",
+        "GEV",
+        "SMCI",
+        "ARM",
+        "LITE",
+        "MRVL",
+        "CAT"
+      ]
+    },
+    "economics_first_quote_probe_budget": {
+      "count": 87,
+      "tickers": [
+        "PANW",
+        "PFE",
+        "CVS",
+        "SWK",
+        "SYK",
+        "INTU",
+        "SCHW",
+        "WMT",
+        "LIN",
+        "COST"
+      ]
+    },
+    "economics_first_earnings_gate": {
+      "count": 2,
+      "tickers": [
+        "NVDA",
+        "DIS"
+      ]
+    },
+    "economics_first_excessive_quote_friction": {
+      "count": 1,
+      "tickers": [
+        "COHR"
+      ]
+    },
+    "prescreen_no": {
+      "count": 3,
+      "tickers": [
+        "AMD",
+        "ED",
+        "DVN"
+      ]
+    },
+    "deep_analysis_veto_or_invalid": {
+      "count": 1,
+      "tickers": [
+        "ASML"
+      ]
+    },
+    "bearish_disabled": {
+      "count": 1,
+      "tickers": [
+        "IBM"
+      ]
+    }
+  },
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "D\u00fcrre-Streak: 22 Tage ohne Trade in Folge (dominanter Killer: roi_ok, 12x). Durchsatz: \u00d8 15.8 LLM-Analysen/Tag im Streak (letzte 5: 2.0) vs. \u00d8 33.1 in den 30 Tagen davor; bei deren Quote (1.11% Trades je Analyse) w\u00e4ren 3.9 Trades zu erwarten, P(0 Trades) = 2%. Durchsatz seit 2026-10-28 unter 25% der Basis (seitdem erwartet 0.3 Trades): bei so wenigen Analysen ist der Killer-Befund dieser Tage kein Beleg f\u00fcr ein zu scharfes Gate."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 22,
+        "streak_capped": false,
+        "killer_counts": {
+          "mismatch_ok": 8,
+          "roi_ok": 12,
+          "intraday_ok": 1,
+          "quick_mc": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-11-17",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-16",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-13",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-12",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-11",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-10",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-09",
+            "trades": 0,
+            "killer": "intraday_ok"
+          },
+          {
+            "date": "2026-11-06",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-05",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-04",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          }
+        ],
+        "throughput": {
+          "baseline_days": 30,
+          "baseline_from": "2026-09-02",
+          "baseline_to": "2026-10-16",
+          "baseline_analyzed_per_day": 33.1,
+          "baseline_trades_per_analysis": 0.01108,
+          "streak_analyzed": 348,
+          "streak_analyzed_per_day": 15.82,
+          "recent_analyzed_per_day": 2.0,
+          "expected_trades": 3.85,
+          "p_zero_trades": 0.0212,
+          "throughput_collapsed_since": "2026-10-28",
+          "expected_trades_since_collapse": 0.32
+        }
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "final_mc_survivor": {
+            "total": 196,
+            "evaluated": 3,
+            "ready_in_14d": 118,
+            "next_eval_date": "2026-11-20"
+          },
+          "roi_gate": {
+            "total": 99,
+            "evaluated": 14,
+            "ready_in_14d": 67,
+            "next_eval_date": "2026-11-20"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-20"
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_47": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 0,
+            "next_eval_date": "2026-12-03"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 2,
+          "avg_delta": -0.5492
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": false,
+        "feature_corr": {},
+        "weight_update_status": "REMOVED",
+        "weight_learning": "REMOVED (2026-11-09: Pearson-Update mit QuasiML/RL entfernt; Korrelationen nur Diagnose)",
+        "n_reliable": 8,
+        "n_non_reliable": 110,
+        "min_reliable_for_weight_update": 5,
+        "feature_corr_exploratory": {
+          "impact": -0.008,
+          "mismatch": -0.043,
+          "eps_drift": -0.046
+        }
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          },
+          "suez_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          },
+          "panama_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          },
+          "malacca_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 1483
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      }
+    }
+  }
+}
