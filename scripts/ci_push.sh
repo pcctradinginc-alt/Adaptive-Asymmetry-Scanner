@@ -16,7 +16,7 @@ set -uo pipefail
 msg="$1"; shift
 # Schutz (2026-10-15): Läufe auf anderen Branches (workflow_dispatch zum Testen, z. B. Preflight auf einem
 # Feature-Branch) dürfen nie nach main pushen – sonst landete ungeprüfter Branch-Code per Rebase in main.
-if [ -n "${GITHUB_REF:-}" ] && [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+if [ "${GITHUB_REF:-}" != "refs/heads/main" ]; then
   echo "::notice::Lauf auf ${GITHUB_REF} (nicht main) – kein Commit/Push nach main"
   exit 0
 fi
