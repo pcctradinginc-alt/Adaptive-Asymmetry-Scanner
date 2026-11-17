@@ -32,9 +32,40 @@ jobs:
       - name: Retry official maritime sources with existing quotas, gates and PIT checks
         env:
           PYTHONUNBUFFERED: '1'
-        run: python -m modules.external.orchestrator ingest --family maritime
+        run: python -m modules.external.orchestrator ingest --family maritime --json /tmp/portwatch_recovery_summary.json
       - name: Archive result and error evidence without rewriting unrelated sources
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           bash scripts/ci_push.sh "chore: bounded PortWatch recovery $(date -u +%Y-%m-%dT%H:%M)" outputs/external_data/
+
+      - name: Verify actual recovery of both important PortWatch sources
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          required = ("imf_portwatch_chokepoints", "imf_portwatch_ports")
+          target = Path("/tmp/portwatch_recovery_summary.json")
+          if not target.exists():
+              print("::error::No ingestion summary generated; recovery not verified")
+              raise SystemExit(1)
+          summary = json.loads(target.read_text(encoding="utf-8"))
+          sources = summary.get("sources") or {}
+          failures = []
+          with open(__import__("os").environ["GITHUB_STEP_SUMMARY"], "a") as output:
+              output.write("## PortWatch recovery — provider data verdict\\n\\n")
+              for source in required:
+                  entry = sources.get(source) or {}
+                  status = entry.get("status", "NOT_REPORTED")
+                  skipped = entry.get("skipped")
+                  output.write(f"- {source}: {status} (skipped={skipped or 'no'})\\n")
+                  if status != "PASS" or skipped:
+                      failures.append(source)
+          if failures:
+              print("::error::GitHub success is not source recovery: " + ", ".join(failures))
+              raise SystemExit(1)
+          print("Both important PortWatch sources returned complete PASS evidence")
+          PY
