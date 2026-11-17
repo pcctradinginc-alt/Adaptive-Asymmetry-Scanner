@@ -36,6 +36,7 @@ def test_broken_arcgis_offset_and_sort_can_recover_every_verified_row():
         0, "date >= DATE '2026-11-01'", ["date", "portid"],
         _arcgis_with_broken_offset, order_by="date ASC",
         isolation_field="ObjectId", max_record_count=2,
+        objectid_recovery=True,
     )
     assert len(result) == 3
     assert {row["attributes"]["ObjectId"] for row in result} == {1, 2, 3}
@@ -80,7 +81,7 @@ def test_unverified_objectid_recovery_cannot_fabricate_complete_rows():
         m.query_features("https://services9.arcgis.com/example/FeatureServer",
                          0, "date >= DATE '2026-11-01'", ["date", "portid"], fetch,
                          order_by="date ASC", isolation_field="ObjectId",
-                         max_record_count=2)
+                         max_record_count=2, objectid_recovery=True)
 
 
 def test_no_objectid_fallback_when_filtered_where_is_rejected():
@@ -95,7 +96,7 @@ def test_no_objectid_fallback_when_filtered_where_is_rejected():
         m.query_features("https://services9.arcgis.com/example/FeatureServer",
                          0, "date INVALID", ["date", "portid"], fetch,
                          order_by="date ASC", isolation_field="ObjectId",
-                         max_record_count=2)
+                         max_record_count=2, objectid_recovery=True)
 
 
 def test_objectid_enumeration_rate_limit_blocks_shared_host(monkeypatch):
@@ -136,3 +137,16 @@ def test_objectid_batch_rate_limit_blocks_shared_host(monkeypatch):
             0, "1=1", "portid", limit_fetch, "ObjectId",
         )
     m.reset_rate_limit_breaker()
+
+
+def test_disruptions_never_use_daily_ports_objectid_recovery():
+    m.reset_rate_limit_breaker()
+    def no_inventory(url, *, params, **kwargs):
+        if params.get("returnIdsOnly") == "true":
+            pytest.fail("Generic (disruptions) caller must not use daily ObjectID recovery")
+        return _arcgis_with_broken_offset(url, params=params, **kwargs)
+    with pytest.raises(m.ArcGISQueryError, match="ArcGIS-Query-Fehler"):
+        m.query_features("https://services9.arcgis.com/example/FeatureServer",
+                         0, "date >= DATE '2026-11-01'", ["date", "portid"],
+                         no_inventory, order_by="date ASC",
+                         isolation_field="ObjectId", max_record_count=2)
