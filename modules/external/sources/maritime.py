@@ -818,6 +818,7 @@ def query_features(
     return_geometry: bool = False,
     isolation_field: str | None = None,
     supports_pagination: bool | None = None,
+    objectid_recovery: bool = False,
 ) -> list[dict]:
     """Robuste Pagination über resultOffset/resultRecordCount. Nimmt NIE eine
     fixe Pagegröße an -- nutzt maxRecordCount aus den Layer-Metadaten. Stoppt,
@@ -862,7 +863,7 @@ def query_features(
             # Recover only when all isolation controls pass and the failed parameter
             # is proven unsupported; never archive preceding incomplete pages.
             isolation_ok = (
-                isolation_field and isolation
+                objectid_recovery and isolation_field and isolation
                 and isolation.get("basis", {}).get("result") == "OK"
                 and isolation.get("where", {}).get("result", "OK") == "OK"
                 and isolation.get("outFields", {}).get("result", "OK") == "OK"
@@ -1491,6 +1492,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
                 isolation_field=oid_field(meta) or schema["id_field"],
                 supports_pagination=pagination_supported(meta),
+                objectid_recovery=True,
             )
 
             universe = load_port_universe(self._universe_path)
@@ -1667,6 +1669,7 @@ class PortWatchChokepointsConnector(_PortWatchConnectorBase):
                 order_by=f"{schema['date_field']} ASC", max_record_count=max_rc,
                 isolation_field=oid_field(meta) or schema["id_field"],
                 supports_pagination=pagination_supported(meta),
+                objectid_recovery=True,
             )
 
             universe = load_port_universe(self._universe_path)
