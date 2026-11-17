@@ -90,12 +90,21 @@ for attempt in 1 2 3 4 5; do
   # Validate the ACTUAL outgoing diff, including any pending local commits.
   # Checking requested paths alone is insufficient when a previous step
   # created an unpushed commit. NUL-safe paths avoid shell tokenization.
+  # A failed diff must never look like an empty (safe) diff.
+  outgoing_paths=$(mktemp) || exit 2
+  if ! git diff --name-only -z origin/main HEAD >"$outgoing_paths"; then
+    rm -f "$outgoing_paths"
+    echo "::error::ci_push could not verify outgoing commit paths"
+    exit 2
+  fi
   while IFS= read -r -d '' changed; do
     if ! ci_allowed_path "$changed"; then
+      rm -f "$outgoing_paths"
       echo "::error::ci_push refuses non-data commit diff: $changed"
       exit 2
     fi
-  done < <(git diff --name-only -z origin/main HEAD)
+  done < "$outgoing_paths"
+  rm -f "$outgoing_paths"
   if git push -q "$remote" HEAD:main; then
     git update-ref refs/remotes/origin/main HEAD 2>/dev/null || true   # Push per URL aktualisiert origin/main nicht
     echo "Push ok (Versuch $attempt)"; exit 0
