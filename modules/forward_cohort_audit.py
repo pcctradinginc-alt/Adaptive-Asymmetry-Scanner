@@ -72,6 +72,11 @@ def audit(rows: list[dict], *, horizon: int = HORIZON) -> dict:
         return report
 
     mu = sum(values) / n
+    # Guard floating-point cancellation: identical outcomes can otherwise
+    # yield variance ~1e-36 and an absurdly large, spurious t-statistic.
+    if max(values) - min(values) <= 1e-12:
+        report["reason"] = "nonpositive_or_unreliable_HAC_variance"
+        return report
     residual = [x - mu for x in values]
     # Bartlett/Newey-West HAC for daily cohort means; sample dates not guaranteed
     # consecutive market sessions, hence diagnostic only, not formal calendar HAC.
