@@ -1752,3 +1752,40 @@ def test_workflows_enthalten_keine_order_oder_broker_aufrufe(name):
 def test_neue_betriebsmodule_enthalten_keine_order_oder_broker_aufrufe(pfad):
     text = (REPO / pfad).read_text(encoding="utf-8")
     assert re.findall(r"(?i)\b(?:broker\w*|place_order|submit_order|alpaca|ibkr)\b", text) == []
+
+
+# P0 2026-11-17: machine-output writer must never be able to push source code.
+def test_ci_push_refuses_arbitrary_code_and_traversal_paths(tmp_path):
+    c1, _c2, ci_push, _remote = _ci_sandbox(tmp_path)
+    for path in ("modules/trading.py", ".github/workflows/evil.yml",
+                 "outputs/../pipeline.py", "/tmp/outside", "outputs//../config/x"):
+        result = ci_push(c1, "unreviewed code", path)
+        assert result.returncode == 2, (path, result.stdout, result.stderr)
+        assert "ci_push refuses" in result.stdout
+
+
+def test_ci_push_refuses_unpushed_code_commit_even_if_requested_path_is_outputs(tmp_path):
+    c1, _c2, ci_push, _remote = _ci_sandbox(tmp_path)
+    (c1 / "modules").mkdir()
+    (c1 / "modules" / "unreviewed.py").write_text("BROKEN = True\n", encoding="utf-8")
+    for args in (("add", "modules/unreviewed.py"),
+                 ("-c", "user.name=test", "-c", "user.email=test@local", "commit", "-m", "unreviewed")):
+        result = subprocess.run(["git", *args], cwd=c1, capture_output=True, text=True, timeout=30)
+        assert result.returncode == 0, result.stderr
+    result = ci_push(c1, "benign write", "outputs/")
+    assert result.returncode == 2, (result.stdout, result.stderr)
+    assert "non-data commit diff" in result.stdout
+    remote = subprocess.run(["git", "-C", str(c1), "ls-remote", "origin", "refs/heads/main"],
+                            capture_output=True, text=True, timeout=30)
+    assert remote.returncode == 0
+    local_head = subprocess.check_output(["git", "-C", str(c1), "rev-parse", "HEAD"], text=True).strip()
+    assert local_head not in remote.stdout
+
+
+def test_ci_push_allows_inventoried_generated_config_state(tmp_path):
+    c1, _c2, ci_push, remote = _ci_sandbox(tmp_path)
+    (c1 / "config").mkdir()
+    (c1 / "config" / "faf_exposure.yaml").write_text("version: 1\n", encoding="utf-8")
+    result = ci_push(c1, "generated FAF data", "config/faf_exposure.yaml")
+    assert result.returncode == 0, (result.stdout, result.stderr)
+    assert remote("config/faf_exposure.yaml") == "version: 1\n"
