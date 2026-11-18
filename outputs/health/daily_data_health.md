@@ -1,19 +1,24 @@
-# Daily Data Health Report – 2026-11-17
+# Daily Data Health Report – 2026-11-18
 
-**Safe Mode (Daten): AKTIV** – gewichtete Data Quality 0.869 – 2 wichtige Quellen ausgefallen aus 1 unabhängigen Ausfall-Domänen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Domänen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unverändert)
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.943
 
-Status: HEALTHY 44 · DEGRADED 4 · STALE 0 · BROKEN 2 · UNVALIDATED 13
+Status: HEALTHY 47 · DEGRADED 2 · STALE 1 · BROKEN 0 · UNVALIDATED 13
+
+## Neue Änderungen
+
+- recovery: imf_portwatch_disruptions DEGRADED → HEALTHY
+- degradation: imf_portwatch_ports BROKEN → STALE (Ingest WARN: 10829 observations (kuratierte Häfen + GLOBAL/Gruppen-Aggregate aus 739347 Rohbeobachtungen); 4 unresolved ports: ['Houston', 'Los Angeles', 'Qingd)
+- recovery: nws_forecast DEGRADED → HEALTHY
+- recovery: nws_alerts DEGRADED → HEALTHY
+- safe_mode_off: * True → False
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| imf_portwatch_chokepoints | BROKEN | IMPORTANT | 7 | 2026-11-08 | – | Ingest FAIL: ArcGIS-Query-Fehler: {'code': 400, 'message': 'Cannot perform query. Invalid query parameters.', 'details': ['Unable to perform |
-| imf_portwatch_ports | BROKEN | IMPORTANT | 7 | 2026-11-06 | – | Ingest FAIL: [Isolation basis=OK where=OK outFields=OK orderByFields=FAIL(400) paging=FAIL(400)] ArcGIS-Query-Fehler: {'code': 400, 'message |
-| imf_portwatch_disruptions | DEGRADED | NON_CRITICAL | 0 | 2026-08-14 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
+| imf_portwatch_ports | STALE | IMPORTANT | 0 | 2026-11-13 | – | Ingest WARN: 10829 observations (kuratierte Häfen + GLOBAL/Gruppen-Aggregate aus 739347 Rohbeobachtungen); 4 unresolved ports: ['Houston', ' |
+| imf_portwatch_chokepoints | DEGRADED | IMPORTANT | 0 | 2026-11-15 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
-| nws_alerts | DEGRADED | IMPORTANT | 2 | – | – | Ingest FAIL: SourceTimeout('Zeitbudget 300s überschritten') |
-| nws_forecast | DEGRADED | IMPORTANT | 0 | – | – | Ingest WARN: 12 von 45 Locations fehlgeschlagen |
 
 ## Fallbacks
 

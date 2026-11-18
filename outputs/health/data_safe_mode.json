@@ -1,20 +1,12 @@
 {
- "generated": "2026-11-17T21:17:38+00:00",
- "active": true,
- "global_reasons": [
-  "2 wichtige Quellen ausgefallen aus 1 unabhängigen Ausfall-Domänen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Domänen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unverändert)"
- ],
+ "generated": "2026-11-18T15:51:09+00:00",
+ "active": false,
+ "global_reasons": [],
  "reasons": [],
- "data_quality": 0.869,
+ "data_quality": 0.943,
  "blocked_decisions": [],
  "disabled_signals": [],
  "unavailable_features": [],
  "stale_features": [],
- "effects": [
-  "keine neuen High-Confidence-Labels",
-  "keine positiven Intelligence-Boosts",
-  "keine Promotion neuer Hypothesen",
-  "keine Signale mit fehlenden Pflichtdaten",
-  "Champion nur mit HEALTHY-Pflichtdaten"
- ]
+ "effects": []
 }

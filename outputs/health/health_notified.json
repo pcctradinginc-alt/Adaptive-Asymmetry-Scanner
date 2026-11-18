@@ -1,5 +1,41 @@
 {
- "at": "2026-11-17T21:17:38+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-11-18T15:51:09+00:00",
+ "changes": [
+  {
+   "source_id": "imf_portwatch_disruptions",
+   "type": "recovery",
+   "from": "DEGRADED",
+   "to": "HEALTHY",
+   "error": null
+  },
+  {
+   "source_id": "imf_portwatch_ports",
+   "type": "degradation",
+   "from": "BROKEN",
+   "to": "STALE",
+   "error": "Ingest WARN: 10829 observations (kuratierte Häfen + GLOBAL/Gruppen-Aggregate aus 739347 Rohbeobachtungen); 4 unresolved ports: ['Houston', 'Los Angeles', 'Qingdao', 'Shenzhen']; letzte erfolgreiche Aktualisierung 5.05 T > 3 T"
+  },
+  {
+   "source_id": "nws_forecast",
+   "type": "recovery",
+   "from": "DEGRADED",
+   "to": "HEALTHY",
+   "error": null
+  },
+  {
+   "source_id": "nws_alerts",
+   "type": "recovery",
+   "from": "DEGRADED",
+   "to": "HEALTHY",
+   "error": null
+  },
+  {
+   "source_id": "*",
+   "type": "safe_mode_off",
+   "from": true,
+   "to": false,
+   "error": ""
+  }
+ ],
+ "mail": "sent"
 }
