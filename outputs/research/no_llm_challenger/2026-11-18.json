@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-18",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "fdcc41495c52",
+  "action": "PAPER_ONLY",
+  "candidates_seen": 71,
+  "eligible_contracts": 39,
+  "watchlist": [
+    {
+      "ticker": "V",
+      "signal_id": "81eb978dae3e4effbedea9bd0fc99260",
+      "contract": "V270319C00415000",
+      "model_net_estimate": 0.051208,
+      "entry_ask_debit": 18.2,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "LLY",
+      "signal_id": "711a6d904ebe4ef5a41297ab7a3e78b3",
+      "contract": "LLY270319C01380000",
+      "model_net_estimate": 0.037672,
+      "entry_ask_debit": 137.2,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "NVDA",
+      "signal_id": "72b287c9b65543f9a7954f7440b81ecd",
+      "contract": "NVDA270319C00155000",
+      "model_net_estimate": 0.035347,
+      "entry_ask_debit": 6.35,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "ELV",
+      "signal_id": "e3027e0299a942fa8d359ecc635f166b",
+      "contract": "ELV270319C00410000",
+      "model_net_estimate": 0.030957,
+      "entry_ask_debit": 41.6,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "DIS",
+      "signal_id": "7a25b34318f84585b9d4a3f3404beb25",
+      "contract": "DIS270319C00120000",
+      "model_net_estimate": 0.030272,
+      "entry_ask_debit": 7.95,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "e5b2b223f06ad732",
+  "recorded_at": "2026-11-18T15:58:59.881192+00:00"
+}

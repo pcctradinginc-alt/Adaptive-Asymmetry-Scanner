@@ -1,30 +1,30 @@
 {
+ "WORKFLOW_FAILED:PortWatch Recovery (read-only source, fail-closed)": {
+  "fingerprint": "11687f17c3a3b381",
+  "first_seen": "2026-11-18",
+  "last_seen": "2026-11-18",
+  "severity": "WARNING",
+  "component": "Lauf"
+ },
  "BRANCH_UNPROTECTED": {
   "fingerprint": "56422ebe1ea059ca",
   "first_seen": "2026-11-10",
-  "last_seen": "2026-11-17",
+  "last_seen": "2026-11-18",
   "severity": "WARNING",
   "component": "Governance"
  },
  "UNREVIEWED_CRITICAL_MERGE": {
-  "fingerprint": "a8c07b9a94190e00",
+  "fingerprint": "d6e50ea94acde636",
   "first_seen": "2026-11-10",
-  "last_seen": "2026-11-17",
+  "last_seen": "2026-11-18",
   "severity": "WARNING",
   "component": "Governance"
  },
  "OUTCOMES_OVERDUE:marks": {
-  "fingerprint": "5c2394f5607e71ab",
+  "fingerprint": "3503239a3dad6c7a",
   "first_seen": "2026-11-13",
-  "last_seen": "2026-11-17",
+  "last_seen": "2026-11-18",
   "severity": "WARNING",
   "component": "Quote-Abdeckung"
- },
- "DATA_DEGRADATION:source_health": {
-  "fingerprint": "a8d23beda48e9ac3",
-  "first_seen": "2026-11-16",
-  "last_seen": "2026-11-17",
-  "severity": "WARNING",
-  "component": "Daten"
  }
 }
