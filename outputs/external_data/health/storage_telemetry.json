@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-11-17T16:21:50+00:00",
+  "measured_at": "2026-11-18T09:16:27+00:00",
   "total_bytes_per_day": 130171583.5,
   "one_off_backfill_bytes": 1172927917,
   "projections_bytes": {
@@ -10,7 +10,7 @@
   "warn_mb_1y": 200.0,
   "flagged": true,
   "backend": "git",
-  "bytes_in_git": 171717870,
+  "bytes_in_git": 179173807,
   "bytes_offloaded": 0,
   "per_source": {
     "bea_release_calendar": {
@@ -224,25 +224,25 @@
       "normalized_bytes_per_day": 0.0
     },
     "imf_portwatch_chokepoints": {
-      "retrieval_days": 41,
-      "rows": 25116,
+      "retrieval_days": 42,
+      "rows": 27866,
       "one_off_backfill_bytes": 3728415,
-      "raw_bytes_per_day": 0.0,
-      "normalized_bytes_per_day": 0.0
-    },
-    "imf_portwatch_disruptions": {
-      "retrieval_days": 43,
-      "rows": 944,
-      "one_off_backfill_bytes": 747526,
-      "raw_bytes_per_day": 0.0,
-      "normalized_bytes_per_day": 0.0
-    },
-    "imf_portwatch_ports": {
-      "retrieval_days": 38,
-      "rows": 74195,
-      "one_off_backfill_bytes": 6126087,
       "raw_bytes_per_day": 0,
       "normalized_bytes_per_day": 0
+    },
+    "imf_portwatch_disruptions": {
+      "retrieval_days": 44,
+      "rows": 944,
+      "one_off_backfill_bytes": 747526,
+      "raw_bytes_per_day": 0,
+      "normalized_bytes_per_day": 0
+    },
+    "imf_portwatch_ports": {
+      "retrieval_days": 39,
+      "rows": 81850,
+      "one_off_backfill_bytes": 6126087,
+      "raw_bytes_per_day": 0.0,
+      "normalized_bytes_per_day": 0.0
     },
     "imf_weo": {
       "retrieval_days": 1,
