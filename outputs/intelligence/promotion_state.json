@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-18T01:47:08+00:00",
+ "generated": "2026-11-18T22:39:58+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "bad280918ed7",
+ "code_version": "de91a12ae676",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -1694,9 +1694,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 277,
-      "fired_expectancy": -0.01596,
-      "non_fired_expectancy": 0.04415
+      "n": 323,
+      "fired_expectancy": -0.02206,
+      "non_fired_expectancy": 0.04149
      },
      "120": {
       "n": 0,
@@ -1802,9 +1802,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 258,
-      "fired_expectancy": 0.03936,
-      "non_fired_expectancy": 0.01541
+      "n": 301,
+      "fired_expectancy": 0.05897,
+      "non_fired_expectancy": 0.00808
      },
      "120": {
       "n": 0,
@@ -1910,9 +1910,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 136,
+      "n": 158,
       "fired_expectancy": null,
-      "non_fired_expectancy": -0.01596
+      "non_fired_expectancy": -0.02206
      },
      "120": {
       "n": 0,
@@ -2106,9 +2106,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 252,
-      "fired_expectancy": -0.0724,
-      "non_fired_expectancy": 0.03867
+      "n": 292,
+      "fired_expectancy": -0.08459,
+      "non_fired_expectancy": 0.0364
      },
      "120": {
       "n": 0,
@@ -2221,9 +2221,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 280,
-      "fired_expectancy": 0.01611,
-      "non_fired_expectancy": -0.06353
+      "n": 326,
+      "fired_expectancy": 0.01214,
+      "non_fired_expectancy": -0.06056
      },
      "120": {
       "n": 0,
@@ -2420,7 +2420,6 @@
  "safe_mode": {
   "active": true,
   "reasons": [
-   "DATA: 2 wichtige Quellen ausgefallen aus 1 unabhängigen Ausfall-Domänen: ['imf_portwatch_chokepoints', 'imf_portwatch_ports'] (Domänen: ['imf_portwatch_arcgis']; Safe-Mode-Schwelle unverändert)",
    "MODEL: EXCESSIVE MODEL DISAGREEMENT",
    "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
   ]
@@ -2509,5 +2508,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "53b3cbc8a86ba6de87f119912074735c01c459fc81db71d48cfb425ecb6f3e29"
+ "state_hash": "b64024ee6d05d53f12183720aed4b02b815f5f1b3530112825f68671d45a364d"
 }
