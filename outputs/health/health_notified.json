@@ -1,5 +1,27 @@
 {
- "at": "2026-11-18T20:52:46+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-11-19T15:59:49+00:00",
+ "changes": [
+  {
+   "source_id": "entsoe_power",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest WARN: 398 Tageswerte (5 Preiszonen, Last ['DE']) | Fehler: DE_LU: 400 für https://web-api.tp.entsoe.eu/api (nicht retrybar): <?xml version=\"1.0\" encoding=\"UTF-8\"?> <Acknowledgement_Marke; FR: 400 für https:"
+  },
+  {
+   "source_id": "imf_portwatch_chokepoints",
+   "type": "recovery",
+   "from": "DEGRADED",
+   "to": "HEALTHY",
+   "error": null
+  },
+  {
+   "source_id": "estat_jp_truck",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "DEGRADED",
+   "error": "Ingest FAIL: e-Stat getStatsList fehlgeschlagen: HTTPSConnectionPool(host='api.e-stat.go.jp', port=443): Read timed out. (read timeout=30); Data-Quality-Befund schwerwiegend"
+  }
+ ],
+ "mail": "sent"
 }
