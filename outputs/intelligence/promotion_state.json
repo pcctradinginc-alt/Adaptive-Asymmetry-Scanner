@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-19T01:21:18+00:00",
+ "generated": "2026-11-19T22:43:30+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "eacadbf87a3b",
+ "code_version": "c03079bfbe43",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -1694,9 +1694,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 323,
-      "fired_expectancy": -0.02206,
-      "non_fired_expectancy": 0.04149
+      "n": 372,
+      "fired_expectancy": -0.02593,
+      "non_fired_expectancy": 0.03589
      },
      "120": {
       "n": 0,
@@ -1802,9 +1802,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 301,
-      "fired_expectancy": 0.05897,
-      "non_fired_expectancy": 0.00808
+      "n": 344,
+      "fired_expectancy": 0.06466,
+      "non_fired_expectancy": 0.0019
      },
      "120": {
       "n": 0,
@@ -1910,9 +1910,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 158,
+      "n": 187,
       "fired_expectancy": null,
-      "non_fired_expectancy": -0.02206
+      "non_fired_expectancy": -0.02593
      },
      "120": {
       "n": 0,
@@ -2106,9 +2106,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 292,
-      "fired_expectancy": -0.08459,
-      "non_fired_expectancy": 0.0364
+      "n": 336,
+      "fired_expectancy": -0.08758,
+      "non_fired_expectancy": 0.03216
      },
      "120": {
       "n": 0,
@@ -2221,9 +2221,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 326,
-      "fired_expectancy": 0.01214,
-      "non_fired_expectancy": -0.06056
+      "n": 375,
+      "fired_expectancy": 0.00709,
+      "non_fired_expectancy": -0.06443
      },
      "120": {
       "n": 0,
@@ -2508,5 +2508,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "1ab5531ecad0a54076b53815ca478f2a54ab9befaa0ea18590062bd6f12b9f9a"
+ "state_hash": "e8d210e985abdc568eef2f339f13e68b3fda8c2ed85716a20cb8eb37ab238947"
 }
