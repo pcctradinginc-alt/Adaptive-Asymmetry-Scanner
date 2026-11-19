@@ -1392,10 +1392,10 @@
         "file": "external_data.yml",
         "expected": "2026-11-19T06:17+00:00",
         "deadline": "2026-11-19T16:17+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-11-19T15:47:30Z",
+        "conclusion": "success",
+        "delay_hours": 9.5,
+        "runs_today": 1,
         "recovered": false,
         "recoveries_today": 0,
         "artifact_ok": true,
@@ -1412,13 +1412,13 @@
         "conclusion": null,
         "delay_hours": null,
         "runs_today": 0,
-        "recovered": false,
-        "recoveries_today": 0,
+        "recovered": true,
+        "recoveries_today": 1,
         "artifact_ok": false,
-        "action": null,
+        "action": "DISPATCH",
         "stale_upstream": [],
-        "reason": null,
-        "state": "PENDING"
+        "reason": "Frist 2026-11-19T15:41+00:00 \u00fcberschritten, Tag nicht versorgt",
+        "state": "RECOVERY_TRIGGERED"
       },
       "scanner": {
         "file": "scanner.yml",
@@ -1509,6 +1509,9 @@
       "source_health": 1
     },
     "2026-11-18": {
+      "source_health": 1
+    },
+    "2026-11-19": {
       "source_health": 1
     }
   }
