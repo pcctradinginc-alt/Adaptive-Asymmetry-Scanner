@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-19",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "3cba32f43bc4",
+  "action": "PAPER_ONLY",
+  "candidates_seen": 118,
+  "eligible_contracts": 36,
+  "watchlist": [
+    {
+      "ticker": "AAPL",
+      "signal_id": "cf3e1ca7bf754d819b0065dc77164f8b",
+      "contract": "AAPL270319C00350000",
+      "model_net_estimate": 0.030492,
+      "entry_ask_debit": 23.6,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "LLY",
+      "signal_id": "63231b10d6a34ceda02c23ea58973094",
+      "contract": "LLY270319C01360000",
+      "model_net_estimate": 0.02723,
+      "entry_ask_debit": 122.6,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "ELV",
+      "signal_id": "8d2ff2d201bb4cb897ecb67656c4e81f",
+      "contract": "ELV270319C00390000",
+      "model_net_estimate": 0.026934,
+      "entry_ask_debit": 36.1,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "GOOG",
+      "signal_id": "f233fffeafa24f42bb8838defa7e1ab5",
+      "contract": "GOOG270319C00285000",
+      "model_net_estimate": 0.021299,
+      "entry_ask_debit": 27.45,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "DIS",
+      "signal_id": "0d32b1bc0bd14dc8b1ecf4906637d8df",
+      "contract": "DIS270319C00120000",
+      "model_net_estimate": 0.020936,
+      "entry_ask_debit": 9.3,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "f9444ff5e526392b",
+  "recorded_at": "2026-11-19T16:22:05.808757+00:00"
+}
