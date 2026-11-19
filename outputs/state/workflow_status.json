@@ -1398,11 +1398,11 @@
         "runs_today": 0,
         "recovered": false,
         "recoveries_today": 0,
-        "artifact_ok": false,
+        "artifact_ok": true,
         "action": null,
         "stale_upstream": [],
         "reason": null,
-        "state": "PENDING"
+        "state": "OK"
       },
       "source_health": {
         "file": "source_health.yml",
@@ -1442,17 +1442,17 @@
         "file": "feedback.yml",
         "expected": "2026-11-19T15:30+00:00",
         "deadline": "2026-11-19T23:30+00:00",
-        "actual_last_run": null,
-        "conclusion": null,
-        "delay_hours": null,
-        "runs_today": 0,
+        "actual_last_run": "2026-11-19T01:18:34Z",
+        "conclusion": "success",
+        "delay_hours": -14.2,
+        "runs_today": 1,
         "recovered": false,
         "recoveries_today": 0,
         "artifact_ok": null,
         "action": null,
         "stale_upstream": [],
         "reason": null,
-        "state": "PENDING"
+        "state": "OK"
       }
     }
   },
