@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-20",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "42121a546976",
+  "action": "PAPER_ONLY",
+  "candidates_seen": 361,
+  "eligible_contracts": 38,
+  "watchlist": [
+    {
+      "ticker": "MA",
+      "signal_id": "d036b1d6383d420380513bbb56e03460",
+      "contract": "MA270416C00630000",
+      "model_net_estimate": 0.028402,
+      "entry_ask_debit": 33.1,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "VEEV",
+      "signal_id": "ad622ad8d5e9437c822013e8bd027e0d",
+      "contract": "VEEV270617C00270000",
+      "model_net_estimate": 0.026116,
+      "entry_ask_debit": 39.8,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "CAT",
+      "signal_id": "4db05dfaae93463bba94f4f640cc6319",
+      "contract": "CAT270521C00520000",
+      "model_net_estimate": 0.020279,
+      "entry_ask_debit": 29.35,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "TJX",
+      "signal_id": "356756fdb66e4ffcb106b343f3ce5dab",
+      "contract": "TJX270416C00140000",
+      "model_net_estimate": 0.019925,
+      "entry_ask_debit": 7.9,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "BSX",
+      "signal_id": "41aa52050cb64ab4ae28c86f65710127",
+      "contract": "BSX270521C00045000",
+      "model_net_estimate": 0.018993,
+      "entry_ask_debit": 4.5,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "7df8099191966e44",
+  "recorded_at": "2026-11-20T18:26:34.332823+00:00"
+}

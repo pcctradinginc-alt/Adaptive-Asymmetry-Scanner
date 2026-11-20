@@ -1,20 +1,20 @@
 {
  "schema": "ops-report-v1",
- "as_of": "2026-11-19",
- "generated": "2026-11-19T16:22:13+00:00",
+ "as_of": "2026-11-20",
+ "generated": "2026-11-20T18:26:42+00:00",
  "read_only": true,
  "status": {
   "schema": "ops-status-v1",
-  "generated": "2026-11-19T16:22:13+00:00",
-  "as_of": "2026-11-19",
+  "generated": "2026-11-20T18:26:42+00:00",
+  "as_of": "2026-11-20",
   "read_only": true,
   "run": {
    "workflows": {
     "external_data": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-11-19T15:47:30Z",
-     "delay_hours": 9.5
+     "last_run": "2026-11-20T15:29:26Z",
+     "delay_hours": 9.2
     },
     "source_health": {
      "state": "RECOVERY_TRIGGERED",
@@ -23,7 +23,7 @@
      "delay_hours": null
     },
     "scanner": {
-     "state": "PENDING",
+     "state": "MISSED",
      "conclusion": null,
      "last_run": null,
      "delay_hours": null
@@ -31,19 +31,19 @@
     "feedback": {
      "state": "OK",
      "conclusion": "success",
-     "last_run": "2026-11-19T01:18:34Z",
-     "delay_hours": -14.2
+     "last_run": "2026-11-20T01:21:27Z",
+     "delay_hours": -14.1
     }
    },
-   "report_date": "2026-11-19",
+   "report_date": "2026-11-20",
    "report_is_today": true,
    "scanner": {
     "universe": 518,
     "analyzed": 2,
-    "champion_candidates": 0,
-    "contracts_designed": null,
+    "champion_candidates": 1,
+    "contracts_designed": 1,
     "trades": 0,
-    "stop_reason": "Kein Signal hat Mismatch-Filter bestanden.",
+    "stop_reason": "Alle Options-Kontrakte scheitern am ROI-Gate.",
     "session": "regular",
     "direction_conflicts": 1,
     "direction_conflict_share": 0.5
@@ -186,15 +186,15 @@
      "pending": 2,
      "late_marks": 50,
      "unavailable": 1,
-     "oldest_pending_days": 10
+     "oldest_pending_days": 11
     },
     "real_opt_ret_45d": {
-     "due": 113,
-     "marked": 112,
+     "due": 153,
+     "marked": 152,
      "pending": 1,
      "late_marks": 50,
      "unavailable": 0,
-     "oldest_pending_days": 5
+     "oldest_pending_days": 6
     },
     "real_strat_ret_5d": {
      "due": 1094,
@@ -210,15 +210,15 @@
      "pending": 2,
      "late_marks": 50,
      "unavailable": 1,
-     "oldest_pending_days": 10
+     "oldest_pending_days": 11
     },
     "real_strat_ret_45d": {
-     "due": 113,
-     "marked": 112,
+     "due": 153,
+     "marked": 152,
      "pending": 1,
      "late_marks": 50,
      "unavailable": 0,
-     "oldest_pending_days": 5
+     "oldest_pending_days": 6
     }
    }
   },
@@ -247,7 +247,7 @@
      "note": "Altbestand vor Quote-Archiv/Consume-once (2026-10-10); nie lernbar bzw. ohne Schlüssel gelernt – keine Exactly-once-Verletzung"
     },
     "exactly_once": {
-     "learned_keys": 77,
+     "learned_keys": 90,
      "duplicate_closed_trades": 0,
      "duplicate_learnable_trades": 0,
      "learned_not_eligible": 0,
@@ -258,15 +258,15 @@
     }
    },
    "candidates": {
-    "SIGNAL": 1053,
-    "CONTRACT_SELECTED": 687,
-    "ENTRY_OBSERVED": 687,
+    "SIGNAL": 1055,
+    "CONTRACT_SELECTED": 689,
+    "ENTRY_OBSERVED": 689,
     "OUTCOME_FINAL": 682,
     "LATE_MARK": 0,
-    "PRICE_BASIS_CHANGED": 2,
+    "PRICE_BASIS_CHANGED": 35,
     "MARK_UNAVAILABLE": 1,
     "EXCLUDED_BUDGET_RANDOM_EXCLUSION": 366,
-    "EXIT_PENDING": 4
+    "EXIT_PENDING": 6
    },
    "definitions": {
     "LEARNED": "Consume-once-Schlüssel <trade_id>:close:<Ziel> vorhanden (feedback.learn_on_close)",
@@ -967,8 +967,8 @@
     }
    },
    "meta_label": {
-    "generated": "2026-11-19T01:21:17+00:00",
-    "as_of": "2026-11-19",
+    "generated": "2026-11-20T01:24:10+00:00",
+    "as_of": "2026-11-20",
     "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
     "n_labels": 235,
     "n_label_dates": 18,
@@ -980,12 +980,11 @@
     "population_shift": {
      "status": "OK",
      "n_target": 240,
-     "n_other": 811,
-     "n_shifted": 11,
+     "n_other": 813,
+     "n_shifted": 10,
      "shifted": [
       "final_mc_hit_rate",
       "mismatch",
-      "ml_disagreement_sd",
       "ml_exp_dd_60",
       "ml_exp_ret_60",
       "ml_q10_ret_60",
@@ -998,7 +997,7 @@
      "top": [
       {
        "feature": "ml_q10_ret_60",
-       "smd": -1.247,
+       "smd": -1.246,
        "missing_target": 0.121,
        "missing_other": 0.052
       },
@@ -1010,37 +1009,37 @@
       },
       {
        "feature": "ml_exp_ret_60",
-       "smd": 0.959,
+       "smd": 0.96,
        "missing_target": 0.121,
        "missing_other": 0.052
       },
       {
        "feature": "ml_exp_dd_60",
-       "smd": -0.472,
+       "smd": -0.465,
        "missing_target": 0.121,
        "missing_other": 0.052
       },
       {
        "feature": "sentiment_score",
-       "smd": 0.386,
+       "smd": 0.389,
        "missing_target": 0.062,
        "missing_other": 0.025
       },
       {
        "feature": "ml_disagreement_sd",
-       "smd": 0.251,
+       "smd": 0.245,
        "missing_target": 0.121,
        "missing_other": 0.052
       },
       {
        "feature": "sentiment_drift",
-       "smd": 0.209,
+       "smd": 0.214,
        "missing_target": 0.062,
        "missing_other": 0.025
       },
       {
        "feature": "scan_day_ret",
-       "smd": 0.176,
+       "smd": 0.178,
        "missing_target": 0.062,
        "missing_other": 0.025
       }
@@ -1093,17 +1092,17 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_20d|ALL": {
-     "n": 1025,
-     "n_signal_days": 20,
-     "n_entities": 335,
-     "mean_net": -0.003538,
-     "median_net": 0.0108,
-     "hit_rate": 0.5483,
-     "mean_gross": -0.001538,
+     "n": 1027,
+     "n_signal_days": 21,
+     "n_entities": 336,
+     "mean_net": -0.003665,
+     "median_net": 0.0106,
+     "hit_rate": 0.5472,
+     "mean_gross": -0.001665,
      "worst": -0.3968,
      "ci": [
-      -0.019827,
-      0.009255
+      -0.019269,
+      0.010646
      ],
      "verdict": "INCONCLUSIVE"
     },
@@ -1199,17 +1198,17 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_OPTION_20d|ALL": {
-     "n": 657,
-     "n_signal_days": 20,
-     "n_entities": 287,
-     "mean_net": -0.049436,
-     "median_net": -0.098447,
-     "hit_rate": 0.4277,
-     "mean_gross": -0.048153,
+     "n": 659,
+     "n_signal_days": 21,
+     "n_entities": 288,
+     "mean_net": -0.050818,
+     "median_net": -0.098517,
+     "hit_rate": 0.4264,
+     "mean_gross": -0.049535,
      "worst": -0.935352,
      "ci": [
-      -0.123947,
-      0.02353
+      -0.121391,
+      0.021042
      ],
      "verdict": "INCONCLUSIVE"
     },
@@ -1305,17 +1304,17 @@
      "verdict": "NEED_MORE_DATA"
     },
     "CANDIDATE_STRATEGY_20d|ALL": {
-     "n": 657,
-     "n_signal_days": 20,
-     "n_entities": 287,
-     "mean_net": -0.094902,
-     "median_net": -0.143739,
-     "hit_rate": 0.3896,
-     "mean_gross": -0.093011,
+     "n": 659,
+     "n_signal_days": 21,
+     "n_entities": 288,
+     "mean_net": -0.096146,
+     "median_net": -0.14504,
+     "hit_rate": 0.3885,
+     "mean_gross": -0.094257,
      "worst": -1.00486,
      "ci": [
-      -0.167727,
-      -0.016085
+      -0.168358,
+      -0.014923
      ],
      "verdict": "NEGATIVE"
     },
@@ -1390,7 +1389,7 @@
     "min_labels": 200,
     "min_dates": 20
    },
-   "as_of": "2026-11-19",
+   "as_of": "2026-11-20",
    "versions": 0,
    "active": null,
    "hold": null,
@@ -1398,7 +1397,7 @@
    "manifest_violations": []
   },
   "promotion": {
-   "generated": "2026-11-19T01:21:18+00:00",
+   "generated": "2026-11-20T01:24:11+00:00",
    "max_automatic_influence": "ABSTENTION_ONLY",
    "kill_switch_active": false,
    "safe_mode": true,
@@ -1601,20 +1600,20 @@
    "registry_problems": [],
    "decision_ledger_duplicates": 0,
    "trade_outcome_duplicates": 0,
-   "quote_records_30d": 6432,
+   "quote_records_30d": 6449,
    "quote_duplicate_ids": 0,
    "quote_reobserved_ids": 0,
    "quote_non_observed_prices": 0,
    "closed_trade_quarantine": 7,
    "external_archive": {
-    "ok": 12873,
+    "ok": 12612,
     "legacy": 5423
    },
    "issues": []
   },
   "data_health": {
    "nasdaq100_source_check": {
-    "date": "2026-11-19",
+    "date": "2026-11-20",
     "mismatch": 0,
     "only_official": [],
     "only_production": [],
@@ -1623,12 +1622,12 @@
     "production_source": "nasdaq_official"
    },
    "source_health": {
-    "generated": "2026-11-19T15:59:49+00:00",
+    "generated": "2026-11-20T18:01:11+00:00",
     "by_status": {
-     "HEALTHY": 46,
-     "DEGRADED": 3,
+     "HEALTHY": 48,
      "UNVALIDATED": 13,
-     "STALE": 1
+     "STALE": 1,
+     "DEGRADED": 1
     },
     "inactive_by_design": {
      "disabled": 2,
@@ -1638,24 +1637,37 @@
    },
    "external_data": {
     "by_status": {
-     "WARN": 2,
-     "PASS": 36,
-     "FAIL": 1,
+     "WARN": 1,
+     "PASS": 38,
      "DEFERRED": 18
     }
    },
    "quote_archive_days": {
+    "2026-11-20": {
+     "n": 241,
+     "by_context": {
+      "exit_mark": 23,
+      "trade_mark_rth": 4,
+      "candidate_mark_rth": 47,
+      "candidate_mark": 47,
+      "candidate_entry": 120
+     },
+     "by_quality": {
+      "OK": 227,
+      "SUSPECT": 14
+     }
+    },
     "2026-11-19": {
-     "n": 174,
+     "n": 181,
      "by_context": {
       "candidate_mark": 51,
       "trade_mark_rth": 2,
       "candidate_entry": 112,
-      "exit_mark": 9
+      "exit_mark": 16
      },
      "by_quality": {
-      "OK": 172,
-      "SUSPECT": 2
+      "OK": 177,
+      "SUSPECT": 4
      }
     },
     "2026-11-18": {
@@ -1779,18 +1791,6 @@
       "OK": 523,
       "SUSPECT": 27
      }
-    },
-    "2026-11-06": {
-     "n": 134,
-     "by_context": {
-      "exit_mark": 35,
-      "trade_mark_rth": 2,
-      "candidate_entry": 97
-     },
-     "by_quality": {
-      "OK": 129,
-      "SUSPECT": 5
-     }
     }
    },
    "quote_archive_median_14d": 292,
@@ -1832,7 +1832,7 @@
     "need": 200,
     "have_dates": 18,
     "need_dates": 20,
-    "pending_maturing": 5,
+    "pending_maturing": 6,
     "new_rows_per_day": 0.36,
     "eta": "2026-12-01",
     "basis": "Zielpopulation ['CHAMPION', 'LATE'], Horizont 20 T; offene Labels reifen an label_available_at, Zulauf aus den letzten 14 T"
@@ -1843,22 +1843,22 @@
     "have_days": 7,
     "need_days": 20,
     "evaluable_per_day_30d": 0.067,
-    "eta": "2027-10-15"
+    "eta": "2027-10-16"
    },
    "note": "Projektion bei unverändertem Zulauf; frühestens-Datum, keine Qualitätsaussage"
   },
   "workflows": {
    "status": "OK",
    "window_hours": 26,
-   "since": "2026-11-18T14:22:13Z",
-   "runs_total": 35,
+   "since": "2026-11-19T16:26:42Z",
+   "runs_total": 33,
    "failed": [
     {
      "workflow": "PortWatch Recovery (read-only source, fail-closed)",
      "file": ".github/workflows/portwatch_recovery.yml",
-     "run_id": 44497270214,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44497270214",
-     "created_at": "2026-11-19T09:31:56Z",
+     "run_id": 44708930250,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44708930250",
+     "created_at": "2026-11-20T09:13:45Z",
      "event": "schedule",
      "conclusion": "failure",
      "failed_jobs": [
@@ -1877,8 +1877,8 @@
     "PortWatch Recovery (read-only source, fail-closed)": 1
    },
    "scanner_start": {
-    "started_et": "2026-11-19T11:00-05:00",
-    "run_id": 44561095904,
+    "started_et": "2026-11-20T13:01-05:00",
+    "run_id": 44788817422,
     "late": false,
     "late_after_et": "15:00",
     "trading_day": true
@@ -1886,8 +1886,8 @@
    "recent_outcomes": [
     {
      "workflow": "Adaptive Asymmetry Scanner",
-     "run_id": 44561095904,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44561095904",
+     "run_id": 44788817422,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44788817422",
      "conclusion": "unknown",
      "effective_status": "UNVERIFIED",
      "skipped_jobs": [],
@@ -1896,8 +1896,18 @@
     },
     {
      "workflow": "Source Health Check (täglich, vor dem Scanner)",
-     "run_id": 44560791857,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44560791857",
+     "run_id": 44788554773,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44788554773",
+     "conclusion": "success",
+     "effective_status": "TECHNICALLY_SUCCESSFUL",
+     "skipped_jobs": [],
+     "failed_steps": [],
+     "business_evidence": "NOT_EVALUATED"
+    },
+    {
+     "workflow": "Options-Capture (RTH, nur Quote-Archiv)",
+     "run_id": 44788380025,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44788380025",
      "conclusion": "success",
      "effective_status": "TECHNICALLY_SUCCESSFUL",
      "skipped_jobs": [],
@@ -1906,8 +1916,8 @@
     },
     {
      "workflow": "Research – Technische Verbesserungsvorschläge (täglich P0, manuell)",
-     "run_id": 44446572090,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44446572090",
+     "run_id": 44661392536,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44661392536",
      "conclusion": "success",
      "effective_status": "TECHNICALLY_SUCCESSFUL",
      "skipped_jobs": [],
@@ -1916,24 +1926,14 @@
     },
     {
      "workflow": "Feedback Loop (Exit-Alarme + Lernen)",
-     "run_id": 44435913742,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44435913742",
+     "run_id": 44653014908,
+     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44653014908",
      "conclusion": "success",
      "effective_status": "TECHNICALLY_SUCCESSFUL",
      "skipped_jobs": [],
      "failed_steps": [],
      "business_evidence": "NOT_EVALUATED",
      "stage_balance": "NO_FAILURE_REPORTED"
-    },
-    {
-     "workflow": "Options-Capture (RTH, nur Quote-Archiv)",
-     "run_id": 44420001873,
-     "url": "https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44420001873",
-     "conclusion": "success",
-     "effective_status": "TECHNICALLY_SUCCESSFUL",
-     "skipped_jobs": [],
-     "failed_steps": [],
-     "business_evidence": "NOT_EVALUATED"
     }
    ],
    "governance": {
@@ -2072,12 +2072,12 @@
  },
  "row": {
   "schema": "ops-history-v1",
-  "as_of": "2026-11-19",
-  "generated": "2026-11-19T16:22:13+00:00",
+  "as_of": "2026-11-20",
+  "generated": "2026-11-20T18:26:42+00:00",
   "run.scanner.universe": 518,
   "run.scanner.analyzed": 2,
-  "run.scanner.champion_candidates": 0,
-  "run.scanner.contracts_designed": null,
+  "run.scanner.champion_candidates": 1,
+  "run.scanner.contracts_designed": 1,
   "run.scanner.trades": 0,
   "run.scanner.direction_conflicts": 1,
   "run.scanner.direction_conflict_share": 0.5,
@@ -2125,7 +2125,7 @@
   "lifecycle.champion.issue.LEARNED_NOT_ELIGIBLE": 0,
   "lifecycle.champion.exactly_once_ok": true,
   "lifecycle.candidates.EXIT_OVERDUE": 0,
-  "lifecycle.candidates.EXIT_PENDING": 4,
+  "lifecycle.candidates.EXIT_PENDING": 6,
   "lifecycle.candidates.OUTCOME_FINAL": 682,
   "forward.champion.n": 8,
   "forward.champion.n_independent_days": 7,
@@ -2138,13 +2138,13 @@
   "promotion.unjustified_influence": 0,
   "promotion.kill_switch_active": false,
   "integrity.issues": 0,
-  "data.source_health.DEGRADED": 3,
-  "data.source_health.HEALTHY": 46,
+  "data.source_health.DEGRADED": 1,
+  "data.source_health.HEALTHY": 48,
   "data.source_health.STALE": 1,
   "data.source_health.UNVALIDATED": 13,
-  "data.source_health.n_bad": 4,
+  "data.source_health.n_bad": 2,
   "data.quote_archive_median_14d": 292,
-  "data.quote_archive_today": 174
+  "data.quote_archive_today": 241
  },
  "deltas": {
   "run.scanner.universe": {
@@ -2158,30 +2158,30 @@
   },
   "run.scanner.analyzed": {
    "value": 2,
-   "prev": 0,
-   "d7": 3,
-   "d30": 47,
-   "diff_prev": 2,
-   "diff_d7": -1,
-   "diff_d30": -45
+   "prev": 2,
+   "d7": 2,
+   "d30": 50,
+   "diff_prev": 0,
+   "diff_d7": 0,
+   "diff_d30": -48
   },
   "run.scanner.champion_candidates": {
-   "value": 0,
+   "value": 1,
    "prev": 0,
-   "d7": 1,
-   "d30": 7,
-   "diff_prev": 0,
-   "diff_d7": -1,
-   "diff_d30": -7
+   "d7": 0,
+   "d30": 17,
+   "diff_prev": 1,
+   "diff_d7": 1,
+   "diff_d30": -16
   },
   "run.scanner.contracts_designed": {
-   "value": null,
+   "value": 1,
    "prev": null,
-   "d7": 1,
-   "d30": null,
+   "d7": null,
+   "d30": 3,
    "diff_prev": null,
    "diff_d7": null,
-   "diff_d30": null
+   "diff_d30": -2
   },
   "run.scanner.trades": {
    "value": 0,
@@ -2194,29 +2194,29 @@
   },
   "run.scanner.direction_conflicts": {
    "value": 1,
-   "prev": null,
+   "prev": 1,
    "d7": 0,
-   "d30": 3,
-   "diff_prev": null,
+   "d30": 2,
+   "diff_prev": 0,
    "diff_d7": 1,
-   "diff_d30": -2
+   "diff_d30": -1
   },
   "run.scanner.direction_conflict_share": {
    "value": 0.5,
-   "prev": null,
+   "prev": 0.5,
    "d7": 0.0,
-   "d30": 0.0638,
-   "diff_prev": null,
+   "d30": 0.04,
+   "diff_prev": 0.0,
    "diff_d7": 0.5,
-   "diff_d30": 0.4362
+   "diff_d30": 0.46
   },
   "workflows.failed_runs": {
    "value": 1,
    "prev": 1,
-   "d7": 2,
+   "d7": 0,
    "d30": 0,
    "diff_prev": 0,
-   "diff_d7": -1,
+   "diff_d7": 1,
    "diff_d30": 1
   },
   "data.nasdaq100_mismatch": {
@@ -2231,11 +2231,11 @@
   "learning.meta_label.have": {
    "value": 235,
    "prev": 235,
-   "d7": 207,
-   "d30": 19,
+   "d7": 219,
+   "d30": 25,
    "diff_prev": 0,
-   "diff_d7": 28,
-   "diff_d30": 216
+   "diff_d7": 16,
+   "diff_d30": 210
   },
   "learning.champion_evidence.have": {
    "value": 8,
@@ -2571,22 +2571,22 @@
    "diff_d30": 0
   },
   "lifecycle.candidates.EXIT_PENDING": {
-   "value": 4,
-   "prev": 2,
-   "d7": 11,
+   "value": 6,
+   "prev": 4,
+   "d7": 13,
    "d30": 120,
    "diff_prev": 2,
    "diff_d7": -7,
-   "diff_d30": -116
+   "diff_d30": -114
   },
   "lifecycle.candidates.OUTCOME_FINAL": {
    "value": 682,
    "prev": 682,
    "d7": 669,
-   "d30": 352,
+   "d30": 392,
    "diff_prev": 0,
    "diff_d7": 13,
-   "diff_d30": 330
+   "diff_d30": 290
   },
   "forward.champion.n": {
    "value": 8,
@@ -2627,11 +2627,11 @@
   "training.n_labels": {
    "value": 235,
    "prev": 235,
-   "d7": 207,
-   "d30": 8,
+   "d7": 219,
+   "d30": 19,
    "diff_prev": 0,
-   "diff_d7": 28,
-   "diff_d30": 227
+   "diff_d7": 16,
+   "diff_d30": 216
   },
   "promotion.active_influence": {
    "value": 0,
@@ -2661,22 +2661,22 @@
    "diff_d30": 0
   },
   "data.source_health.DEGRADED": {
-   "value": 3,
-   "prev": 2,
-   "d7": 3,
-   "d30": null,
-   "diff_prev": 1,
+   "value": 1,
+   "prev": 3,
+   "d7": 1,
+   "d30": 1,
+   "diff_prev": -2,
    "diff_d7": 0,
-   "diff_d30": null
+   "diff_d30": 0
   },
   "data.source_health.HEALTHY": {
-   "value": 46,
-   "prev": 47,
-   "d7": 47,
-   "d30": 47,
-   "diff_prev": -1,
+   "value": 48,
+   "prev": 46,
+   "d7": 49,
+   "d30": 45,
+   "diff_prev": 2,
    "diff_d7": -1,
-   "diff_d30": -1
+   "diff_d30": 3
   },
   "data.source_health.STALE": {
    "value": 1,
@@ -2697,31 +2697,31 @@
    "diff_d30": 5
   },
   "data.source_health.n_bad": {
-   "value": 4,
-   "prev": 3,
-   "d7": 3,
-   "d30": 0,
-   "diff_prev": 1,
+   "value": 2,
+   "prev": 4,
+   "d7": 1,
+   "d30": 2,
+   "diff_prev": -2,
    "diff_d7": 1,
-   "diff_d30": 4
+   "diff_d30": 0
   },
   "data.quote_archive_median_14d": {
    "value": 292,
    "prev": 292,
-   "d7": 255.5,
-   "d30": 191,
+   "d7": 259.0,
+   "d30": 172.0,
    "diff_prev": 0,
-   "diff_d7": 36.5,
-   "diff_d30": 101
+   "diff_d7": 33.0,
+   "diff_d30": 120.0
   },
   "data.quote_archive_today": {
-   "value": 174,
-   "prev": 255,
-   "d7": 285,
-   "d30": 206,
-   "diff_prev": -81,
-   "diff_d7": -111,
-   "diff_d30": -32
+   "value": 241,
+   "prev": 174,
+   "d7": 168,
+   "d30": 153,
+   "diff_prev": 67,
+   "diff_d7": 73,
+   "diff_d30": 88
   },
   "learning.rl_arming.have": {
    "value": null,
@@ -2731,14 +2731,31 @@
    "diff_prev": null,
    "diff_d7": null,
    "diff_d30": null
+  },
+  "data.source_health.BROKEN": {
+   "value": null,
+   "prev": null,
+   "d7": null,
+   "d30": 1,
+   "diff_prev": null,
+   "diff_d7": null,
+   "diff_d30": null
   }
  },
  "delta_refs": {
-  "prev": "2026-11-18",
-  "d7": "2026-11-12",
-  "d30": "2026-10-20"
+  "prev": "2026-11-19",
+  "d7": "2026-11-13",
+  "d30": "2026-10-21"
  },
  "alerts": [
+  {
+   "id": "SCANNER_FAILED:scanner",
+   "severity": "WARNING",
+   "component": "Lauf",
+   "cause": "Workflow „scanner“ heute nicht ausgeführt (verpasst): Status MISSED, Ergebnis N/A, letzter Lauf N/A",
+   "since": "2026-11-20",
+   "status": "NEW"
+  },
   {
    "id": "BRANCH_UNPROTECTED",
    "severity": "WARNING",
@@ -2751,7 +2768,7 @@
    "id": "OUTCOMES_OVERDUE:marks",
    "severity": "WARNING",
    "component": "Quote-Abdeckung",
-   "cause": "Fällige Marks offen: real_opt_ret_20d 2 von 700 offen, ältester 10 Tage; real_opt_ret_45d 1 von 113 offen, ältester 5 Tage; real_strat_ret_20d 2 von 700 offen, ältester 10 Tage; real_strat_ret_45d 1 von 113 offen, ältester 5 Tage (Schwelle > 3 Tage).",
+   "cause": "Fällige Marks offen: real_opt_ret_20d 2 von 700 offen, ältester 11 Tage; real_opt_ret_45d 1 von 153 offen, ältester 6 Tage; real_strat_ret_20d 2 von 700 offen, ältester 11 Tage; real_strat_ret_45d 1 von 153 offen, ältester 6 Tage (Schwelle > 3 Tage).",
    "since": "2026-11-13",
    "status": "ONGOING"
   },
@@ -2767,15 +2784,20 @@
    "id": "WORKFLOW_FAILED:PortWatch Recovery (read-only source, fail-closed)",
    "severity": "WARNING",
    "component": "Lauf",
-   "cause": "„PortWatch Recovery (read-only source, fail-closed)“: 1 fehlgeschlagene(r) Lauf/Läufe seit 2026-11-18T14:22:13Z; Schritte: Verify actual recovery of both important PortWatch sources; letzte Fehlerzeile: ##[error]Process completed with exit code 1.; https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44497270214",
+   "cause": "„PortWatch Recovery (read-only source, fail-closed)“: 1 fehlgeschlagene(r) Lauf/Läufe seit 2026-11-19T16:26:42Z; Schritte: Verify actual recovery of both important PortWatch sources; letzte Fehlerzeile: ##[error]Process completed with exit code 1.; https://github.com/pcctradinginc-alt/Adaptive-Asymmetry-Scanner/actions/runs/44708930250",
    "since": "2026-11-18",
    "status": "ONGOING"
   }
  ],
  "mail": {
-  "status": "skipped",
-  "reason": "keine neuen/geänderten/behobenen oder kritischen Warnungen",
-  "subject": "[Scanner-Monitor] 2026-11-19: 0 neue Warnung(en)"
+  "status": "sent",
+  "attempts": 1,
+  "error": null,
+  "provider": "gmail_smtp",
+  "recipients": [
+   "p***@gmail.com"
+  ],
+  "subject": "[Scanner-Monitor] 2026-11-20: 1 neue Warnung(en)"
  },
  "history": {
   "appended": true,
