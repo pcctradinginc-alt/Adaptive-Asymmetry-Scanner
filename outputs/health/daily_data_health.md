@@ -4,11 +4,6 @@
 
 Status: HEALTHY 48 · DEGRADED 1 · STALE 1 · BROKEN 0 · UNVALIDATED 13
 
-## Neue Änderungen
-
-- recovery: entsoe_power DEGRADED → HEALTHY
-- recovery: estat_jp_truck DEGRADED → HEALTHY
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
