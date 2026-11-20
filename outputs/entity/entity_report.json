@@ -1,10 +1,10 @@
 {
- "date": "2026-11-13",
+ "date": "2026-11-20",
  "status": "COMPLETE",
  "sec": {
-  "tickers_total": 10405,
-  "wanted": 778,
-  "mapped": 627,
+  "tickers_total": 10398,
+  "wanted": 777,
+  "mapped": 626,
   "unmapped": [
    "ABMD",
    "ACE",
@@ -29,7 +29,6 @@
    "CA",
    "CAM",
    "CCE",
-   "CDAY",
    "CELG",
    "CERN",
    "CFN",
@@ -93,6 +92,7 @@
    "K",
    "KRFT",
    "KSU",
+   "KVUE",
    "LEG",
    "LLL",
    "LLTC",
@@ -160,32 +160,30 @@
   ],
   "changes": {
    "opened": 0,
-   "replaced": 0,
-   "unchanged": 1254,
-   "closed": 0
+   "replaced": 2,
+   "unchanged": 1250,
+   "closed": 2
   }
  },
  "gleif": {
-  "attempted": 58,
+  "attempted": 15,
   "HIGH": 0,
   "MEDIUM": 0,
-  "LOW": 58,
+  "LOW": 15,
   "with_parent": 0,
-  "cooling_down": 80,
+  "cooling_down": 123,
   "low_reasons": {
-   "mehrdeutig (5 Treffer)": 1,
-   "mehrdeutig (3 Treffer)": 6,
-   "mehrdeutig (2 Treffer)": 16,
-   "kein exakter Treffer": 34,
-   "mehrdeutig (4 Treffer)": 1
+   "kein exakter Treffer": 13,
+   "mehrdeutig (2 Treffer)": 1,
+   "mehrdeutig (3 Treffer)": 1
   },
   "remaining": 0
  },
  "errors": [],
  "gleif_children": {
   "fetched": 60,
-  "children": 217,
-  "opened": 217,
+  "children": 189,
+  "opened": 189,
   "linked_entities": 491
  }
 }
