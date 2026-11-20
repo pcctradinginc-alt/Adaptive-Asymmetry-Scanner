@@ -287,7 +287,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-20T18:25:57+00:00",
+        "evaluated_at": "2026-11-20T22:17:38+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -312,8 +312,8 @@
         ]
       },
       "peak_return": 0.2004,
-      "last_price": 288.46,
-      "current_return": -0.0675
+      "last_price": 286.2,
+      "current_return": -0.1071
     },
     {
       "ticker": "MET",
@@ -563,7 +563,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-20T18:25:57+00:00",
+        "evaluated_at": "2026-11-20T22:17:38+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -588,8 +588,16 @@
         ]
       },
       "peak_return": 0.0506,
-      "last_price": 97.29,
-      "current_return": -0.3544
+      "last_price": 95.67,
+      "current_return": -0.6203,
+      "exit_deferral": {
+        "days": [
+          "2026-11-20"
+        ],
+        "signal": "stop_loss",
+        "reason": "DECISION_OUTSIDE_WINDOW",
+        "last_outcome": -0.6203
+      }
     }
   ],
   "closed_trades": [
@@ -145852,38 +145860,43 @@
       "entry_date": "2026-10-16",
       "created": "2026-10-16",
       "mfe": 0.0506,
-      "mae": -0.4177,
+      "mae": -0.6203,
       "closed": false,
       "variants": {
         "tp50_sl45": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.6203,
+          "closed": true,
           "peak": 0.0506,
-          "close_date": null
+          "close_date": "2026-11-20",
+          "close_reason": "stop_loss"
         },
         "no_tp": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.6203,
+          "closed": true,
           "peak": 0.0506,
-          "close_date": null
+          "close_date": "2026-11-20",
+          "close_reason": "stop_loss"
         },
         "trail35": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.6203,
+          "closed": true,
           "peak": 0.0506,
-          "close_date": null
+          "close_date": "2026-11-20",
+          "close_reason": "stop_loss"
         },
         "trail50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.6203,
+          "closed": true,
           "peak": 0.0506,
-          "close_date": null
+          "close_date": "2026-11-20",
+          "close_reason": "stop_loss"
         },
         "partial50": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.6203,
+          "closed": true,
           "peak": 0.0506,
-          "close_date": null
+          "close_date": "2026-11-20",
+          "close_reason": "stop_loss"
         },
         "time_only": {
           "outcome": null,
