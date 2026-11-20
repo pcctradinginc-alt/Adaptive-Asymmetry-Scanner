@@ -287,7 +287,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-19T22:42:54+00:00",
+        "evaluated_at": "2026-11-20T01:22:34+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -563,7 +563,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-19T22:42:54+00:00",
+        "evaluated_at": "2026-11-20T01:22:34+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -93844,7 +93844,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": 0.0787,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5732,
@@ -93973,7 +93973,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "PANW",
@@ -94013,7 +94015,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.1324,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5626,
@@ -94142,7 +94144,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "CBOE",
@@ -94182,7 +94186,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": 0.2843,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.57,
@@ -94316,7 +94320,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "LLY",
@@ -94356,7 +94362,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": 0.1659,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6942,
@@ -94485,7 +94491,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "COHR",
@@ -94525,7 +94533,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.3601,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6596,
@@ -94654,7 +94662,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "SMCI",
@@ -94694,7 +94704,7 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null,
+      "outcome": -0.455,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.532,
@@ -94823,7 +94833,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "IFF",
@@ -94863,7 +94875,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.0623,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6804,
@@ -94992,7 +95004,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "SNPS",
@@ -95040,7 +95054,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.1488,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.693,
@@ -95169,7 +95183,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "KKR",
@@ -95209,7 +95225,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": 0.0109,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5896,
@@ -95338,7 +95354,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "SWKS",
@@ -95378,7 +95396,7 @@
         "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.0472,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.7182,
@@ -95507,7 +95525,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "BE",
@@ -95547,7 +95567,7 @@
         "surprise": 4,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null,
+      "outcome": -0.4373,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5334,
@@ -95676,7 +95696,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "CRWD",
@@ -95716,7 +95738,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.1247,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5534,
@@ -95845,7 +95867,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "BDX",
@@ -95885,7 +95909,7 @@
         "surprise": 5,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": 0.1778,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6494,
@@ -96014,7 +96038,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "FLEX",
@@ -96054,7 +96080,7 @@
         "surprise": 5,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.386,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5496,
@@ -96183,7 +96209,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "GFS",
@@ -96223,7 +96251,7 @@
         "surprise": 5,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.2056,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.626,
@@ -96352,7 +96380,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "RCL",
@@ -96392,7 +96422,7 @@
         "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": 0.0528,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6358,
@@ -96521,7 +96551,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "WDAY",
@@ -96561,7 +96593,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.0706,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6994,
@@ -96690,7 +96722,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "HOOD",
@@ -96738,7 +96772,7 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null,
+      "outcome": -0.3875,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.7022,
@@ -96867,7 +96901,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "NOW",
@@ -96907,7 +96943,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.3498,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6776,
@@ -97036,7 +97072,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "PANW",
@@ -97098,7 +97136,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.5406,
-      "outcome": null,
+      "outcome": -0.8778,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -97219,7 +97257,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "spread_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "LLY",
@@ -97275,7 +97315,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.5916,
-      "outcome": null,
+      "outcome": 0.8292,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -97396,7 +97436,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "SMCI",
@@ -97452,7 +97494,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.5088,
-      "outcome": null,
+      "outcome": -0.9163,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -97573,7 +97615,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "CRWD",
@@ -97629,7 +97673,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.545,
-      "outcome": null,
+      "outcome": -0.5274,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -97750,7 +97794,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "NOW",
@@ -97806,7 +97852,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.6612,
-      "outcome": null,
+      "outcome": -0.9543,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -97927,7 +97973,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "DG",
@@ -97983,7 +98031,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.4894,
-      "outcome": null,
+      "outcome": 0.2434,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -98104,7 +98152,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "GFS",
@@ -98160,7 +98210,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.619,
-      "outcome": null,
+      "outcome": -0.7059,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -98281,7 +98331,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "COHR",
@@ -98337,7 +98389,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.6354,
-      "outcome": null,
+      "outcome": -0.8759,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -98458,7 +98510,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "KKR",
@@ -98514,7 +98568,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.4882,
-      "outcome": null,
+      "outcome": -0.122,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -98635,7 +98689,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "BE",
@@ -98691,7 +98747,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.5256,
-      "outcome": null,
+      "outcome": -0.9128,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -98812,7 +98868,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "RCL",
@@ -98868,7 +98926,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.6084,
-      "outcome": null,
+      "outcome": 0.0702,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -98989,7 +99047,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "CBOE",
@@ -99051,7 +99111,7 @@
       },
       "vix": 15.04,
       "mc_hit_rate": 0.5296,
-      "outcome": null,
+      "outcome": -0.2518,
       "external_context_entry": {
         "snapshot_id": "cfd2e351628a5f30",
         "feature_version": {
@@ -99177,7 +99237,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "spread_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "WDAY",
@@ -99226,7 +99288,7 @@
         "bin_eps_drift": "noise",
         "quick_mc_hit_rate": 0.6784
       },
-      "outcome": null,
+      "outcome": -0.4502,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6994,
@@ -99355,7 +99417,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-20"
     },
     {
       "ticker": "GNRC",
@@ -144124,7 +144188,7 @@
       "created": "2026-10-06",
       "mfe": 0.0,
       "mae": -0.9147,
-      "closed": false,
+      "closed": true,
       "variants": {
         "tp50_sl45": {
           "outcome": -0.4593,
@@ -144162,10 +144226,11 @@
           "close_reason": "stop_loss"
         },
         "time_only": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.9116,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-11-20",
+          "close_reason": "time_exit"
         }
       }
     },
@@ -144207,7 +144272,7 @@
       "created": "2026-10-06",
       "mfe": 0.0,
       "mae": -0.8849,
-      "closed": false,
+      "closed": true,
       "variants": {
         "tp50_sl45": {
           "outcome": -0.5079,
@@ -144245,10 +144310,11 @@
           "close_reason": "stop_loss"
         },
         "time_only": {
-          "outcome": null,
-          "closed": false,
+          "outcome": -0.7659,
+          "closed": true,
           "peak": 0.0,
-          "close_date": null
+          "close_date": "2026-11-20",
+          "close_reason": "time_exit"
         }
       }
     },
@@ -144514,10 +144580,10 @@
   "feature_stats_external": {
     "freight_state": {
       "STRONG_CONTRACTION": {
-        "count": 30,
-        "mean": -0.25471,
-        "_m2": 12.486209246999998,
-        "wins": 11,
+        "count": 43,
+        "mean": -0.30448604651162786,
+        "_m2": 16.376308171627905,
+        "wins": 14,
         "outcomes": [
           -0.5079,
           -0.1818,
@@ -144548,24 +144614,50 @@
           0.2011,
           -0.4697,
           -0.5451,
-          -0.8519
+          -0.8519,
+          -0.8778,
+          0.8292,
+          -0.9163,
+          -0.5274,
+          -0.9543,
+          0.2434,
+          -0.7059,
+          -0.8759,
+          -0.122,
+          -0.9128,
+          0.0702,
+          -0.2518,
+          -0.4502
         ],
-        "strat_ret_sum": -7.6413,
-        "strat_ret_count": 30
+        "strat_ret_sum": -13.0929,
+        "strat_ret_count": 43
       }
     },
     "maritime_state": {
       "EXPANSION": {
-        "count": 2,
-        "mean": -0.488,
-        "_m2": 0.000792019999999999,
-        "wins": 0,
+        "count": 15,
+        "mean": -0.42850666666666665,
+        "_m2": 3.653199329333334,
+        "wins": 3,
         "outcomes": [
           -0.5079,
-          -0.4681
+          -0.4681,
+          -0.8778,
+          0.8292,
+          -0.9163,
+          -0.5274,
+          -0.9543,
+          0.2434,
+          -0.7059,
+          -0.8759,
+          -0.122,
+          -0.9128,
+          0.0702,
+          -0.2518,
+          -0.4502
         ],
-        "strat_ret_sum": -0.976,
-        "strat_ret_count": 2
+        "strat_ret_sum": -6.4276,
+        "strat_ret_count": 15
       },
       "NEUTRAL": {
         "count": 28,
@@ -144608,10 +144700,10 @@
     },
     "weather_operational_risk": {
       "elevated": {
-        "count": 30,
-        "mean": -0.25471,
-        "_m2": 12.486209246999998,
-        "wins": 11,
+        "count": 43,
+        "mean": -0.30448604651162786,
+        "_m2": 16.376308171627905,
+        "wins": 14,
         "outcomes": [
           -0.5079,
           -0.1818,
@@ -144642,18 +144734,31 @@
           0.2011,
           -0.4697,
           -0.5451,
-          -0.8519
+          -0.8519,
+          -0.8778,
+          0.8292,
+          -0.9163,
+          -0.5274,
+          -0.9543,
+          0.2434,
+          -0.7059,
+          -0.8759,
+          -0.122,
+          -0.9128,
+          0.0702,
+          -0.2518,
+          -0.4502
         ],
-        "strat_ret_sum": -7.6413,
-        "strat_ret_count": 30
+        "strat_ret_sum": -13.0929,
+        "strat_ret_count": 43
       }
     },
     "external_relation": {
       "NEUTRAL": {
-        "count": 26,
-        "mean": -0.2845038461538462,
-        "_m2": 11.055204709615385,
-        "wins": 8,
+        "count": 39,
+        "mean": -0.3294538461538461,
+        "_m2": 14.857043236923076,
+        "wins": 11,
         "outcomes": [
           -0.5079,
           -0.1818,
@@ -144680,10 +144785,23 @@
           0.2011,
           -0.4697,
           -0.5451,
-          -0.8519
+          -0.8519,
+          -0.8778,
+          0.8292,
+          -0.9163,
+          -0.5274,
+          -0.9543,
+          0.2434,
+          -0.7059,
+          -0.8759,
+          -0.122,
+          -0.9128,
+          0.0702,
+          -0.2518,
+          -0.4502
         ],
-        "strat_ret_sum": -7.397099999999999,
-        "strat_ret_count": 26
+        "strat_ret_sum": -12.8487,
+        "strat_ret_count": 39
       },
       "CONTRADICT": {
         "count": 4,
@@ -144702,16 +144820,29 @@
     },
     "road_shipping_agreement": {
       "MIXED": {
-        "count": 2,
-        "mean": -0.488,
-        "_m2": 0.000792019999999999,
-        "wins": 0,
+        "count": 15,
+        "mean": -0.42850666666666665,
+        "_m2": 3.653199329333334,
+        "wins": 3,
         "outcomes": [
           -0.5079,
-          -0.4681
+          -0.4681,
+          -0.8778,
+          0.8292,
+          -0.9163,
+          -0.5274,
+          -0.9543,
+          0.2434,
+          -0.7059,
+          -0.8759,
+          -0.122,
+          -0.9128,
+          0.0702,
+          -0.2518,
+          -0.4502
         ],
-        "strat_ret_sum": -0.976,
-        "strat_ret_count": 2
+        "strat_ret_sum": -6.4276,
+        "strat_ret_count": 15
       },
       "A_STRONGER": {
         "count": 28,
@@ -144754,16 +144885,29 @@
     },
     "shipping_breadth_bucket": {
       "<0.33": {
-        "count": 2,
-        "mean": -0.488,
-        "_m2": 0.000792019999999999,
-        "wins": 0,
+        "count": 15,
+        "mean": -0.42850666666666665,
+        "_m2": 3.653199329333334,
+        "wins": 3,
         "outcomes": [
           -0.5079,
-          -0.4681
+          -0.4681,
+          -0.8778,
+          0.8292,
+          -0.9163,
+          -0.5274,
+          -0.9543,
+          0.2434,
+          -0.7059,
+          -0.8759,
+          -0.122,
+          -0.9128,
+          0.0702,
+          -0.2518,
+          -0.4502
         ],
-        "strat_ret_sum": -0.976,
-        "strat_ret_count": 2
+        "strat_ret_sum": -6.4276,
+        "strat_ret_count": 15
       },
       "0.33-0.66": {
         "count": 28,
@@ -144806,16 +144950,29 @@
     },
     "divergence_bucket": {
       "high": {
-        "count": 2,
-        "mean": -0.488,
-        "_m2": 0.000792019999999999,
-        "wins": 0,
+        "count": 15,
+        "mean": -0.42850666666666665,
+        "_m2": 3.653199329333334,
+        "wins": 3,
         "outcomes": [
           -0.5079,
-          -0.4681
+          -0.4681,
+          -0.8778,
+          0.8292,
+          -0.9163,
+          -0.5274,
+          -0.9543,
+          0.2434,
+          -0.7059,
+          -0.8759,
+          -0.122,
+          -0.9128,
+          0.0702,
+          -0.2518,
+          -0.4502
         ],
-        "strat_ret_sum": -0.976,
-        "strat_ret_count": 2
+        "strat_ret_sum": -6.4276,
+        "strat_ret_count": 15
       },
       "medium": {
         "count": 22,
@@ -145207,7 +145364,20 @@
     "shadow:a5327fd866749421:45d:feature_stats_external": "2026-11-16",
     "shadow:2ce23b0f96a4980d:45d:feature_stats_external": "2026-11-16",
     "shadow:921aaa6eb1468570:45d:feature_stats_external": "2026-11-16",
-    "shadow:8db82f48c25c3ce9:45d:feature_stats_external": "2026-11-16"
+    "shadow:8db82f48c25c3ce9:45d:feature_stats_external": "2026-11-16",
+    "shadow:91764fd74dfc4294:45d:feature_stats_external": "2026-11-20",
+    "shadow:fdf3c94d9d8250a7:45d:feature_stats_external": "2026-11-20",
+    "shadow:c18867dc79bcebb3:45d:feature_stats_external": "2026-11-20",
+    "shadow:1332fe600ebe5332:45d:feature_stats_external": "2026-11-20",
+    "shadow:c0e74b5b4e3e1df5:45d:feature_stats_external": "2026-11-20",
+    "shadow:3859e03692003b30:45d:feature_stats_external": "2026-11-20",
+    "shadow:1efe2a0c442f3c5b:45d:feature_stats_external": "2026-11-20",
+    "shadow:c33dd715776092a8:45d:feature_stats_external": "2026-11-20",
+    "shadow:b0ad4edc40b3438a:45d:feature_stats_external": "2026-11-20",
+    "shadow:b24fb042405efb82:45d:feature_stats_external": "2026-11-20",
+    "shadow:986e0848b0eb0ef1:45d:feature_stats_external": "2026-11-20",
+    "shadow:56402a6a4d5ba04c:45d:feature_stats_external": "2026-11-20",
+    "shadow:81c703565160ee1a:45d:feature_stats_external": "2026-11-20"
   },
   "processed_outcomes_meta": {
     "duplicate_skips": 0,
