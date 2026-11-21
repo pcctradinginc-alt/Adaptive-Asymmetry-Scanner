@@ -982,6 +982,7 @@ def verified_daily_reference(
     raw_features: list[dict], wanted: list[dict],
     id_field: str, name_field: str, country_field: str | None,
     alias_map: dict[str, list[str]] | None = None,
+    verified_ids: dict[str, str] | None = None,
 ) -> list[dict] | None:
     """Avoid an unbounded historical DISTINCT query iff the just-fetched official
     daily window uniquely resolves EVERY configured entity. Otherwise do the
@@ -1004,7 +1005,8 @@ def verified_daily_reference(
     if not references:
         return None
     resolutions = resolve_entities_by_name(wanted, references, id_field, name_field,
-                                            country_field=country_field, alias_map=alias_map)
+                                            country_field=country_field, alias_map=alias_map,
+                                            verified_ids=verified_ids)
     return references if resolutions and all(x.status == "resolved" for x in resolutions) else None
 
 
@@ -1174,6 +1176,7 @@ def resolve_entities_by_name(
     name_field: str,
     country_field: str | None = "country",
     alias_map: dict[str, list[str]] | None = None,
+    verified_ids: dict[str, str] | None = None,
 ) -> list[ResolvedEntity]:
     """Matched eine gewünschte Liste {name, country?} gegen Referenz-Layer-
     Features (exakter, normalisierter Name; bei mehreren Treffern zusätzlich
@@ -1186,6 +1189,7 @@ def resolve_entities_by_name(
     es wird nie eine ID vergeben, ohne dass ein normalisierter Name (Original
     oder dokumentierter Alias) exakt in `reference_features` gefunden wurde."""
     alias_map = alias_map or {}
+    verified_ids = verified_ids or {}
     index: dict[str, list[dict]] = {}
     for feat in reference_features:
         attrs = feat.get("attributes", feat)
@@ -1203,12 +1207,24 @@ def resolve_entities_by_name(
         norm = candidate_norms[0]
         for cand_norm in candidate_norms:
             matches = index.get(cand_norm, [])
+            # An ID hint is a constraint, never an authority to invent data.
+            # The live row must still match this exact name/alias and country.
+            if name in verified_ids:
+                matches = [m for m in matches if str(m.get(id_field)) == verified_ids[name]]
             if matches:
                 norm = cand_norm
                 break
         if not matches:
             results.append(ResolvedEntity(name, country, None, "no_match", []))
             continue
+        if name in verified_ids and country and country_field:
+            # One wrong-country row must not pass simply because its ID and
+            # alias match. This is stricter than legacy name-only matching.
+            matches = [m for m in matches
+                       if normalize_name(str(m.get(country_field, ""))) == normalize_name(country)]
+            if not matches:
+                results.append(ResolvedEntity(name, country, None, "no_match", []))
+                continue
         if len(matches) > 1 and country and country_field:
             country_norm = normalize_name(country)
             filtered = [
@@ -1602,6 +1618,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
 
             universe = load_port_universe(self._universe_path)
             wanted = flatten_port_universe(universe)
+            verified_ids = universe.get("verified_port_id_hints") or {}
             reference_origin = "VERIFIED_REFERENCE_LAYER"
             if ref_ep.get("fallback_to_daily_layer"):
                 # Ports-Referenz-Layer konnte nicht org-verifiziert gefunden
@@ -1617,7 +1634,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                     ref_out_fields.append(ref_schema["country_field"])
                 ref_features = verified_daily_reference(
                     raw_features, wanted, ref_schema["id_field"], ref_schema["name_field"],
-                    ref_schema.get("country_field"), load_port_aliases(universe),
+                    ref_schema.get("country_field"), load_port_aliases(universe), verified_ids,
                 )
                 if ref_features is None:
                     reference_origin = "HISTORICAL_DISTINCT_QUERY"
@@ -1641,7 +1658,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
             resolved = resolve_entities_by_name(
                 wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"],
                 country_field=ref_schema.get("country_field"),
-                alias_map=load_port_aliases(universe),
+                alias_map=load_port_aliases(universe), verified_ids=verified_ids,
             )
             missing_names = {r.name for r in resolved if r.status != "resolved"}
             verified_reference_recovery = {"status": "NOT_REQUIRED", "verified": []}
@@ -1679,7 +1696,7 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 resolved = resolve_entities_by_name(
                     wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"],
                     country_field=ref_schema.get("country_field"),
-                    alias_map=load_port_aliases(universe),
+                    alias_map=load_port_aliases(universe), verified_ids=verified_ids,
                 )
             discovered_ids = {r.name: r.entity_id for r in resolved if r.status == "resolved"}
             unresolved = {r.name: r.status for r in resolved if r.status != "resolved"}
