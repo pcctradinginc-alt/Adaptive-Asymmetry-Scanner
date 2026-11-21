@@ -72,6 +72,35 @@ def test_nasdaq100_parser_and_snapshot():
         assert mp.Nasdaq100MembersConnector({}).fetch(NOW).status == SourceStatus.SCHEMA_CHANGED
 
 
+def test_nasdaq_tiny_http200_soft_response_recovers_only_with_fresh_official_rows():
+    calls = []
+    responses = [resp({"data": None, "status": {"rCode": 200}}), resp(_ndx())]
+
+    def fake_fetch(url, *, headers=None, **kwargs):
+        calls.append((url, dict(headers or {})))
+        return responses.pop(0)
+
+    with patch.object(mp.http, "fetch", side_effect=fake_fetch):
+        outcome = mp.Nasdaq100MembersConnector({}).fetch(NOW)
+    assert outcome.status == SourceStatus.PASS
+    assert len(outcome.observations[0].attrs["symbols"]) == 101
+    assert len(calls) == 2 and all(u == mp.NASDAQ100_URL for u, _ in calls)
+    assert calls[1][1]["Cache-Control"] == "no-cache"
+
+
+def test_nasdaq_repeated_api_soft_error_is_not_schema_change_or_fresh_data():
+    calls = []
+    def fake_fetch(url, **kwargs):
+        calls.append(url)
+        return resp({"data": None, "status": {"rCode": 429}})
+    with patch.object(mp.http, "fetch", side_effect=fake_fetch):
+        outcome = mp.Nasdaq100MembersConnector({}).fetch(NOW)
+    assert outcome.status == SourceStatus.FAIL
+    assert outcome.observations == []
+    assert len(calls) == 2 and outcome.raw
+    assert "soft error" in outcome.message
+
+
 def test_universe_v1_definition_untouched():
     """A4 archiviert nur: get_universe gehört zur eingefrorenen UNIVERSE_V1-Definition (Code-Hash) und bleibt
     unverändert – eine Umstellung der Produktionsquelle wäre eine eigene, freizugebende V1-Änderung."""

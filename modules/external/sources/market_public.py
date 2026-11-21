@@ -85,10 +85,49 @@ def parse_nasdaq100(payload: dict) -> list[str]:
     return syms
 
 
+class NasdaqResponseError(ValueError):
+    """A JSON 200 response failed semantic validation; preserve its raw evidence."""
+
+    def __init__(self, message: str, response: http.FetchResult, upstream: bool = False):
+        super().__init__(message)
+        self.response = response
+        self.upstream = upstream
+
+
+def _fetch_validated_nasdaq100() -> tuple[http.FetchResult, list[str]]:
+    """Retry one tiny/soft-error JSON response, never reuse stale members as fresh.
+
+    Nasdaq can answer HTTP 200 with a ~150-byte empty/soft-block body rather
+    than the ~20KB constituent table. This is not proof of a lasting schema
+    change. Only the same official URL is retried once with no-cache.
+    """
+    for attempt in range(2):
+        headers = (BROWSER_HEADERS if attempt == 0 else
+                   {**BROWSER_HEADERS, "Cache-Control": "no-cache"})
+        res = http.fetch(NASDAQ100_URL, headers=headers, retries=2 if attempt == 0 else 1)
+        try:
+            payload = res.json()
+            if not isinstance(payload, dict):
+                raise ValueError("Nasdaq response is not a JSON object")
+            status = payload.get("status")
+            response_code = status.get("rCode") if isinstance(status, dict) else None
+            if response_code not in (None, 0, 200, "200"):
+                raise NasdaqResponseError(
+                    f"Nasdaq API soft error rCode={str(response_code)[:24]}", res, upstream=True)
+            return res, parse_nasdaq100(payload)
+        except ValueError as exc:
+            if attempt == 0 and (res.bytes < 512 or isinstance(exc, NasdaqResponseError)):
+                continue
+            if isinstance(exc, NasdaqResponseError):
+                raise
+            raise NasdaqResponseError(str(exc), res) from exc
+    raise AssertionError("unreachable Nasdaq semantic retry")
+
+
 def fetch_nasdaq100() -> list[str]:
-    """Offizielle Liste oder [] (nie werfend) – für Abgleiche/Research, nicht im Produktionsuniversum."""
+    """Official live list or [] (never promote a malformed response to fresh)."""
     try:
-        return parse_nasdaq100(http.fetch(NASDAQ100_URL, headers=BROWSER_HEADERS, retries=2).json())
+        return _fetch_validated_nasdaq100()[1]
     except Exception as e:  # noqa: BLE001
         log.warning("Nasdaq-100 (nasdaq.com) nicht verfügbar: %s", e)
         return []
@@ -100,14 +139,15 @@ class Nasdaq100MembersConnector(Connector):
 
     def fetch(self, now: datetime) -> ConnectorResult:
         try:
-            res = http.fetch(NASDAQ100_URL, headers=BROWSER_HEADERS)
+            res, syms = _fetch_validated_nasdaq100()
         except http.FetchError as e:
             return ConnectorResult(self.source_id, SourceStatus.FAIL, message=f"nasdaq.com: {e}")
+        except NasdaqResponseError as e:
+            raw = [_raw(self.source_id, "nasdaq100", e.response)]
+            status = SourceStatus.FAIL if e.upstream else SourceStatus.SCHEMA_CHANGED
+            return ConnectorResult(self.source_id, status, raw=raw,
+                                   message=f"nasdaq.com invalid response after bounded retry: {e}")
         raw = [_raw(self.source_id, "nasdaq100", res)]
-        try:
-            syms = parse_nasdaq100(res.json())
-        except ValueError as e:
-            return ConnectorResult(self.source_id, SourceStatus.SCHEMA_CHANGED, raw=raw, message=str(e))
         t = _day(res.retrieved_at.date())
         obs = [Observation(source_id=self.source_id, dataset="index_constituents", series_id="NDX", entity_id="NDX",
                            metric="constituent_count", value=float(len(syms)), unit="count", observation_time=t,
