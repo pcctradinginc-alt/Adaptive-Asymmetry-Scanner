@@ -1,0 +1,2247 @@
+{
+  "schema": "option-feature-cohort-diagnostics-v1",
+  "as_of": "2026-11-21",
+  "research_only": true,
+  "production_influence": "NONE",
+  "real_orders": false,
+  "api_calls": 0,
+  "llm_calls": 0,
+  "model_or_protocol_changed": false,
+  "feature_set": [
+    "impact",
+    "surprise",
+    "options_skew_ratio",
+    "options_skew_25d",
+    "dealer_oi_ratio"
+  ],
+  "research_census_cutoff": "2026-10-30",
+  "horizons": {
+    "5": {
+      "horizon": 5,
+      "verified_only": true,
+      "selection": "option_learner.candidates -> VERIFIED (archived entry AND exit)",
+      "n_ledger_rows": 10669,
+      "n_unique_ledger_keys": 10669,
+      "all_ledger_numeric_feature_counts": {
+        "impact": 1055,
+        "surprise": 1055,
+        "options_skew_ratio": 2129,
+        "options_skew_25d": 2034,
+        "dealer_oi_ratio": 1973
+      },
+      "total": {
+        "labels": 1487,
+        "unique_candidates": 821,
+        "feature_coverage": {
+          "impact": {
+            "numeric": 507,
+            "fraction": 0.341
+          },
+          "surprise": {
+            "numeric": 507,
+            "fraction": 0.341
+          },
+          "options_skew_ratio": {
+            "numeric": 509,
+            "fraction": 0.3423
+          },
+          "options_skew_25d": {
+            "numeric": 504,
+            "fraction": 0.3389
+          },
+          "dealer_oi_ratio": {
+            "numeric": 480,
+            "fraction": 0.3228
+          }
+        }
+      },
+      "by_sample": {
+        "directional": {
+          "labels": 507,
+          "unique_candidates": 410,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 507,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 507,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 507,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 502,
+              "fraction": 0.9901
+            },
+            "dealer_oi_ratio": {
+              "numeric": 478,
+              "fraction": 0.9428
+            }
+          }
+        },
+        "research_census": {
+          "labels": 980,
+          "unique_candidates": 411,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 0.002
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 0.002
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 0.002
+            }
+          }
+        }
+      },
+      "by_era": {
+        "before_research_census": {
+          "labels": 446,
+          "unique_candidates": 387,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 446,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 446,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 446,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 444,
+              "fraction": 0.9955
+            },
+            "dealer_oi_ratio": {
+              "numeric": 417,
+              "fraction": 0.935
+            }
+          }
+        },
+        "from_research_census_start": {
+          "labels": 1041,
+          "unique_candidates": 434,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 61,
+              "fraction": 0.0586
+            },
+            "surprise": {
+              "numeric": 61,
+              "fraction": 0.0586
+            },
+            "options_skew_ratio": {
+              "numeric": 63,
+              "fraction": 0.0605
+            },
+            "options_skew_25d": {
+              "numeric": 60,
+              "fraction": 0.0576
+            },
+            "dealer_oi_ratio": {
+              "numeric": 63,
+              "fraction": 0.0605
+            }
+          }
+        }
+      },
+      "by_expression": {
+        "single": {
+          "labels": 821,
+          "unique_candidates": 821,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 410,
+              "fraction": 0.4994
+            },
+            "surprise": {
+              "numeric": 410,
+              "fraction": 0.4994
+            },
+            "options_skew_ratio": {
+              "numeric": 411,
+              "fraction": 0.5006
+            },
+            "options_skew_25d": {
+              "numeric": 408,
+              "fraction": 0.497
+            },
+            "dealer_oi_ratio": {
+              "numeric": 388,
+              "fraction": 0.4726
+            }
+          }
+        },
+        "single_alt": {
+          "labels": 382,
+          "unique_candidates": 382,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 21,
+              "fraction": 0.055
+            },
+            "surprise": {
+              "numeric": 21,
+              "fraction": 0.055
+            },
+            "options_skew_ratio": {
+              "numeric": 22,
+              "fraction": 0.0576
+            },
+            "options_skew_25d": {
+              "numeric": 21,
+              "fraction": 0.055
+            },
+            "dealer_oi_ratio": {
+              "numeric": 22,
+              "fraction": 0.0576
+            }
+          }
+        },
+        "spread": {
+          "labels": 284,
+          "unique_candidates": 284,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 76,
+              "fraction": 0.2676
+            },
+            "surprise": {
+              "numeric": 76,
+              "fraction": 0.2676
+            },
+            "options_skew_ratio": {
+              "numeric": 76,
+              "fraction": 0.2676
+            },
+            "options_skew_25d": {
+              "numeric": 75,
+              "fraction": 0.2641
+            },
+            "dealer_oi_ratio": {
+              "numeric": 70,
+              "fraction": 0.2465
+            }
+          }
+        }
+      },
+      "by_gate": {
+        "bearish_disabled": {
+          "labels": 143,
+          "unique_candidates": 117,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 143,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 143,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 143,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 139,
+              "fraction": 0.972
+            },
+            "dealer_oi_ratio": {
+              "numeric": 137,
+              "fraction": 0.958
+            }
+          }
+        },
+        "deep_analysis_veto_or_invalid": {
+          "labels": 2,
+          "unique_candidates": 1,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 1.0
+            }
+          }
+        },
+        "earnings_gate": {
+          "labels": 34,
+          "unique_candidates": 29,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 34,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 34,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 34,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 34,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 34,
+              "fraction": 1.0
+            }
+          }
+        },
+        "economics_first_earnings_gate": {
+          "labels": 12,
+          "unique_candidates": 5,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_25d": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "economics_first_quote_probe_budget": {
+          "labels": 798,
+          "unique_candidates": 340,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_25d": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "impact_x_surprise_below_floor": {
+          "labels": 14,
+          "unique_candidates": 12,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 14,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 14,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 14,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 14,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 12,
+              "fraction": 0.8571
+            }
+          }
+        },
+        "intraday_too_late": {
+          "labels": 4,
+          "unique_candidates": 2,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 4,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 4,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 4,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 4,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 4,
+              "fraction": 1.0
+            }
+          }
+        },
+        "mc_below_threshold": {
+          "labels": 48,
+          "unique_candidates": 42,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 47,
+              "fraction": 0.9792
+            },
+            "dealer_oi_ratio": {
+              "numeric": 47,
+              "fraction": 0.9792
+            }
+          }
+        },
+        "mismatch_below_min": {
+          "labels": 196,
+          "unique_candidates": 159,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 196,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 196,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 196,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 196,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 182,
+              "fraction": 0.9286
+            }
+          }
+        },
+        "options_design_roi_or_edge": {
+          "labels": 63,
+          "unique_candidates": 45,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 63,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 63,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 63,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 63,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 57,
+              "fraction": 0.9048
+            }
+          }
+        },
+        "prescreen_no": {
+          "labels": 20,
+          "unique_candidates": 8,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_25d": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "proposed": {
+          "labels": 3,
+          "unique_candidates": 2,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 3,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 3,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 3,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 3,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 3,
+              "fraction": 1.0
+            }
+          }
+        },
+        "sector_momentum_weak": {
+          "labels": 148,
+          "unique_candidates": 57,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_25d": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "unlabeled_after_options_design": {
+          "labels": 2,
+          "unique_candidates": 2,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 1.0
+            }
+          }
+        }
+      },
+      "by_signal_day": {
+        "2026-10-14": {
+          "labels": 42,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 42,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 42,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 42,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 42,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 41,
+              "fraction": 0.9762
+            }
+          }
+        },
+        "2026-10-15": {
+          "labels": 44,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 42,
+              "fraction": 0.9545
+            }
+          }
+        },
+        "2026-10-16": {
+          "labels": 45,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 45,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 45,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 45,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 45,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 41,
+              "fraction": 0.9111
+            }
+          }
+        },
+        "2026-10-19": {
+          "labels": 48,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 48,
+              "fraction": 1.0
+            }
+          }
+        },
+        "2026-10-20": {
+          "labels": 42,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 42,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 42,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 42,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 42,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 39,
+              "fraction": 0.9286
+            }
+          }
+        },
+        "2026-10-21": {
+          "labels": 44,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 43,
+              "fraction": 0.9773
+            },
+            "dealer_oi_ratio": {
+              "numeric": 43,
+              "fraction": 0.9773
+            }
+          }
+        },
+        "2026-10-22": {
+          "labels": 44,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 43,
+              "fraction": 0.9773
+            },
+            "dealer_oi_ratio": {
+              "numeric": 41,
+              "fraction": 0.9318
+            }
+          }
+        },
+        "2026-10-23": {
+          "labels": 50,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 50,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 50,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 50,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 50,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 45,
+              "fraction": 0.9
+            }
+          }
+        },
+        "2026-10-26": {
+          "labels": 44,
+          "unique_candidates": 35,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 41,
+              "fraction": 0.9318
+            }
+          }
+        },
+        "2026-10-27": {
+          "labels": 37,
+          "unique_candidates": 28,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 37,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 37,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 37,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 37,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 33,
+              "fraction": 0.8919
+            }
+          }
+        },
+        "2026-10-28": {
+          "labels": 1,
+          "unique_candidates": 1,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "2026-10-29": {
+          "labels": 5,
+          "unique_candidates": 3,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 5,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 5,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 5,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 5,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 3,
+              "fraction": 0.6
+            }
+          }
+        },
+        "2026-10-30": {
+          "labels": 49,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "surprise": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 0.0408
+            }
+          }
+        },
+        "2026-11-02": {
+          "labels": 91,
+          "unique_candidates": 39,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 2,
+              "fraction": 0.022
+            },
+            "surprise": {
+              "numeric": 2,
+              "fraction": 0.022
+            },
+            "options_skew_ratio": {
+              "numeric": 4,
+              "fraction": 0.044
+            },
+            "options_skew_25d": {
+              "numeric": 4,
+              "fraction": 0.044
+            },
+            "dealer_oi_ratio": {
+              "numeric": 4,
+              "fraction": 0.044
+            }
+          }
+        },
+        "2026-11-03": {
+          "labels": 93,
+          "unique_candidates": 39,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 2,
+              "fraction": 0.0215
+            },
+            "surprise": {
+              "numeric": 2,
+              "fraction": 0.0215
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 0.0215
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 0.0215
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 0.0215
+            }
+          }
+        },
+        "2026-11-04": {
+          "labels": 88,
+          "unique_candidates": 39,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 2,
+              "fraction": 0.0227
+            },
+            "surprise": {
+              "numeric": 2,
+              "fraction": 0.0227
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 0.0227
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 0.0227
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 0.0227
+            }
+          }
+        },
+        "2026-11-05": {
+          "labels": 99,
+          "unique_candidates": 38,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 9,
+              "fraction": 0.0909
+            },
+            "surprise": {
+              "numeric": 9,
+              "fraction": 0.0909
+            },
+            "options_skew_ratio": {
+              "numeric": 9,
+              "fraction": 0.0909
+            },
+            "options_skew_25d": {
+              "numeric": 9,
+              "fraction": 0.0909
+            },
+            "dealer_oi_ratio": {
+              "numeric": 9,
+              "fraction": 0.0909
+            }
+          }
+        },
+        "2026-11-06": {
+          "labels": 97,
+          "unique_candidates": 39,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 6,
+              "fraction": 0.0619
+            },
+            "surprise": {
+              "numeric": 6,
+              "fraction": 0.0619
+            },
+            "options_skew_ratio": {
+              "numeric": 6,
+              "fraction": 0.0619
+            },
+            "options_skew_25d": {
+              "numeric": 6,
+              "fraction": 0.0619
+            },
+            "dealer_oi_ratio": {
+              "numeric": 6,
+              "fraction": 0.0619
+            }
+          }
+        },
+        "2026-11-09": {
+          "labels": 105,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 8,
+              "fraction": 0.0762
+            },
+            "surprise": {
+              "numeric": 8,
+              "fraction": 0.0762
+            },
+            "options_skew_ratio": {
+              "numeric": 8,
+              "fraction": 0.0762
+            },
+            "options_skew_25d": {
+              "numeric": 8,
+              "fraction": 0.0762
+            },
+            "dealer_oi_ratio": {
+              "numeric": 8,
+              "fraction": 0.0762
+            }
+          }
+        },
+        "2026-11-10": {
+          "labels": 108,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 6,
+              "fraction": 0.0556
+            },
+            "surprise": {
+              "numeric": 6,
+              "fraction": 0.0556
+            },
+            "options_skew_ratio": {
+              "numeric": 6,
+              "fraction": 0.0556
+            },
+            "options_skew_25d": {
+              "numeric": 6,
+              "fraction": 0.0556
+            },
+            "dealer_oi_ratio": {
+              "numeric": 6,
+              "fraction": 0.0556
+            }
+          }
+        },
+        "2026-11-11": {
+          "labels": 101,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 9,
+              "fraction": 0.0891
+            },
+            "surprise": {
+              "numeric": 9,
+              "fraction": 0.0891
+            },
+            "options_skew_ratio": {
+              "numeric": 9,
+              "fraction": 0.0891
+            },
+            "options_skew_25d": {
+              "numeric": 6,
+              "fraction": 0.0594
+            },
+            "dealer_oi_ratio": {
+              "numeric": 9,
+              "fraction": 0.0891
+            }
+          }
+        },
+        "2026-11-12": {
+          "labels": 101,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 9,
+              "fraction": 0.0891
+            },
+            "surprise": {
+              "numeric": 9,
+              "fraction": 0.0891
+            },
+            "options_skew_ratio": {
+              "numeric": 9,
+              "fraction": 0.0891
+            },
+            "options_skew_25d": {
+              "numeric": 9,
+              "fraction": 0.0891
+            },
+            "dealer_oi_ratio": {
+              "numeric": 9,
+              "fraction": 0.0891
+            }
+          }
+        },
+        "2026-11-13": {
+          "labels": 109,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 6,
+              "fraction": 0.055
+            },
+            "surprise": {
+              "numeric": 6,
+              "fraction": 0.055
+            },
+            "options_skew_ratio": {
+              "numeric": 6,
+              "fraction": 0.055
+            },
+            "options_skew_25d": {
+              "numeric": 6,
+              "fraction": 0.055
+            },
+            "dealer_oi_ratio": {
+              "numeric": 6,
+              "fraction": 0.055
+            }
+          }
+        }
+      },
+      "source_audit": {
+        "impact": {
+          "numeric_in_source": 507,
+          "valid_and_extracted": 507,
+          "missing_key": 980,
+          "null_value": 0,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        },
+        "surprise": {
+          "numeric_in_source": 507,
+          "valid_and_extracted": 507,
+          "missing_key": 980,
+          "null_value": 0,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        },
+        "options_skew_ratio": {
+          "numeric_in_source": 509,
+          "valid_and_extracted": 509,
+          "missing_key": 978,
+          "null_value": 0,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        },
+        "options_skew_25d": {
+          "numeric_in_source": 504,
+          "valid_and_extracted": 504,
+          "missing_key": 978,
+          "null_value": 5,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        },
+        "dealer_oi_ratio": {
+          "numeric_in_source": 480,
+          "valid_and_extracted": 480,
+          "missing_key": 978,
+          "null_value": 29,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        }
+      },
+      "source_rows_unmatched": 0,
+      "reader_consistency": "CONSISTENT",
+      "reader_mismatches": {},
+      "frozen_directional_decision_timestamp_count": 15,
+      "per_feature_pit_provenance": "NOT_RECORDED",
+      "interpretation_limitations": [
+        "Coverage describes verified labels, not the full tradable population.",
+        "One candidate may contribute multiple option expressions (non-independent labels).",
+        "5d and 20d have different maturity windows; raw percentages are not a paired experiment.",
+        "Existing ledger does not record a separate timestamp for each feature; its exact ex-ante availability cannot be independently certified from this report.",
+        "Missing features are not imputed, backfilled, or set to zero."
+      ],
+      "manifest": {
+        "cutoff": "2026-11-21",
+        "n_labels": 1487,
+        "labels_sha256": "c970df444e462959",
+        "first_signal": "2026-10-14",
+        "last_signal": "2026-11-13",
+        "by_expression": {
+          "single": 821,
+          "single_alt": 382,
+          "spread": 284
+        },
+        "all_labels_verified": true,
+        "trains_model": true
+      },
+      "stored_status_reconciliation": {
+        "status": "REPRODUCED",
+        "stored_labels": 1487,
+        "stored_manifest": "c970df444e462959",
+        "current_manifest": "c970df444e462959"
+      }
+    },
+    "20": {
+      "horizon": 20,
+      "verified_only": true,
+      "selection": "option_learner.candidates -> VERIFIED (archived entry AND exit)",
+      "n_ledger_rows": 10669,
+      "n_unique_ledger_keys": 10669,
+      "all_ledger_numeric_feature_counts": {
+        "impact": 1055,
+        "surprise": 1055,
+        "options_skew_ratio": 2129,
+        "options_skew_25d": 2034,
+        "dealer_oi_ratio": 1973
+      },
+      "total": {
+        "labels": 492,
+        "unique_candidates": 424,
+        "feature_coverage": {
+          "impact": {
+            "numeric": 445,
+            "fraction": 0.9045
+          },
+          "surprise": {
+            "numeric": 445,
+            "fraction": 0.9045
+          },
+          "options_skew_ratio": {
+            "numeric": 445,
+            "fraction": 0.9045
+          },
+          "options_skew_25d": {
+            "numeric": 443,
+            "fraction": 0.9004
+          },
+          "dealer_oi_ratio": {
+            "numeric": 416,
+            "fraction": 0.8455
+          }
+        }
+      },
+      "by_sample": {
+        "directional": {
+          "labels": 445,
+          "unique_candidates": 386,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 445,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 445,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 445,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 443,
+              "fraction": 0.9955
+            },
+            "dealer_oi_ratio": {
+              "numeric": 416,
+              "fraction": 0.9348
+            }
+          }
+        },
+        "research_census": {
+          "labels": 47,
+          "unique_candidates": 38,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_25d": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        }
+      },
+      "by_era": {
+        "before_research_census": {
+          "labels": 443,
+          "unique_candidates": 384,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 443,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 443,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 443,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 441,
+              "fraction": 0.9955
+            },
+            "dealer_oi_ratio": {
+              "numeric": 414,
+              "fraction": 0.9345
+            }
+          }
+        },
+        "from_research_census_start": {
+          "labels": 49,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "surprise": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 0.0408
+            }
+          }
+        }
+      },
+      "by_expression": {
+        "single": {
+          "labels": 424,
+          "unique_candidates": 424,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 386,
+              "fraction": 0.9104
+            },
+            "surprise": {
+              "numeric": 386,
+              "fraction": 0.9104
+            },
+            "options_skew_ratio": {
+              "numeric": 386,
+              "fraction": 0.9104
+            },
+            "options_skew_25d": {
+              "numeric": 384,
+              "fraction": 0.9057
+            },
+            "dealer_oi_ratio": {
+              "numeric": 363,
+              "fraction": 0.8561
+            }
+          }
+        },
+        "spread": {
+          "labels": 68,
+          "unique_candidates": 68,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 59,
+              "fraction": 0.8676
+            },
+            "surprise": {
+              "numeric": 59,
+              "fraction": 0.8676
+            },
+            "options_skew_ratio": {
+              "numeric": 59,
+              "fraction": 0.8676
+            },
+            "options_skew_25d": {
+              "numeric": 59,
+              "fraction": 0.8676
+            },
+            "dealer_oi_ratio": {
+              "numeric": 53,
+              "fraction": 0.7794
+            }
+          }
+        }
+      },
+      "by_gate": {
+        "bearish_disabled": {
+          "labels": 126,
+          "unique_candidates": 110,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 126,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 126,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 126,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 125,
+              "fraction": 0.9921
+            },
+            "dealer_oi_ratio": {
+              "numeric": 120,
+              "fraction": 0.9524
+            }
+          }
+        },
+        "earnings_gate": {
+          "labels": 34,
+          "unique_candidates": 29,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 34,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 34,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 34,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 34,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 34,
+              "fraction": 1.0
+            }
+          }
+        },
+        "economics_first_quote_probe_budget": {
+          "labels": 44,
+          "unique_candidates": 36,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_25d": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "impact_x_surprise_below_floor": {
+          "labels": 14,
+          "unique_candidates": 12,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 14,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 14,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 14,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 14,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 12,
+              "fraction": 0.8571
+            }
+          }
+        },
+        "intraday_too_late": {
+          "labels": 1,
+          "unique_candidates": 1,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 1,
+              "fraction": 1.0
+            }
+          }
+        },
+        "mc_below_threshold": {
+          "labels": 44,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 43,
+              "fraction": 0.9773
+            },
+            "dealer_oi_ratio": {
+              "numeric": 43,
+              "fraction": 0.9773
+            }
+          }
+        },
+        "mismatch_below_min": {
+          "labels": 170,
+          "unique_candidates": 149,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 170,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 170,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 170,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 170,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 156,
+              "fraction": 0.9176
+            }
+          }
+        },
+        "options_design_roi_or_edge": {
+          "labels": 51,
+          "unique_candidates": 41,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 51,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 51,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 51,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 51,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 45,
+              "fraction": 0.8824
+            }
+          }
+        },
+        "prescreen_no": {
+          "labels": 2,
+          "unique_candidates": 1,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_25d": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "proposed": {
+          "labels": 3,
+          "unique_candidates": 2,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 3,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 3,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 3,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 3,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 3,
+              "fraction": 1.0
+            }
+          }
+        },
+        "sector_momentum_weak": {
+          "labels": 1,
+          "unique_candidates": 1,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "surprise": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "options_skew_25d": {
+              "numeric": 0,
+              "fraction": 0.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "unlabeled_after_options_design": {
+          "labels": 2,
+          "unique_candidates": 2,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 1.0
+            }
+          }
+        }
+      },
+      "by_signal_day": {
+        "2026-10-14": {
+          "labels": 41,
+          "unique_candidates": 39,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 41,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 41,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 41,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 41,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 40,
+              "fraction": 0.9756
+            }
+          }
+        },
+        "2026-10-15": {
+          "labels": 44,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 42,
+              "fraction": 0.9545
+            }
+          }
+        },
+        "2026-10-16": {
+          "labels": 45,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 45,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 45,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 45,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 45,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 41,
+              "fraction": 0.9111
+            }
+          }
+        },
+        "2026-10-19": {
+          "labels": 48,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 48,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 48,
+              "fraction": 1.0
+            }
+          }
+        },
+        "2026-10-20": {
+          "labels": 41,
+          "unique_candidates": 39,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 41,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 41,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 41,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 41,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 38,
+              "fraction": 0.9268
+            }
+          }
+        },
+        "2026-10-21": {
+          "labels": 43,
+          "unique_candidates": 39,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 43,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 43,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 43,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 42,
+              "fraction": 0.9767
+            },
+            "dealer_oi_ratio": {
+              "numeric": 42,
+              "fraction": 0.9767
+            }
+          }
+        },
+        "2026-10-22": {
+          "labels": 44,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 43,
+              "fraction": 0.9773
+            },
+            "dealer_oi_ratio": {
+              "numeric": 41,
+              "fraction": 0.9318
+            }
+          }
+        },
+        "2026-10-23": {
+          "labels": 50,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 50,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 50,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 50,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 50,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 45,
+              "fraction": 0.9
+            }
+          }
+        },
+        "2026-10-26": {
+          "labels": 44,
+          "unique_candidates": 35,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 44,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 41,
+              "fraction": 0.9318
+            }
+          }
+        },
+        "2026-10-27": {
+          "labels": 37,
+          "unique_candidates": 28,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 37,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 37,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 37,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 37,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 33,
+              "fraction": 0.8919
+            }
+          }
+        },
+        "2026-10-28": {
+          "labels": 1,
+          "unique_candidates": 1,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 1,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 0,
+              "fraction": 0.0
+            }
+          }
+        },
+        "2026-10-29": {
+          "labels": 5,
+          "unique_candidates": 3,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 5,
+              "fraction": 1.0
+            },
+            "surprise": {
+              "numeric": 5,
+              "fraction": 1.0
+            },
+            "options_skew_ratio": {
+              "numeric": 5,
+              "fraction": 1.0
+            },
+            "options_skew_25d": {
+              "numeric": 5,
+              "fraction": 1.0
+            },
+            "dealer_oi_ratio": {
+              "numeric": 3,
+              "fraction": 0.6
+            }
+          }
+        },
+        "2026-10-30": {
+          "labels": 49,
+          "unique_candidates": 40,
+          "feature_coverage": {
+            "impact": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "surprise": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "options_skew_ratio": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "options_skew_25d": {
+              "numeric": 2,
+              "fraction": 0.0408
+            },
+            "dealer_oi_ratio": {
+              "numeric": 2,
+              "fraction": 0.0408
+            }
+          }
+        }
+      },
+      "source_audit": {
+        "impact": {
+          "numeric_in_source": 445,
+          "valid_and_extracted": 445,
+          "missing_key": 47,
+          "null_value": 0,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        },
+        "surprise": {
+          "numeric_in_source": 445,
+          "valid_and_extracted": 445,
+          "missing_key": 47,
+          "null_value": 0,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        },
+        "options_skew_ratio": {
+          "numeric_in_source": 445,
+          "valid_and_extracted": 445,
+          "missing_key": 47,
+          "null_value": 0,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        },
+        "options_skew_25d": {
+          "numeric_in_source": 443,
+          "valid_and_extracted": 443,
+          "missing_key": 47,
+          "null_value": 2,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        },
+        "dealer_oi_ratio": {
+          "numeric_in_source": 416,
+          "valid_and_extracted": 416,
+          "missing_key": 47,
+          "null_value": 29,
+          "invalid_non_numeric": 0,
+          "reader_mismatch": 0,
+          "reader_without_valid_source": 0,
+          "numeric_top_level_only": 0
+        }
+      },
+      "source_rows_unmatched": 0,
+      "reader_consistency": "CONSISTENT",
+      "reader_mismatches": {},
+      "frozen_directional_decision_timestamp_count": 0,
+      "per_feature_pit_provenance": "NOT_RECORDED",
+      "interpretation_limitations": [
+        "Coverage describes verified labels, not the full tradable population.",
+        "One candidate may contribute multiple option expressions (non-independent labels).",
+        "5d and 20d have different maturity windows; raw percentages are not a paired experiment.",
+        "Existing ledger does not record a separate timestamp for each feature; its exact ex-ante availability cannot be independently certified from this report.",
+        "Missing features are not imputed, backfilled, or set to zero."
+      ],
+      "manifest": {
+        "cutoff": "2026-11-21",
+        "n_labels": 492,
+        "labels_sha256": "a7f8c99210074a00",
+        "first_signal": "2026-10-14",
+        "last_signal": "2026-10-30",
+        "by_expression": {
+          "single": 424,
+          "spread": 68
+        },
+        "all_labels_verified": true,
+        "trains_model": true
+      },
+      "stored_status_reconciliation": {
+        "status": "REPRODUCED",
+        "stored_labels": 492,
+        "stored_manifest": "a7f8c99210074a00",
+        "current_manifest": "a7f8c99210074a00"
+      }
+    }
+  },
+  "raw_20d_minus_5d_coverage": {
+    "impact": 0.5635,
+    "surprise": 0.5635,
+    "options_skew_ratio": 0.5622,
+    "options_skew_25d": 0.5615,
+    "dealer_oi_ratio": 0.5227
+  },
+  "root_cause_status": "READ_PATH_CONSISTENT__COHORT_AND_STAGE_COMPOSITION_TO_REVIEW",
+  "required_next_decision": "Keep experiment frozen. Inspect by_sample/by_era/by_gate/by_signal_day and feature-specific source missingness before any feature edit or ablation.",
+  "not_alpha_evidence": true
+}

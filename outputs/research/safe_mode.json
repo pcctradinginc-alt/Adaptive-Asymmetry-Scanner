@@ -1,64 +1,67 @@
 {
  "active": true,
  "reasons": [
-  "EXCESSIVE MODEL DISAGREEMENT",
-  "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
+  "FEATURE DRIFT SEVERE: Regime-Merkmale außerhalb des Trainingsbereichs (['vix', 'vix_chg_21', 'tnx'])",
+  "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-4.81"
  ],
  "components": {
-  "drift": [],
+  "drift": [
+   "FEATURE DRIFT SEVERE: Regime-Merkmale außerhalb des Trainingsbereichs (['vix', 'vix_chg_21', 'tnx'])"
+  ],
   "model": [
-   "EXCESSIVE MODEL DISAGREEMENT",
-   "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
+   "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-4.81"
   ],
   "data": []
  },
  "drift": {
   "feature": {
-   "level": "MODERATE",
+   "level": "SEVERE",
    "features_out_of_range": [
+    "vix",
+    "vix_chg_21",
     "tnx"
    ],
-   "share_out": 0.167,
+   "share_out": 0.5,
    "per_feature": {
     "vix": {
-     "level": "NORMAL",
-     "excess": 0.0,
-     "value": 19.3,
+     "level": "MODERATE",
+     "excess": 0.1224,
+     "value": 35.89,
      "p01": 12.2374,
      "p99": 33.3101
     },
     "vix_chg_21": {
-     "level": "NORMAL",
-     "excess": 0.0,
-     "value": 2.84,
+     "level": "MODERATE",
+     "excess": 0.1222,
+     "value": 16.86,
      "p01": -11.8762,
      "p99": 13.7307
     },
     "spy_trend_200": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 0.0344,
+     "value": -0.0554,
      "p01": -0.1303,
      "p99": 0.1626
     },
     "spy_mom_63": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": -0.0213,
+     "value": -0.0942,
      "p01": -0.1323,
      "p99": 0.1471
     },
     "tnx": {
-     "level": "MODERATE",
-     "excess": 0.1011,
-     "value": 5.154,
+     "level": "MILD",
+     "excess": 0.0354,
+     "value": 4.912,
      "p01": 1.0993,
      "p99": 4.7817
     },
     "curve_10y_3m": {
      "level": "NORMAL",
      "excess": 0.0,
-     "value": 1.032,
+     "value": 0.79,
      "p01": -1.5086,
      "p99": 2.0797
     }
@@ -76,5 +79,5 @@
  "canonical": false,
  "see": "outputs/state/system_state.json",
  "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
- "updated": "2026-11-14T15:23:46+00:00"
+ "updated": "2026-11-21T16:26:42+00:00"
 }

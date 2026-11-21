@@ -1,120 +1,158 @@
 {
- "generated": "2026-11-14T15:24:11+00:00",
+ "generated": "2026-11-21T16:27:07+00:00",
  "gaps": [
   {
    "gap_id": "data:sparse_feature:news_novelty:20d",
    "kind": "data",
    "horizon": 20,
-   "finding": "Merkmal news_novelty nur in 0% der 356 geprüften Labels befüllt – vom Modell verworfen",
+   "finding": "Merkmal news_novelty nur in 0% der 492 geprüften Labels befüllt – vom Modell verworfen",
    "metric": "feature_coverage",
    "value": 0.0,
    "threshold": 0.5,
    "severity": 1.0,
    "feature": "news_novelty",
    "variant_coverage": {
-    "news_novelty__novelty_max": 0.7219,
-    "news_novelty__novelty_mean": 0.7219
+    "news_novelty__novelty_max": 0.7988,
+    "news_novelty__novelty_mean": 0.7988
    }
   },
   {
    "gap_id": "data:sparse_feature:news_novelty:5d",
    "kind": "data",
    "horizon": 5,
-   "finding": "Merkmal news_novelty nur in 0% der 963 geprüften Labels befüllt – vom Modell verworfen",
+   "finding": "Merkmal news_novelty nur in 0% der 1487 geprüften Labels befüllt – vom Modell verworfen",
    "metric": "feature_coverage",
    "value": 0.0,
    "threshold": 0.5,
    "severity": 1.0,
    "feature": "news_novelty",
    "variant_coverage": {
-    "news_novelty__novelty_max": 0.893,
-    "news_novelty__novelty_mean": 0.893
+    "news_novelty__novelty_max": 0.9301,
+    "news_novelty__novelty_mean": 0.9301
    }
   },
   {
    "gap_id": "data:sparse_feature:dealer_oi_ratio:5d",
    "kind": "data",
    "horizon": 5,
-   "finding": "Merkmal dealer_oi_ratio nur in 46% der 963 geprüften Labels befüllt – vom Modell verworfen",
+   "finding": "Merkmal dealer_oi_ratio nur in 32% der 1487 geprüften Labels befüllt – vom Modell verworfen",
    "metric": "feature_coverage",
-   "value": 0.459,
+   "value": 0.3228,
    "threshold": 0.5,
-   "severity": 0.541,
+   "severity": 0.677,
    "feature": "dealer_oi_ratio",
    "variant_coverage": {
-    "news_novelty__novelty_max": 0.893,
-    "news_novelty__novelty_mean": 0.893
-   }
-  },
-  {
-   "gap_id": "data:sparse_feature:impact:5d",
-   "kind": "data",
-   "horizon": 5,
-   "finding": "Merkmal impact nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen",
-   "metric": "feature_coverage",
-   "value": 0.487,
-   "threshold": 0.5,
-   "severity": 0.513,
-   "feature": "impact",
-   "variant_coverage": {
-    "news_novelty__novelty_max": 0.893,
-    "news_novelty__novelty_mean": 0.893
+    "news_novelty__novelty_max": 0.9301,
+    "news_novelty__novelty_mean": 0.9301
    }
   },
   {
    "gap_id": "data:sparse_feature:options_skew_25d:5d",
    "kind": "data",
    "horizon": 5,
-   "finding": "Merkmal options_skew_25d nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen",
+   "finding": "Merkmal options_skew_25d nur in 34% der 1487 geprüften Labels befüllt – vom Modell verworfen",
    "metric": "feature_coverage",
-   "value": 0.487,
+   "value": 0.3389,
    "threshold": 0.5,
-   "severity": 0.513,
+   "severity": 0.661,
    "feature": "options_skew_25d",
    "variant_coverage": {
-    "news_novelty__novelty_max": 0.893,
-    "news_novelty__novelty_mean": 0.893
+    "news_novelty__novelty_max": 0.9301,
+    "news_novelty__novelty_mean": 0.9301
+   }
+  },
+  {
+   "gap_id": "data:sparse_feature:impact:5d",
+   "kind": "data",
+   "horizon": 5,
+   "finding": "Merkmal impact nur in 34% der 1487 geprüften Labels befüllt – vom Modell verworfen",
+   "metric": "feature_coverage",
+   "value": 0.341,
+   "threshold": 0.5,
+   "severity": 0.659,
+   "feature": "impact",
+   "variant_coverage": {
+    "news_novelty__novelty_max": 0.9301,
+    "news_novelty__novelty_mean": 0.9301
    }
   },
   {
    "gap_id": "data:sparse_feature:surprise:5d",
    "kind": "data",
    "horizon": 5,
-   "finding": "Merkmal surprise nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen",
+   "finding": "Merkmal surprise nur in 34% der 1487 geprüften Labels befüllt – vom Modell verworfen",
    "metric": "feature_coverage",
-   "value": 0.487,
+   "value": 0.341,
    "threshold": 0.5,
-   "severity": 0.513,
+   "severity": 0.659,
    "feature": "surprise",
    "variant_coverage": {
-    "news_novelty__novelty_max": 0.893,
-    "news_novelty__novelty_mean": 0.893
+    "news_novelty__novelty_max": 0.9301,
+    "news_novelty__novelty_mean": 0.9301
    }
   },
   {
    "gap_id": "data:sparse_feature:options_skew_ratio:5d",
    "kind": "data",
    "horizon": 5,
-   "finding": "Merkmal options_skew_ratio nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen",
+   "finding": "Merkmal options_skew_ratio nur in 34% der 1487 geprüften Labels befüllt – vom Modell verworfen",
    "metric": "feature_coverage",
-   "value": 0.4891,
+   "value": 0.3423,
    "threshold": 0.5,
-   "severity": 0.511,
+   "severity": 0.658,
    "feature": "options_skew_ratio",
    "variant_coverage": {
-    "news_novelty__novelty_max": 0.893,
-    "news_novelty__novelty_mean": 0.893
+    "news_novelty__novelty_max": 0.9301,
+    "news_novelty__novelty_mean": 0.9301
    }
   },
   {
-   "gap_id": "model:overfit_risk:20d",
+   "gap_id": "model:weak_segment:walk_forward:sector=Technology:5d",
    "kind": "model",
-   "horizon": 20,
-   "finding": "33 Merkmale auf 356 geprüfte Labels (11 je Merkmal, Faustregel >= 20)",
-   "metric": "labels_per_feature",
-   "value": 10.8,
-   "threshold": 20,
-   "severity": 0.461
+   "horizon": 5,
+   "finding": "walk_forward: Entscheidungen im Segment sector=Technology netto Ø -0.248454 (n=23, 5 Tage) unter dem Gesamtmittel -0.097501",
+   "metric": "segment_mean",
+   "value": -0.248454,
+   "threshold": "> -0.097501 und >= 0",
+   "severity": 0.5,
+   "segment": {
+    "dimension": "sector",
+    "level": "Technology",
+    "n": 23,
+    "dates": 5,
+    "mean": -0.248454,
+    "win_rate": 0.2174
+   }
+  },
+  {
+   "gap_id": "representativeness:representativeness:04c631:5d",
+   "kind": "representativeness",
+   "horizon": 5,
+   "finding": "Walk-Forward-Evidenz: überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale",
+   "metric": "evidence_mix",
+   "value": null,
+   "threshold": "nicht einseitig, >= 90 Tage",
+   "severity": 0.5
+  },
+  {
+   "gap_id": "representativeness:representativeness:31cd33:5d",
+   "kind": "representativeness",
+   "horizon": 5,
+   "finding": "Walk-Forward-Evidenz: überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale übertragbar",
+   "metric": "evidence_mix",
+   "value": null,
+   "threshold": "nicht einseitig, >= 90 Tage",
+   "severity": 0.5
+  },
+  {
+   "gap_id": "representativeness:representativeness:73e11e:5d",
+   "kind": "representativeness",
+   "horizon": 5,
+   "finding": "Walk-Forward-Evidenz: nur 7 Kalendertage: höchstens eine Marktphase",
+   "metric": "evidence_mix",
+   "value": null,
+   "threshold": "nicht einseitig, >= 90 Tage",
+   "severity": 0.5
   },
   {
    "gap_id": "evidence:insufficient:20d",
@@ -134,15 +172,25 @@
    "gap_id": "evidence:insufficient:5d",
    "kind": "evidence",
    "horizon": 5,
-   "finding": "NEED_MORE_DATA – walk_forward: 1/20 Testtage, 0/5 Perioden, 0/30 Fälle; forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle",
+   "finding": "NEED_MORE_DATA – walk_forward: 6/20 Testtage, 2/5 Perioden, 92/30 Fälle; forward: 4/20 Testtage, 1/5 Perioden, 81/30 Fälle",
    "metric": "verdict",
    "value": "NEED_MORE_DATA",
    "threshold": "VALIDATED / FORWARD_POSITIVE",
    "severity": 0.3,
    "missing": [
-    "walk_forward: 1/20 Testtage, 0/5 Perioden, 0/30 Fälle",
-    "forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle"
+    "walk_forward: 6/20 Testtage, 2/5 Perioden, 92/30 Fälle",
+    "forward: 4/20 Testtage, 1/5 Perioden, 81/30 Fälle"
    ]
+  },
+  {
+   "gap_id": "model:overfit_risk:20d",
+   "kind": "model",
+   "horizon": 20,
+   "finding": "33 Merkmale auf 492 geprüfte Labels (15 je Merkmal, Faustregel >= 20)",
+   "metric": "labels_per_feature",
+   "value": 14.9,
+   "threshold": 20,
+   "severity": 0.255
   }
  ],
  "proposals": [
@@ -161,7 +209,7 @@
    "expected_benefit": {
     "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
     "priority_basis": "Schweregrad 1.0 der Lücke data:sparse_feature:news_novelty:20d",
-    "finding": "Merkmal news_novelty nur in 0% der 356 geprüften Labels befüllt – vom Modell verworfen"
+    "finding": "Merkmal news_novelty nur in 0% der 492 geprüften Labels befüllt – vom Modell verworfen"
    },
    "cost": {
     "api_calls": 0,
@@ -207,7 +255,7 @@
    "expected_benefit": {
     "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
     "priority_basis": "Schweregrad 1.0 der Lücke data:sparse_feature:news_novelty:5d",
-    "finding": "Merkmal news_novelty nur in 0% der 963 geprüften Labels befüllt – vom Modell verworfen"
+    "finding": "Merkmal news_novelty nur in 0% der 1487 geprüften Labels befüllt – vom Modell verworfen"
    },
    "cost": {
     "api_calls": 0,
@@ -253,7 +301,7 @@
    "expected_benefit": {
     "target": "Lücke geschlossen (siehe Falsifikation)",
     "priority_basis": "Schweregrad 1.0 der Lücke data:sparse_feature:news_novelty:20d",
-    "finding": "Merkmal news_novelty nur in 0% der 356 geprüften Labels befüllt – vom Modell verworfen"
+    "finding": "Merkmal news_novelty nur in 0% der 492 geprüften Labels befüllt – vom Modell verworfen"
    },
    "cost": {
     "api_calls": "keine zusätzlichen erwartet",
@@ -285,7 +333,7 @@
    "expected_benefit": {
     "target": "Lücke geschlossen (siehe Falsifikation)",
     "priority_basis": "Schweregrad 1.0 der Lücke data:sparse_feature:news_novelty:5d",
-    "finding": "Merkmal news_novelty nur in 0% der 963 geprüften Labels befüllt – vom Modell verworfen"
+    "finding": "Merkmal news_novelty nur in 0% der 1487 geprüften Labels befüllt – vom Modell verworfen"
    },
    "cost": {
     "api_calls": "keine zusätzlichen erwartet",
@@ -303,282 +351,6 @@
    "priority": 0.5
   },
   {
-   "proposal_id": "OLP-c4a897fc",
-   "kind": "variant",
-   "horizon": 20,
-   "gap_ids": [
-    "model:overfit_risk:20d"
-   ],
-   "title": "Variante ridge_alpha=30.0 (20 T)",
-   "change": {
-    "ridge_alpha": 30.0
-   },
-   "hypothesis": "Mit ridge_alpha=30.0 trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Stärkere/schwächere Regularisierung verschiebt den Kompromiss zwischen Varianz und Verzerrung.",
-   "expected_benefit": {
-    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "priority_basis": "Schweregrad 0.461 der Lücke model:overfit_risk:20d",
-    "finding": "33 Merkmale auf 356 geprüfte Labels (11 je Merkmal, Faustregel >= 20)"
-   },
-   "cost": {
-    "api_calls": 0,
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
-   },
-   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
-   "falsification": {
-    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
-    "comparators": [
-     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
-     "eingefrorene Referenz der Basis",
-     "Nicht-Handeln"
-    ],
-    "looks_days": [
-     67,
-     133,
-     200
-    ],
-    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
-    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
-    "max_days": 200,
-    "test_budget": "total_alpha 0.05 / max_tests 20"
-   },
-   "auto_experiment": true,
-   "approval_required": false,
-   "priority": 0.461
-  },
-  {
-   "proposal_id": "OLP-76e31d90",
-   "kind": "variant",
-   "horizon": 20,
-   "gap_ids": [
-    "model:overfit_risk:20d"
-   ],
-   "title": "Variante ridge_alpha=100.0 (20 T)",
-   "change": {
-    "ridge_alpha": 100.0
-   },
-   "hypothesis": "Mit ridge_alpha=100.0 trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Stärkere/schwächere Regularisierung verschiebt den Kompromiss zwischen Varianz und Verzerrung.",
-   "expected_benefit": {
-    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "priority_basis": "Schweregrad 0.461 der Lücke model:overfit_risk:20d",
-    "finding": "33 Merkmale auf 356 geprüfte Labels (11 je Merkmal, Faustregel >= 20)"
-   },
-   "cost": {
-    "api_calls": 0,
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
-   },
-   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
-   "falsification": {
-    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
-    "comparators": [
-     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
-     "eingefrorene Referenz der Basis",
-     "Nicht-Handeln"
-    ],
-    "looks_days": [
-     67,
-     133,
-     200
-    ],
-    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
-    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
-    "max_days": 200,
-    "test_budget": "total_alpha 0.05 / max_tests 20"
-   },
-   "auto_experiment": true,
-   "approval_required": false,
-   "priority": 0.461
-  },
-  {
-   "proposal_id": "OLP-49d62e6c",
-   "kind": "variant",
-   "horizon": 20,
-   "gap_ids": [
-    "model:overfit_risk:20d"
-   ],
-   "title": "Variante drop_feature_group=ml_scores (20 T)",
-   "change": {
-    "drop_feature_group": "ml_scores"
-   },
-   "hypothesis": "Mit drop_feature_group=ml_scores trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser.",
-   "expected_benefit": {
-    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "priority_basis": "Schweregrad 0.461 der Lücke model:overfit_risk:20d",
-    "finding": "33 Merkmale auf 356 geprüfte Labels (11 je Merkmal, Faustregel >= 20)"
-   },
-   "cost": {
-    "api_calls": 0,
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
-   },
-   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
-   "falsification": {
-    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
-    "comparators": [
-     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
-     "eingefrorene Referenz der Basis",
-     "Nicht-Handeln"
-    ],
-    "looks_days": [
-     67,
-     133,
-     200
-    ],
-    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
-    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
-    "max_days": 200,
-    "test_budget": "total_alpha 0.05 / max_tests 20"
-   },
-   "auto_experiment": true,
-   "approval_required": false,
-   "priority": 0.461
-  },
-  {
-   "proposal_id": "OLP-0202d85e",
-   "kind": "variant",
-   "horizon": 20,
-   "gap_ids": [
-    "model:overfit_risk:20d"
-   ],
-   "title": "Variante drop_feature_group=news_sentiment (20 T)",
-   "change": {
-    "drop_feature_group": "news_sentiment"
-   },
-   "hypothesis": "Mit drop_feature_group=news_sentiment trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser.",
-   "expected_benefit": {
-    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "priority_basis": "Schweregrad 0.461 der Lücke model:overfit_risk:20d",
-    "finding": "33 Merkmale auf 356 geprüfte Labels (11 je Merkmal, Faustregel >= 20)"
-   },
-   "cost": {
-    "api_calls": 0,
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
-   },
-   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
-   "falsification": {
-    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
-    "comparators": [
-     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
-     "eingefrorene Referenz der Basis",
-     "Nicht-Handeln"
-    ],
-    "looks_days": [
-     67,
-     133,
-     200
-    ],
-    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
-    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
-    "max_days": 200,
-    "test_budget": "total_alpha 0.05 / max_tests 20"
-   },
-   "auto_experiment": true,
-   "approval_required": false,
-   "priority": 0.461
-  },
-  {
-   "proposal_id": "OLP-cd6c9b30",
-   "kind": "variant",
-   "horizon": 20,
-   "gap_ids": [
-    "model:overfit_risk:20d"
-   ],
-   "title": "Variante drop_feature_group=positioning (20 T)",
-   "change": {
-    "drop_feature_group": "positioning"
-   },
-   "hypothesis": "Mit drop_feature_group=positioning trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser.",
-   "expected_benefit": {
-    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "priority_basis": "Schweregrad 0.461 der Lücke model:overfit_risk:20d",
-    "finding": "33 Merkmale auf 356 geprüfte Labels (11 je Merkmal, Faustregel >= 20)"
-   },
-   "cost": {
-    "api_calls": 0,
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
-   },
-   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
-   "falsification": {
-    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
-    "comparators": [
-     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
-     "eingefrorene Referenz der Basis",
-     "Nicht-Handeln"
-    ],
-    "looks_days": [
-     67,
-     133,
-     200
-    ],
-    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
-    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
-    "max_days": 200,
-    "test_budget": "total_alpha 0.05 / max_tests 20"
-   },
-   "auto_experiment": true,
-   "approval_required": false,
-   "priority": 0.461
-  },
-  {
-   "proposal_id": "OLP-128c0382",
-   "kind": "variant",
-   "horizon": 20,
-   "gap_ids": [
-    "model:overfit_risk:20d"
-   ],
-   "title": "Variante drop_feature_group=volatility_pricing (20 T)",
-   "change": {
-    "drop_feature_group": "volatility_pricing"
-   },
-   "hypothesis": "Mit drop_feature_group=volatility_pricing trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser.",
-   "expected_benefit": {
-    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "priority_basis": "Schweregrad 0.461 der Lücke model:overfit_risk:20d",
-    "finding": "33 Merkmale auf 356 geprüfte Labels (11 je Merkmal, Faustregel >= 20)"
-   },
-   "cost": {
-    "api_calls": 0,
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
-   },
-   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
-   "falsification": {
-    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
-    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
-    "comparators": [
-     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
-     "eingefrorene Referenz der Basis",
-     "Nicht-Handeln"
-    ],
-    "looks_days": [
-     67,
-     133,
-     200
-    ],
-    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
-    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
-    "max_days": 200,
-    "test_budget": "total_alpha 0.05 / max_tests 20"
-   },
-   "auto_experiment": true,
-   "approval_required": false,
-   "priority": 0.461
-  },
-  {
    "proposal_id": "OLP-b6181775",
    "kind": "data_pipeline",
    "horizon": 5,
@@ -592,8 +364,8 @@
    "hypothesis": "Das Ledger-Feld dealer_oi_ratio fehlt in fast allen Kandidaten; befüllt könnte das Modell es nutzen, sonst gehört es nicht in die Spezifikation.",
    "expected_benefit": {
     "target": "Lücke geschlossen (siehe Falsifikation)",
-    "priority_basis": "Schweregrad 0.541 der Lücke data:sparse_feature:dealer_oi_ratio:5d",
-    "finding": "Merkmal dealer_oi_ratio nur in 46% der 963 geprüften Labels befüllt – vom Modell verworfen"
+    "priority_basis": "Schweregrad 0.677 der Lücke data:sparse_feature:dealer_oi_ratio:5d",
+    "finding": "Merkmal dealer_oi_ratio nur in 32% der 1487 geprüften Labels befüllt – vom Modell verworfen"
    },
    "cost": {
     "api_calls": "keine zusätzlichen erwartet",
@@ -608,39 +380,7 @@
    },
    "auto_experiment": false,
    "approval_required": true,
-   "priority": 0.2705
-  },
-  {
-   "proposal_id": "OLP-d55b68e1",
-   "kind": "data_pipeline",
-   "horizon": 5,
-   "gap_ids": [
-    "data:sparse_feature:impact:5d"
-   ],
-   "title": "Merkmal impact befüllen oder streichen",
-   "change": {
-    "feature": "impact"
-   },
-   "hypothesis": "Das Ledger-Feld impact fehlt in fast allen Kandidaten; befüllt könnte das Modell es nutzen, sonst gehört es nicht in die Spezifikation.",
-   "expected_benefit": {
-    "target": "Lücke geschlossen (siehe Falsifikation)",
-    "priority_basis": "Schweregrad 0.513 der Lücke data:sparse_feature:impact:5d",
-    "finding": "Merkmal impact nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen"
-   },
-   "cost": {
-    "api_calls": "keine zusätzlichen erwartet",
-    "llm_calls": 0,
-    "paid_data": false,
-    "human_effort": "Code-Prüfung der Erfassung"
-   },
-   "data_availability": "Feld im Ledger leer – Erfassung prüfen",
-   "falsification": {
-    "accept_if": "Abdeckung >= 50% binnen 20 Handelstagen nach Korrektur",
-    "reject_if": "sonst Merkmal aus der Spezifikation entfernen (neue Experimentversion)"
-   },
-   "auto_experiment": false,
-   "approval_required": true,
-   "priority": 0.2565
+   "priority": 0.3385
   },
   {
    "proposal_id": "OLP-60a03661",
@@ -656,8 +396,8 @@
    "hypothesis": "Das Ledger-Feld options_skew_25d fehlt in fast allen Kandidaten; befüllt könnte das Modell es nutzen, sonst gehört es nicht in die Spezifikation.",
    "expected_benefit": {
     "target": "Lücke geschlossen (siehe Falsifikation)",
-    "priority_basis": "Schweregrad 0.513 der Lücke data:sparse_feature:options_skew_25d:5d",
-    "finding": "Merkmal options_skew_25d nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen"
+    "priority_basis": "Schweregrad 0.661 der Lücke data:sparse_feature:options_skew_25d:5d",
+    "finding": "Merkmal options_skew_25d nur in 34% der 1487 geprüften Labels befüllt – vom Modell verworfen"
    },
    "cost": {
     "api_calls": "keine zusätzlichen erwartet",
@@ -672,7 +412,39 @@
    },
    "auto_experiment": false,
    "approval_required": true,
-   "priority": 0.2565
+   "priority": 0.3305
+  },
+  {
+   "proposal_id": "OLP-d55b68e1",
+   "kind": "data_pipeline",
+   "horizon": 5,
+   "gap_ids": [
+    "data:sparse_feature:impact:5d"
+   ],
+   "title": "Merkmal impact befüllen oder streichen",
+   "change": {
+    "feature": "impact"
+   },
+   "hypothesis": "Das Ledger-Feld impact fehlt in fast allen Kandidaten; befüllt könnte das Modell es nutzen, sonst gehört es nicht in die Spezifikation.",
+   "expected_benefit": {
+    "target": "Lücke geschlossen (siehe Falsifikation)",
+    "priority_basis": "Schweregrad 0.659 der Lücke data:sparse_feature:impact:5d",
+    "finding": "Merkmal impact nur in 34% der 1487 geprüften Labels befüllt – vom Modell verworfen"
+   },
+   "cost": {
+    "api_calls": "keine zusätzlichen erwartet",
+    "llm_calls": 0,
+    "paid_data": false,
+    "human_effort": "Code-Prüfung der Erfassung"
+   },
+   "data_availability": "Feld im Ledger leer – Erfassung prüfen",
+   "falsification": {
+    "accept_if": "Abdeckung >= 50% binnen 20 Handelstagen nach Korrektur",
+    "reject_if": "sonst Merkmal aus der Spezifikation entfernen (neue Experimentversion)"
+   },
+   "auto_experiment": false,
+   "approval_required": true,
+   "priority": 0.3295
   },
   {
    "proposal_id": "OLP-abe010cd",
@@ -688,8 +460,8 @@
    "hypothesis": "Das Ledger-Feld surprise fehlt in fast allen Kandidaten; befüllt könnte das Modell es nutzen, sonst gehört es nicht in die Spezifikation.",
    "expected_benefit": {
     "target": "Lücke geschlossen (siehe Falsifikation)",
-    "priority_basis": "Schweregrad 0.513 der Lücke data:sparse_feature:surprise:5d",
-    "finding": "Merkmal surprise nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen"
+    "priority_basis": "Schweregrad 0.659 der Lücke data:sparse_feature:surprise:5d",
+    "finding": "Merkmal surprise nur in 34% der 1487 geprüften Labels befüllt – vom Modell verworfen"
    },
    "cost": {
     "api_calls": "keine zusätzlichen erwartet",
@@ -704,7 +476,7 @@
    },
    "auto_experiment": false,
    "approval_required": true,
-   "priority": 0.2565
+   "priority": 0.3295
   },
   {
    "proposal_id": "OLP-436e1439",
@@ -720,8 +492,8 @@
    "hypothesis": "Das Ledger-Feld options_skew_ratio fehlt in fast allen Kandidaten; befüllt könnte das Modell es nutzen, sonst gehört es nicht in die Spezifikation.",
    "expected_benefit": {
     "target": "Lücke geschlossen (siehe Falsifikation)",
-    "priority_basis": "Schweregrad 0.511 der Lücke data:sparse_feature:options_skew_ratio:5d",
-    "finding": "Merkmal options_skew_ratio nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen"
+    "priority_basis": "Schweregrad 0.658 der Lücke data:sparse_feature:options_skew_ratio:5d",
+    "finding": "Merkmal options_skew_ratio nur in 34% der 1487 geprüften Labels befüllt – vom Modell verworfen"
    },
    "cost": {
     "api_calls": "keine zusätzlichen erwartet",
@@ -736,7 +508,411 @@
    },
    "auto_experiment": false,
    "approval_required": true,
-   "priority": 0.2555
+   "priority": 0.329
+  },
+  {
+   "proposal_id": "OLP-c4a897fc",
+   "kind": "variant",
+   "horizon": 20,
+   "gap_ids": [
+    "model:overfit_risk:20d"
+   ],
+   "title": "Variante ridge_alpha=30.0 (20 T)",
+   "change": {
+    "ridge_alpha": 30.0
+   },
+   "hypothesis": "Mit ridge_alpha=30.0 trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Stärkere/schwächere Regularisierung verschiebt den Kompromiss zwischen Varianz und Verzerrung.",
+   "expected_benefit": {
+    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "priority_basis": "Schweregrad 0.255 der Lücke model:overfit_risk:20d",
+    "finding": "33 Merkmale auf 492 geprüfte Labels (15 je Merkmal, Faustregel >= 20)"
+   },
+   "cost": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
+   },
+   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
+   "falsification": {
+    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
+    "comparators": [
+     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+     "eingefrorene Referenz der Basis",
+     "Nicht-Handeln"
+    ],
+    "looks_days": [
+     67,
+     133,
+     200
+    ],
+    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
+    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+    "max_days": 200,
+    "test_budget": "total_alpha 0.05 / max_tests 20"
+   },
+   "auto_experiment": true,
+   "approval_required": false,
+   "priority": 0.255
+  },
+  {
+   "proposal_id": "OLP-76e31d90",
+   "kind": "variant",
+   "horizon": 20,
+   "gap_ids": [
+    "model:overfit_risk:20d"
+   ],
+   "title": "Variante ridge_alpha=100.0 (20 T)",
+   "change": {
+    "ridge_alpha": 100.0
+   },
+   "hypothesis": "Mit ridge_alpha=100.0 trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Stärkere/schwächere Regularisierung verschiebt den Kompromiss zwischen Varianz und Verzerrung.",
+   "expected_benefit": {
+    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "priority_basis": "Schweregrad 0.255 der Lücke model:overfit_risk:20d",
+    "finding": "33 Merkmale auf 492 geprüfte Labels (15 je Merkmal, Faustregel >= 20)"
+   },
+   "cost": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
+   },
+   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
+   "falsification": {
+    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
+    "comparators": [
+     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+     "eingefrorene Referenz der Basis",
+     "Nicht-Handeln"
+    ],
+    "looks_days": [
+     67,
+     133,
+     200
+    ],
+    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
+    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+    "max_days": 200,
+    "test_budget": "total_alpha 0.05 / max_tests 20"
+   },
+   "auto_experiment": true,
+   "approval_required": false,
+   "priority": 0.255
+  },
+  {
+   "proposal_id": "OLP-49d62e6c",
+   "kind": "variant",
+   "horizon": 20,
+   "gap_ids": [
+    "model:overfit_risk:20d"
+   ],
+   "title": "Variante drop_feature_group=ml_scores (20 T)",
+   "change": {
+    "drop_feature_group": "ml_scores"
+   },
+   "hypothesis": "Mit drop_feature_group=ml_scores trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser.",
+   "expected_benefit": {
+    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "priority_basis": "Schweregrad 0.255 der Lücke model:overfit_risk:20d",
+    "finding": "33 Merkmale auf 492 geprüfte Labels (15 je Merkmal, Faustregel >= 20)"
+   },
+   "cost": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
+   },
+   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
+   "falsification": {
+    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
+    "comparators": [
+     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+     "eingefrorene Referenz der Basis",
+     "Nicht-Handeln"
+    ],
+    "looks_days": [
+     67,
+     133,
+     200
+    ],
+    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
+    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+    "max_days": 200,
+    "test_budget": "total_alpha 0.05 / max_tests 20"
+   },
+   "auto_experiment": true,
+   "approval_required": false,
+   "priority": 0.255
+  },
+  {
+   "proposal_id": "OLP-0202d85e",
+   "kind": "variant",
+   "horizon": 20,
+   "gap_ids": [
+    "model:overfit_risk:20d"
+   ],
+   "title": "Variante drop_feature_group=news_sentiment (20 T)",
+   "change": {
+    "drop_feature_group": "news_sentiment"
+   },
+   "hypothesis": "Mit drop_feature_group=news_sentiment trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser.",
+   "expected_benefit": {
+    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "priority_basis": "Schweregrad 0.255 der Lücke model:overfit_risk:20d",
+    "finding": "33 Merkmale auf 492 geprüfte Labels (15 je Merkmal, Faustregel >= 20)"
+   },
+   "cost": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
+   },
+   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
+   "falsification": {
+    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
+    "comparators": [
+     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+     "eingefrorene Referenz der Basis",
+     "Nicht-Handeln"
+    ],
+    "looks_days": [
+     67,
+     133,
+     200
+    ],
+    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
+    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+    "max_days": 200,
+    "test_budget": "total_alpha 0.05 / max_tests 20"
+   },
+   "auto_experiment": true,
+   "approval_required": false,
+   "priority": 0.255
+  },
+  {
+   "proposal_id": "OLP-cd6c9b30",
+   "kind": "variant",
+   "horizon": 20,
+   "gap_ids": [
+    "model:overfit_risk:20d"
+   ],
+   "title": "Variante drop_feature_group=positioning (20 T)",
+   "change": {
+    "drop_feature_group": "positioning"
+   },
+   "hypothesis": "Mit drop_feature_group=positioning trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser.",
+   "expected_benefit": {
+    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "priority_basis": "Schweregrad 0.255 der Lücke model:overfit_risk:20d",
+    "finding": "33 Merkmale auf 492 geprüfte Labels (15 je Merkmal, Faustregel >= 20)"
+   },
+   "cost": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
+   },
+   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
+   "falsification": {
+    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
+    "comparators": [
+     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+     "eingefrorene Referenz der Basis",
+     "Nicht-Handeln"
+    ],
+    "looks_days": [
+     67,
+     133,
+     200
+    ],
+    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
+    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+    "max_days": 200,
+    "test_budget": "total_alpha 0.05 / max_tests 20"
+   },
+   "auto_experiment": true,
+   "approval_required": false,
+   "priority": 0.255
+  },
+  {
+   "proposal_id": "OLP-128c0382",
+   "kind": "variant",
+   "horizon": 20,
+   "gap_ids": [
+    "model:overfit_risk:20d"
+   ],
+   "title": "Variante drop_feature_group=volatility_pricing (20 T)",
+   "change": {
+    "drop_feature_group": "volatility_pricing"
+   },
+   "hypothesis": "Mit drop_feature_group=volatility_pricing trifft das Modell auf denselben neuen Kandidaten netto bessere Entscheidungen als die Basis. Mechanismus: Eine Merkmalsgruppe trägt eventuell nur Rauschen bei; ohne sie generalisiert das Modell besser.",
+   "expected_benefit": {
+    "target": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "priority_basis": "Schweregrad 0.255 der Lücke model:overfit_risk:20d",
+    "finding": "33 Merkmale auf 492 geprüfte Labels (15 je Merkmal, Faustregel >= 20)"
+   },
+   "cost": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "ein zusätzliches Ridge-Training je Scanner-Lauf"
+   },
+   "data_availability": "vorhanden: dieselben geprüften Labels und Kandidaten wie die Basis",
+   "falsification": {
+    "primary_metric": "mittlere Tagesdifferenz netto (Variante − Basis), gleiche Kandidaten, gleiches Budget",
+    "economic_metric": "Tagesrendite netto der Variante gegenüber Nicht-Handeln (gleiches Budget je Kandidat)",
+    "comparators": [
+     "Basis-Lernversion (gleiche Labels, gleicher Tag)",
+     "eingefrorene Referenz der Basis",
+     "Nicht-Handeln"
+    ],
+    "looks_days": [
+     67,
+     133,
+     200
+    ],
+    "accept_if": "an einem vorab festgelegten Prüfzeitpunkt BEIDE KI ganz über 0 (relativ zur Basis UND netto gegenüber Nicht-Handeln; Teil-Alpha nach O'Brien-Fleming aus dem bei der Registrierung zugeteilten Slot des dauerhaften Fehlerbudgets total_alpha 0.05 / max_tests 20), gemeinsame Ergebnisabdeckung >= 80%, >= 20 Tage, >= 5 unabhängige Perioden, >= 30 Kandidaten",
+    "reject_if": "relativ KI ganz unter 0 an einem Prüfzeitpunkt (FALSIFIED_WORSE); an der letzten Prüfung kein relativer Vorteil (FALSIFIED_NO_EFFECT) bzw. nur relativ, nicht netto (BETTER_THAN_BASE_NOT_PROFITABLE)",
+    "max_days": 200,
+    "test_budget": "total_alpha 0.05 / max_tests 20"
+   },
+   "auto_experiment": true,
+   "approval_required": false,
+   "priority": 0.255
+  },
+  {
+   "proposal_id": "OLP-eefbf466",
+   "kind": "segment_review",
+   "horizon": 5,
+   "gap_ids": [
+    "model:weak_segment:walk_forward:sector=Technology:5d"
+   ],
+   "title": "Schwaches Segment sector=Technology untersuchen (5 T)",
+   "change": {
+    "segment": "sector=Technology"
+   },
+   "hypothesis": "Das Modell entscheidet im Segment sector=Technology systematisch schlechter. Eine neue, versionierte Variante (z. B. Segment-Merkmal oder Ausschluss) könnte das beheben – das wäre eine Änderung der Merkmals- bzw. Auswahldefinition und braucht eine eigene Forschungsspezifikation.",
+   "expected_benefit": {
+    "target": "Lücke geschlossen (siehe Falsifikation)",
+    "priority_basis": "Schweregrad 0.5 der Lücke model:weak_segment:walk_forward:sector=Technology:5d",
+    "finding": "walk_forward: Entscheidungen im Segment sector=Technology netto Ø -0.248454 (n=23, 5 Tage) unter dem Gesamtmittel -0.097501"
+   },
+   "cost": {
+    "api_calls": 0,
+    "llm_calls": 0,
+    "paid_data": false,
+    "human_effort": "Spezifikation einer neuen Experimentversion (nicht in der Allowlist)"
+   },
+   "data_availability": "vorhanden: dieselben geprüften Labels und Entscheidungen",
+   "falsification": {
+    "accept_if": "neue Version schlägt die Basis im Segment prospektiv (gepaart, eigenes Fehlerbudget)",
+    "reject_if": "Segment-Schwäche verschwindet mit mehr Daten (Zufall) oder neue Version nicht besser"
+   },
+   "auto_experiment": false,
+   "approval_required": true,
+   "priority": 0.25
+  },
+  {
+   "proposal_id": "OLP-95897515",
+   "kind": "sampling",
+   "horizon": 5,
+   "gap_ids": [
+    "representativeness:representativeness:04c631:5d"
+   ],
+   "title": "Evidenzbasis verbreitern (Richtungssignale, bearishe Fälle)",
+   "change": {
+    "warning": "Walk-Forward-Evidenz: überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale"
+   },
+   "hypothesis": "Eine einseitige Stichprobe belegt nicht alle Marktsituationen; zusätzliche Snapshots würden das zeigen.",
+   "expected_benefit": {
+    "target": "Lücke geschlossen (siehe Falsifikation)",
+    "priority_basis": "Schweregrad 0.5 der Lücke representativeness:representativeness:04c631:5d",
+    "finding": "Walk-Forward-Evidenz: überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale"
+   },
+   "cost": {
+    "api_calls": "zusätzliche Kontrakt-Snapshots je Scanner-Lauf",
+    "llm_calls": 0,
+    "paid_data": false,
+    "human_effort": "Stichprobenregel im Kandidaten-Ledger ändern"
+   },
+   "data_availability": "erfordert neue Snapshots",
+   "falsification": {
+    "accept_if": "keine Repräsentativitätswarnung binnen 90 Tagen",
+    "reject_if": "Warnung bleibt bestehen: Einschränkung im Leistungszeugnis dauerhaft ausweisen"
+   },
+   "auto_experiment": false,
+   "approval_required": true,
+   "priority": 0.1667
+  },
+  {
+   "proposal_id": "OLP-993f60c6",
+   "kind": "sampling",
+   "horizon": 5,
+   "gap_ids": [
+    "representativeness:representativeness:31cd33:5d"
+   ],
+   "title": "Evidenzbasis verbreitern (Richtungssignale, bearishe Fälle)",
+   "change": {
+    "warning": "Walk-Forward-Evidenz: überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale übertragbar"
+   },
+   "hypothesis": "Eine einseitige Stichprobe belegt nicht alle Marktsituationen; zusätzliche Snapshots würden das zeigen.",
+   "expected_benefit": {
+    "target": "Lücke geschlossen (siehe Falsifikation)",
+    "priority_basis": "Schweregrad 0.5 der Lücke representativeness:representativeness:31cd33:5d",
+    "finding": "Walk-Forward-Evidenz: überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale übertragbar"
+   },
+   "cost": {
+    "api_calls": "zusätzliche Kontrakt-Snapshots je Scanner-Lauf",
+    "llm_calls": 0,
+    "paid_data": false,
+    "human_effort": "Stichprobenregel im Kandidaten-Ledger ändern"
+   },
+   "data_availability": "erfordert neue Snapshots",
+   "falsification": {
+    "accept_if": "keine Repräsentativitätswarnung binnen 90 Tagen",
+    "reject_if": "Warnung bleibt bestehen: Einschränkung im Leistungszeugnis dauerhaft ausweisen"
+   },
+   "auto_experiment": false,
+   "approval_required": true,
+   "priority": 0.1667
+  },
+  {
+   "proposal_id": "OLP-c8c4f276",
+   "kind": "sampling",
+   "horizon": 5,
+   "gap_ids": [
+    "representativeness:representativeness:73e11e:5d"
+   ],
+   "title": "Evidenzbasis verbreitern (Richtungssignale, bearishe Fälle)",
+   "change": {
+    "warning": "Walk-Forward-Evidenz: nur 7 Kalendertage: höchstens eine Marktphase"
+   },
+   "hypothesis": "Eine einseitige Stichprobe belegt nicht alle Marktsituationen; zusätzliche Snapshots würden das zeigen.",
+   "expected_benefit": {
+    "target": "Lücke geschlossen (siehe Falsifikation)",
+    "priority_basis": "Schweregrad 0.5 der Lücke representativeness:representativeness:73e11e:5d",
+    "finding": "Walk-Forward-Evidenz: nur 7 Kalendertage: höchstens eine Marktphase"
+   },
+   "cost": {
+    "api_calls": "zusätzliche Kontrakt-Snapshots je Scanner-Lauf",
+    "llm_calls": 0,
+    "paid_data": false,
+    "human_effort": "Stichprobenregel im Kandidaten-Ledger ändern"
+   },
+   "data_availability": "erfordert neue Snapshots",
+   "falsification": {
+    "accept_if": "keine Repräsentativitätswarnung binnen 90 Tagen",
+    "reject_if": "Warnung bleibt bestehen: Einschränkung im Leistungszeugnis dauerhaft ausweisen"
+   },
+   "auto_experiment": false,
+   "approval_required": true,
+   "priority": 0.1667
   }
  ],
  "registered_variants": [],

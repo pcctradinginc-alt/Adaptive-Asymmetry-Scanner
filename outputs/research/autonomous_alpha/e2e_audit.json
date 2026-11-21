@@ -2,9 +2,9 @@
   "broker_connection": "NONE",
   "capture": {
     "alpha_link_status": "OK",
-    "latest_session": "2026-11-13",
-    "missing_contracts": 1,
-    "observed_at": "2026-11-13T20:03:38.579792+00:00",
+    "latest_session": "2026-11-20",
+    "missing_contracts": 2,
+    "observed_at": "2026-11-20T20:44:04.486511+00:00",
     "paper_status": "ACTIVE",
     "recent_failed_attempts": 0,
     "status": "PARTIAL_MISSING_QUOTES"
@@ -21,8 +21,15 @@
     "validation_plans": 0,
     "verdicts_reconciled_to_memory": 0
   },
-  "generated_at": "2026-11-14T15:24:16.068935+00:00",
+  "generated_at": "2026-11-21T16:27:15.294801+00:00",
   "issues": [
+    {
+      "id": "PAPER_LEGACY_QUOTE_CLOCK_TRUNCATION",
+      "next_action": "Retain old receipts; use precise timestamps only for future paper entries",
+      "observed_fact": "6 historical SKIP signals had authentic same-second quotes but whole-second decisions; old signed SKIPs remain immutable",
+      "severity": "DEGRADED",
+      "stage": "paper_account"
+    },
     {
       "id": "MISSING_CAPTURE_QUOTES",
       "next_action": "Monitor the existing Tradier market-data access; never backfill missing quotes",
@@ -45,7 +52,7 @@
     "activation_verified_from_events": true,
     "closed_bookings": 0,
     "new_live_broker_orders": 0,
-    "open_bookings": 0,
+    "open_bookings": 5,
     "signed_events_are_source_of_truth": true,
     "snapshot_status": "ACTIVE"
   },
@@ -57,10 +64,10 @@
     "conflicting_records": 0,
     "dangling_decisions": 0,
     "dangling_outcomes": 0,
-    "decisions": 104,
+    "decisions": 150,
     "outcomes": 0,
-    "pending_economics": 43,
-    "signals": 135,
+    "pending_economics": 54,
+    "signals": 188,
     "unverifiable_economics": {},
     "verified_settled_economics": 0
   },

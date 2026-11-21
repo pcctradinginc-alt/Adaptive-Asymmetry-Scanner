@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-14T15:23:46+00:00",
+ "generated": "2026-11-21T16:26:42+00:00",
  "self_assessment": {
   "overall_calibration": "WEAK",
   "world_model_uncertainty": "MODERATE",
@@ -9,14 +9,14 @@
   "safe_mode": true
  },
  "what_do_we_know": [
-  "Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00075 je Position, Sharpe 0.097, Trefferquote 0.4873",
-  "Regime-Abhängigkeit: vix_lt_20 -0.00317, vix_ge_20 0.00691, spy_uptrend -0.00184, spy_downtrend 0.00903",
+  "Referenz (statisches Ensemble; KEIN registrierter Champion) OOS 2021–2025H1: Expectancy 0.00116 je Position, Sharpe 0.162, Trefferquote 0.4861",
+  "Regime-Abhängigkeit: vix_lt_20 -0.00313, vix_ge_20 0.0079, spy_uptrend -0.00127, spy_downtrend 0.00892",
   "Abstinenz-Regel historisch [2019, 2020] (Status CONTAMINATED, zählt nicht): aktiv 0.01658 vs. inaktiv 0.00311 (t=1.68)",
   "Abstinenz-Regel VORWÄRTS ab 2026-09-29: 0 aktive / 2 inaktive fertige Kohorten, Status ACCUMULATING"
  ],
  "what_are_we_uncertain_about": [
   "80-%-Intervalle: roh 0.6691, korrigiert 0.7818; P(>+10 %) Skill -0.1344",
-  "World-Model-Unsicherheit 0.4565; nicht verfügbar: ['earnings_momentum']"
+  "World-Model-Unsicherheit 0.4727; nicht verfügbar: ['earnings_momentum', 'inventories']"
  ],
  "where_are_we_systematically_wrong": [
   "UNKNOWN_CLUSTER_001: {'lottery': 'lottery_profile', 'vix': 'vix_lt_20'} (Fehler -0.1868, Lift 2.55, Abdeckung LOW)",
@@ -30,30 +30,28 @@
   "UNKNOWN_CLUSTER_009: {'momentum': 'loser_12m', 'beta': 'high_beta'} (Fehler -0.1672, Lift 1.59, Abdeckung LOW)",
   "UNKNOWN_CLUSTER_010: {'momentum': 'winner_12m', 'recent_move': 'extreme_5d_move'} (Fehler -0.1644, Lift 1.53, Abdeckung LOW)",
   "UNKNOWN_CLUSTER_011: {'liquidity': 'liquid', 'recent_move': 'extreme_5d_move'} (Fehler -0.1638, Lift 1.5, Abdeckung LOW)",
-  "Überkonfident im Bucket 60–65 %: prognostiziert 0.6249, realisiert 0.4479 (n=317)"
+  "Überkonfident im Bucket 55–60 %: prognostiziert 0.5759, realisiert 0.4651 (n=215)"
  ],
  "which_assumptions_are_stale": [
-  "tnx: Wert 5.154 außerhalb Trainingsband [1.0993, 4.7817]"
+  "vix: Wert 35.89 außerhalb Trainingsband [12.2374, 33.3101]",
+  "vix_chg_21: Wert 16.86 außerhalb Trainingsband [-11.8762, 13.7307]",
+  "tnx: Wert 4.912 außerhalb Trainingsband [1.0993, 4.7817]"
  ],
  "which_models_are_redundant": [
   "rs_63 ≡ mom_3m (identische Querschnittsränge, Audit A1)",
-  "momentum_12_1: Leave-one-out-Beitrag -0.001 (≤ 0 = entbehrlich)",
-  "enet_xs20_v1: Leave-one-out-Beitrag -0.00022 (≤ 0 = entbehrlich)",
-  "hgb_asym20_v1: Leave-one-out-Beitrag -0.00112 (≤ 0 = entbehrlich)"
+  "hgb_asym20_v1: Leave-one-out-Beitrag -5e-05 (≤ 0 = entbehrlich)"
  ],
  "which_features_are_decaying": [
-  "Modell enet_xs20_v1: 0.0503 -> -0.1912 (t=-2.46)",
-  "vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.43)",
-  "vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.553)",
-  "max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.441)"
+  "Modell enet_xs20_v1: 0.0376 -> -0.188 (t=-2.3)",
+  "vol_20: Strukturbruch um 2018-11-30 (CUSUM 1.413)",
+  "vol_60: Strukturbruch um 2019-08-02 (CUSUM 1.535)",
+  "max_ret_21: Strukturbruch um 2022-12-02 (CUSUM 1.409)"
  ],
  "where_is_data_quality_low": [
-  "imf_portwatch_ports: FAIL",
-  "imf_portwatch_chokepoints: FAIL",
-  "imf_portwatch_disruptions: FAIL"
+  "imf_portwatch_ports: WARN"
  ],
  "where_is_model_disagreement_high": [
-  "aktuell HIGH (mittlere Rang-Streuung 0.2752)"
+  "aktuell LOW (mittlere Rang-Streuung 0.185)"
  ],
  "research_tracks_with_real_oos_value": [],
  "research_tracks_wasting_resources": [
@@ -66,18 +64,20 @@
  ],
  "highest_research_priority": "Warum verliert enet_xs20_v1 an Prognosekraft (t=-2.5)?",
  "option_learner_gaps": [
-  "[1.0] Merkmal news_novelty nur in 0% der 130 geprüften Labels befüllt – vom Modell verworfen",
-  "[1.0] Merkmal news_novelty nur in 0% der 495 geprüften Labels befüllt – vom Modell verworfen",
-  "[0.803] 33 Merkmale auf 130 geprüfte Labels (4 je Merkmal, Faustregel >= 20)",
-  "[0.4] für 20 T wurde noch keine Modell-, Merkmals- oder Auswahlvariante prospektiv gegen die Basis getestet",
-  "[0.3] NEED_MORE_DATA – walk_forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle; forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle",
-  "[0.3] NEED_MORE_DATA – walk_forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle; forward: 0/20 Testtage, 0/5 Perioden, 0/30 Fälle",
-  "[0.25] 33 Merkmale auf 495 geprüfte Labels (15 je Merkmal, Faustregel >= 20)"
+  "[1.0] Merkmal news_novelty nur in 0% der 356 geprüften Labels befüllt – vom Modell verworfen",
+  "[1.0] Merkmal news_novelty nur in 0% der 963 geprüften Labels befüllt – vom Modell verworfen",
+  "[0.541] Merkmal dealer_oi_ratio nur in 46% der 963 geprüften Labels befüllt – vom Modell verworfen",
+  "[0.513] Merkmal impact nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen",
+  "[0.513] Merkmal options_skew_25d nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen",
+  "[0.513] Merkmal surprise nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen",
+  "[0.511] Merkmal options_skew_ratio nur in 49% der 963 geprüften Labels befüllt – vom Modell verworfen",
+  "[0.461] 33 Merkmale auf 356 geprüfte Labels (11 je Merkmal, Faustregel >= 20)"
  ],
  "open_improvement_tasks": [
   "[P1] IMP-4a0d2d31 Merkmal news_novelty im Options-Lernmodell leer (NOTIFIED)",
-  "[P2] IMP-b4f3b983 Workflow source_health muss regelmäßig nachgestartet werden (NOTIFIED)",
-  "[P2] IMP-ce5d574e Datenquelle imf_portwatch_ports seit 7 Tagen BROKEN (NOTIFIED)"
+  "[P2] IMP-8c83b133 Merkmal impact im Options-Lernmodell kaum befüllt (OPEN)",
+  "[P2] IMP-8ea10f58 Merkmal dealer_oi_ratio im Options-Lernmodell kaum befüllt (OPEN)",
+  "[P2] IMP-b4f3b983 Workflow source_health muss regelmäßig nachgestartet werden (NOTIFIED)"
  ],
  "improvement_mail_status": {
   "critical": "nothing_to_send",
@@ -85,193 +85,193 @@
  },
  "alpha_to_options": [
   "Status NEED_MORE_DATA · Prüfpläne 0 · Einstufungen {} · Abdeckung NEED_MORE_DATA · Ökonomie NEED_MORE_DATA",
-  "Fehlende Daten: {'ABSTAIN:CAPITAL_ABOVE_MAX': 11, 'ABSTAIN:LONG_OPEN_INTEREST_BELOW_MIN': 6, 'ABSTAIN:SHORT_OPEN_INTEREST_BELOW_MIN': 1, 'ABSTAIN:SHORT_SPREAD_TOO_WIDE': 3, 'NO_EXECUTED_TRADES_WITH_EX_ANTE_SIGNAL_ID': 1}"
+  "Fehlende Daten: {'ABSTAIN:CAPITAL_ABOVE_MAX': 19, 'ABSTAIN:LONG_OPEN_INTEREST_BELOW_MIN': 36, 'ABSTAIN:LONG_SPREAD_TOO_WIDE': 6, 'ABSTAIN:NO_EXPIRY_IN_DTE_WINDOW': 6, 'ABSTAIN:SHORT_BID_BELOW_MIN': 1}"
  ],
  "error_driven_research": [
-  "5 T: 8588 geprüfte Forward-Fehler an 26 Stichtagen; Ensemble-IC je unabhängigem Fenster -0.0352 (t=-0.315, 3 Fenster); Muster: DATA_GAP",
-  "20 T: 4012 geprüfte Forward-Fehler an 11 Stichtagen; Ensemble-IC je unabhängigem Fenster None (t=None, 0 Fenster); Muster: DATA_GAP",
+  "5 T: 9471 geprüfte Forward-Fehler an 31 Stichtagen; Ensemble-IC je unabhängigem Fenster -0.0352 (t=-0.315, 3 Fenster); Muster: DATA_GAP",
+  "20 T: 5618 geprüfte Forward-Fehler an 16 Stichtagen; Ensemble-IC je unabhängigem Fenster None (t=None, 0 Fenster); Muster: DATA_GAP",
   "Testbudget: 1/24 Slots belegt, Slot-Alpha 0.00208 (familienweise <= 0.05)",
   "ERR-d6695229 sentiment_score (5 T): PENDING_FORWARD – 0 unabhängige Forward-Fenster fertig; nächste Prüfung 1/1 bei 4 Fenstern"
  ],
  "feature_decay": {
   "mom_12_1": {
-   "n": 611,
-   "ic_all": 0.0009,
-   "ic_prev_52w": 0.0266,
-   "ic_last_52w": 0.0381,
-   "ic_last_13w": -0.0266,
-   "delta_t": 0.33,
+   "n": 612,
+   "ic_all": 0.0006,
+   "ic_prev_52w": 0.0231,
+   "ic_last_52w": 0.0366,
+   "ic_last_13w": -0.0137,
+   "delta_t": 0.38,
    "structural_break": {
     "break": false,
-    "stat": 1.287,
+    "stat": 1.271,
     "at": null
    },
    "status": "stable"
   },
   "mom_3m": {
-   "n": 641,
-   "ic_all": -0.0107,
-   "ic_prev_52w": 0.0014,
-   "ic_last_52w": -0.018,
-   "ic_last_13w": -0.1333,
-   "delta_t": -0.54,
+   "n": 642,
+   "ic_all": -0.0104,
+   "ic_prev_52w": -0.0004,
+   "ic_last_52w": -0.0135,
+   "ic_last_13w": -0.0935,
+   "delta_t": -0.36,
    "structural_break": {
     "break": false,
-    "stat": 1.288,
+    "stat": 1.273,
     "at": null
    },
    "status": "stable"
   },
   "rev_1m": {
-   "n": 641,
+   "n": 642,
    "ic_all": -0.0186,
-   "ic_prev_52w": 0.0197,
-   "ic_last_52w": -0.0075,
-   "ic_last_13w": -0.0803,
-   "delta_t": -0.78,
+   "ic_prev_52w": 0.0143,
+   "ic_last_52w": -0.0058,
+   "ic_last_13w": -0.0547,
+   "delta_t": -0.58,
    "structural_break": {
     "break": false,
-    "stat": 1.081,
+    "stat": 1.079,
     "at": null
    },
    "status": "stable"
   },
   "ret_5d": {
-   "n": 641,
-   "ic_all": -0.0126,
-   "ic_prev_52w": 0.0088,
-   "ic_last_52w": -0.0045,
-   "ic_last_13w": -0.0465,
-   "delta_t": -0.42,
+   "n": 642,
+   "ic_all": -0.0123,
+   "ic_prev_52w": 0.0049,
+   "ic_last_52w": -0.0018,
+   "ic_last_13w": -0.0052,
+   "delta_t": -0.21,
    "structural_break": {
     "break": false,
-    "stat": 0.487,
+    "stat": 0.502,
     "at": null
    },
    "status": "stable"
   },
   "rs_63": {
-   "n": 641,
-   "ic_all": -0.0107,
-   "ic_prev_52w": 0.0014,
-   "ic_last_52w": -0.018,
-   "ic_last_13w": -0.1333,
-   "delta_t": -0.54,
+   "n": 642,
+   "ic_all": -0.0104,
+   "ic_prev_52w": -0.0004,
+   "ic_last_52w": -0.0135,
+   "ic_last_13w": -0.0935,
+   "delta_t": -0.36,
    "structural_break": {
     "break": false,
-    "stat": 1.288,
+    "stat": 1.273,
     "at": null
    },
    "status": "stable"
   },
   "vol_20": {
-   "n": 641,
-   "ic_all": 0.0071,
-   "ic_prev_52w": 0.0518,
-   "ic_last_52w": 0.0532,
-   "ic_last_13w": 0.0667,
-   "delta_t": 0.04,
+   "n": 642,
+   "ic_all": 0.0067,
+   "ic_prev_52w": 0.0507,
+   "ic_last_52w": 0.05,
+   "ic_last_13w": 0.0688,
+   "delta_t": -0.02,
    "structural_break": {
     "break": true,
-    "stat": 1.43,
+    "stat": 1.413,
     "at": "2018-11-30"
    },
    "status": "break"
   },
   "vol_60": {
-   "n": 641,
-   "ic_all": 0.0063,
-   "ic_prev_52w": 0.0764,
-   "ic_last_52w": 0.0495,
-   "ic_last_13w": 0.0687,
-   "delta_t": -0.63,
+   "n": 642,
+   "ic_all": 0.0059,
+   "ic_prev_52w": 0.0762,
+   "ic_last_52w": 0.045,
+   "ic_last_13w": 0.0724,
+   "delta_t": -0.73,
    "structural_break": {
     "break": true,
-    "stat": 1.553,
+    "stat": 1.535,
     "at": "2019-08-02"
    },
    "status": "break"
   },
   "vol_ratio": {
-   "n": 641,
+   "n": 642,
    "ic_all": -0.0011,
-   "ic_prev_52w": -0.0172,
-   "ic_last_52w": -0.0001,
-   "ic_last_13w": -0.0182,
-   "delta_t": 0.87,
+   "ic_prev_52w": -0.0194,
+   "ic_last_52w": 0.0025,
+   "ic_last_13w": -0.0184,
+   "delta_t": 1.12,
    "structural_break": {
     "break": false,
-    "stat": 0.989,
+    "stat": 0.995,
     "at": null
    },
    "status": "stable"
   },
   "relvol_5_60": {
-   "n": 641,
+   "n": 642,
    "ic_all": -0.0026,
-   "ic_prev_52w": -0.0142,
-   "ic_last_52w": -0.0078,
-   "ic_last_13w": -0.0221,
-   "delta_t": 0.37,
+   "ic_prev_52w": -0.015,
+   "ic_last_52w": -0.0061,
+   "ic_last_13w": -0.0274,
+   "delta_t": 0.52,
    "structural_break": {
     "break": false,
-    "stat": 1.0,
+    "stat": 0.997,
     "at": null
    },
    "status": "stable"
   },
   "log_dollar_vol": {
-   "n": 641,
-   "ic_all": 0.0161,
-   "ic_prev_52w": 0.0608,
-   "ic_last_52w": 0.0248,
-   "ic_last_13w": 0.0658,
-   "delta_t": -1.56,
+   "n": 642,
+   "ic_all": 0.016,
+   "ic_prev_52w": 0.0615,
+   "ic_last_52w": 0.0221,
+   "ic_last_13w": 0.0802,
+   "delta_t": -1.7,
    "structural_break": {
     "break": false,
-    "stat": 1.196,
+    "stat": 1.177,
     "at": null
    },
    "status": "stable"
   },
   "dist_52w_high": {
-   "n": 622,
-   "ic_all": -0.0036,
-   "ic_prev_52w": 0.0038,
-   "ic_last_52w": -0.0125,
-   "ic_last_13w": -0.1358,
-   "delta_t": -0.45,
+   "n": 623,
+   "ic_all": -0.0034,
+   "ic_prev_52w": 0.0006,
+   "ic_last_52w": -0.0097,
+   "ic_last_13w": -0.1115,
+   "delta_t": -0.28,
    "structural_break": {
     "break": false,
-    "stat": 1.186,
+    "stat": 1.184,
     "at": null
    },
    "status": "stable"
   },
   "max_ret_21": {
-   "n": 641,
-   "ic_all": 0.004,
-   "ic_prev_52w": 0.0615,
-   "ic_last_52w": 0.0303,
-   "ic_last_13w": 0.0465,
-   "delta_t": -0.91,
+   "n": 642,
+   "ic_all": 0.0037,
+   "ic_prev_52w": 0.0591,
+   "ic_last_52w": 0.0291,
+   "ic_last_13w": 0.0496,
+   "delta_t": -0.87,
    "structural_break": {
     "break": true,
-    "stat": 1.441,
+    "stat": 1.409,
     "at": "2022-12-02"
    },
    "status": "break"
   },
   "beta_126": {
-   "n": 641,
-   "ic_all": 0.0182,
-   "ic_prev_52w": 0.0798,
-   "ic_last_52w": 0.0583,
-   "ic_last_13w": -0.0589,
-   "delta_t": -0.35,
+   "n": 642,
+   "ic_all": 0.0174,
+   "ic_prev_52w": 0.0731,
+   "ic_last_52w": 0.0536,
+   "ic_last_13w": -0.0552,
+   "delta_t": -0.32,
    "structural_break": {
     "break": false,
-    "stat": 1.336,
+    "stat": 1.293,
     "at": null
    },
    "status": "stable"
@@ -280,39 +280,39 @@
  "model_decay": {
   "momentum_12_1": {
    "trend": "stable",
-   "trend_t": -1.09,
-   "recent_ic": -0.0644,
-   "prior_ic": 0.0331
+   "trend_t": -1.2,
+   "recent_ic": -0.083,
+   "prior_ic": 0.0271
   },
   "enet_xs20_v1": {
    "trend": "deteriorating",
-   "trend_t": -2.46,
-   "recent_ic": -0.1912,
-   "prior_ic": 0.0503
+   "trend_t": -2.3,
+   "recent_ic": -0.188,
+   "prior_ic": 0.0376
   },
   "hgb_xs20_v1": {
    "trend": "improving",
-   "trend_t": 4.5,
-   "recent_ic": 0.1636,
-   "prior_ic": -0.0385
+   "trend_t": 5.94,
+   "recent_ic": 0.1658,
+   "prior_ic": -0.0391
   },
   "hgb_asym20_v1": {
    "trend": "improving",
-   "trend_t": 5.89,
-   "recent_ic": 0.2046,
-   "prior_ic": -0.0433
+   "trend_t": 3.81,
+   "recent_ic": 0.1719,
+   "prior_ic": -0.0457
   },
   "hgb_xs20_momentum_v1": {
    "trend": "stable",
-   "trend_t": 1.41,
-   "recent_ic": 0.0385,
-   "prior_ic": -0.012
+   "trend_t": 0.84,
+   "recent_ic": 0.0259,
+   "prior_ic": -0.0047
   },
   "hgb_xs20_risk_regime_v1": {
    "trend": "stable",
-   "trend_t": 1.51,
-   "recent_ic": 0.0995,
-   "prior_ic": -0.0079
+   "trend_t": 0.62,
+   "recent_ic": 0.0559,
+   "prior_ic": 0.0115
   }
  },
  "research_value": {
@@ -425,83 +425,86 @@
  "safe_mode": {
   "active": true,
   "reasons": [
-   "MODEL: EXCESSIVE MODEL DISAGREEMENT",
-   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
+   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-4.81",
+   "DRIFT: FEATURE DRIFT SEVERE: ['vix', 'vix_chg_21', 'tnx']"
   ],
   "known": true,
-  "state_version": 124,
-  "drift_level": "MODERATE",
+  "state_version": 144,
+  "drift_level": "SEVERE",
   "consequences": {
-   "confidence_multiplier": 0.75,
-   "positive_boost_cap": 0.5,
+   "confidence_multiplier": 0.5,
+   "positive_boost_cap": 0.0,
    "allow_weight_increase": false,
-   "safe_mode": false
+   "safe_mode": true
   },
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
-  "data_quality": 0.992,
+  "data_quality": 0.959,
   "model_health_component": {
    "active": true,
    "reasons": [
-    "EXCESSIVE MODEL DISAGREEMENT",
-    "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
+    "FEATURE DRIFT SEVERE: Regime-Merkmale außerhalb des Trainingsbereichs (['vix', 'vix_chg_21', 'tnx'])",
+    "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-4.81"
    ],
    "components": {
-    "drift": [],
+    "drift": [
+     "FEATURE DRIFT SEVERE: Regime-Merkmale außerhalb des Trainingsbereichs (['vix', 'vix_chg_21', 'tnx'])"
+    ],
     "model": [
-     "EXCESSIVE MODEL DISAGREEMENT",
-     "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
+     "PERFORMANCE BREAKDOWN: Forward-Expectancy t=-4.81"
     ],
     "data": []
    },
    "drift": {
     "feature": {
-     "level": "MODERATE",
+     "level": "SEVERE",
      "features_out_of_range": [
+      "vix",
+      "vix_chg_21",
       "tnx"
      ],
-     "share_out": 0.167,
+     "share_out": 0.5,
      "per_feature": {
       "vix": {
-       "level": "NORMAL",
-       "excess": 0.0,
-       "value": 19.3,
+       "level": "MODERATE",
+       "excess": 0.1224,
+       "value": 35.89,
        "p01": 12.2374,
        "p99": 33.3101
       },
       "vix_chg_21": {
-       "level": "NORMAL",
-       "excess": 0.0,
-       "value": 2.84,
+       "level": "MODERATE",
+       "excess": 0.1222,
+       "value": 16.86,
        "p01": -11.8762,
        "p99": 13.7307
       },
       "spy_trend_200": {
        "level": "NORMAL",
        "excess": 0.0,
-       "value": 0.0344,
+       "value": -0.0554,
        "p01": -0.1303,
        "p99": 0.1626
       },
       "spy_mom_63": {
        "level": "NORMAL",
        "excess": 0.0,
-       "value": -0.0213,
+       "value": -0.0942,
        "p01": -0.1323,
        "p99": 0.1471
       },
       "tnx": {
-       "level": "MODERATE",
-       "excess": 0.1011,
-       "value": 5.154,
+       "level": "MILD",
+       "excess": 0.0354,
+       "value": 4.912,
        "p01": 1.0993,
        "p99": 4.7817
       },
       "curve_10y_3m": {
        "level": "NORMAL",
        "excess": 0.0,
-       "value": 1.032,
+       "value": 0.79,
        "p01": -1.5086,
        "p99": 2.0797
       }
@@ -519,7 +522,7 @@
    "canonical": false,
    "see": "outputs/state/system_state.json",
    "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
-   "updated": "2026-11-14T15:23:46+00:00"
+   "updated": "2026-11-21T16:26:42+00:00"
   }
  }
 }

@@ -1,5 +1,5 @@
 {
- "as_of": "2026-11-14",
+ "as_of": "2026-11-21",
  "horizons": [
   20,
   5
@@ -10,11 +10,11 @@
    "question": "Werden Daten automatisch gesammelt?",
    "20d": [
     "Ja",
-    "933 Kandidaten, 200 mit Optionskontrakt (7 T)"
+    "741 Kandidaten, 196 mit Optionskontrakt (7 T)"
    ],
    "5d": [
     "Ja",
-    "933 Kandidaten, 200 mit Optionskontrakt (7 T)"
+    "741 Kandidaten, 196 mit Optionskontrakt (7 T)"
    ]
   },
   {
@@ -22,11 +22,11 @@
    "question": "Sind die Options-Ergebnisse gegen das Quote-Archiv gepr\u00fcft?",
    "20d": [
     "Teilweise",
-    "356/665 f\u00e4llige Labels gepr\u00fcft"
+    "492/801 f\u00e4llige Labels gepr\u00fcft"
    ],
    "5d": [
     "Teilweise",
-    "963/1271 f\u00e4llige Labels gepr\u00fcft"
+    "1487/1795 f\u00e4llige Labels gepr\u00fcft"
    ]
   },
   {
@@ -34,11 +34,11 @@
    "question": "Lernt das System aus gepr\u00fcften Options-Ergebnissen?",
    "20d": [
     "Ja",
-    "356 gepr\u00fcfte Labels, Manifest f590f582a227c450"
+    "492 gepr\u00fcfte Labels, Manifest a7f8c99210074a00"
    ],
    "5d": [
     "Ja",
-    "963 gepr\u00fcfte Labels, Manifest 52a99f801691bdf6"
+    "1487 gepr\u00fcfte Labels, Manifest c970df444e462959"
    ]
   },
   {
@@ -50,7 +50,7 @@
    ],
    "5d": [
     "offen",
-    "NEED_MORE_DATA, 1 Testtage, 0 unabh\u00e4ngige Perioden, Abdeckung None"
+    "NEED_MORE_DATA, 6 Testtage, 2 unabh\u00e4ngige Perioden, Abdeckung 1.0"
    ]
   },
   {
@@ -62,7 +62,7 @@
    ],
    "5d": [
     "Nein",
-    "je Kandidat und Tag (gleiches Budget, 1 Tage, retrospektiv): Modell +0.0 % vs. alles -1.1 % vs. nie 0 %"
+    "je Kandidat und Tag (gleiches Budget, 6 Tage, retrospektiv): Modell -3.9 % vs. alles -17.9 % vs. nie 0 %"
    ]
   },
   {
@@ -70,11 +70,11 @@
    "question": "Best\u00e4tigt es sich auf vorab festgehaltenen Prognosen?",
    "20d": [
     "offen",
-    "NEED_MORE_DATA, 0 f\u00e4llige vorab festgehaltene Entscheidungen, 239 noch nicht f\u00e4llig"
+    "NEED_MORE_DATA, 0 f\u00e4llige vorab festgehaltene Entscheidungen, 435 noch nicht f\u00e4llig"
    ],
    "5d": [
     "offen",
-    "NEED_MORE_DATA, 0 f\u00e4llige vorab festgehaltene Entscheidungen, 396 noch nicht f\u00e4llig"
+    "NEED_MORE_DATA, 157 f\u00e4llige vorab festgehaltene Entscheidungen, 435 noch nicht f\u00e4llig"
    ]
   },
   {
@@ -94,11 +94,11 @@
    "question": "Welche Experimentversion und Modellinstanzen stehen dahinter (ausgeschlossene Prognosen)?",
    "20d": [
     "Ja",
-    "Version 4a0f886d1979; 5 Modellinstanzen (zuletzt e250f357a2779a00, Stichtag 2026-11-13, Labels 1537a37dab3908e5); g\u00fcltige Forward-Entscheidungen 239 (Prognosen 621); ausgeschlossen: keine"
+    "Version 4a0f886d1979; 10 Modellinstanzen (zuletzt fe6f9670284ec479, Stichtag 2026-11-20, Labels a7f8c99210074a00); g\u00fcltige Forward-Entscheidungen 435 (Prognosen 1127); ausgeschlossen: keine"
    ],
    "5d": [
     "Ja",
-    "Version 4a0f886d1979; 7 Modellinstanzen (zuletzt 602c83f0d8843061, Stichtag 2026-11-12, Labels 52a99f801691bdf6); g\u00fcltige Forward-Entscheidungen 396 (Prognosen 996); ausgeschlossen: OTHER_EXPERIMENT 40"
+    "Version 4a0f886d1979; 10 Modellinstanzen (zuletzt 9a2133baf0e7dacc, Stichtag 2026-11-19, Labels c970df444e462959); g\u00fcltige Forward-Entscheidungen 592 (Prognosen 1502); ausgeschlossen: OTHER_EXPERIMENT 40"
    ]
   },
   {
@@ -106,11 +106,11 @@
    "question": "Entscheidet die lernende Version besser als die eingefrorene Referenz (gleiche Signale)?",
    "20d": [
     "offen",
-    "Forward gegen eingefrorene Referenz 4c1579f83fcf2141: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 n/a); Verlauf: 10-31 NEED_MORE_DATA n/a \u2192 11-03 NEED_MORE_DATA n/a \u2192 11-07 NEED_MORE_DATA n/a \u2192 11-14 NEED_MORE_DATA n/a"
+    "Forward gegen eingefrorene Referenz 4c1579f83fcf2141: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 n/a); Verlauf: 10-31 NEED_MORE_DATA n/a \u2192 11-03 NEED_MORE_DATA n/a \u2192 11-07 NEED_MORE_DATA n/a \u2192 11-14 NEED_MORE_DATA n/a \u2192 11-21 NEED_MORE_DATA n/a"
    ],
    "5d": [
     "offen",
-    "Forward gegen eingefrorene Referenz 519261c95a8a6da7: NEED_MORE_DATA (0 Tage, 0 Kandidaten, \u0394 n/a/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 +0.0 %); Verlauf: 10-31 NEED_MORE_DATA n/a \u2192 11-03 NEED_MORE_DATA n/a \u2192 11-07 NEED_MORE_DATA n/a \u2192 11-14 NEED_MORE_DATA n/a"
+    "Forward gegen eingefrorene Referenz 519261c95a8a6da7: NEED_MORE_DATA (4 Tage, 155 Kandidaten, \u0394 -3.7 %/Tag, KI None); retrospektiv NEED_MORE_DATA (\u0394 -2.5 %); Verlauf: 10-31 NEED_MORE_DATA n/a \u2192 11-03 NEED_MORE_DATA n/a \u2192 11-07 NEED_MORE_DATA n/a \u2192 11-14 NEED_MORE_DATA n/a \u2192 11-21 NEED_MORE_DATA -3.7 %"
    ]
   },
   {
@@ -122,7 +122,7 @@
    ],
    "5d": [
     "Ja",
-    "je Form: single +20.9 % (n=3); spread -23.3 % (n=2); gew\u00e4hlt n/a (n=0, {}, nicht bewertbar {}); gg\u00fc. Standardform n/a (n=0, KI None)"
+    "je Form: single -9.4 % (n=198); single_alt -15.1 % (n=150); spread -44.0 % (n=77); gew\u00e4hlt -9.8 % (n=92, {'single': 26, 'single_alt': 66}, nicht bewertbar {}); gg\u00fc. Standardform +11.9 % (n=92, KI [0.106075, 0.135855])"
    ]
   },
   {
@@ -133,20 +133,20 @@
     "noch keine bewerteten Entscheidungen"
    ],
    "5d": [
-    "offen",
-    "noch keine bewerteten Entscheidungen"
+    "Teilweise",
+    "directional -30.5 % (n=1); research_census -9.5 % (n=91); 7 Tage; \u00fcberwiegend bullische Call-Strukturen: keine Aussage f\u00fcr bearishe Signale; \u00fcberwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale \u00fcbertragbar; nur 7 Kalendertage: h\u00f6chstens eine Marktphase"
    ]
   },
   {
    "key": "gates",
    "question": "Was bringen die verworfenen Kandidaten je Filter (\u00d8 netto, beschreibend)?",
    "20d": [
-    "offen",
-    "noch keine Gruppe mit >= 20 Labels an >= 10 Tagen"
+    "Ja",
+    "mc_below_threshold +23.5 % (n=44); bearish_disabled -4.0 % (n=126); mismatch_below_min -7.9 % (n=170); options_design_roi_or_edge -19.5 % (n=51)"
    ],
    "5d": [
     "Ja",
-    "mc_below_threshold -2.2 % (n=45); mismatch_below_min -9.6 % (n=179); bearish_disabled -13.4 % (n=137); options_design_roi_or_edge -14.4 % (n=54)"
+    "mc_below_threshold -5.0 % (n=48); mismatch_below_min -10.6 % (n=196); bearish_disabled -13.9 % (n=143); options_design_roi_or_edge -16.4 % (n=63); economics_first_quote_probe_budget -17.6 % (n=798); sector_momentum_weak -18.3 % (n=148)"
    ]
   },
   {
@@ -154,11 +154,11 @@
    "question": "Wie viele Labels sind gepr\u00fcft, ausstehend oder fehlend (mit Ursache)?",
    "20d": [
     "Ja",
-    "356 gepr\u00fcft an 8 unabh\u00e4ngigen Signaltagen; 1134 noch nicht f\u00e4llig; technisch fehlend {'EXIT_NOT_ARCHIVED': 1} (Anteil 0.0028); historische L\u00fccke vor Archivstart 2026-10-12: {'ENTRY_NOT_ARCHIVED': 308, 'NO_LABEL_AFTER_DUE': 1}"
+    "492 gepr\u00fcft an 13 unabh\u00e4ngigen Signaltagen; 1502 noch nicht f\u00e4llig; technisch fehlend {'EXIT_NOT_ARCHIVED': 1, 'NO_LABEL_AFTER_DUE': 2} (Anteil 0.0061); historische L\u00fccke vor Archivstart 2026-10-12: {'ENTRY_NOT_ARCHIVED': 308, 'NO_LABEL_AFTER_DUE': 1}"
    ],
    "5d": [
     "Ja",
-    "963 gepr\u00fcft an 18 unabh\u00e4ngigen Signaltagen; 528 noch nicht f\u00e4llig; technisch fehlend keine (Anteil 0.0); historische L\u00fccke vor Archivstart 2026-10-12: {'ENTRY_NOT_ARCHIVED': 308, 'NO_LABEL_AFTER_DUE': 1}"
+    "1487 gepr\u00fcft an 23 unabh\u00e4ngigen Signaltagen; 506 noch nicht f\u00e4llig; technisch fehlend {'NO_LABEL_AFTER_DUE': 4} (Anteil 0.0027); historische L\u00fccke vor Archivstart 2026-10-12: {'ENTRY_NOT_ARCHIVED': 308, 'NO_LABEL_AFTER_DUE': 1}"
    ]
   },
   {
@@ -166,11 +166,11 @@
    "question": "Welchen Lernstatus hat das Modell (netto, ADVERSE, schwache Segmente)?",
    "20d": [
     "offen",
-    "NEED_MORE_DATA \u2013 356 gepr\u00fcfte Labels an 8 Signaltagen, 1134 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA; Netto \u00d8 gew\u00e4hlt (Walk-Forward) n/a, ADVERSE-Einstieg n/a; schwache Segmente: keine belegten"
+    "NEED_MORE_DATA \u2013 492 gepr\u00fcfte Labels an 13 Signaltagen, 1502 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA; Netto \u00d8 gew\u00e4hlt (Walk-Forward) n/a, ADVERSE-Einstieg n/a; schwache Segmente: keine belegten"
    ],
    "5d": [
     "offen",
-    "NEED_MORE_DATA \u2013 963 gepr\u00fcfte Labels an 18 Signaltagen, 528 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA; Netto \u00d8 gew\u00e4hlt (Walk-Forward) n/a, ADVERSE-Einstieg n/a; schwache Segmente: keine belegten"
+    "NEED_MORE_DATA \u2013 1487 gepr\u00fcfte Labels an 23 Signaltagen, 506 noch nicht f\u00e4llig; Walk-Forward NEED_MORE_DATA, Forward NEED_MORE_DATA; Netto \u00d8 gew\u00e4hlt (Walk-Forward) -9.8 %, ADVERSE-Einstieg -11.2 %; schwache Segmente: sector=Technology -24.8 % (n=23)"
    ]
   },
   {
@@ -194,7 +194,7 @@
    ],
    "5d": [
     "Ja",
-    "Empfehlungen gesperrt (16 offene Bedingungen, z. B. walk_forward: NEED_MORE_DATA (verlangt VALIDATED))"
+    "Empfehlungen gesperrt (11 offene Bedingungen, z. B. walk_forward: NEED_MORE_DATA (verlangt VALIDATED))"
    ]
   },
   {
@@ -202,11 +202,11 @@
    "question": "Welche L\u00fccken erkennt es selbst (Daten, Modell, Evidenz)?",
    "20d": [
     "Ja",
-    "3 L\u00fccke(n), zuerst: Merkmal news_novelty nur in 0% der 356 gepr\u00fcften Labels bef\u00fcllt \u2013 vom Modell verworfen; Vorschl\u00e4ge: 7 automatisch testbar, 1 zur Freigabe"
+    "3 L\u00fccke(n), zuerst: Merkmal news_novelty nur in 0% der 492 gepr\u00fcften Labels bef\u00fcllt \u2013 vom Modell verworfen; Vorschl\u00e4ge: 7 automatisch testbar, 1 zur Freigabe"
    ],
    "5d": [
     "Ja",
-    "7 L\u00fccke(n), zuerst: Merkmal news_novelty nur in 0% der 963 gepr\u00fcften Labels bef\u00fcllt \u2013 vom Modell verworfen; Vorschl\u00e4ge: 1 automatisch testbar, 6 zur Freigabe"
+    "11 L\u00fccke(n), zuerst: Merkmal news_novelty nur in 0% der 1487 gepr\u00fcften Labels bef\u00fcllt \u2013 vom Modell verworfen; Vorschl\u00e4ge: 1 automatisch testbar, 10 zur Freigabe"
    ]
   },
   {

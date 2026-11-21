@@ -1,36 +1,28 @@
 {
- "generated": "2026-11-21T02:45:38+00:00",
+ "generated": "2026-11-21T16:27:10+00:00",
  "last_runs": {
   "weekly": {
-   "generated": "2026-11-14T15:24:13+00:00",
+   "generated": "2026-11-21T16:27:10+00:00",
    "mail_status": "sent",
    "pending": [
-    "IMP-0db62805",
-    "IMP-444a5c99",
-    "IMP-4d870cdc",
     "IMP-8c83b133",
-    "IMP-8ea10f58"
+    "IMP-8ea10f58",
+    "IMP-79e87220",
+    "IMP-c24022c5"
    ],
    "deferred_by_weekly_limit": [
-    "IMP-8c83b133",
-    "IMP-8ea10f58"
+    "IMP-c24022c5"
    ],
    "input_issues": [],
-   "status_changes": [
-    {
-     "event": "resolved",
-     "task_id": "IMP-ce5d574e",
-     "reason": "Status HEALTHY"
-    }
-   ],
+   "status_changes": [],
    "mails": [
     {
      "channel": "digest",
-     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal options_skew_ratio im Options-Lernmodell kaum befüllt (+2 weitere)",
+     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal impact im Options-Lernmodell kaum befüllt (+2 weitere)",
      "tasks": [
-      "IMP-0db62805",
-      "IMP-444a5c99",
-      "IMP-4d870cdc"
+      "IMP-8c83b133",
+      "IMP-8ea10f58",
+      "IMP-79e87220"
      ],
      "status": "sent",
      "error": null
@@ -387,6 +379,73 @@
    "send_failures": 0,
    "last_send_error": null
   },
+  "IMP-79e87220": {
+   "task_id": "IMP-79e87220",
+   "kind": "sample_bias",
+   "subject": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)",
+   "priority": "P3",
+   "category": "data",
+   "short": "Evidenz einseitig: überwiegend Forschungsstichprobe (Call ohne Richtungssignal)",
+   "fingerprint": "bf3418f5c0ac",
+   "material": {
+    "priority": "P3",
+    "warning": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)"
+   },
+   "scope": {
+    "warning": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)",
+    "horizon": 5
+   },
+   "finding": "5 T: überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale übertragbar",
+   "problem": "Die Evidenz deckt nur einen Teil der Marktsituationen ab; ein Ergebnis gilt dann nicht automatisch für produktive Richtungssignale.",
+   "severity_reason": "schränkt die Übertragbarkeit ein, kein Fehler im engeren Sinn.",
+   "evidence": [
+    "Walk-Forward-Evidenz: überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale übertragbar"
+   ],
+   "sources": [
+    "outputs/research/option_learner/improvement.json"
+   ],
+   "files": [
+    "modules/candidate_ledger.py (Stichprobenregel)",
+    "modules/option_learner.py (_representativeness)"
+   ],
+   "cause": "Die Options-Snapshots werden überwiegend für eine Gruppe von Kandidaten erfasst.",
+   "verify": "Verteilung der Snapshots nach Stichprobe und Richtung im Ledger auszählen.",
+   "change": "Stichprobenregel so erweitern, dass die unterrepräsentierte Gruppe Snapshots erhält.",
+   "benefit": "breitere, übertragbare Evidenz; kein Renditeversprechen.",
+   "risks": "mehr Snapshots je Scanner-Lauf (bestehende, kostenlose Quelle)",
+   "effort": "mittel",
+   "costs": {
+    "api_calls": "zusätzliche Kontrakt-Snapshots je Lauf (bestehende Quelle)",
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "vernachlässigbar"
+   },
+   "acceptance": [
+    "keine Repräsentativitätswarnung dieser Art binnen 90 Tagen"
+   ],
+   "tests": [
+    "Test der erweiterten Stichprobenregel"
+   ],
+   "data_as_of": "2026-11-21",
+   "status": "NOTIFIED",
+   "decision_note": null,
+   "first_detected": "2026-11-21T16:27:10+00:00",
+   "last_changed": "2026-11-21T16:27:10+00:00",
+   "resolved_at": null,
+   "resolved_reason": null,
+   "unknown_reason": null,
+   "notifications": [
+    {
+     "at": "2026-11-21T16:27:10+00:00",
+     "channel": "digest",
+     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal impact im Options-Lernmodell kaum befüllt (+2 weitere)",
+     "fingerprint": "bf3418f5c0ac",
+     "reason": "NEW"
+    }
+   ],
+   "send_failures": 0,
+   "last_send_error": null
+  },
   "IMP-8c83b133": {
    "acceptance": [
     "Abdeckung von impact in neuen geprüften Labels >= 50% binnen 20 Handelstagen nach Umsetzung (oder Merkmal entfernt)",
@@ -451,14 +510,22 @@
     "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
    ],
    "verify": "In outputs/candidate_ledger/ Format und Speicherort von impact auszählen und mit option_learner.features() vergleichen.",
-   "status": "OPEN",
+   "status": "NOTIFIED",
    "decision_note": null,
    "first_detected": "2026-11-14T15:24:13+00:00",
    "last_changed": "2026-11-14T15:24:13+00:00",
    "resolved_at": null,
    "resolved_reason": null,
    "unknown_reason": null,
-   "notifications": [],
+   "notifications": [
+    {
+     "at": "2026-11-21T16:27:10+00:00",
+     "channel": "digest",
+     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal impact im Options-Lernmodell kaum befüllt (+2 weitere)",
+     "fingerprint": "9a39776fdeb7",
+     "reason": "PENDING"
+    }
+   ],
    "send_failures": 0,
    "last_send_error": null
   },
@@ -523,14 +590,22 @@
     "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
    ],
    "verify": "In outputs/candidate_ledger/ Format und Speicherort von dealer_oi_ratio auszählen und mit option_learner.features() vergleichen.",
-   "status": "OPEN",
+   "status": "NOTIFIED",
    "decision_note": null,
    "first_detected": "2026-11-14T15:24:13+00:00",
    "last_changed": "2026-11-14T15:24:13+00:00",
    "resolved_at": null,
    "resolved_reason": null,
    "unknown_reason": null,
-   "notifications": [],
+   "notifications": [
+    {
+     "at": "2026-11-21T16:27:10+00:00",
+     "channel": "digest",
+     "subject": "[Scanner] Technischer Verbesserungsvorschlag – Merkmal impact im Options-Lernmodell kaum befüllt (+2 weitere)",
+     "fingerprint": "9a39776fdeb7",
+     "reason": "PENDING"
+    }
+   ],
    "send_failures": 0,
    "last_send_error": null
   },
@@ -599,6 +674,65 @@
      "reason": "NEW"
     }
    ],
+   "send_failures": 0,
+   "last_send_error": null
+  },
+  "IMP-c24022c5": {
+   "task_id": "IMP-c24022c5",
+   "kind": "sample_bias",
+   "subject": "überwiegend bullische Call-Strukturen",
+   "priority": "P3",
+   "category": "data",
+   "short": "Evidenz einseitig: überwiegend bullische Call-Strukturen",
+   "fingerprint": "0ce8467c6f6d",
+   "material": {
+    "priority": "P3",
+    "warning": "überwiegend bullische Call-Strukturen"
+   },
+   "scope": {
+    "warning": "überwiegend bullische Call-Strukturen",
+    "horizon": 5
+   },
+   "finding": "5 T: überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale",
+   "problem": "Die Evidenz deckt nur einen Teil der Marktsituationen ab; ein Ergebnis gilt dann nicht automatisch für produktive Richtungssignale.",
+   "severity_reason": "schränkt die Übertragbarkeit ein, kein Fehler im engeren Sinn.",
+   "evidence": [
+    "Walk-Forward-Evidenz: überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale"
+   ],
+   "sources": [
+    "outputs/research/option_learner/improvement.json"
+   ],
+   "files": [
+    "modules/candidate_ledger.py (Stichprobenregel)",
+    "modules/option_learner.py (_representativeness)"
+   ],
+   "cause": "Die Options-Snapshots werden überwiegend für eine Gruppe von Kandidaten erfasst.",
+   "verify": "Verteilung der Snapshots nach Stichprobe und Richtung im Ledger auszählen.",
+   "change": "Stichprobenregel so erweitern, dass die unterrepräsentierte Gruppe Snapshots erhält.",
+   "benefit": "breitere, übertragbare Evidenz; kein Renditeversprechen.",
+   "risks": "mehr Snapshots je Scanner-Lauf (bestehende, kostenlose Quelle)",
+   "effort": "mittel",
+   "costs": {
+    "api_calls": "zusätzliche Kontrakt-Snapshots je Lauf (bestehende Quelle)",
+    "llm_calls": 0,
+    "paid_data": false,
+    "compute": "vernachlässigbar"
+   },
+   "acceptance": [
+    "keine Repräsentativitätswarnung dieser Art binnen 90 Tagen"
+   ],
+   "tests": [
+    "Test der erweiterten Stichprobenregel"
+   ],
+   "data_as_of": "2026-11-21",
+   "status": "OPEN",
+   "decision_note": null,
+   "first_detected": "2026-11-21T16:27:10+00:00",
+   "last_changed": "2026-11-21T16:27:10+00:00",
+   "resolved_at": null,
+   "resolved_reason": null,
+   "unknown_reason": null,
+   "notifications": [],
    "send_failures": 0,
    "last_send_error": null
   },

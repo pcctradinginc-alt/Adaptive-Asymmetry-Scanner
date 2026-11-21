@@ -1,25 +1,51 @@
 {
-  "account_skips": 10,
+  "account_skips": 20,
   "activated_at": "2026-11-09T20:00:47+00:00",
   "broker_connection": "NONE",
   "broker_orders": 0,
-  "cash_usd": 100000.0,
+  "cash_usd": 95726.1,
   "closed_trades": 0,
-  "generated_at": "2026-11-14T15:23:54+00:00",
-  "marks": {},
+  "generated_at": "2026-11-21T16:26:51+00:00",
+  "marks": {
+    "ALD-027e0651c036231ffa36": {
+      "day": null,
+      "status": "NO_VERIFIED_MARK",
+      "value_usd": null
+    },
+    "ALD-22371462f0c32233dd27": {
+      "day": null,
+      "status": "NO_VERIFIED_MARK",
+      "value_usd": null
+    },
+    "ALD-46342d652849deab4d34": {
+      "day": null,
+      "status": "NO_VERIFIED_MARK",
+      "value_usd": null
+    },
+    "ALD-51a894e79b8a28c97feb": {
+      "day": null,
+      "status": "NO_VERIFIED_MARK",
+      "value_usd": null
+    },
+    "ALD-c2b103d899c8aef7509f": {
+      "day": null,
+      "status": "NO_VERIFIED_MARK",
+      "value_usd": null
+    }
+  },
   "max_drawdown_closed_book": 0.0,
   "nav_at_cost_usd": 100000.0,
-  "nav_market_status": "VERIFIED_MARKS",
-  "nav_market_usd": 100000.0,
+  "nav_market_status": "INCOMPLETE_MISSING_QUOTES",
+  "nav_market_usd": null,
   "net_pnl_adverse_usd": 0.0,
   "net_pnl_base_usd": 0.0,
   "new_close": 0,
   "new_events": 0,
   "new_open_or_skip": 0,
-  "open_cost_basis_usd": 0.0,
-  "open_market_value_usd": 0.0,
-  "open_risk_usd": 0.0,
-  "open_trades": 0,
+  "open_cost_basis_usd": 4273.9,
+  "open_market_value_usd": null,
+  "open_risk_usd": 4277.8,
+  "open_trades": 5,
   "production_influence": "NONE",
   "profit_factor_closed": null,
   "realized_pnl_usd": 0.0,
@@ -31,7 +57,7 @@
   "statistical_alpha_status": "NOT_ESTABLISHED_BY_ACCOUNT_PERFORMANCE",
   "status": "ACTIVE",
   "trades_by_structure": {},
-  "unrealized_pnl_usd": 0.0,
+  "unrealized_pnl_usd": null,
   "verified_outcome_count": 0,
   "winrate_closed": null
 }

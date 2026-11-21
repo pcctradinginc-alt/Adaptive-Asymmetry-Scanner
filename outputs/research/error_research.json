@@ -1,20 +1,20 @@
 {
- "generated": "2026-11-14T15:19:26+00:00",
- "as_of": "2026-11-14",
+ "generated": "2026-11-21T16:22:21+00:00",
+ "as_of": "2026-11-21",
  "protocol": "error-research-v3",
  "protocol_sha256": "b2a493966867763406a01525bc8c91d36544b34bf9d9dc6e792173e2e3f56823",
  "seen_until": "2026-11-06",
  "window_method": "alternierende Haltefenster mit Purging (v2)",
- "code_sha": "45b196c03271",
+ "code_sha": "f8b35afbdb2c",
  "forecast_provenance": {
-  "TOO_FEW_MODELS": 436,
-  "VERIFIED": 9473
+  "TOO_FEW_MODELS": 480,
+  "VERIFIED": 10170
  },
  "horizons": {
   "5": {
-   "verified_errors": 8588,
-   "dates": 26,
-   "mean_abs_error": 0.3377,
+   "verified_errors": 9471,
+   "dates": 31,
+   "mean_abs_error": 0.3417,
    "ensemble_ic": {
     "n_periods": 3,
     "mean": -0.0352,
@@ -72,9 +72,9 @@
    "unexplained_segments": []
   },
   "20": {
-   "verified_errors": 4012,
-   "dates": 11,
-   "mean_abs_error": 0.3926,
+   "verified_errors": 5618,
+   "dates": 16,
+   "mean_abs_error": 0.3897,
    "ensemble_ic": {
     "n_periods": 0,
     "mean": null,
@@ -269,7 +269,7 @@
   "problems": []
  },
  "summary": {
-  "verified_forecast_rows": 9473,
+  "verified_forecast_rows": 10170,
   "patterns_recurring": 0,
   "patterns_explained_by_known_factor": 0,
   "registered_total": 1,

@@ -1,140 +1,149 @@
 {
   "last_n": 100,
-  "n_cases": 118,
-  "n_losses_total": 78,
-  "n_wins_total": 37,
+  "n_cases": 194,
+  "n_losses_total": 138,
+  "n_wins_total": 53,
   "reliable": {
-    "n": 7,
-    "mean_outcome": -0.40714285714285714,
+    "n": 38,
+    "mean_outcome": -0.6604815789473683,
     "primary": {
+      "underlying_unknown": {
+        "n": 31,
+        "share": 0.8157894736842105,
+        "mean_outcome": -0.7176870967741935
+      },
       "structure_decay": {
         "n": 3,
-        "share": 0.42857142857142855,
+        "share": 0.07894736842105263,
         "mean_outcome": -0.32226666666666665
       },
       "signal_wrong": {
         "n": 2,
-        "share": 0.2857142857142857,
+        "share": 0.05263157894736842,
         "mean_outcome": -0.52995
       },
       "timing_too_early": {
         "n": 2,
-        "share": 0.2857142857142857,
+        "share": 0.05263157894736842,
         "mean_outcome": -0.41165
       }
     },
     "labels": {
+      "underlying_unknown": {
+        "n": 31,
+        "share": 0.8157894736842105
+      },
+      "regime_changed": {
+        "n": 21,
+        "share": 0.5526315789473685
+      },
       "entry_cost_high": {
-        "n": 5,
-        "share": 0.7142857142857143
+        "n": 10,
+        "share": 0.2631578947368421
       },
       "structure_decay": {
         "n": 3,
-        "share": 0.42857142857142855
+        "share": 0.07894736842105263
       },
       "low_data_confidence": {
         "n": 2,
-        "share": 0.2857142857142857
+        "share": 0.05263157894736842
       },
       "signal_wrong": {
         "n": 2,
-        "share": 0.2857142857142857
+        "share": 0.05263157894736842
       },
       "timing_too_early": {
         "n": 2,
-        "share": 0.2857142857142857
+        "share": 0.05263157894736842
       },
       "weak_adverse_move": {
         "n": 2,
-        "share": 0.2857142857142857
-      },
-      "regime_changed": {
-        "n": 1,
-        "share": 0.14285714285714285
+        "share": 0.05263157894736842
       }
     }
   },
   "unreliable": {
-    "n": 71,
-    "mean_outcome": -0.6800084507042252,
+    "n": 100,
+    "mean_outcome": -0.5515499999999999,
     "primary": {
       "unreliable_outcome": {
-        "n": 71,
+        "n": 100,
         "share": 1.0,
-        "mean_outcome": -0.6800084507042252
+        "mean_outcome": -0.5515499999999999
       }
     },
     "labels": {
       "unreliable_outcome": {
-        "n": 71,
+        "n": 100,
         "share": 1.0
       }
     }
   },
   "winner_vs_loser": {
     "impact": {
-      "mean_winners": 4.0,
-      "mean_losers": 4.142857142857143,
-      "n_winners": 1,
-      "n_losers": 7,
-      "diff": -0.14285714285714324,
-      "effect_size": -0.4319593977248323
+      "mean_winners": 4.555555555555555,
+      "mean_losers": 4.342105263157895,
+      "n_winners": 9,
+      "n_losers": 38,
+      "diff": 0.21345029239766067,
+      "effect_size": 0.3765003962741211
     },
     "surprise": {
-      "mean_winners": 4.0,
-      "mean_losers": 3.0,
-      "n_winners": 1,
-      "n_losers": 7,
-      "diff": 1.0,
-      "effect_size": 3.0237157840738176
+      "mean_winners": 3.3333333333333335,
+      "mean_losers": 3.1315789473684212,
+      "n_winners": 9,
+      "n_losers": 38,
+      "diff": 0.20175438596491224,
+      "effect_size": 0.47060639650112956
     },
     "mismatch": {
-      "mean_winners": 1.266,
-      "mean_losers": 2.0494285714285714,
-      "n_winners": 1,
-      "n_losers": 7,
-      "diff": -0.7834285714285714,
-      "effect_size": -0.7876820186913688
+      "mean_winners": 2.106666666666667,
+      "mean_losers": 2.196710526315789,
+      "n_winners": 9,
+      "n_losers": 38,
+      "diff": -0.0900438596491222,
+      "effect_size": -0.0710804953364209
     },
     "z_score": {
-      "mean_winners": 0.547,
-      "mean_losers": 0.4187142857142857,
-      "n_winners": 1,
-      "n_losers": 7,
-      "diff": 0.12828571428571434,
-      "effect_size": 0.6367423788965507
+      "mean_winners": 0.489888888888889,
+      "mean_losers": 0.4290789473684211,
+      "n_winners": 9,
+      "n_losers": 38,
+      "diff": 0.06080994152046787,
+      "effect_size": 0.22491305822947236
     },
     "sigma_30d": {
-      "mean_winners": 0.015,
-      "mean_losers": 0.0278,
-      "n_winners": 1,
-      "n_losers": 7,
-      "diff": -0.012799999999999999,
-      "effect_size": -1.0400147268753028
+      "mean_winners": 0.02153333333333333,
+      "mean_losers": 0.0313921052631579,
+      "n_winners": 9,
+      "n_losers": 38,
+      "diff": -0.00985877192982457,
+      "effect_size": -0.8902717734280722
     },
     "price_move_48h": {
-      "mean_winners": 0.0082,
-      "mean_losers": 0.01137142857142857,
-      "n_winners": 1,
-      "n_losers": 7,
-      "diff": -0.00317142857142857,
-      "effect_size": -0.4193699031096707
+      "mean_winners": 0.010500000000000002,
+      "mean_losers": 0.013955263157894734,
+      "n_winners": 9,
+      "n_losers": 38,
+      "diff": -0.003455263157894732,
+      "effect_size": -0.3321529544296396
     },
     "eps_drift": {
       "mean_winners": 0.0,
-      "mean_losers": 0.005514285714285715,
-      "n_winners": 1,
-      "n_losers": 7,
-      "diff": -0.005514285714285715,
-      "effect_size": -0.4319593977248311
+      "mean_losers": 0.0010157894736842106,
+      "n_winners": 9,
+      "n_losers": 38,
+      "diff": -0.0010157894736842106,
+      "effect_size": -0.18236241945474121
     },
     "quick_mc_hit_rate": {
-      "mean_winners": 0.507,
-      "mean_losers": 0.6425428571428571,
-      "n_winners": 1,
-      "n_losers": 7,
-      "diff": -0.13554285714285708,
-      "effect_size": -2.2531937899231558
+      "mean_winners": 0.5349555555555556,
+      "mean_losers": 0.5902210526315791,
+      "n_winners": 9,
+      "n_losers": 38,
+      "diff": -0.05526549707602346,
+      "effect_size": -0.8179573941587934
     }
   },
   "note": "Kleine Stichprobe: Anteile sind deskriptiv, keine Signifikanzaussage.",

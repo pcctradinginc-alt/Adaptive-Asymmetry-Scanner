@@ -1,0 +1,535 @@
+{
+  "as_of": "2026-11-21",
+  "metrics_by_missing_count": [
+    {
+      "key": "DLY-PRCP-NORMAL",
+      "missing": 14600,
+      "missing_fraction": 1.0,
+      "total": 14600
+    },
+    {
+      "key": "DLY-CLDD-NORMAL",
+      "missing": 3285,
+      "missing_fraction": 0.225,
+      "total": 14600
+    },
+    {
+      "key": "DLY-HTDD-NORMAL",
+      "missing": 3285,
+      "missing_fraction": 0.225,
+      "total": 14600
+    },
+    {
+      "key": "DLY-TAVG-NORMAL",
+      "missing": 3285,
+      "missing_fraction": 0.225,
+      "total": 14600
+    },
+    {
+      "key": "DLY-TMAX-NORMAL",
+      "missing": 3285,
+      "missing_fraction": 0.225,
+      "total": 14600
+    },
+    {
+      "key": "DLY-TMIN-NORMAL",
+      "missing": 3285,
+      "missing_fraction": 0.225,
+      "total": 14600
+    }
+  ],
+  "missing": 31025,
+  "missing_fraction": 0.3542,
+  "note": "Missingness uses PIT-visible archive observations; no values are imputed. The global health store may count a different denominator, e.g. historical vintages.",
+  "numeric": 56575,
+  "observations": 87600,
+  "schema": "ncei-missingness-audit-v1",
+  "source_id": "ncei_normals",
+  "station_metrics_by_missing_count": [
+    {
+      "key": "('ATL', 'DLY-CLDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL', 'DLY-HTDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL', 'DLY-TAVG-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL', 'DLY-TMAX-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL', 'DLY-TMIN-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL_METRO', 'DLY-CLDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL_METRO', 'DLY-HTDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL_METRO', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL_METRO', 'DLY-TAVG-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL_METRO', 'DLY-TMAX-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('ATL_METRO', 'DLY-TMIN-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('AZ_CONSTR', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('BOS', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('BOS_METRO', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CAROLINAS_COAST', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CHI', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CHI_RAIL', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CLT', 'DLY-CLDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CLT', 'DLY-HTDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CLT', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CLT', 'DLY-TAVG-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CLT', 'DLY-TMAX-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('CLT', 'DLY-TMIN-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DAL', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DAL_LOGISTICS', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DEN', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DET_METRO', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DFW', 'DLY-CLDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DFW', 'DLY-HTDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DFW', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DFW', 'DLY-TAVG-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DFW', 'DLY-TMAX-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DFW', 'DLY-TMIN-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('DTW', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('EWR', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('FL_CONSTR', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('GA_CONSTR', 'DLY-CLDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('GA_CONSTR', 'DLY-HTDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('GA_CONSTR', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('GA_CONSTR', 'DLY-TAVG-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('GA_CONSTR', 'DLY-TMAX-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('GA_CONSTR', 'DLY-TMIN-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('HOU', 'DLY-CLDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('HOU', 'DLY-HTDD-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('HOU', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('HOU', 'DLY-TAVG-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('HOU', 'DLY-TMAX-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('HOU', 'DLY-TMIN-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    },
+    {
+      "key": "('IND_LOGISTICS', 'DLY-PRCP-NORMAL')",
+      "missing": 365,
+      "missing_fraction": 1.0,
+      "total": 365
+    }
+  ],
+  "stations_by_missing_count": [
+    {
+      "key": "ATL",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "ATL_METRO",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "CLT",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "DFW",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "GA_CONSTR",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "HOU",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "LA_COAST",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "NC_CONSTR",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "SDF_UPS",
+      "missing": 2190,
+      "missing_fraction": 1.0,
+      "total": 2190
+    },
+    {
+      "key": "AZ_CONSTR",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "BOS",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "BOS_METRO",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "CAROLINAS_COAST",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "CHI",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "CHI_RAIL",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "DAL",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "DAL_LOGISTICS",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "DEN",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "DET_METRO",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "DTW",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "EWR",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "FL_CONSTR",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "IND_LOGISTICS",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "JFK",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "LAS",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "LAX",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "MCO",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "MEM_FDX",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "MIA",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    },
+    {
+      "key": "MSP",
+      "missing": 365,
+      "missing_fraction": 0.1667,
+      "total": 2190
+    }
+  ],
+  "status": "MEASURED",
+  "unique_metrics": 6,
+  "unique_stations": 40
+}

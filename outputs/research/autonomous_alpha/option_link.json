@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-20",
+  "as_of": "2026-11-21",
   "decisions_by_class": {
     "ABSTAIN": 96,
     "TRADE": 54
@@ -18,7 +18,7 @@
     "n_real_trades": 5,
     "note": "The trade outcomes are scanner paper trades valued from archived bid/ask quotes, without broker fills: they are never EXECUTED evidence. EXECUTED needs a documented broker execution AND an ex-ante alpha_signal_id (neither exists today; trading path unchanged)."
   },
-  "generated_at": "2026-11-20T20:44:04+00:00",
+  "generated_at": "2026-11-21T16:26:48+00:00",
   "hypotheses": {
     "AUTO-9F3C98A8BD0B": {
       "by_structure": {
@@ -66,15 +66,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "autonomous_factor",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 6,
+      "pending_decision": 6,
+      "signals": 12,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 3
+        "NO_ALLOWED_STRUCTURE": 6
       },
       "versions": [
         "9f3c98a8bd0bd050d1617c7bfe703c3a6d2bfda880fd99202963e7024736978f"
@@ -120,15 +120,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 1,
+      "distinct_signal_dates": 2,
       "excluded_by_correction": 0,
       "hypothesis_source": "autonomous_factor",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 6,
+      "pending_decision": 6,
+      "signals": 12,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 3
+        "NO_ALLOWED_STRUCTURE": 6
       },
       "versions": [
         "f34e5c6bbf7d947e7f6961ab1b39904d5d1b04e686e16f739f337e54d60898fd"
@@ -182,12 +182,12 @@
         }
       },
       "comparison_group": "CONTROL",
-      "distinct_signal_dates": 3,
+      "distinct_signal_dates": 4,
       "excluded_by_correction": 0,
       "hypothesis_source": "control",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 15,
+      "pending_decision": 10,
+      "signals": 20,
       "status": "NEED_MORE_DATA",
       "untradable": {},
       "versions": [
@@ -235,15 +235,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 3,
+      "distinct_signal_dates": 4,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 18,
+      "pending_decision": 6,
+      "signals": 24,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 9
+        "NO_ALLOWED_STRUCTURE": 12
       },
       "versions": [
         "8de25a33fe281eb9"
@@ -293,15 +293,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 3,
+      "distinct_signal_dates": 4,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 18,
+      "pending_decision": 6,
+      "signals": 24,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 9
+        "NO_ALLOWED_STRUCTURE": 12
       },
       "versions": [
         "7422b09c3c93c911"
@@ -349,15 +349,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 3,
+      "distinct_signal_dates": 4,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 18,
+      "pending_decision": 6,
+      "signals": 24,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 9
+        "NO_ALLOWED_STRUCTURE": 12
       },
       "versions": [
         "dbbebe4ad1475752"
@@ -405,15 +405,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 3,
+      "distinct_signal_dates": 4,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 18,
+      "pending_decision": 6,
+      "signals": 24,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 9
+        "NO_ALLOWED_STRUCTURE": 12
       },
       "versions": [
         "bc68f4e5430f286f"
@@ -461,15 +461,15 @@
         }
       },
       "comparison_group": "TREATMENT",
-      "distinct_signal_dates": 3,
+      "distinct_signal_dates": 4,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 18,
+      "pending_decision": 6,
+      "signals": 24,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 9
+        "NO_ALLOWED_STRUCTURE": 12
       },
       "versions": [
         "1d342821148821bd"
@@ -516,15 +516,15 @@
         }
       },
       "comparison_group": "REFERENCE",
-      "distinct_signal_dates": 3,
+      "distinct_signal_dates": 4,
       "excluded_by_correction": 0,
       "hypothesis_source": "ml_registry",
       "overdue_decision": 0,
-      "pending_decision": 0,
-      "signals": 18,
+      "pending_decision": 6,
+      "signals": 24,
       "status": "NEED_MORE_DATA",
       "untradable": {
-        "NO_ALLOWED_STRUCTURE": 9
+        "NO_ALLOWED_STRUCTURE": 12
       },
       "versions": [
         "60f816ac9441b233"
@@ -552,8 +552,8 @@
       },
       "signals": {
         "conflicting_duplicates": 0,
-        "rows": 135,
-        "unique": 135
+        "rows": 188,
+        "unique": 188
       }
     },
     "status": "OK"
@@ -563,7 +563,7 @@
   "llm_calls": 0,
   "n_decisions": 150,
   "n_outcomes": 0,
-  "n_signals": 135,
+  "n_signals": 188,
   "order_placed": false,
   "outcomes_by_evidence_class": {
     "EXECUTED": 0,
@@ -590,7 +590,11 @@
   "rule_version": "alpha-option-rule-v1",
   "schema": "alpha-option-link-coverage-v1",
   "source_stats": {
-    "status": "SKIPPED_CAPTURE_LIGHTWEIGHT"
+    "auto_late_or_future": 2,
+    "fd3_source_status_missing": 1,
+    "ml_broken_lines": 0,
+    "ml_late_not_registered": 18,
+    "ml_pre_link_rows": 48
   },
   "status": "NEED_MORE_DATA"
 }
