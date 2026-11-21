@@ -1014,6 +1014,107 @@ def incremental_window(now: datetime, days: int = INCREMENTAL_WINDOW_DAYS) -> tu
     return start, end
 
 
+def recover_verified_port_reference(
+    *, daily_endpoint: dict, reference_endpoint: dict, ref_schema: dict,
+    missing_names: set[str], wanted: list[dict], alias_map: dict[str, list[str]],
+    http_fetch: FetchFn, max_record_count: int = 2000,
+    prior_path: str = "outputs/external_data/health/preflight_report.json",
+) -> tuple[list[dict], dict]:
+    """Reverify missing IDs on the *live official reference layer*, not from stale data.
+
+    The historical PASS preflight supplies query hints ONLY. An old ID is never
+    accepted unless today's publisher returns the exact same ID, documented
+    canonical/alias name and country. An unavailable/partial response cannot
+    turn this source HEALTHY. One tiny bounded query avoids repeated historical
+    DISTINCT scans on the quota-limited shared ArcGIS publisher.
+    """
+    diag: dict = {"status": "NO_VERIFIED_HINTS", "requested": [], "verified": [], "rejected": []}
+    if not missing_names or reference_endpoint.get("fallback_to_daily_layer"):
+        return [], diag
+    if not (daily_endpoint.get("owner") and
+            reference_endpoint.get("owner") == daily_endpoint.get("owner")):
+        diag["status"] = "PUBLISHER_NOT_VERIFIED"
+        return [], diag
+    try:
+        with open(prior_path, encoding="utf-8") as handle:
+            records = json.load(handle)
+        expected = (f"{daily_endpoint['service_url'].rstrip('/')}/"
+                    f"{daily_endpoint['layer_id']}/query")
+        historical = next((r for r in records if isinstance(r, dict)
+                           and r.get("source_id") == "imf_portwatch_ports"
+                           and r.get("status") == "PASS"
+                           and expected in (r.get("endpoints") or [])
+                           and (r.get("discovered_ids") or {}).get("unresolved_ports") == {}), None)
+        old_ids = (historical.get("discovered_ids") or {}).get("ports") if historical else {}
+        ids = {name: old_ids[name] for name in missing_names
+               if isinstance(old_ids, dict) and name in old_ids
+               and isinstance(old_ids[name], str)
+               and re.fullmatch(r"port[0-9]{1,10}", old_ids[name])}
+    except (OSError, ValueError, TypeError, KeyError):
+        return [], diag
+    if not ids or len(ids) > 32 or len(set(ids.values())) != len(ids):
+        diag["status"] = "INVALID_OR_MISSING_HINTS"
+        return [], diag
+    diag["requested"] = sorted(ids)
+    query_ids = sorted(ids.values())
+    id_field, name_field = ref_schema["id_field"], ref_schema["name_field"]
+    country_field = ref_schema.get("country_field")
+    fields = [id_field, name_field] + ([country_field] if country_field else [])
+    where = id_field + " IN (" + ",".join("'" + v + "'" for v in query_ids) + ")"
+    rows = query_features(reference_endpoint["service_url"], reference_endpoint["layer_id"],
+                          where, fields, http_fetch, max_record_count=max_record_count)
+    wanted_by_name = {p["name"]: p for p in wanted if p["name"] in ids}
+    live: list[dict] = []
+    for name, expected_id in ids.items():
+        matches = [row.get("attributes", row) for row in rows
+                   if isinstance(row, dict) and
+                   str(row.get("attributes", row).get(id_field)) == expected_id]
+        if len(matches) != 1 or not isinstance(matches[0], dict):
+            diag["rejected"].append(name)
+            continue
+        attrs = matches[0]
+        accepted_names = {normalize_name(name)} | {
+            normalize_name(a) for a in alias_map.get(name, [])
+        }
+        if normalize_name(str(attrs.get(name_field, ""))) not in accepted_names:
+            diag["rejected"].append(name)
+            continue
+        expected_country = wanted_by_name[name].get("country")
+        if (country_field and expected_country and
+                normalize_name(str(attrs.get(country_field, ""))) != normalize_name(expected_country)):
+            diag["rejected"].append(name)
+            continue
+        live.append({"attributes": attrs})
+        diag["verified"].append(name)
+    diag["status"] = "LIVE_VERIFIED" if len(live) == len(missing_names) else "PARTIAL_LIVE_VERIFICATION"
+    return live, diag
+
+
+def archived_incremental_window(
+    now: datetime, state_path: str = "outputs/external_data/health/source_health.json",
+    source_id: str = "imf_portwatch_ports", overlap_days: int = 5,
+) -> tuple[date, date]:
+    """Resume from the last *archived* observation, with bounded revision overlap.
+
+    A fixed 21-day re-download made hundreds of thousands of unchanged
+    observations per day and amplified shared ArcGIS 429 incidents. Never use
+    the last attempted fetch or a newer unarchived HTTP response as the cursor.
+    If a gap grew beyond 21 days, include the gap rather than silently skip it.
+    """
+    default_start, end = incremental_window(now)
+    try:
+        with open(state_path, encoding="utf-8") as handle:
+            state = json.load(handle)
+        record = state[source_id]
+        last = datetime.fromisoformat(record["latest_observation"].replace("Z", "+00:00")).date()
+        success = datetime.fromisoformat(record["last_success"].replace("Z", "+00:00")).date()
+        if not BACKFILL_START <= last <= end or success > end:
+            return default_start, end
+        return max(BACKFILL_START, last - timedelta(days=max(1, overlap_days))), end
+    except (OSError, ValueError, TypeError, KeyError, AttributeError):
+        return default_start, end
+
+
 # --------------------------------------------------------------------------
 # Name-Normalisierung & Universe-Resolution (nie IDs erfinden)
 # --------------------------------------------------------------------------
@@ -1474,7 +1575,11 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
             schema = resolve_ports_field_schema(meta, ep["service_url"], ep["layer_id"])
             max_rc = meta.get("maxRecordCount", 2000)
 
-            start, end = (BACKFILL_START, now.date()) if backfill else incremental_window(now)
+            start, end = ((BACKFILL_START, now.date()) if backfill else
+                          archived_incremental_window(
+                              now, state_path=self.cfg.get(
+                                  "source_health_state_path",
+                                  "outputs/external_data/health/source_health.json")))
             where = build_where_clause(start, end, date_field=schema["date_field"],
                                         date_field_type=schema["date_field_type"])
             # outFields = ausschließlich die Schnittmenge aus gewünschten
@@ -1538,6 +1643,44 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 country_field=ref_schema.get("country_field"),
                 alias_map=load_port_aliases(universe),
             )
+            missing_names = {r.name for r in resolved if r.status != "resolved"}
+            verified_reference_recovery = {"status": "NOT_REQUIRED", "verified": []}
+            if missing_names and not ref_ep.get("fallback_to_daily_layer"):
+                # A complete table read can omit isolated official records;
+                # re-query only historically verified IDs, but accept ONLY
+                # the returned live reference records, never cached metrics.
+                extra, verified_reference_recovery = recover_verified_port_reference(
+                    daily_endpoint=ep, reference_endpoint=ref_ep, ref_schema=ref_schema,
+                    missing_names=missing_names, wanted=wanted,
+                    alias_map=load_port_aliases(universe), http_fetch=self._fetch,
+                    max_record_count=ref_meta.get("maxRecordCount", 2000),
+                    prior_path=self.cfg.get(
+                        "verified_preflight_report_path",
+                        "outputs/external_data/health/preflight_report.json"),
+                )
+                # Preserve unique ID/name/country records if the broad query
+                # already returned a record; duplicates must not cause a
+                # fabricated ambiguity on the second resolution.
+                seen_ref = {
+                    (str(a.get(ref_schema["id_field"])),
+                     str(a.get(ref_schema["name_field"])),
+                     str(a.get(ref_schema.get("country_field"))) if ref_schema.get("country_field") else "")
+                    for feat in ref_features
+                    for a in [feat.get("attributes", feat)]
+                }
+                for row in extra:
+                    a = row["attributes"]
+                    k = (str(a.get(ref_schema["id_field"])),
+                         str(a.get(ref_schema["name_field"])),
+                         str(a.get(ref_schema.get("country_field"))) if ref_schema.get("country_field") else "")
+                    if k not in seen_ref:
+                        ref_features.append(row)
+                        seen_ref.add(k)
+                resolved = resolve_entities_by_name(
+                    wanted, ref_features, ref_schema["id_field"], ref_schema["name_field"],
+                    country_field=ref_schema.get("country_field"),
+                    alias_map=load_port_aliases(universe),
+                )
             discovered_ids = {r.name: r.entity_id for r in resolved if r.status == "resolved"}
             unresolved = {r.name: r.status for r in resolved if r.status != "resolved"}
             available_ports = sorted({
@@ -1549,6 +1692,8 @@ class PortWatchPortsConnector(_PortWatchConnectorBase):
                 "n_available_ports": len(available_ports),
                 "ports_reference_fallback_to_daily_layer": bool(ref_ep.get("fallback_to_daily_layer")),
                 "reference_origin": reference_origin,
+                "verified_reference_recovery": verified_reference_recovery,
+                "incremental_window": [start.isoformat(), end.isoformat()],
                 "arcgis_requests_by_host": arcgis_request_telemetry(),
                 "unresolved_ports_close_matches": {
                     name: close_name_matches(name, available_ports) for name in unresolved
