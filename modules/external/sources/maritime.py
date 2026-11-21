@@ -1217,6 +1217,14 @@ def resolve_entities_by_name(
         if not matches:
             results.append(ResolvedEntity(name, country, None, "no_match", []))
             continue
+        if name in verified_ids and country and country_field:
+            # One wrong-country row must not pass simply because its ID and
+            # alias match. This is stricter than legacy name-only matching.
+            matches = [m for m in matches
+                       if normalize_name(str(m.get(country_field, ""))) == normalize_name(country)]
+            if not matches:
+                results.append(ResolvedEntity(name, country, None, "no_match", []))
+                continue
         if len(matches) > 1 and country and country_field:
             country_norm = normalize_name(country)
             filtered = [
