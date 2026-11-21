@@ -19,6 +19,38 @@ def query(url: str, params: dict) -> dict:
     return data
 
 
+def verify_curated_port_identities() -> None:
+    """Live verify the official four identities, not merely historical IDs."""
+    universe = mw.load_port_universe()
+    hints = universe["verified_port_id_hints"]
+    wanted = [p for p in mw.flatten_port_universe(universe) if p["name"] in hints]
+    url = f"{ROOT}/PortWatch_ports_database/FeatureServer/0/query"
+    result = query(url, {
+        "where": "portid IN (" + ",".join(f"'{pid}'" for pid in sorted(hints.values())) + ")",
+        "outFields": "portid,portname,country",
+        "returnGeometry": "false",
+        "resultRecordCount": 16,
+        "f": "json",
+    })
+    features = result.get("features")
+    if not isinstance(features, list) or result.get("exceededTransferLimit"):
+        raise RuntimeError("Official PortWatch reference response incomplete")
+    got = mw.resolve_entities_by_name(
+        wanted, features, "portid", "portname", "country",
+        alias_map=mw.load_port_aliases(universe),
+        verified_ids=hints,
+    )
+    failures = [f"{r.name}: {r.status}" for r in got
+                if r.status != "resolved" or r.entity_id != hints[r.name]]
+    if failures:
+        observed = [(f.get("attributes") or {}).get("portid") for f in features]
+        raise RuntimeError(f"Four curated PortWatch IDs not all verified live: {failures}; "
+                           f"reference_ids={observed[:16]}")
+    for row in got:
+        print(f"::notice::Verified curated official port: {row.name} = {row.entity_id}")
+    print("Four curated PortWatch IDs verified against the LIVE official reference")
+
+
 def main() -> None:
     # A bounded 21d population, never an unrestricted historical download.
     start = date.today() - timedelta(days=21)
@@ -71,6 +103,7 @@ def main() -> None:
         print(f"::notice::{name}: LIVE provider ObjectID contract passed; "
               f"population={len(ids)}; sample={len(sample)}; "
               f"production_query_rows={len(rows)}; observed_day={day}")
+    verify_curated_port_identities()
     print("LIVE ArcGIS ObjectID contract passed for BOTH important PortWatch datasets")
 
 
