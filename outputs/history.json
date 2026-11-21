@@ -287,7 +287,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-20T22:17:38+00:00",
+        "evaluated_at": "2026-11-21T00:54:01+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -563,7 +563,7 @@
       "timing": {
         "policy": "timing-v2",
         "version": "timing-eval-v1",
-        "evaluated_at": "2026-11-20T22:17:38+00:00",
+        "evaluated_at": "2026-11-21T00:54:01+00:00",
         "outcome": null,
         "method": null,
         "price_type": null,
@@ -592,7 +592,8 @@
       "current_return": -0.6203,
       "exit_deferral": {
         "days": [
-          "2026-11-20"
+          "2026-11-20",
+          "2026-11-21"
         ],
         "signal": "stop_loss",
         "reason": "DECISION_OUTSIDE_WINDOW",
@@ -100415,7 +100416,7 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null,
+      "outcome": -0.1241,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.626,
@@ -100553,7 +100554,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "RVTY",
@@ -100593,7 +100596,7 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null,
+      "outcome": -0.057,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.75,
@@ -100722,7 +100725,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "ORCL",
@@ -100762,7 +100767,7 @@
         "surprise": 3,
         "time_to_materialization": "6 Monate"
       },
-      "outcome": null,
+      "outcome": -0.2965,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.599,
@@ -100891,7 +100896,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "TXN",
@@ -100931,7 +100938,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.0838,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.7394,
@@ -101060,7 +101067,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "HPQ",
@@ -101100,7 +101109,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.1384,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5618,
@@ -101229,7 +101238,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "SNPS",
@@ -101277,7 +101288,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.2141,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6978,
@@ -101406,7 +101417,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "SWKS",
@@ -101446,7 +101459,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.1063,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.7198,
@@ -101575,7 +101588,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "DVN",
@@ -101615,7 +101630,7 @@
         "surprise": 4,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.133,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.576,
@@ -101744,7 +101759,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "CRWD",
@@ -101784,7 +101801,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.1348,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5534,
@@ -101913,7 +101930,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "NTAP",
@@ -101953,7 +101972,7 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null,
+      "outcome": -0.3338,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5606,
@@ -102082,7 +102101,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "RDDT",
@@ -102122,7 +102143,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.4428,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6116,
@@ -102251,7 +102272,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "TEAM",
@@ -102291,7 +102314,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.3111,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.527,
@@ -102420,7 +102443,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "TTWO",
@@ -102460,7 +102485,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": 0.0261,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5766,
@@ -102589,7 +102614,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "DHR",
@@ -102629,7 +102656,7 @@
         "surprise": 3,
         "time_to_materialization": "6 Monate"
       },
-      "outcome": null,
+      "outcome": 0.0111,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.6686,
@@ -102758,7 +102785,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "HPE",
@@ -102798,7 +102827,7 @@
         "surprise": 3,
         "time_to_materialization": "2-3 Monate"
       },
-      "outcome": null,
+      "outcome": -0.4377,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5456,
@@ -102927,7 +102956,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "FCX",
@@ -102967,7 +102998,7 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null,
+      "outcome": -0.3618,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.645,
@@ -103096,7 +103127,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "TEL",
@@ -103136,7 +103169,7 @@
         "surprise": 3,
         "time_to_materialization": "4-8 Wochen"
       },
-      "outcome": null,
+      "outcome": -0.0772,
       "final_mc_shadow": {
         "dte_used": 45,
         "hit_rate_used": 0.5972,
@@ -103265,7 +103298,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "stock_fallback",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "ORCL",
@@ -103321,7 +103356,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.577,
-      "outcome": null,
+      "outcome": -0.816,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -103442,7 +103477,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "TXN",
@@ -103498,7 +103535,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.7126,
-      "outcome": null,
+      "outcome": -0.4013,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -103619,7 +103656,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "HPQ",
@@ -103681,7 +103720,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.5434,
-      "outcome": null,
+      "outcome": -0.9257,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -103802,7 +103841,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "spread_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "NTAP",
@@ -103858,7 +103899,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.545,
-      "outcome": null,
+      "outcome": -0.9169,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -103979,7 +104020,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "RDDT",
@@ -104035,7 +104078,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.5952,
-      "outcome": null,
+      "outcome": -0.9545,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -104156,7 +104199,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "HPE",
@@ -104218,7 +104263,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.5432,
-      "outcome": null,
+      "outcome": -1.0,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -104339,7 +104384,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "spread_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "TTWO",
@@ -104395,7 +104442,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.4836,
-      "outcome": null,
+      "outcome": -0.0166,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -104516,7 +104563,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "CRWD",
@@ -104572,7 +104621,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.5328,
-      "outcome": null,
+      "outcome": -0.5319,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -104693,7 +104742,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "TEAM",
@@ -104749,7 +104800,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.5314,
-      "outcome": null,
+      "outcome": -0.8942,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -104870,7 +104921,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "DVN",
@@ -104926,7 +104979,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.4902,
-      "outcome": null,
+      "outcome": -0.6722,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -105047,7 +105100,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "FCX",
@@ -105102,7 +105157,7 @@
       },
       "vix": 15.1,
       "mc_hit_rate": 0.6414,
-      "outcome": null,
+      "outcome": -0.976,
       "external_context_entry": {
         "snapshot_id": "eab9bcb0b3a4f2fa",
         "feature_version": {
@@ -105223,7 +105278,9 @@
           "score_delta": 0.0,
           "veto": false
         }
-      }
+      },
+      "outcome_method": "option_quote",
+      "close_date": "2026-11-21"
     },
     {
       "ticker": "UAL",
@@ -145911,9 +145968,9 @@
   "feature_stats_external": {
     "freight_state": {
       "STRONG_CONTRACTION": {
-        "count": 43,
-        "mean": -0.30448604651162786,
-        "_m2": 16.376308171627905,
+        "count": 54,
+        "mean": -0.3925592592592592,
+        "_m2": 18.96417353037037,
         "wins": 14,
         "outcomes": [
           -0.5079,
@@ -145958,10 +146015,21 @@
           -0.9128,
           0.0702,
           -0.2518,
-          -0.4502
+          -0.4502,
+          -0.816,
+          -0.4013,
+          -0.9257,
+          -0.9169,
+          -0.9545,
+          -1.0,
+          -0.0166,
+          -0.5319,
+          -0.8942,
+          -0.6722,
+          -0.976
         ],
-        "strat_ret_sum": -13.0929,
-        "strat_ret_count": 43
+        "strat_ret_sum": -21.1982,
+        "strat_ret_count": 54
       }
     },
     "maritime_state": {
@@ -145991,9 +146059,9 @@
         "strat_ret_count": 15
       },
       "NEUTRAL": {
-        "count": 28,
-        "mean": -0.23804642857142858,
-        "_m2": 12.368793889642854,
+        "count": 39,
+        "mean": -0.3787333333333333,
+        "_m2": 15.284135866666661,
         "wins": 11,
         "outcomes": [
           -0.1818,
@@ -146023,17 +146091,28 @@
           0.2011,
           -0.4697,
           -0.5451,
-          -0.8519
+          -0.8519,
+          -0.816,
+          -0.4013,
+          -0.9257,
+          -0.9169,
+          -0.9545,
+          -1.0,
+          -0.0166,
+          -0.5319,
+          -0.8942,
+          -0.6722,
+          -0.976
         ],
-        "strat_ret_sum": -6.665299999999999,
-        "strat_ret_count": 28
+        "strat_ret_sum": -14.770599999999998,
+        "strat_ret_count": 39
       }
     },
     "weather_operational_risk": {
       "elevated": {
-        "count": 43,
-        "mean": -0.30448604651162786,
-        "_m2": 16.376308171627905,
+        "count": 54,
+        "mean": -0.3925592592592592,
+        "_m2": 18.96417353037037,
         "wins": 14,
         "outcomes": [
           -0.5079,
@@ -146078,17 +146157,28 @@
           -0.9128,
           0.0702,
           -0.2518,
-          -0.4502
+          -0.4502,
+          -0.816,
+          -0.4013,
+          -0.9257,
+          -0.9169,
+          -0.9545,
+          -1.0,
+          -0.0166,
+          -0.5319,
+          -0.8942,
+          -0.6722,
+          -0.976
         ],
-        "strat_ret_sum": -13.0929,
-        "strat_ret_count": 43
+        "strat_ret_sum": -21.1982,
+        "strat_ret_count": 54
       }
     },
     "external_relation": {
       "NEUTRAL": {
-        "count": 39,
-        "mean": -0.3294538461538461,
-        "_m2": 14.857043236923076,
+        "count": 50,
+        "mean": -0.41908000000000006,
+        "_m2": 17.231504239999996,
         "wins": 11,
         "outcomes": [
           -0.5079,
@@ -146129,10 +146219,21 @@
           -0.9128,
           0.0702,
           -0.2518,
-          -0.4502
+          -0.4502,
+          -0.816,
+          -0.4013,
+          -0.9257,
+          -0.9169,
+          -0.9545,
+          -1.0,
+          -0.0166,
+          -0.5319,
+          -0.8942,
+          -0.6722,
+          -0.976
         ],
-        "strat_ret_sum": -12.8487,
-        "strat_ret_count": 39
+        "strat_ret_sum": -20.954,
+        "strat_ret_count": 50
       },
       "CONTRADICT": {
         "count": 4,
@@ -146176,9 +146277,9 @@
         "strat_ret_count": 15
       },
       "A_STRONGER": {
-        "count": 28,
-        "mean": -0.23804642857142858,
-        "_m2": 12.368793889642854,
+        "count": 39,
+        "mean": -0.3787333333333333,
+        "_m2": 15.284135866666661,
         "wins": 11,
         "outcomes": [
           -0.1818,
@@ -146208,17 +146309,28 @@
           0.2011,
           -0.4697,
           -0.5451,
-          -0.8519
+          -0.8519,
+          -0.816,
+          -0.4013,
+          -0.9257,
+          -0.9169,
+          -0.9545,
+          -1.0,
+          -0.0166,
+          -0.5319,
+          -0.8942,
+          -0.6722,
+          -0.976
         ],
-        "strat_ret_sum": -6.665299999999999,
-        "strat_ret_count": 28
+        "strat_ret_sum": -14.770599999999998,
+        "strat_ret_count": 39
       }
     },
     "shipping_breadth_bucket": {
       "<0.33": {
-        "count": 15,
-        "mean": -0.42850666666666665,
-        "_m2": 3.653199329333334,
+        "count": 26,
+        "mean": -0.5589576923076923,
+        "_m2": 5.207002223461539,
         "wins": 3,
         "outcomes": [
           -0.5079,
@@ -146235,10 +146347,21 @@
           -0.9128,
           0.0702,
           -0.2518,
-          -0.4502
+          -0.4502,
+          -0.816,
+          -0.4013,
+          -0.9257,
+          -0.9169,
+          -0.9545,
+          -1.0,
+          -0.0166,
+          -0.5319,
+          -0.8942,
+          -0.6722,
+          -0.976
         ],
-        "strat_ret_sum": -6.4276,
-        "strat_ret_count": 15
+        "strat_ret_sum": -14.532899999999998,
+        "strat_ret_count": 26
       },
       "0.33-0.66": {
         "count": 28,
@@ -146306,9 +146429,9 @@
         "strat_ret_count": 15
       },
       "medium": {
-        "count": 22,
-        "mean": -0.3811454545454546,
-        "_m2": 8.129560334545454,
+        "count": 33,
+        "mean": -0.4997121212121213,
+        "_m2": 10.007848155151514,
         "wins": 7,
         "outcomes": [
           -0.1818,
@@ -146332,10 +146455,21 @@
           0.2011,
           -0.4697,
           -0.5451,
-          -0.8519
+          -0.8519,
+          -0.816,
+          -0.4013,
+          -0.9257,
+          -0.9169,
+          -0.9545,
+          -1.0,
+          -0.0166,
+          -0.5319,
+          -0.8942,
+          -0.6722,
+          -0.976
         ],
-        "strat_ret_sum": -8.385200000000001,
-        "strat_ret_count": 22
+        "strat_ret_sum": -16.4905,
+        "strat_ret_count": 33
       },
       "low": {
         "count": 6,
@@ -146708,7 +146842,18 @@
     "shadow:b24fb042405efb82:45d:feature_stats_external": "2026-11-20",
     "shadow:986e0848b0eb0ef1:45d:feature_stats_external": "2026-11-20",
     "shadow:56402a6a4d5ba04c:45d:feature_stats_external": "2026-11-20",
-    "shadow:81c703565160ee1a:45d:feature_stats_external": "2026-11-20"
+    "shadow:81c703565160ee1a:45d:feature_stats_external": "2026-11-20",
+    "shadow:0a7b97a5d6363029:45d:feature_stats_external": "2026-11-21",
+    "shadow:3d1045571eea7527:45d:feature_stats_external": "2026-11-21",
+    "shadow:4b36bc181a18de90:45d:feature_stats_external": "2026-11-21",
+    "shadow:89e6df8b124a2b9b:45d:feature_stats_external": "2026-11-21",
+    "shadow:24b28931605022c4:45d:feature_stats_external": "2026-11-21",
+    "shadow:137c1cb42688a1da:45d:feature_stats_external": "2026-11-21",
+    "shadow:1339804a12f0f6af:45d:feature_stats_external": "2026-11-21",
+    "shadow:fa3db8d9e915ee53:45d:feature_stats_external": "2026-11-21",
+    "shadow:f3081d986250c527:45d:feature_stats_external": "2026-11-21",
+    "shadow:998f3593ea048430:45d:feature_stats_external": "2026-11-21",
+    "shadow:50ed33dc15506c12:45d:feature_stats_external": "2026-11-21"
   },
   "processed_outcomes_meta": {
     "duplicate_skips": 0,
