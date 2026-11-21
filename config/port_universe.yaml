@@ -134,6 +134,8 @@ chokepoint_aliases:
 # eindeutige Treffer; mehrdeutige Fälle nach Daten (portcalls) entschieden,
 # siehe preflight diagnostics unresolved_ports_hint_activity.
 port_aliases:
+  "Houston": ["Houston (US-TX)"]        # PortWatch port481, aktuelle Providerbezeichnung
+  "Los Angeles": ["Los Angeles-Long Beach"] # PortWatch port664, gemeinsamer Komplex
   "Antwerp(-Bruges)": ["Antwerp"]
   "Piraeus": ["Piraievs"]
   "Genoa": ["Genova"]
@@ -144,9 +146,20 @@ port_aliases:
   "Jeddah": ["Jiddah"]
   # Preflight 2026-09-27, entschieden nach portcalls im Abruffenster:
   "Ningbo(-Zhoushan)": ["Ningbo"]        # port824, 668 Anläufe (Zhoushan port1429 separat, 241)
-  "Shenzhen": ["Shekou"]                 # port1189, 111 (Chiwan 10; Yantian nicht im Layer)
-  "Qingdao": ["Qingdao Gang"]            # port1069, 364 (Qingdao Port port1070: 81)
+  "Shenzhen": ["Shekou (Shenzhen)", "Shekou"]  # port1189; nur Shekou, NICHT alle Shenzhen-Terminals
+  "Qingdao": ["Qingdao Gang", "Qingdao Port"]  # port1069; name allein kann zu port1070 führen
   "Laem Chabang": ["Si Racha"]           # port1197, Thailand, 229 (Laem Chabang liegt in Si Racha)
+
+# Bestätigte PortWatch-IDs aus dem erfolgreichen Preflight (2026-09-27)
+# und unabhängigen 2026-11-Beschreibungen des offiziellen Datensatzes.
+# WICHTIG: Dies sind ausschließlich ID-PRÜFHINWEISE. Ein ID/Name/Land
+# muss im aktuellen offiziellen Referenz-Layer erneut bestätigt werden.
+# Kein Cache-Ersatz, kein erzwungenes Matching, keine falsche Gesundmeldung.
+verified_port_id_hints:
+  "Houston": "port481"         # Houston (US-TX)
+  "Los Angeles": "port664"     # Los Angeles-Long Beach
+  "Qingdao": "port1069"        # Qingdao Port (ehemals Qingdao Gang)
+  "Shenzhen": "port1189"      # Shekou (Shenzhen), NICHT Yantian/Chiwan
 
 # Länder-Hafenhandel als eigene Aggregate (COUNTRY:<ISO3>, alle Häfen des
 # Landes laut PortWatch-Hafendatenbank): große Export-/Importnationen mit
