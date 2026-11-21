@@ -217,9 +217,11 @@ def test_connector_uses_distinct_values_fallback_for_ports_reference(tmp_path):
     connector = mw.PortWatchPortsConnector(http_fetch=fake_fetch, cache_path=cache_path)
     result = connector.fetch(NOW)
     assert result.status in (SourceStatus.PASS, SourceStatus.WARN)
-    assert result.discovered_ids["ports"]["Los Angeles"] == "port_la"
+    # The fake fixture reports port_la, while the official identity is
+    # port664. It must remain unresolved rather than use the wrong harbour.
+    assert "Los Angeles" in result.discovered_ids["unresolved_ports"]
     assert result.discovered_ids["diagnostics"]["ports_reference_fallback_to_daily_layer"] is True
-    assert "port_la" in {v for v in result.discovered_ids["ports"].values()}
+    assert "port_la" not in {v for v in result.discovered_ids["ports"].values()}
 
 
 def test_config_override_marks_verify_in_preflight(tmp_path):
@@ -444,7 +446,7 @@ def test_connector_records_unresolved_ports_never_guesses(tmp_path):
     # Referenz nicht vorkommen -> müssen als unresolved auftauchen, nie
     # mit einer erratenen ID versehen werden.
     assert "Houston" in unresolved
-    assert result.discovered_ids["ports"]["Los Angeles"] == "port_la"
+    assert "Los Angeles" in unresolved  # fake port_la is NOT verified port664
 
 
 # --------------------------------------------------------------------------
@@ -590,7 +592,7 @@ def test_port_aliases_only_official_names_from_config():
     aliases = load_port_aliases(universe)
     assert aliases["Busan"] == ["Pusan"]
     # mehrdeutig nach Namen, entschieden nach portcalls (Preflight-Diagnose)
-    assert aliases["Qingdao"] == ["Qingdao Gang"]
+    assert aliases["Qingdao"] == ["Qingdao Gang", "Qingdao Port"]
     names = {p["name"] for g in (mw.load_port_universe("config/port_universe.yaml")["groups"] or {}).values() for p in g}
     assert "Long Beach" not in names   # in PortWatch Teil von "Los Angeles"
 
