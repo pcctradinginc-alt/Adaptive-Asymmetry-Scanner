@@ -1,5 +1,13 @@
 {
- "at": "2026-11-20T20:42:12+00:00",
- "changes": [],
- "mail": "no_change"
+ "at": "2026-11-21T19:44:41+00:00",
+ "changes": [
+  {
+   "source_id": "nasdaq100_members",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "BROKEN",
+   "error": "Schema geändert (Orchestrator); Data-Quality-Befund schwerwiegend"
+  }
+ ],
+ "mail": "sent"
 }
