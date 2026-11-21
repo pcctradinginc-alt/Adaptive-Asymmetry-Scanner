@@ -269,12 +269,14 @@ def run_ingestion(now: datetime | None = None, families: list[str] | None = None
         h.rows_ingested = int(h.rows_ingested or 0) + counts["new"] + counts["revision"]
         h.bytes_downloaded = int(h.bytes_downloaded or 0) + sum(r.bytes for r in result.raw)
 
-        if result.status == SourceStatus.PASS or (hasattr(result.status, "value")
-                                                    and result.status.value == "PASS"):
+        # An HTTP 200 / parser PASS is not a successful archival ingestion
+        # when downstream DQ or persistence rejected the payload.
+        if (h.status == SourceStatus.PASS.value and not archive_error
+                and guard_blocked is None and not pit_errors):
             h.last_success = _now_iso(now)
             h.parser_version = connector.parser_version
             h.consecutive_failures = 0
-        elif h.status in (SourceStatus.FAIL.value,):
+        elif h.status in (SourceStatus.FAIL.value, SourceStatus.SCHEMA_CHANGED.value):
             h.consecutive_failures = int(h.consecutive_failures or 0) + 1
 
         _latest_for_staleness = (datetime.fromisoformat(h.latest_observation) if (guard_blocked is not None
