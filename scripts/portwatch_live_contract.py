@@ -77,6 +77,27 @@ def check_official_ports_after_archive_date() -> None:
         raise RuntimeError("Official PortWatch newer-date ID inventory invalid")
     print(f"::notice::LIVE PortWatch Daily_Ports_Data rows after archived "
           f"{last_observed}: {len(newer)}")
+    # Also report the real latest archived numeric observation for each
+    # curated port. A reference ID mapping alone is not data coverage.
+    curated = mw.load_port_universe()["verified_port_id_hints"]
+    archive_dir = Path("outputs/external_data/normalized/imf_portwatch_ports")
+    latest_by_id = {}
+    for filename in sorted(archive_dir.glob("????-??.jsonl"))[-2:]:
+        with filename.open(encoding="utf-8") as fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                record = json.loads(line)
+                pid = record.get("entity_id")
+                if (pid in curated.values()
+                        and record.get("metric") == "portcalls_total"
+                        and record.get("value") is not None):
+                    timestamp = record.get("observation_time") or ""
+                    if timestamp > latest_by_id.get(pid, ""):
+                        latest_by_id[pid] = timestamp
+    for name, pid in curated.items():
+        print(f"::notice::ARCHIVE PortWatch {name} ({pid}): "
+              f"latest_numeric_portcalls={latest_by_id.get(pid, 'MISSING')}")
     if newer:
         samples = query(url, {
             "where": "1=1", "objectIds": ",".join(map(str, newer[:3])),
