@@ -51,6 +51,44 @@ def verify_curated_port_identities() -> None:
     print("Four curated PortWatch IDs verified against the LIVE official reference")
 
 
+def check_official_ports_after_archive_date() -> None:
+    """Read-only provider count beyond the actual archived Ports cursor.
+
+    If the publisher has newer rows, our ingestion is missing data.
+    If it has none, the source is publishing late; retries cannot invent
+    fresh official observations.
+    """
+    import json
+    from pathlib import Path
+
+    health_path = Path("outputs/external_data/health/source_health.json")
+    health = json.loads(health_path.read_text(encoding="utf-8"))
+    last_observed = health["imf_portwatch_ports"]["latest_observation"][:10]
+    url = f"{ROOT}/Daily_Ports_Data/FeatureServer/0/query"
+    result = query(url, {
+        "where": f"date > DATE '{last_observed}'",
+        "returnIdsOnly": "true",
+        "f": "json",
+    })
+    newer = result.get("objectIds")
+    if not isinstance(newer, list):
+        raise RuntimeError("Official PortWatch newer-date ID inventory unavailable")
+    if len(newer) > 100_000 or len(newer) != len(set(newer)):
+        raise RuntimeError("Official PortWatch newer-date ID inventory invalid")
+    print(f"::notice::LIVE PortWatch Daily_Ports_Data rows after archived "
+          f"{last_observed}: {len(newer)}")
+    if newer:
+        samples = query(url, {
+            "where": "1=1", "objectIds": ",".join(map(str, newer[:3])),
+            "outFields": "date,portid,ObjectId", "returnGeometry": "false", "f": "json",
+        })
+        print(f"::warning::Official publisher has newer port rows than archive: "
+              f"{str(samples.get('features', []))[:400]}")
+    else:
+        print(f"::warning::Official PortWatch publisher has NO daily port rows "
+              f"after {last_observed}; ingestion cannot update observations yet")
+
+
 def main() -> None:
     # A bounded 21d population, never an unrestricted historical download.
     start = date.today() - timedelta(days=21)
@@ -104,6 +142,7 @@ def main() -> None:
               f"population={len(ids)}; sample={len(sample)}; "
               f"production_query_rows={len(rows)}; observed_day={day}")
     verify_curated_port_identities()
+    check_official_ports_after_archive_date()
     print("LIVE ArcGIS ObjectID contract passed for BOTH important PortWatch datasets")
 
 
