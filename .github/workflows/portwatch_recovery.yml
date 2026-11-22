@@ -4,6 +4,12 @@ name: PortWatch Recovery (read-only source, fail-closed)
 # is shared with other clients; success cannot be guaranteed. Only maritime
 # sources are ingested; shared archive-write concurrency prevents write races.
 on:
+  # Changing this workflow on main triggers one bounded recovery immediately.
+  # No broad push trigger and no production-trading code changes.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/portwatch_recovery.yml'
   schedule:
     - cron: '47 1 * * *'
   workflow_dispatch:
@@ -45,27 +51,86 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import os
+          from datetime import date, datetime, timedelta, timezone
           from pathlib import Path
 
           required = ("imf_portwatch_chokepoints", "imf_portwatch_ports")
           target = Path("/tmp/portwatch_recovery_summary.json")
-          if not target.exists():
-              print("::error::No ingestion summary generated; recovery not verified")
+          health_path = Path("outputs/external_data/health/source_health.json")
+          if not target.exists() or not health_path.exists():
+              print("::error::No summary/archived health evidence; recovery not verified")
               raise SystemExit(1)
           summary = json.loads(target.read_text(encoding="utf-8"))
           sources = summary.get("sources") or {}
+          health = json.loads(health_path.read_text(encoding="utf-8"))
           failures = []
-          with open(__import__("os").environ["GITHUB_STEP_SUMMARY"], "a") as output:
-              output.write("## PortWatch recovery — provider data verdict\\n\\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as output:
+              output.write("## PortWatch recovery — official provider and archive verdict\\n\\n")
               for source in required:
                   entry = sources.get(source) or {}
+                  record = health.get(source) or {}
                   status = entry.get("status", "NOT_REPORTED")
+                  archived = record.get("status", "NOT_ARCHIVED")
                   skipped = entry.get("skipped")
-                  output.write(f"- {source}: {status} (skipped={skipped or 'no'})\\n")
-                  if status != "PASS" or skipped:
-                      failures.append(source)
+                  last_success = record.get("last_success")
+                  latest = record.get("latest_observation")
+                  message = record.get("message", "")
+                  output.write(
+                      f"- {source}: run={status}, archive={archived}, skipped={skipped or 'no'}, "
+                      f"last_success={last_success}, observation={latest}, "
+                      f"message={message[:160]}\\n"
+                  )
+                  if status != "PASS" or archived != "PASS" or skipped:
+                      failures.append(source + ": not fully PASS")
+                  if entry.get("archive_error") or entry.get("pit_errors") or entry.get("dq_issues"):
+                      failures.append(source + ": archival, PIT or DQ failure")
+                  try:
+                      retrieved = datetime.fromisoformat(last_success.replace("Z", "+00:00"))
+                      if datetime.now(timezone.utc) - retrieved > timedelta(minutes=40):
+                          failures.append(source + ": not freshly archived by this recovery")
+                      observed = datetime.fromisoformat(latest.replace("Z", "+00:00")).date()
+                      if observed < date.today() - timedelta(days=8):
+                          failures.append(source + ": provider observations not current")
+                  except (ValueError, TypeError, AttributeError):
+                      failures.append(source + ": missing/unparseable archive timestamps")
+                  if source == "imf_portwatch_ports":
+                      # A mere status PASS is insufficient if the prior four
+                      # curated ports were never revalidated and archived.
+                      if "0 unresolved ports" not in message:
+                          failures.append(source + ": curated identities unresolved")
+                      if latest and latest[:10] <= "2026-11-13":
+                          failures.append(source + ": archival observation did not advance")
+                      # Reference-layer identity alone is insufficient:
+                      # prove each of the four previously absent ports has a
+                      # real, recent numeric portcalls observation in the
+                      # persisted normalized archive (never an old cache).
+                      expected = {"Houston": "port481", "Los Angeles": "port664",
+                                  "Qingdao": "port1069", "Shenzhen": "port1189"}
+                      normalized = Path("outputs/external_data/normalized/imf_portwatch_ports")
+                      files = sorted(normalized.glob("????-??.jsonl"))[-2:]
+                      latest_by_id = {}
+                      for filename in files:
+                          with filename.open(encoding="utf-8") as fh:
+                              for line in fh:
+                                  if not line.strip():
+                                      continue
+                                  row = json.loads(line)
+                                  pid = row.get("entity_id")
+                                  if (pid not in expected.values()
+                                          or row.get("metric") != "portcalls_total"
+                                          or row.get("value") is None):
+                                      continue
+                                  stamp = row.get("observation_time", "")
+                                  if stamp and stamp > latest_by_id.get(pid, ""):
+                                      latest_by_id[pid] = stamp
+                      for name, pid in expected.items():
+                          stamp = latest_by_id.get(pid)
+                          output.write(f"  - {name} ({pid}): latest numeric portcalls={stamp or 'MISSING'}\\n")
+                          if not stamp or stamp[:10] < (date.today() - timedelta(days=8)).isoformat():
+                              failures.append(f"{name}: no current archived portcalls for {pid}")
           if failures:
-              print("::error::GitHub success is not source recovery: " + ", ".join(failures))
+              print("::error::PortWatch recovery not proven: " + "; ".join(failures))
               raise SystemExit(1)
-          print("Both important PortWatch sources returned complete PASS evidence")
+          print("Both important PortWatch datasets freshly archived with current complete evidence")
           PY
