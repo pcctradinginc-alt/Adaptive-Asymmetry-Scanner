@@ -1,0 +1,59 @@
+{
+  "run_id": "20261122T083055Z-37ab810a",
+  "generated_at": "2026-11-22T08:30:55+00:00",
+  "git_sha": "82980237538e8675d401f7bc45d19586673f9f74",
+  "config_hash": "9aaf7a892de0",
+  "entries": [
+    {
+      "source_id": "imf_portwatch_chokepoints",
+      "dataset": "daily_chokepoints",
+      "fingerprint": "9513a8d1972b8bc4",
+      "retrieved_at": "2026-11-22T08:30:55+00:00",
+      "content_hash": "",
+      "content_type": "application/json",
+      "bytes": 0,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 5880,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "imf_portwatch_disruptions",
+      "dataset": "disruptions",
+      "fingerprint": "948df0c59b0b50eb",
+      "retrieved_at": "2026-11-22T08:30:55+00:00",
+      "content_hash": "",
+      "content_type": "application/json",
+      "bytes": 0,
+      "bytes_written": 0,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 0,
+        "duplicate": 944,
+        "revision": 0
+      }
+    },
+    {
+      "source_id": "imf_portwatch_ports",
+      "dataset": "daily_ports",
+      "fingerprint": "a5b7d85090753595",
+      "retrieved_at": "2026-11-22T08:30:55+00:00",
+      "content_hash": "",
+      "content_type": "application/json",
+      "bytes": 0,
+      "bytes_written": 613247,
+      "parser_version": "1",
+      "feature_version": null,
+      "counts": {
+        "new": 756,
+        "duplicate": 3720,
+        "revision": 102
+      }
+    }
+  ]
+}
