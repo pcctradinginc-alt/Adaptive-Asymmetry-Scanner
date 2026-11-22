@@ -8,8 +8,8 @@ Status: HEALTHY 47 · DEGRADED 3 · STALE 0 · BROKEN 0 · UNVALIDATED 13
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| imf_portwatch_ports | DEGRADED | IMPORTANT | 0 | 2026-11-13 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
-| nasdaq100_members | DEGRADED | NON_CRITICAL | 0 | 2026-11-22 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
+| imf_portwatch_ports | DEGRADED | IMPORTANT | 0 | 2026-11-13 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
+| nasdaq100_members | DEGRADED | NON_CRITICAL | 0 | 2026-11-22 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
 
 ## Fallbacks
