@@ -1,19 +1,15 @@
-# Daily Data Health Report – 2026-11-21
+# Daily Data Health Report – 2026-11-22
 
-**Safe Mode (Daten): aus** – gewichtete Data Quality 0.959
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.976
 
-Status: HEALTHY 47 · DEGRADED 1 · STALE 1 · BROKEN 1 · UNVALIDATED 13
-
-## Neue Änderungen
-
-- degradation: nasdaq100_members HEALTHY → BROKEN (Schema geändert (Orchestrator); Data-Quality-Befund schwerwiegend)
+Status: HEALTHY 47 · DEGRADED 3 · STALE 0 · BROKEN 0 · UNVALIDATED 13
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| nasdaq100_members | BROKEN | NON_CRITICAL | 1 | 2026-11-20 | – | Schema geändert (Orchestrator); Data-Quality-Befund schwerwiegend |
-| imf_portwatch_ports | STALE | IMPORTANT | 0 | 2026-11-13 | – | Ingest WARN: 8918 observations (kuratierte Häfen + GLOBAL/Gruppen-Aggregate aus 608874 Rohbeobachtungen); 4 unresolved ports: ['Houston', 'L |
+| imf_portwatch_ports | DEGRADED | IMPORTANT | 0 | 2026-11-13 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
+| nasdaq100_members | DEGRADED | NON_CRITICAL | 0 | 2026-11-22 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
 
 ## Fallbacks

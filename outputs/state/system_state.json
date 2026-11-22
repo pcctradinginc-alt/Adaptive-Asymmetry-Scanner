@@ -9,18 +9,18 @@
  "safe_mode_effect": "Wirkt nur auf den Research-Einfluss: keine positiven Boosts/Gewichte des Production Intelligence Adapters (validierte Abstinenz bleibt erlaubt), Promotionen pausiert, Meta-Learning nicht aktiv. Champion-Entscheidungen (Gates, Filter, Optionsauswahl) unverändert.",
  "data_health": {
   "status": "OK",
-  "data_quality": 0.959,
+  "data_quality": 0.976,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-11-21T19:44:41+00:00",
+  "generated": "2026-11-22T17:53:27+00:00",
   "counts": {
    "HEALTHY": 47,
-   "DEGRADED": 1,
-   "STALE": 1,
-   "BROKEN": 1,
+   "DEGRADED": 3,
+   "STALE": 0,
+   "BROKEN": 0,
    "UNVALIDATED": 13
   },
   "fallbacks": []
@@ -98,7 +98,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 0.959
+    "data_quality": 0.976
    }
   },
   "reasons": [
@@ -113,7 +113,7 @@
    "safe_mode": true
   },
   "drift_input_timestamp": "2026-11-21T16:26:27+00:00",
-  "drift_input_age_days": 0.1,
+  "drift_input_age_days": 1.1,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -149,7 +149,7 @@
    "SMALL": "NONE",
    "MID": "NONE"
   },
-  "v2_latest_snapshot": "2026-11-15"
+  "v2_latest_snapshot": "2026-11-22"
  },
  "commodity_data_health": {
   "overall": "HEALTHY",
@@ -187,15 +187,15 @@
  "inputs": {
   "model_health": "da5454d65221",
   "meta_learning": "7dffa228c571",
-  "data_health": "df1ee5606002",
+  "data_health": "a9382fb1a082",
   "promotion": "06e7875137c6",
   "model_registry": "a0c0ce90b949",
   "champion_config": "9aaf7a892de0",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "cad29e379c56"
  },
- "state_version": 145,
- "fingerprint": "593e9692005d37d5",
- "updated_at": "2026-11-21T19:44:41+00:00",
- "code_version": "2526e26138b4"
+ "state_version": 146,
+ "fingerprint": "e0315303be615a97",
+ "updated_at": "2026-11-22T17:53:27+00:00",
+ "code_version": "d8f66a5cc9a3"
 }
