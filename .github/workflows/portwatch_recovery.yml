@@ -101,6 +101,34 @@ jobs:
                           failures.append(source + ": curated identities unresolved")
                       if latest and latest[:10] <= "2026-11-13":
                           failures.append(source + ": archival observation did not advance")
+                      # Reference-layer identity alone is insufficient:
+                      # prove each of the four previously absent ports has a
+                      # real, recent numeric portcalls observation in the
+                      # persisted normalized archive (never an old cache).
+                      expected = {"Houston": "port481", "Los Angeles": "port664",
+                                  "Qingdao": "port1069", "Shenzhen": "port1189"}
+                      normalized = Path("outputs/external_data/normalized/imf_portwatch_ports")
+                      files = sorted(normalized.glob("????-??.jsonl"))[-2:]
+                      latest_by_id = {}
+                      for filename in files:
+                          with filename.open(encoding="utf-8") as fh:
+                              for line in fh:
+                                  if not line.strip():
+                                      continue
+                                  row = json.loads(line)
+                                  pid = row.get("entity_id")
+                                  if (pid not in expected.values()
+                                          or row.get("metric") != "portcalls_total"
+                                          or row.get("value") is None):
+                                      continue
+                                  stamp = row.get("observation_time", "")
+                                  if stamp and stamp > latest_by_id.get(pid, ""):
+                                      latest_by_id[pid] = stamp
+                      for name, pid in expected.items():
+                          stamp = latest_by_id.get(pid)
+                          output.write(f"  - {name} ({pid}): latest numeric portcalls={stamp or 'MISSING'}\\n")
+                          if not stamp or stamp[:10] < (date.today() - timedelta(days=8)).isoformat():
+                              failures.append(f"{name}: no current archived portcalls for {pid}")
           if failures:
               print("::error::PortWatch recovery not proven: " + "; ".join(failures))
               raise SystemExit(1)
