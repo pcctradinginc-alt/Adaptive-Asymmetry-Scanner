@@ -1,10 +1,17 @@
 {
-  "run_id": "20261115T220723Z-dd1b1450",
-  "now": "2026-11-15T22:07:23+00:00",
+  "run_id": "20261122T225029Z-b3f78d8f",
+  "now": "2026-11-22T22:50:29+00:00",
   "sources": {
     "imf_fsi": {
       "status": "PASS",
-      "skipped": "min_refetch_days"
+      "counts": {
+        "new": 12,
+        "duplicate": 337,
+        "revision": 0
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
     },
     "imf_weo": {
       "status": "PASS",
@@ -12,7 +19,14 @@
     },
     "imf_mfs": {
       "status": "PASS",
-      "skipped": "min_refetch_days"
+      "counts": {
+        "new": 0,
+        "duplicate": 320,
+        "revision": 0
+      },
+      "pit_errors": 0,
+      "archive_error": "",
+      "dq_issues": []
     },
     "imf_gdd": {
       "status": "PASS",
