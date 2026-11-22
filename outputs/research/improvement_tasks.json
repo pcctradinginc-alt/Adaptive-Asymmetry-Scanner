@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-21T16:27:10+00:00",
+ "generated": "2026-11-22T01:32:55+00:00",
  "last_runs": {
   "weekly": {
    "generated": "2026-11-21T16:27:10+00:00",
@@ -30,7 +30,7 @@
    ]
   },
   "critical": {
-   "generated": "2026-11-21T02:45:38+00:00",
+   "generated": "2026-11-22T01:32:55+00:00",
    "mail_status": "nothing_to_send",
    "pending": [],
    "deferred_by_weekly_limit": [],
@@ -380,53 +380,53 @@
    "last_send_error": null
   },
   "IMP-79e87220": {
-   "task_id": "IMP-79e87220",
-   "kind": "sample_bias",
-   "subject": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)",
-   "priority": "P3",
+   "acceptance": [
+    "keine Repräsentativitätswarnung dieser Art binnen 90 Tagen"
+   ],
+   "benefit": "breitere, übertragbare Evidenz; kein Renditeversprechen.",
    "category": "data",
-   "short": "Evidenz einseitig: überwiegend Forschungsstichprobe (Call ohne Richtungssignal)",
-   "fingerprint": "bf3418f5c0ac",
-   "material": {
-    "priority": "P3",
-    "warning": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)"
+   "cause": "Die Options-Snapshots werden überwiegend für eine Gruppe von Kandidaten erfasst.",
+   "change": "Stichprobenregel so erweitern, dass die unterrepräsentierte Gruppe Snapshots erhält.",
+   "costs": {
+    "api_calls": "zusätzliche Kontrakt-Snapshots je Lauf (bestehende Quelle)",
+    "compute": "vernachlässigbar",
+    "llm_calls": 0,
+    "paid_data": false
    },
-   "scope": {
-    "warning": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)",
-    "horizon": 5
-   },
-   "finding": "5 T: überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale übertragbar",
-   "problem": "Die Evidenz deckt nur einen Teil der Marktsituationen ab; ein Ergebnis gilt dann nicht automatisch für produktive Richtungssignale.",
-   "severity_reason": "schränkt die Übertragbarkeit ein, kein Fehler im engeren Sinn.",
+   "data_as_of": "2026-11-21",
+   "effort": "mittel",
    "evidence": [
     "Walk-Forward-Evidenz: überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale übertragbar"
-   ],
-   "sources": [
-    "outputs/research/option_learner/improvement.json"
    ],
    "files": [
     "modules/candidate_ledger.py (Stichprobenregel)",
     "modules/option_learner.py (_representativeness)"
    ],
-   "cause": "Die Options-Snapshots werden überwiegend für eine Gruppe von Kandidaten erfasst.",
-   "verify": "Verteilung der Snapshots nach Stichprobe und Richtung im Ledger auszählen.",
-   "change": "Stichprobenregel so erweitern, dass die unterrepräsentierte Gruppe Snapshots erhält.",
-   "benefit": "breitere, übertragbare Evidenz; kein Renditeversprechen.",
-   "risks": "mehr Snapshots je Scanner-Lauf (bestehende, kostenlose Quelle)",
-   "effort": "mittel",
-   "costs": {
-    "api_calls": "zusätzliche Kontrakt-Snapshots je Lauf (bestehende Quelle)",
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "vernachlässigbar"
+   "finding": "5 T: überwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale übertragbar",
+   "fingerprint": "bf3418f5c0ac",
+   "kind": "sample_bias",
+   "material": {
+    "priority": "P3",
+    "warning": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)"
    },
-   "acceptance": [
-    "keine Repräsentativitätswarnung dieser Art binnen 90 Tagen"
+   "priority": "P3",
+   "problem": "Die Evidenz deckt nur einen Teil der Marktsituationen ab; ein Ergebnis gilt dann nicht automatisch für produktive Richtungssignale.",
+   "risks": "mehr Snapshots je Scanner-Lauf (bestehende, kostenlose Quelle)",
+   "scope": {
+    "horizon": 5,
+    "warning": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)"
+   },
+   "severity_reason": "schränkt die Übertragbarkeit ein, kein Fehler im engeren Sinn.",
+   "short": "Evidenz einseitig: überwiegend Forschungsstichprobe (Call ohne Richtungssignal)",
+   "sources": [
+    "outputs/research/option_learner/improvement.json"
    ],
+   "subject": "überwiegend Forschungsstichprobe (Call ohne Richtungssignal)",
+   "task_id": "IMP-79e87220",
    "tests": [
     "Test der erweiterten Stichprobenregel"
    ],
-   "data_as_of": "2026-11-21",
+   "verify": "Verteilung der Snapshots nach Stichprobe und Richtung im Ledger auszählen.",
    "status": "NOTIFIED",
    "decision_note": null,
    "first_detected": "2026-11-21T16:27:10+00:00",
@@ -678,53 +678,53 @@
    "last_send_error": null
   },
   "IMP-c24022c5": {
-   "task_id": "IMP-c24022c5",
-   "kind": "sample_bias",
-   "subject": "überwiegend bullische Call-Strukturen",
-   "priority": "P3",
+   "acceptance": [
+    "keine Repräsentativitätswarnung dieser Art binnen 90 Tagen"
+   ],
+   "benefit": "breitere, übertragbare Evidenz; kein Renditeversprechen.",
    "category": "data",
-   "short": "Evidenz einseitig: überwiegend bullische Call-Strukturen",
-   "fingerprint": "0ce8467c6f6d",
-   "material": {
-    "priority": "P3",
-    "warning": "überwiegend bullische Call-Strukturen"
+   "cause": "Die Options-Snapshots werden überwiegend für eine Gruppe von Kandidaten erfasst.",
+   "change": "Stichprobenregel so erweitern, dass die unterrepräsentierte Gruppe Snapshots erhält.",
+   "costs": {
+    "api_calls": "zusätzliche Kontrakt-Snapshots je Lauf (bestehende Quelle)",
+    "compute": "vernachlässigbar",
+    "llm_calls": 0,
+    "paid_data": false
    },
-   "scope": {
-    "warning": "überwiegend bullische Call-Strukturen",
-    "horizon": 5
-   },
-   "finding": "5 T: überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale",
-   "problem": "Die Evidenz deckt nur einen Teil der Marktsituationen ab; ein Ergebnis gilt dann nicht automatisch für produktive Richtungssignale.",
-   "severity_reason": "schränkt die Übertragbarkeit ein, kein Fehler im engeren Sinn.",
+   "data_as_of": "2026-11-21",
+   "effort": "mittel",
    "evidence": [
     "Walk-Forward-Evidenz: überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale"
-   ],
-   "sources": [
-    "outputs/research/option_learner/improvement.json"
    ],
    "files": [
     "modules/candidate_ledger.py (Stichprobenregel)",
     "modules/option_learner.py (_representativeness)"
    ],
-   "cause": "Die Options-Snapshots werden überwiegend für eine Gruppe von Kandidaten erfasst.",
-   "verify": "Verteilung der Snapshots nach Stichprobe und Richtung im Ledger auszählen.",
-   "change": "Stichprobenregel so erweitern, dass die unterrepräsentierte Gruppe Snapshots erhält.",
-   "benefit": "breitere, übertragbare Evidenz; kein Renditeversprechen.",
-   "risks": "mehr Snapshots je Scanner-Lauf (bestehende, kostenlose Quelle)",
-   "effort": "mittel",
-   "costs": {
-    "api_calls": "zusätzliche Kontrakt-Snapshots je Lauf (bestehende Quelle)",
-    "llm_calls": 0,
-    "paid_data": false,
-    "compute": "vernachlässigbar"
+   "finding": "5 T: überwiegend bullische Call-Strukturen: keine Aussage für bearishe Signale",
+   "fingerprint": "0ce8467c6f6d",
+   "kind": "sample_bias",
+   "material": {
+    "priority": "P3",
+    "warning": "überwiegend bullische Call-Strukturen"
    },
-   "acceptance": [
-    "keine Repräsentativitätswarnung dieser Art binnen 90 Tagen"
+   "priority": "P3",
+   "problem": "Die Evidenz deckt nur einen Teil der Marktsituationen ab; ein Ergebnis gilt dann nicht automatisch für produktive Richtungssignale.",
+   "risks": "mehr Snapshots je Scanner-Lauf (bestehende, kostenlose Quelle)",
+   "scope": {
+    "horizon": 5,
+    "warning": "überwiegend bullische Call-Strukturen"
+   },
+   "severity_reason": "schränkt die Übertragbarkeit ein, kein Fehler im engeren Sinn.",
+   "short": "Evidenz einseitig: überwiegend bullische Call-Strukturen",
+   "sources": [
+    "outputs/research/option_learner/improvement.json"
    ],
+   "subject": "überwiegend bullische Call-Strukturen",
+   "task_id": "IMP-c24022c5",
    "tests": [
     "Test der erweiterten Stichprobenregel"
    ],
-   "data_as_of": "2026-11-21",
+   "verify": "Verteilung der Snapshots nach Stichprobe und Richtung im Ledger auszählen.",
    "status": "OPEN",
    "decision_note": null,
    "first_detected": "2026-11-21T16:27:10+00:00",
