@@ -34,8 +34,8 @@ candidate, shortlist, analyses, proposals, score, trade, direction or status.
   are **not** executable/eligible Champion trade candidates.
 * The pre-existing economics-first earnings and quote viability check
   applies unchanged. Bad/unavailable quotes remain distinguished.
-  The existing deterministic priority is retained; this PR does
-  NOT claim to implement or validate a liquidity-optimized ranking.
+  The original deterministic priority is preserved as the **control arm**;
+  the new scoring coefficients are unvalidated and do not establish alpha.
 * Stop if no Anthropic key, monthly LLM budget is unknown or pressured,
   projected monthly spend leaves less than $3 headroom, or the run cannot
   finish while reserving at least 120 seconds for finalization. Check the
