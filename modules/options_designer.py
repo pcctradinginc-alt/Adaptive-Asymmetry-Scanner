@@ -376,51 +376,56 @@ def _tradier_headers() -> dict:
 
 
 def _tradier_expirations(symbol: str) -> list[str]:
+    """Existing cached request; distinguish true empty results from failures."""
+    from modules import tradier_diagnostics as td
     try:
         params = {"symbol": symbol, "includeAllRoots": "true"}
 
         def _get():
             resp = requests.get(f"{TRADIER_BASE}/markets/options/expirations", params=params,
                                 headers=_tradier_headers(), timeout=TRADIER_TIMEOUT)
-            resp.raise_for_status()
+            td.check_response(resp, "expirations")
             return resp.json()
-        # identische Anfrage im selben Lauf -> einmal abrufen (Chains/Quotes bleiben immer frisch)
-        data  = request_cache.cached("tradier", "markets/options/expirations", params, _get)
-        dates = data.get("expirations", {}).get("date", []) or []
-        if isinstance(dates, str):
-            dates = [dates]
-        return sorted(dates)
-    except Exception as e:
-        log.debug(f"Tradier Expirations [{symbol}]: {e}")
+
+        data = request_cache.cached("tradier", "markets/options/expirations", params, _get)
+        dates = td.expirations(data)
+        if not dates:
+            td.record("expirations", "NO_CONTRACT")
+            log.info("Tradier expirations [%s]: NO_CONTRACT (valid empty payload)", symbol)
+        return dates
+    except Exception as exc:
+        reason = td.error_category(exc)
+        td.record("expirations", reason)
+        log.warning("Tradier expirations [%s]: %s; no option selected (fail-closed)", symbol, reason)
         return []
 
 
 def _tradier_chain(symbol: str, expiration: str) -> list[dict]:
+    """Read exactly one live chain, never retry, reconstruct or invent quotes."""
+    from modules import tradier_diagnostics as td
     try:
         resp = requests.get(
             f"{TRADIER_BASE}/markets/options/chains",
-            params={
-                "symbol":     symbol,
-                "expiration": expiration,
-                "greeks":     "true",
-            },
-            headers=_tradier_headers(),
-            timeout=TRADIER_TIMEOUT,
+            params={"symbol": symbol, "expiration": expiration, "greeks": "true"},
+            headers=_tradier_headers(), timeout=TRADIER_TIMEOUT,
         )
-        resp.raise_for_status()
-        data    = resp.json()
-        options = data.get("options", {}).get("option", []) or []
-        if isinstance(options, dict):
-            options = [options]
-        # B2 (2026-10-15): Kennzahlen der ohnehin geladenen Kette für Research (nie entscheidungswirksam)
+        td.check_response(resp, "chains")
+        options = td.chain(resp.json())
+        if not options:
+            td.record("chains", "NO_CONTRACT")
+            log.info("Tradier chain [%s %s]: NO_CONTRACT (valid empty payload)", symbol, expiration)
+        # Read-only chain features are computed only from observed provider values.
         try:
             from modules import chain_summary
             chain_summary.record(symbol, expiration, options, source="options_designer")
-        except Exception as _e:  # noqa: BLE001 – Research-Nebenprodukt, nie entscheidungswirksam
-            log.debug(f"chain_summary [{symbol} {expiration}] ignoriert: {_e}")
+        except Exception as exc:  # research side effect must never affect decisions
+            log.debug("chain_summary [%s %s] ignored: %s", symbol, expiration, type(exc).__name__)
         return options
-    except Exception as e:
-        log.debug(f"Tradier Chain [{symbol} {expiration}]: {e}")
+    except Exception as exc:
+        reason = td.error_category(exc)
+        td.record("chains", reason)
+        log.warning("Tradier chain [%s %s]: %s; no option selected (fail-closed)",
+                    symbol, expiration, reason)
         return []
 
 
