@@ -884,6 +884,17 @@ def main() -> None:
         _expectation_alpha_finalize()
         _llm_census_finalize()
         _throughput_finalize()
+        # Reuse the existing daily-report write: persist provider incidents
+        # including a real empty chain versus rate limits and schema failures.
+        # Research/monitoring only; no effect on gates, quotes or orders.
+        try:
+            from modules import tradier_diagnostics as _td
+            stats["tradier_data_health"] = _td.report()
+        except Exception as exc:
+            stats["tradier_data_health"] = {
+                "state": "UNKNOWN", "diagnostic_error": type(exc).__name__,
+                "production_influence": "NONE",
+            }
         try:
             REPORTS_DIR.mkdir(parents=True, exist_ok=True)
             path = REPORTS_DIR / f"{today}.json"
