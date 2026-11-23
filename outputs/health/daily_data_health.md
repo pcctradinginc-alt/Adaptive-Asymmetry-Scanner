@@ -1,15 +1,18 @@
-# Daily Data Health Report – 2026-11-22
+# Daily Data Health Report – 2026-11-23
 
 **Safe Mode (Daten): aus** – gewichtete Data Quality 0.976
 
-Status: HEALTHY 47 · DEGRADED 3 · STALE 0 · BROKEN 0 · UNVALIDATED 13
+Status: HEALTHY 48 · DEGRADED 2 · STALE 0 · BROKEN 0 · UNVALIDATED 13
+
+## Neue Änderungen
+
+- recovery: nasdaq100_members DEGRADED → HEALTHY
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| imf_portwatch_ports | DEGRADED | IMPORTANT | 0 | 2026-11-13 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
-| nasdaq100_members | DEGRADED | NON_CRITICAL | 0 | 2026-11-22 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
+| imf_portwatch_ports | DEGRADED | IMPORTANT | 1 | 2026-11-13 | – | Ingest FAIL: UPSTREAM_UNAVAILABLE service=https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services/Daily_Ports_Data/FeatureServer/ |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
 
 ## Fallbacks
