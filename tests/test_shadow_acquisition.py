@@ -36,7 +36,8 @@ def test_cheap_rank_finite_and_uses_no_future_labels():
 def test_budget_tiers_never_raise_champion_limits():
     p = ts.settings()
     assert sa.effective_quote_cap(p, _budget(1.85), 200) == 24
-    assert sa.effective_quote_cap(p, _budget(5.4), 200) == 16\n    assert sa.effective_quote_cap(p, _budget(5.8), 200) == 12
+    assert sa.effective_quote_cap(p, _budget(5.4), 200) == 16
+    assert sa.effective_quote_cap(p, _budget(5.8), 200) == 12
     assert sa.effective_quote_cap(p, _budget(6.9), 200) == 12
     assert sa.effective_quote_cap(p, _budget(7.1), 200) == 0
     assert sa.effective_quote_cap(p, {}, 200) == 0
