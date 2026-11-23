@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-23",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "a67abe5381f9",
+  "action": "ABSTAIN",
+  "candidates_seen": 258,
+  "eligible_contracts": 38,
+  "watchlist": [
+    {
+      "ticker": "ALAB",
+      "signal_id": "fd4e650c3a654d9f9566e681dd9e45dc",
+      "contract": "ALAB270416C00220000",
+      "model_net_estimate": -0.042011,
+      "entry_ask_debit": 13.2,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "SNDK",
+      "signal_id": "5a5fe8a04cc64c60b3765834c1b34f3d",
+      "contract": "SNDK270416C00088750",
+      "model_net_estimate": -0.051502,
+      "entry_ask_debit": 4.5,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "RKLB",
+      "signal_id": "87959e4526904e0db487f1027b93b7ba",
+      "contract": "RKLB270416C00050000",
+      "model_net_estimate": -0.062906,
+      "entry_ask_debit": 2.9,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "ARM",
+      "signal_id": "5c91d973b3e04eb28e23d7513697a4cc",
+      "contract": "ARM270416C00175000",
+      "model_net_estimate": -0.072206,
+      "entry_ask_debit": 9.45,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "CCEP",
+      "signal_id": "fbe3156324634e69b0f5308e06203d9c",
+      "contract": "CCEP270521C00115000",
+      "model_net_estimate": -0.075043,
+      "entry_ask_debit": 8.0,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "00c121809209c9f9",
+  "recorded_at": "2026-11-23T18:51:28.332932+00:00"
+}

@@ -1,0 +1,789 @@
+{
+ "date": "2026-11-23",
+ "horizon": 5,
+ "model_available": true,
+ "experiment_id": "4a0f886d1979",
+ "model_id": "9a2133baf0e7dacc",
+ "reference_model_id": "519261c95a8a6da7",
+ "verified_labels": 1793,
+ "walk_forward": {
+  "n": 239,
+  "dates": 7,
+  "independent_periods": 2,
+  "mean_all": -0.136113,
+  "ic_mean": 0.338464,
+  "ic_t": 4.375,
+  "n_selected": 117,
+  "selected_dates": 6,
+  "mean_selected": -0.039354,
+  "selected_ci95": [
+   -0.048631,
+   -0.032185
+  ],
+  "trades": 117,
+  "abstained": 122,
+  "unevaluable": {},
+  "coverage": 1.0,
+  "mean_selected_unevaluable_as_loss": -0.039354,
+  "chosen_forms": {
+   "single": 32,
+   "single_alt": 85
+  },
+  "by_expression": {
+   "single": {
+    "n": 237,
+    "mean_all": -0.059561,
+    "n_selected": 79,
+    "mean_selected": -0.028714
+   },
+   "single_alt": {
+    "n": 187,
+    "mean_all": -0.09584,
+    "n_selected": 101,
+    "mean_selected": -0.052991
+   },
+   "spread": {
+    "n": 98,
+    "mean_all": -0.398088,
+    "n_selected": 0,
+    "mean_selected": null
+   }
+  },
+  "vs_default": {
+   "n": 117,
+   "dates": 6,
+   "independent_periods": 2,
+   "mean_diff": 0.153235,
+   "ci95": [
+    0.106075,
+    0.189677
+   ]
+  },
+  "representativeness": {
+   "by_sample": {
+    "directional": {
+     "n": 2,
+     "mean": -0.029214
+    },
+    "research_census": {
+     "n": 115,
+     "mean": -0.03953
+    }
+   },
+   "by_direction": {
+    "bullish": {
+     "n": 117,
+     "mean": -0.039354
+    }
+   },
+   "span_days": 8,
+   "warnings": [
+    "\u00fcberwiegend bullische Call-Strukturen: keine Aussage f\u00fcr bearishe Signale",
+    "\u00fcberwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale \u00fcbertragbar",
+    "nur 8 Kalendertage: h\u00f6chstens eine Marktphase"
+   ]
+  },
+  "mean_selected_adverse_entry": -0.061535,
+  "segments": {
+   "overall_mean": -0.039354,
+   "by": {
+    "expression": {
+     "single": {
+      "n": 32,
+      "dates": 4,
+      "mean": -0.015933,
+      "win_rate": 0.4688
+     },
+     "single_alt": {
+      "n": 85,
+      "dates": 5,
+      "mean": -0.048171,
+      "win_rate": 0.4471
+     }
+    },
+    "sample": {
+     "directional": {
+      "n": 2,
+      "dates": 2,
+      "mean": -0.029214,
+      "win_rate": 0.5
+     },
+     "research_census": {
+      "n": 115,
+      "dates": 6,
+      "mean": -0.03953,
+      "win_rate": 0.4522
+     }
+    },
+    "gate": {
+     "deep_analysis_veto_or_invalid": {
+      "n": 1,
+      "dates": 1,
+      "mean": -0.69322,
+      "win_rate": 0.0
+     },
+     "economics_first_earnings_gate": {
+      "n": 2,
+      "dates": 2,
+      "mean": -0.612072,
+      "win_rate": 0.0
+     },
+     "economics_first_quote_probe_budget": {
+      "n": 88,
+      "dates": 6,
+      "mean": -0.033523,
+      "win_rate": 0.4659
+     },
+     "mismatch_below_min": {
+      "n": 2,
+      "dates": 2,
+      "mean": -0.029214,
+      "win_rate": 0.5
+     },
+     "prescreen_no": {
+      "n": 2,
+      "dates": 2,
+      "mean": 0.165673,
+      "win_rate": 0.5
+     },
+     "sector_momentum_weak": {
+      "n": 22,
+      "dates": 5,
+      "mean": -0.000452,
+      "win_rate": 0.4545
+     }
+    },
+    "sector": {
+     "Basic Materials": {
+      "n": 3,
+      "dates": 2,
+      "mean": 0.096238,
+      "win_rate": 0.6667
+     },
+     "Communication Services": {
+      "n": 5,
+      "dates": 3,
+      "mean": 0.191916,
+      "win_rate": 0.8
+     },
+     "Consumer Cyclical": {
+      "n": 9,
+      "dates": 4,
+      "mean": 0.258308,
+      "win_rate": 0.6667
+     },
+     "Consumer Defensive": {
+      "n": 14,
+      "dates": 5,
+      "mean": -0.116477,
+      "win_rate": 0.3571
+     },
+     "Energy": {
+      "n": 9,
+      "dates": 5,
+      "mean": -0.380495,
+      "win_rate": 0.1111
+     },
+     "Financial Services": {
+      "n": 14,
+      "dates": 6,
+      "mean": -0.008867,
+      "win_rate": 0.5714
+     },
+     "Healthcare": {
+      "n": 11,
+      "dates": 6,
+      "mean": 0.027942,
+      "win_rate": 0.5455
+     },
+     "Industrials": {
+      "n": 14,
+      "dates": 5,
+      "mean": -0.140876,
+      "win_rate": 0.4286
+     },
+     "Real Estate": {
+      "n": 2,
+      "dates": 2,
+      "mean": 0.311061,
+      "win_rate": 1.0
+     },
+     "Technology": {
+      "n": 31,
+      "dates": 6,
+      "mean": -0.063909,
+      "win_rate": 0.3871
+     },
+     "Utilities": {
+      "n": 4,
+      "dates": 2,
+      "mean": -0.267751,
+      "win_rate": 0.0
+     },
+     "unknown": {
+      "n": 1,
+      "dates": 1,
+      "mean": 1.096769,
+      "win_rate": 1.0
+     }
+    },
+    "regime": {
+     "vol_neutral|risk_low": {
+      "n": 117,
+      "dates": 6,
+      "mean": -0.039354,
+      "win_rate": 0.453
+     }
+    }
+   },
+   "weak": [
+    {
+     "dimension": "sector",
+     "level": "Technology",
+     "n": 31,
+     "dates": 6,
+     "mean": -0.063909,
+     "win_rate": 0.3871
+    },
+    {
+     "dimension": "expression",
+     "level": "single_alt",
+     "n": 85,
+     "dates": 5,
+     "mean": -0.048171,
+     "win_rate": 0.4471
+    },
+    {
+     "dimension": "sample",
+     "level": "research_census",
+     "n": 115,
+     "dates": 6,
+     "mean": -0.03953,
+     "win_rate": 0.4522
+    }
+   ]
+  },
+  "verdict": "NEED_MORE_DATA",
+  "vs_reference": {
+   "candidates": 237,
+   "due_candidates": 239,
+   "coverage": 0.9916,
+   "days": 7,
+   "independent_periods": 2,
+   "ci_level": 0.95,
+   "decisions_differ": 82,
+   "excluded": {
+    "NO_LABEL": 2
+   },
+   "daily_mean": {
+    "learning": -0.01717,
+    "reference": -0.010926,
+    "trade_all": -0.171626,
+    "no_trade": 0.0
+   },
+   "learning_minus_reference": {
+    "mean": -0.006244,
+    "ci95": [
+     -0.010926,
+     0.0
+    ],
+    "independent_periods": 2
+   },
+   "learning_minus_trade_all": {
+    "mean": 0.154456,
+    "ci95": [
+     0.07674,
+     0.212744
+    ],
+    "independent_periods": 2
+   },
+   "learning_minus_no_trade": {
+    "mean": -0.01717,
+    "ci95": [
+     -0.035149,
+     0.006802
+    ],
+    "independent_periods": 2
+   },
+   "verdict": "NEED_MORE_DATA",
+   "mode": "retrospective",
+   "reference_cutoff": "2026-10-29"
+  }
+ },
+ "forward": {
+  "n": 196,
+  "dates": 5,
+  "independent_periods": 1,
+  "mean_all": -0.150777,
+  "ic_mean": 0.262952,
+  "ic_t": 3.878,
+  "n_selected": 106,
+  "selected_dates": 5,
+  "mean_selected": -0.055169,
+  "selected_ci95": null,
+  "trades": 106,
+  "abstained": 90,
+  "unevaluable": {},
+  "coverage": 1.0,
+  "mean_selected_unevaluable_as_loss": -0.055169,
+  "chosen_forms": {
+   "single": 21,
+   "single_alt": 85
+  },
+  "by_expression": {
+   "single": {
+    "n": 194,
+    "mean_all": -0.088079,
+    "n_selected": 67,
+    "mean_selected": -0.055509
+   },
+   "single_alt": {
+    "n": 187,
+    "mean_all": -0.09584,
+    "n_selected": 101,
+    "mean_selected": -0.052991
+   },
+   "spread": {
+    "n": 87,
+    "mean_all": -0.408667,
+    "n_selected": 0,
+    "mean_selected": null
+   }
+  },
+  "vs_default": {
+   "n": 106,
+   "dates": 5,
+   "independent_periods": 1,
+   "mean_diff": 0.160979,
+   "ci95": null
+  },
+  "representativeness": {
+   "by_sample": {
+    "directional": {
+     "n": 2,
+     "mean": -0.029214
+    },
+    "research_census": {
+     "n": 104,
+     "mean": -0.055668
+    }
+   },
+   "by_direction": {
+    "bullish": {
+     "n": 106,
+     "mean": -0.055169
+    }
+   },
+   "span_days": 5,
+   "warnings": [
+    "\u00fcberwiegend bullische Call-Strukturen: keine Aussage f\u00fcr bearishe Signale",
+    "\u00fcberwiegend Forschungsstichprobe (Call ohne Richtungssignal): nicht automatisch auf produktive Richtungssignale \u00fcbertragbar",
+    "nur 5 Kalendertage: h\u00f6chstens eine Marktphase"
+   ]
+  },
+  "mean_selected_adverse_entry": -0.078346,
+  "segments": {
+   "overall_mean": -0.055169,
+   "by": {
+    "expression": {
+     "single": {
+      "n": 21,
+      "dates": 3,
+      "mean": -0.083492,
+      "win_rate": 0.381
+     },
+     "single_alt": {
+      "n": 85,
+      "dates": 5,
+      "mean": -0.048171,
+      "win_rate": 0.4471
+     }
+    },
+    "sample": {
+     "directional": {
+      "n": 2,
+      "dates": 2,
+      "mean": -0.029214,
+      "win_rate": 0.5
+     },
+     "research_census": {
+      "n": 104,
+      "dates": 5,
+      "mean": -0.055668,
+      "win_rate": 0.4327
+     }
+    },
+    "gate": {
+     "deep_analysis_veto_or_invalid": {
+      "n": 1,
+      "dates": 1,
+      "mean": -0.69322,
+      "win_rate": 0.0
+     },
+     "economics_first_earnings_gate": {
+      "n": 2,
+      "dates": 2,
+      "mean": -0.612072,
+      "win_rate": 0.0
+     },
+     "economics_first_quote_probe_budget": {
+      "n": 78,
+      "dates": 5,
+      "mean": -0.041667,
+      "win_rate": 0.4487
+     },
+     "mismatch_below_min": {
+      "n": 2,
+      "dates": 2,
+      "mean": -0.029214,
+      "win_rate": 0.5
+     },
+     "prescreen_no": {
+      "n": 1,
+      "dates": 1,
+      "mean": -0.612133,
+      "win_rate": 0.0
+     },
+     "sector_momentum_weak": {
+      "n": 22,
+      "dates": 5,
+      "mean": -0.000452,
+      "win_rate": 0.4545
+     }
+    },
+    "sector": {
+     "Basic Materials": {
+      "n": 3,
+      "dates": 2,
+      "mean": 0.096238,
+      "win_rate": 0.6667
+     },
+     "Communication Services": {
+      "n": 4,
+      "dates": 2,
+      "mean": 0.205018,
+      "win_rate": 0.75
+     },
+     "Consumer Cyclical": {
+      "n": 8,
+      "dates": 3,
+      "mean": 0.23897,
+      "win_rate": 0.625
+     },
+     "Consumer Defensive": {
+      "n": 14,
+      "dates": 5,
+      "mean": -0.116477,
+      "win_rate": 0.3571
+     },
+     "Energy": {
+      "n": 8,
+      "dates": 4,
+      "mean": -0.359649,
+      "win_rate": 0.125
+     },
+     "Financial Services": {
+      "n": 12,
+      "dates": 5,
+      "mean": -0.062615,
+      "win_rate": 0.5
+     },
+     "Healthcare": {
+      "n": 10,
+      "dates": 5,
+      "mean": -0.063612,
+      "win_rate": 0.5
+     },
+     "Industrials": {
+      "n": 14,
+      "dates": 5,
+      "mean": -0.140876,
+      "win_rate": 0.4286
+     },
+     "Real Estate": {
+      "n": 1,
+      "dates": 1,
+      "mean": 0.381728,
+      "win_rate": 1.0
+     },
+     "Technology": {
+      "n": 27,
+      "dates": 5,
+      "mean": -0.052158,
+      "win_rate": 0.4074
+     },
+     "Utilities": {
+      "n": 4,
+      "dates": 2,
+      "mean": -0.267751,
+      "win_rate": 0.0
+     },
+     "unknown": {
+      "n": 1,
+      "dates": 1,
+      "mean": 1.096769,
+      "win_rate": 1.0
+     }
+    },
+    "regime": {
+     "vol_neutral|risk_low": {
+      "n": 106,
+      "dates": 5,
+      "mean": -0.055169,
+      "win_rate": 0.434
+     }
+    }
+   },
+   "weak": [
+    {
+     "dimension": "sample",
+     "level": "research_census",
+     "n": 104,
+     "dates": 5,
+     "mean": -0.055668,
+     "win_rate": 0.4327
+    }
+   ]
+  },
+  "verdict": "NEED_MORE_DATA",
+  "experiment_id": "4a0f886d1979",
+  "valid_decisions": 592,
+  "valid_predictions": 1502,
+  "pending_decisions": 396,
+  "model_instances": 4,
+  "excluded": {
+   "OTHER_EXPERIMENT": 40
+  },
+  "journal_by_experiment": {
+   "298be00d41bc": 40,
+   "4a0f886d1979": 2686
+  },
+  "vs_reference": {
+   "candidates": 194,
+   "due_candidates": 196,
+   "coverage": 0.9898,
+   "days": 5,
+   "independent_periods": 1,
+   "ci_level": 0.95,
+   "decisions_differ": 82,
+   "excluded": {
+    "NO_LABEL": 2
+   },
+   "daily_mean": {
+    "learning": -0.030255,
+    "reference": -0.021514,
+    "trade_all": -0.238304,
+    "no_trade": 0.0
+   },
+   "learning_minus_reference": {
+    "mean": -0.008741,
+    "ci95": null,
+    "independent_periods": 1
+   },
+   "learning_minus_trade_all": {
+    "mean": 0.208049,
+    "ci95": null,
+    "independent_periods": 1
+   },
+   "learning_minus_no_trade": {
+    "mean": -0.030255,
+    "ci95": null,
+    "independent_periods": 1
+   },
+   "verdict": "NEED_MORE_DATA",
+   "mode": "forward",
+   "reference_models": [
+    "519261c95a8a6da7"
+   ]
+  }
+ },
+ "forward_sequential": {
+  "experiment_id": "4a0f886d1979",
+  "horizon": 5,
+  "evaluated_as_of": "2026-11-23",
+  "looks_evaluated": [],
+  "binding": null,
+  "status": "AWAITING_LOOK",
+  "plan_id": "FWD-5d-4a0f886d1979",
+  "plan_sha256": "c3b5ce3b8ffba824d13707bc1dce492ba1980cd540a7602f085b1d4d44ef0089",
+  "start_date": "2026-11-02",
+  "look_cutoffs": [
+   "2026-12-12",
+   "2027-01-21",
+   "2027-03-02"
+  ],
+  "looks": 3,
+  "alpha": 0.05,
+  "look_alpha": [
+   0.0006868948682239306,
+   0.01568777158182444,
+   0.033625333549951675
+  ],
+  "look": 0,
+  "valid_decisions": 592,
+  "next_look": {
+   "look": 1,
+   "cutoff": "2026-12-12",
+   "ready_after": "2026-12-27"
+  }
+ },
+ "release": {
+  "allowed": false,
+  "reasons": [
+   "walk_forward: NEED_MORE_DATA (verlangt VALIDATED)",
+   "walk_forward: Testtage 7 < 20",
+   "walk_forward: unabh\u00e4ngige Perioden 2 < 5",
+   "walk_forward: 95-%-KI [-0.048631, -0.032185] nicht \u00fcber 0",
+   "walk_forward: \u00d8 netto der Auswahl nicht > 0",
+   "forward: NEED_MORE_DATA (verlangt FORWARD_POSITIVE)",
+   "forward: Testtage 5 < 20",
+   "forward: unabh\u00e4ngige Perioden 1 < 5",
+   "forward: 95-%-KI None nicht \u00fcber 0",
+   "forward: \u00d8 netto der Auswahl nicht > 0",
+   "forward_sequential: AWAITING_LOOK (verlangt CONFIRMED an einem vorab festgelegten Pr\u00fcfzeitpunkt)"
+  ]
+ },
+ "mail_eligible": false,
+ "recommendations": [],
+ "watchlist": [
+  {
+   "date": "2026-11-23",
+   "signal_id": "de8383be5c514c9a8643aa400bb8420e",
+   "ticker": "GE",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-23T18:51:34+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "9a2133baf0e7dacc",
+   "train_cutoff": "2026-11-23",
+   "kind": "decision",
+   "role": "learning",
+   "action": "ABSTAIN",
+   "reason": "PRED_NOT_POSITIVE",
+   "expression": "single",
+   "contract": [
+    "GE270521C00040000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 284.5,
+   "entry_mid_net": 279.5,
+   "pred_net": -0.022969
+  },
+  {
+   "date": "2026-11-23",
+   "signal_id": "78731780894549cd8f8a5c0fd2d976ec",
+   "ticker": "CL",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-23T18:51:34+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "9a2133baf0e7dacc",
+   "train_cutoff": "2026-11-23",
+   "kind": "decision",
+   "role": "learning",
+   "action": "ABSTAIN",
+   "reason": "PRED_NOT_POSITIVE",
+   "expression": "single_alt",
+   "contract": [
+    "CL270115C00097500"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 4.4,
+   "entry_mid_net": 4.2,
+   "pred_net": -0.027022
+  },
+  {
+   "date": "2026-11-23",
+   "signal_id": "5a5fe8a04cc64c60b3765834c1b34f3d",
+   "ticker": "SNDK",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-23T18:51:34+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "9a2133baf0e7dacc",
+   "train_cutoff": "2026-11-23",
+   "kind": "decision",
+   "role": "learning",
+   "action": "ABSTAIN",
+   "reason": "PRED_NOT_POSITIVE",
+   "expression": "single_alt",
+   "contract": [
+    "WDC1270115C00085000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 452.5,
+   "entry_mid_net": 450.0,
+   "pred_net": -0.039442
+  },
+  {
+   "date": "2026-11-23",
+   "signal_id": "fbe3156324634e69b0f5308e06203d9c",
+   "ticker": "CCEP",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-23T18:51:34+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "9a2133baf0e7dacc",
+   "train_cutoff": "2026-11-23",
+   "kind": "decision",
+   "role": "learning",
+   "action": "ABSTAIN",
+   "reason": "PRED_NOT_POSITIVE",
+   "expression": "single",
+   "contract": [
+    "CCEP270521C00115000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 11.5,
+   "entry_mid_net": 9.85,
+   "pred_net": -0.085033
+  },
+  {
+   "date": "2026-11-23",
+   "signal_id": "fd4e650c3a654d9f9566e681dd9e45dc",
+   "ticker": "ALAB",
+   "option_sample": "research_census",
+   "horizon": 5,
+   "experiment_id": "4a0f886d1979",
+   "created_at": "2026-11-23T18:51:34+00:00",
+   "walk_forward_verdict": "NEED_MORE_DATA",
+   "forward_verdict": "NEED_MORE_DATA",
+   "model_id": "9a2133baf0e7dacc",
+   "train_cutoff": "2026-11-23",
+   "kind": "decision",
+   "role": "learning",
+   "action": "ABSTAIN",
+   "reason": "PRED_NOT_POSITIVE",
+   "expression": "single_alt",
+   "contract": [
+    "ALAB270115C00210000"
+   ],
+   "strategy": "LONG_CALL",
+   "direction": "bullish",
+   "entry_ask_net": 37.05,
+   "entry_mid_net": 36.1,
+   "pred_net": -0.085135
+  }
+ ],
+ "journaled": 179,
+ "decisions": 39,
+ "variant_runs": {
+  "OLV-17f09b47ea": 39,
+  "OLV-946176e202": 39,
+  "OLV-2d61b8616c": 39
+ },
+ "production_influence": "NONE",
+ "orders_created": 0
+}
