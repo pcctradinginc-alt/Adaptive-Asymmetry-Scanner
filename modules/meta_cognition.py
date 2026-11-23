@@ -198,8 +198,13 @@ def safe_mode(meta: dict, world: dict, health: dict | None, forward: list[float]
             add("model", "CORRUPT FORWARD OUTCOMES: non-finite raw prediction values")
             forward_diag["status"] = "INVALID_VALUES"
         else:
-            sigma = f.std(ddof=1)
-            t = f.mean() / sigma * math.sqrt(len(f)) if sigma > 0 else 0.0
+            sigma = float(f.std(ddof=1))
+            mu = float(f.mean())
+            # A numerically constant series has std ~1e-18, not exactly
+            # zero; dividing by it would fabricate huge t-statistics.
+            # This remains only a provisional correlated-row diagnostic.
+            tol = max(1e-12, abs(mu) * 1e-10)
+            t = mu / sigma * math.sqrt(len(f)) if sigma > tol else 0.0
             forward_diag["raw_t_12"] = round(float(t), 6)
             forward_diag["status"] = "PROVISIONAL_CORRELATED_SCREEN"
             if t <= tr["performance_breakdown_t"]:
