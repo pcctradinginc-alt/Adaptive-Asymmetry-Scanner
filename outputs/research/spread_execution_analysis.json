@@ -1,5 +1,5 @@
 {
- "n_spreads": 98,
+ "n_spreads": 99,
  "buckets": {
   "<5%": {
    "n_candidates": 2,
@@ -43,23 +43,23 @@
   },
   "20-30%": {
    "n_candidates": 18,
-   "n_with_outcome": 10,
-   "n_reliable": 2,
+   "n_with_outcome": 11,
+   "n_reliable": 3,
    "status": "NEED_MORE_DATA",
-   "mean_outcome_exploratory": -0.2147,
-   "stop_frequency": 0.3,
+   "mean_outcome_exploratory": -0.2181,
+   "stop_frequency": 0.273,
    "false_stop_frequency": 0.333,
    "median_dte": 157.5
   },
   ">=30%": {
-   "n_candidates": 51,
-   "n_with_outcome": 25,
-   "n_reliable": 9,
+   "n_candidates": 52,
+   "n_with_outcome": 29,
+   "n_reliable": 13,
    "status": "NEED_MORE_DATA",
-   "mean_outcome_exploratory": -0.542,
-   "stop_frequency": 0.16,
+   "mean_outcome_exploratory": -0.5933,
+   "stop_frequency": 0.138,
    "false_stop_frequency": 0.5,
-   "median_dte": 167
+   "median_dte": 167.0
   }
  },
  "label": "EXPLORATORY (überwiegend NON_RELIABLE Outcomes)",
@@ -68,67 +68,91 @@
   "label": "SHADOW_ONLY – keine Produktionsentscheidung, keine Schwellensuche",
   "ivrv_spread_min": 1.0,
   "iv_rank_vs_contract_iv": {
-   "n": 1073,
-   "rank_corr": 0.0636,
+   "n": 1269,
+   "rank_corr": 0.072,
    "note": "Rangkorrelation 'IV-Rank' (Produktionsformel) gegen die IV des Kontrakts"
   },
   "entry_cost_vs_mid_median": {
-   "spread": 0.193,
+   "spread": 0.191,
    "long": 0.04
   },
-  "rows_with_ivrv": 200,
-  "rows_with_spread_counterfactual": 71,
+  "rows_with_ivrv": 396,
+  "rows_with_spread_counterfactual": 148,
   "horizons": {
    "5d": {
     "executable": {
      "production_minus_long_only": {
-      "n": 882,
-      "days": 26,
-      "mean_daily_diff": -0.0716,
+      "n": 1082,
+      "days": 31,
+      "mean_daily_diff": -0.0843,
       "ci95": [
-       -0.0998,
-       -0.0469
+       -0.1101,
+       -0.0599
       ],
-      "t": -5.07,
-      "days_negative": 24,
+      "t": -6.36,
+      "days_negative": 29,
       "verdict": "A_WORSE"
      },
      "ivrv_minus_long_only": {
-      "n": 0,
-      "days": 0,
-      "mean_daily_diff": null,
+      "n": 200,
+      "days": 5,
+      "mean_daily_diff": -0.0401,
+      "ci95": [
+       -0.0558,
+       -0.0215
+      ],
+      "t": -4.11,
+      "days_negative": 5,
       "verdict": "NEED_MORE_DATA"
      },
      "ivrv_minus_production": {
-      "n": 0,
-      "days": 0,
-      "mean_daily_diff": null,
+      "n": 200,
+      "days": 5,
+      "mean_daily_diff": 0.1106,
+      "ci95": [
+       0.0626,
+       0.1562
+      ],
+      "t": 4.07,
+      "days_negative": 0,
       "verdict": "NEED_MORE_DATA"
      }
     },
     "mid": {
      "production_minus_long_only": {
-      "n": 882,
-      "days": 26,
-      "mean_daily_diff": -0.0032,
+      "n": 1082,
+      "days": 31,
+      "mean_daily_diff": -0.001,
       "ci95": [
-       -0.0116,
-       0.0044
+       -0.0092,
+       0.006
       ],
-      "t": -0.76,
-      "days_negative": 15,
+      "t": -0.26,
+      "days_negative": 16,
       "verdict": "NO_SIGNIFICANT_DIFFERENCE"
      },
      "ivrv_minus_long_only": {
-      "n": 0,
-      "days": 0,
-      "mean_daily_diff": null,
+      "n": 200,
+      "days": 5,
+      "mean_daily_diff": 0.0014,
+      "ci95": [
+       -0.003,
+       0.0061
+      ],
+      "t": 0.54,
+      "days_negative": 2,
       "verdict": "NEED_MORE_DATA"
      },
      "ivrv_minus_production": {
-      "n": 0,
-      "days": 0,
-      "mean_daily_diff": null,
+      "n": 200,
+      "days": 5,
+      "mean_daily_diff": -0.009,
+      "ci95": [
+       -0.0195,
+       0.003
+      ],
+      "t": -1.45,
+      "days_negative": 4,
       "verdict": "NEED_MORE_DATA"
      }
     }
@@ -136,15 +160,15 @@
    "20d": {
     "executable": {
      "production_minus_long_only": {
-      "n": 579,
-      "days": 16,
-      "mean_daily_diff": -0.0387,
+      "n": 686,
+      "days": 21,
+      "mean_daily_diff": -0.0529,
       "ci95": [
-       -0.0505,
-       -0.0265
+       -0.0831,
+       -0.032
       ],
-      "t": -6.2,
-      "days_negative": 16,
+      "t": -3.89,
+      "days_negative": 20,
       "verdict": "A_WORSE"
      },
      "ivrv_minus_long_only": {
@@ -162,15 +186,15 @@
     },
     "mid": {
      "production_minus_long_only": {
-      "n": 579,
-      "days": 16,
-      "mean_daily_diff": -0.0017,
+      "n": 686,
+      "days": 21,
+      "mean_daily_diff": -0.0004,
       "ci95": [
-       -0.0068,
-       0.0036
+       -0.008,
+       0.0083
       ],
-      "t": -0.63,
-      "days_negative": 10,
+      "t": -0.09,
+      "days_negative": 12,
       "verdict": "NO_SIGNIFICANT_DIFFERENCE"
      },
      "ivrv_minus_long_only": {
@@ -192,7 +216,7 @@
  "sources": {
   "closed": 118,
   "active": 2,
-  "shadow_view": 317,
+  "shadow_view": 300,
   "archive": true
  }
 }

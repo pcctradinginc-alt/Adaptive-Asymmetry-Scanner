@@ -1,9 +1,10 @@
 {
-  "generated": "2026-11-16T14:00:51+00:00",
-  "n": 16,
+  "generated": "2026-11-23T16:30:07+00:00",
+  "n": 18,
   "status_counts": {
-    "UNDER_TEST": 11,
+    "UNDER_TEST": 12,
     "HISTORICALLY_REJECTED": 2,
+    "FORWARD_TEST": 1,
     "OPEN_QUESTION": 3
   },
   "chains": [
@@ -570,6 +571,224 @@
     },
     {
       "question_1_not_understood": {
+        "id": "feature_drift:vix",
+        "kind": "feature_drift",
+        "finding": "Merkmal vix außerhalb des Trainingsbereichs",
+        "keys": [
+          "drift_vix",
+          "vix"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "FAC-E17F4909",
+          "source": "factory",
+          "explanation": "Marktvolatilität × Utilities: Steigende Unsicherheit führt zu Umschichtung in defensive, regulierte Cashflows.",
+          "H0": "H0: [exp_utilities * sign(vix_chg_21 - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+          "data_needed": [
+            "vix",
+            "vix_chg_21"
+          ],
+          "data_available": true,
+          "free_sources": null,
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        },
+        {
+          "id": "FAC-A11F218F",
+          "source": "factory",
+          "explanation": "vol_20 nur im Niedrig-Vol-Regime: Gemessener Decay von vol_20 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
+          "H0": "H0: [rank(vol_20) * step(20 - vix)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+          "data_needed": [
+            "vol_20",
+            "vix"
+          ],
+          "data_available": true,
+          "free_sources": null,
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        },
+        {
+          "id": "FAC-AD1E02FC",
+          "source": "factory",
+          "explanation": "vol_60 nur im Niedrig-Vol-Regime: Gemessener Decay von vol_60 (Meta-Cognition): Effekt könnte regimeabhängig sein statt verschwunden.",
+          "H0": "H0: [rank(vol_60) * step(20 - vix)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 T über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags.",
+          "data_needed": [
+            "vol_60",
+            "vix"
+          ],
+          "data_available": true,
+          "free_sources": null,
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        },
+        {
+          "id": "PROM-ABST-005@v1",
+          "source": "contract",
+          "explanation": "Sind Champion-Trades bei VIX > 30 (Stressregime) schlechter als in ruhigeren Regimen?",
+          "H0": null,
+          "data_needed": [
+            "vix"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 3,
+          "delta_expectancy": 0.0,
+          "influence_level": "NONE"
+        },
+        {
+          "id": "PROM-ABST-005@v2",
+          "source": "contract",
+          "explanation": "Population FINAL_MC_SURVIVOR: Sind Final-MC-Survivors bei VIX > 30 (Stressregime) schlechter als in ruhigeren Regimen?",
+          "H0": null,
+          "data_needed": [
+            "vix"
+          ],
+          "data_available": true,
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 19,
+          "delta_expectancy": 0.0,
+          "influence_level": "NONE"
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "FAC-E17F4909",
+          "needed": [
+            "vix",
+            "vix_chg_21"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "FAC-A11F218F",
+          "needed": [
+            "vol_20",
+            "vix"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "FAC-AD1E02FC",
+          "needed": [
+            "vol_60",
+            "vix"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-005@v1",
+          "needed": [
+            "vix"
+          ],
+          "available": true,
+          "free_sources": null
+        },
+        {
+          "id": "PROM-ABST-005@v2",
+          "needed": [
+            "vix"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "FAC-E17F4909",
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "FAC-A11F218F",
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "FAC-AD1E02FC",
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        },
+        {
+          "id": "PROM-ABST-005@v1",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 3
+        },
+        {
+          "id": "PROM-ABST-005@v2",
+          "status": "PROSPECTIVE_CHALLENGER",
+          "evidence": "prospektiv (Forward)",
+          "forward_n": 19
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "FORWARD_TEST",
+      "next_step": "Forward-Daten abwarten (keine Entscheidung vor Mindest-N/Spanne)"
+    },
+    {
+      "question_1_not_understood": {
+        "id": "feature_drift:vix_chg_21",
+        "kind": "feature_drift",
+        "finding": "Merkmal vix_chg_21 außerhalb des Trainingsbereichs",
+        "keys": [
+          "drift_vix_chg_21",
+          "vix_chg_21"
+        ]
+      },
+      "question_2_explanations": [
+        {
+          "id": "FAC-E17F4909",
+          "source": "factory",
+          "explanation": "Marktvolatilität × Utilities: Steigende Unsicherheit führt zu Umschichtung in defensive, regulierte Cashflows.",
+          "H0": "H0: [exp_utilities * sign(vix_chg_21 - 0)] × Richtung +1 hat keinen Effekt auf netto Top-Dezil-Überrendite je 20 Handelstage (10 bp/Seite) über 20 Handelstage gegenüber Querschnittsmittel desselben Stichtags (alle übrigen Titel).",
+          "data_needed": [
+            "vix",
+            "vix_chg_21"
+          ],
+          "data_available": true,
+          "free_sources": null,
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "reasons": []
+        }
+      ],
+      "question_3_data": [
+        {
+          "id": "FAC-E17F4909",
+          "needed": [
+            "vix",
+            "vix_chg_21"
+          ],
+          "available": true,
+          "free_sources": null
+        }
+      ],
+      "question_4_new_data": [
+        {
+          "id": "FAC-E17F4909",
+          "status": "ALREADY_TESTED",
+          "evidence": "historisch",
+          "forward_n": null
+        }
+      ],
+      "question_5_behaviour": "keine Änderung",
+      "status": "UNDER_TEST",
+      "next_step": "historischen Walk-Forward abschließen"
+    },
+    {
+      "question_1_not_understood": {
         "id": "feature_drift:tnx",
         "kind": "feature_drift",
         "finding": "Merkmal tnx außerhalb des Trainingsbereichs",
@@ -683,9 +902,26 @@
     },
     {
       "question_1_not_understood": {
+        "id": "failure:underlying_unknown",
+        "kind": "prediction_error",
+        "finding": "Verlust-Ursache underlying_unknown: 82 % der Verlierer (Ø -0.7176870967741935)",
+        "keys": [
+          "champion_trades",
+          "underlying_unknown"
+        ]
+      },
+      "question_2_explanations": [],
+      "question_3_data": [],
+      "question_4_new_data": [],
+      "question_5_behaviour": "keine Änderung",
+      "status": "OPEN_QUESTION",
+      "next_step": "falsifizierbare Erklärung formulieren (Director/Fabrik)"
+    },
+    {
+      "question_1_not_understood": {
         "id": "failure:structure_decay",
         "kind": "prediction_error",
-        "finding": "Verlust-Ursache structure_decay: 43 % der Verlierer (Ø -0.32226666666666665)",
+        "finding": "Verlust-Ursache structure_decay: 8 % der Verlierer (Ø -0.32226666666666665)",
         "keys": [
           "champion_trades",
           "structure_decay"
@@ -702,27 +938,10 @@
       "question_1_not_understood": {
         "id": "failure:signal_wrong",
         "kind": "prediction_error",
-        "finding": "Verlust-Ursache signal_wrong: 29 % der Verlierer (Ø -0.52995)",
+        "finding": "Verlust-Ursache signal_wrong: 5 % der Verlierer (Ø -0.52995)",
         "keys": [
           "champion_trades",
           "signal_wrong"
-        ]
-      },
-      "question_2_explanations": [],
-      "question_3_data": [],
-      "question_4_new_data": [],
-      "question_5_behaviour": "keine Änderung",
-      "status": "OPEN_QUESTION",
-      "next_step": "falsifizierbare Erklärung formulieren (Director/Fabrik)"
-    },
-    {
-      "question_1_not_understood": {
-        "id": "failure:timing_too_early",
-        "kind": "prediction_error",
-        "finding": "Verlust-Ursache timing_too_early: 29 % der Verlierer (Ø -0.41165)",
-        "keys": [
-          "champion_trades",
-          "timing_too_early"
         ]
       },
       "question_2_explanations": [],
@@ -736,7 +955,7 @@
   "research_learning": {
     "by_quarter": {
       "2026-Q4": {
-        "tested": 85,
+        "tested": 88,
         "success_rate": 0.0
       }
     },
