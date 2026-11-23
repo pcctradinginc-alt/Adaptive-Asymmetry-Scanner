@@ -21,6 +21,7 @@ from pathlib import Path
 import yaml
 
 from modules import economics_first as ef
+from modules import shadow_acquisition as sa
 
 log = logging.getLogger(__name__)
 CONFIG = Path(__file__).resolve().parent.parent / "config" / "throughput_shadow.yaml"
@@ -147,22 +148,39 @@ def run(raw_candidates: list[dict], champion_decisions: dict, *, day: str,
         new += 1
         return probe(candidate)
 
+    # Shadow-only acquisition: cost-tiered cap, frozen Champion probes reused,
+    # two independent cheap ranking arms plus a reproducible random audit.
+    quote_cap = sa.effective_quote_cap(p, budget, len(pool))
+    if quote_cap <= 0:
+        return {**summary, "reason": "budget_guard_dynamic"}
+    cohort, origins = sa.select_probe_cohort(
+        pool, champion_decisions, day=day, cap=quote_cap,
+        audit_cap=p["audit_quote_probes"])
     ep = {**ef.settings(), **(economics_policy or {})}
-    ep.update(mode="active", max_quote_probes=p["max_quote_probes"],
-              audit_quote_probes=p["audit_quote_probes"],
+    ep.update(mode="active", max_quote_probes=quote_cap,
+              audit_quote_probes=min(p["audit_quote_probes"], quote_cap // 4),
               max_haiku_candidates=p["max_haiku_candidates"],
               max_sonnet_candidates=p["max_sonnet_candidates"],
               sonnet_audit_candidates=p["sonnet_audit_candidates"])
     try:
-        selected, decisions, counts = ef.select_before_haiku(
-            pool, day=day, probe=shadow_probe, policy=ep, deadline=stop)
+        selected, sampled_decisions, counts = ef.select_before_haiku(
+            cohort, day=day, probe=shadow_probe, policy=ep, deadline=stop)
+        # The full population must still be recorded as budget-deferred;
+        # never label unquoted stocks economically rejected.
+        decisions = {
+            str(c["ticker"]): {"status": "deferred", "reason": "quote_probe_budget"}
+            for c in pool
+        }
+        decisions.update(sampled_decisions)
     except Exception as exc:
         log.warning("throughput_shadow quote selection failed: %s", exc)
         return {**summary, "status": "ERROR", "reason": "quote_selection", "error": str(exc)[:160]}
 
-    rows = {t: {"policy": "throughput-shadow-v1", "day": day,
+    rows = {t: {"policy": "throughput-shadow-v2", "day": day,
                 "quote_status": d["status"], "quote_reason": d.get("reason"),
-                "quote_audit": bool(d.get("audit")), "quoted_friction": d.get("immediate_friction"),
+                "sample_origin": origins.get(t, "not_probed"),
+                "quote_audit": origins.get(t) == "random_audit",
+                "quoted_friction": d.get("immediate_friction"),
                 "haiku": "not_selected", "sonnet": "not_selected"}
             for t, d in decisions.items()}
     extra = [c for c in selected if c["ticker"] not in production_haiku]
@@ -171,6 +189,11 @@ def run(raw_candidates: list[dict], champion_decisions: dict, *, day: str,
             rows[c["ticker"]]["haiku"] = "champion_already_evaluated"
 
     summary.update(status="OK", probed=counts.get("probed", 0),
+                   quote_budget_cap=quote_cap,
+                   sample_sources={
+                       key: sum(v == key for v in origins.values())
+                       for key in ("champion_cached", "legacy_rank", "cheap_rank_v1", "random_audit", "legacy_backfill")
+                   },
                    cached_champion_probes=cached, new_probes=new,
                    quoted_pass=counts.get("quoted_pass", 0),
                    quota_selected=len(selected), additional_haiku_inputs=len(extra),
@@ -179,6 +202,10 @@ def run(raw_candidates: list[dict], champion_decisions: dict, *, day: str,
     try:
         if time.monotonic() >= stop:
             summary["status"] = "TIME_LIMIT"
+        elif extra and not budget_ok(budget_fn(), p):
+            summary["status"] = "BUDGET_LIMIT"
+            for c in extra:
+                rows[c["ticker"]]["haiku"] = "budget_deferred"
         elif extra:
             if prescreener_factory is None:
                 from modules.prescreener import Prescreener
@@ -193,7 +220,7 @@ def run(raw_candidates: list[dict], champion_decisions: dict, *, day: str,
                                     "yes" if t in passed else "no")
             summary["haiku_yes"] = len(passed)
             # Research Sonnet is NEVER run on production names or Haiku NO.
-            if yes and time.monotonic() < stop:
+            if yes and time.monotonic() < stop and budget_ok(budget_fn(), p):
                 deep, sonnet_skips = ef.select_before_sonnet(yes, day=day, policy=ep)
                 summary["sonnet_inputs"] = len(deep)
                 for c in yes:
@@ -218,8 +245,12 @@ def run(raw_candidates: list[dict], champion_decisions: dict, *, day: str,
                         rows[a["ticker"]]["sonnet_surprise"] = v.get("surprise")
                     summary["sonnet_analyzed"] = len(analyzed)
             elif yes:
+                reason = ("time_deferred" if time.monotonic() >= stop
+                          else "budget_deferred")
                 for c in yes:
-                    rows[c["ticker"]]["sonnet"] = "time_deferred"
+                    rows[c["ticker"]]["sonnet"] = reason
+                if reason == "budget_deferred":
+                    summary["status"] = "BUDGET_LIMIT"
     except Exception as exc:
         log.exception("throughput_shadow research stage failed")
         summary.update(status="PARTIAL_ERROR", error=f"{type(exc).__name__}: {str(exc)[:160]}")
