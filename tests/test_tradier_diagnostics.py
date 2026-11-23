@@ -41,7 +41,8 @@ def test_provider_status_classification(status, body, expected):
     with pytest.raises(td.ProviderDataError) as ex:
         td.check_response(response, "chains")
     assert ex.value.category == expected
-    assert body not in str(ex.value)  # no raw provider contents logged
+    if body:
+        assert body not in str(ex.value)  # no raw provider contents logged
 
 
 @pytest.mark.parametrize(
