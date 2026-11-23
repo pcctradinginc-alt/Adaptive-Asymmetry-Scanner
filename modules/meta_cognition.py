@@ -193,7 +193,7 @@ def safe_mode(meta: dict, world: dict, health: dict | None, forward: list[float]
         "trigger_is_conservative": True,
     }
     if forward and len(forward) >= 12:
-        f = pd.Series(forward[-12:], dtype=float)
+        f = pd.to_numeric(pd.Series(forward[-12:]), errors="coerce")
         if not np.isfinite(f.to_numpy()).all():
             add("model", "CORRUPT FORWARD OUTCOMES: non-finite raw prediction values")
             forward_diag["status"] = "INVALID_VALUES"
