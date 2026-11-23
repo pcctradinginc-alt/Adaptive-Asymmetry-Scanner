@@ -129,3 +129,15 @@ def test_schema_and_no_contract_have_different_codes(monkeypatch):
     before_empty = td.counters().get("chains:NO_CONTRACT", 0)
     assert od._tradier_chain("AAPL", "2027-01-15") == []
     assert td.counters()["chains:NO_CONTRACT"] == before_empty + 1
+
+
+def test_report_is_serializable_classified_without_secrets():
+    import json
+    before = td.report()["total_provider_failures"]
+    td.record("chains", "TIMEOUT")
+    result = td.report()
+    assert result["state"] == "DEGRADED"
+    assert result["total_provider_failures"] >= before + 1
+    assert result["additional_api_requests"] == 0
+    assert "token" not in json.dumps(result).lower()
+    assert "chains:TIMEOUT" in result["by_endpoint_category"]
