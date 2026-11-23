@@ -141,3 +141,25 @@ def record(endpoint: str, category: str) -> None:
 
 def counters() -> dict[str, int]:
     return dict(_FAILURES)
+
+
+def report() -> dict:
+    """Serializable audit summary: no provider-response text and no extra I/O."""
+    counts = counters()
+    failure_kinds = {
+        "QUOTA_EXHAUSTED", "PROVIDER_DOWN", "TIMEOUT",
+        "AUTH_OR_PERMISSION", "HTTP_ERROR", "SCHEMA_CHANGED",
+        "PROVIDER_ERROR",
+    }
+    total_failures = sum(n for k, n in counts.items()
+                         if k.split(":")[-1] in failure_kinds)
+    total_empty = sum(n for k, n in counts.items() if k.endswith(":NO_CONTRACT"))
+    return {
+        "state": ("DEGRADED" if total_failures else
+                  "VALID_EMPTY" if total_empty else "NOT_OBSERVED"),
+        "total_provider_failures": total_failures,
+        "valid_empty_results": total_empty,
+        "by_endpoint_category": counts,
+        "scope": "current scanner process only",
+        "additional_api_requests": 0,
+    }
