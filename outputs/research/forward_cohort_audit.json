@@ -1,0 +1,21 @@
+{
+  "schema": "forward_cohort_audit_v1",
+  "metric": "fwd_xs_20 (cross-sectional stock return, NOT options net P&L)",
+  "horizon_sessions": 20,
+  "raw_rows": 600,
+  "verified_rows": 342,
+  "unique_signal_dates": 7,
+  "independent_blocks_upper_bound": 0,
+  "first_signal_date": "2026-09-28",
+  "last_signal_date": "2026-10-23",
+  "day_mean": -0.08873121999012899,
+  "hac_t_stat": null,
+  "hac_ci95": null,
+  "alpha_after_costs": "NOT_EVALUATED",
+  "production_influence": "NONE",
+  "status": "INSUFFICIENT_EVIDENCE",
+  "invalid_or_conflicting_rows": 258,
+  "duplicate_rows": 0,
+  "reason": "too_few_independent_dates_or_invalid_provenance",
+  "generated_at": "2026-11-23T18:12:21.858685+00:00"
+}
