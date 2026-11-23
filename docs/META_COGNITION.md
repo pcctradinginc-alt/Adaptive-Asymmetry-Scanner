@@ -53,3 +53,32 @@ Die Auslöser sind in `config/next_protocol.yaml` festgelegt:
 - Rückfall auf den stabilen Champion (statisches Ensemble);
 - Warnung im Weekly Report;
 - Gründe stehen in `safe_mode.json`.
+
+
+## Forensische Korrektur 2026-11-23: Forward-Safe-Mode
+
+Das alte Signal `Forward-Expectancy t` berechnete die t-Statistik aus den
+letzten 12 Zeilen des Prediction-Memory. Diese Zeilen sind *keine*
+12 unabhängigen Halteperioden: mehrere Ticker können denselben Signaltag und
+überlappende 20-Handelstage-Labels besitzen. Ein solcher Zeilen-t-Wert ist
+**kein statistisch gültiger Test** und belegt weder Netto-Options-Alpha noch
+Signifikanz eines unabhängigen Forward-Effekts.
+
+- Das bestehende defensive Breakdown-Triggerverhalten bleibt bis zur
+  eigenständig genehmigten Ablösung erhalten; es wird **nicht** gelockert.
+- Das Signal heißt im Bericht künftig `PROVISIONAL, correlated raw rows`;
+  `forward_diagnostic.independent_significance=false` und
+  `production_promotion_eligible=false` sind explizit.
+- `independent_forward_audit` zeigt getrennt die Aussage aus
+  `outputs/research/forward_cohort_audit.json`, inklusive
+  `independent_blocks_upper_bound` und `alpha_after_costs`.
+  Unvollständige oder fehlende Evidenz wird als solche angezeigt und kann
+  niemals den Safe Mode automatisch aufheben.
+- Historische Statusmeldungen und vergebene Experiment-Alpha-Budgets werden
+  nicht rückwirkend umgeschrieben.
+- Keine neuen Marktdaten-, LLM-, Options- oder GitHub-Workflows erforderlich.
+
+Eine spätere statistisch gültige Ablösung des konservativen Triggers erfordert
+vorregistrierte, nicht überlappende Signal-/Outcome-Blöcke und separate
+gepaarte post-cost Optionsvergleichsdaten. Dafür reicht diese reine
+Metadatenkorrektur noch nicht aus.

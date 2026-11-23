@@ -26,6 +26,7 @@ import pickle
 from datetime import datetime, timezone
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import yaml
 
@@ -177,11 +178,37 @@ def safe_mode(meta: dict, world: dict, health: dict | None, forward: list[float]
     wu = ((world or {}).get("current") or {}).get("uncertainty")
     if wu is not None and wu >= tr["world_model_uncertainty"]:
         add("model", f"WORLD MODEL INSTABILITY: Unsicherheit {wu}")
+    # IMPORTANT: prediction_memory may contain many correlated tickers for one
+    # signal date. This 12-row statistic is a conservative diagnostic ONLY,
+    # not a 12-independent-period t test or a post-cost options-alpha claim.
+    # Preserve the legacy protective trigger while independently valid
+    # forward evidence is collected; never automatically promote on this value.
+    forward_diag = {
+        "status": "INSUFFICIENT_OR_NOT_EVALUATED",
+        "scope": "raw prediction-memory rows (correlated; not options P&L)",
+        "independent_significance": False,
+        "production_promotion_eligible": False,
+        "raw_rows": min(len(forward or []), 12),
+        "raw_t_12": None,
+        "trigger_is_conservative": True,
+    }
     if forward and len(forward) >= 12:
-        f = pd.Series(forward[-12:])
-        t = f.mean() / f.std(ddof=1) * math.sqrt(len(f)) if f.std(ddof=1) > 0 else 0
-        if t <= tr["performance_breakdown_t"]:
-            add("model", f"PERFORMANCE BREAKDOWN: Forward-Expectancy t={t:.2f}")
+        f = pd.to_numeric(pd.Series(forward[-12:]), errors="coerce")
+        if not np.isfinite(f.to_numpy()).all():
+            add("model", "CORRUPT FORWARD OUTCOMES: non-finite raw prediction values")
+            forward_diag["status"] = "INVALID_VALUES"
+        else:
+            sigma = float(f.std(ddof=1))
+            mu = float(f.mean())
+            # A numerically constant series has std ~1e-18, not exactly
+            # zero; dividing by it would fabricate huge t-statistics.
+            # This remains only a provisional correlated-row diagnostic.
+            tol = max(1e-12, abs(mu) * 1e-10)
+            t = mu / sigma * math.sqrt(len(f)) if sigma > tol else 0.0
+            forward_diag["raw_t_12"] = round(float(t), 6)
+            forward_diag["status"] = "PROVISIONAL_CORRELATED_SCREEN"
+            if t <= tr["performance_breakdown_t"]:
+                add("model", f"PERFORMANCE BREAKDOWN (PROVISIONAL, correlated raw rows): raw_t_12={t:.2f}; independent alpha NOT tested")
     if health:                                       # Audit F08: veraltete Quellen
         items = [v for v in health.values() if isinstance(v, dict)]
         stale = [v for v in items if str(v.get("staleness", "")).upper() == "STALE"]
@@ -193,6 +220,7 @@ def safe_mode(meta: dict, world: dict, health: dict | None, forward: list[float]
         add("model", f"CORRUPT ARTIFACT: {', '.join(corrupt)} vorhanden, aber unlesbar")
     # NICHT kanonisch: Eingabe für modules/system_state.py (einzige Safe-Mode-Wahrheit).
     return {"active": bool(reasons), "reasons": reasons, "components": comp,
+            "forward_diagnostic": forward_diag,
             "drift": {"feature": fl, "model": _drift.model_level(mi, dpol)},
             "canonical": False, "see": "outputs/state/system_state.json",
             "fallback": "Referenz (statisches Ensemble); keine HC-Alerts",
@@ -393,6 +421,18 @@ def run() -> dict:
     fwd = [e.get("actual_return") for e in _memory_outcomes()]
     sm = safe_mode(inp["meta"], inp["world"], inp["health"], [x for x in fwd if x is not None], inp["ml"],
                    corrupt=list(CORRUPT))
+    # Independent evidence is a separate research-only diagnostic. It can
+    # refute naive significance claims, but never clear the protective gate.
+    audit = _load("forward_cohort_audit.json", {})
+    sm["independent_forward_audit"] = {
+        "status": audit.get("status", "UNAVAILABLE"),
+        "metric": audit.get("metric", "unknown"),
+        "unique_signal_dates": audit.get("unique_signal_dates"),
+        "independent_blocks_upper_bound": audit.get("independent_blocks_upper_bound"),
+        "hac_t_stat": audit.get("hac_t_stat"),
+        "alpha_after_costs": audit.get("alpha_after_costs", "NOT_EVALUATED"),
+        "production_influence": "NONE",
+    }
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "safe_mode.json").write_text(json.dumps(sm, indent=1, ensure_ascii=False))   # Komponente, nicht kanonisch
     from modules import system_state as _ss
