@@ -178,7 +178,10 @@ def apply_size_multiplier(sizing: dict, multiplier, applied_by=None) -> dict:
     note = sizing.get("note") or ""
     if orig > 0 and contracts == 0:                  # Abrundung: Budget reicht nach Verkleinerung für keinen Kontrakt
         note = (note + " | " if note else "") + f"Sizing-Stufe ×{m:.2f}: Budget unter 1 Kontrakt – nur beobachten."
-    return {**sizing, "position_pct": min(pct0, round(pct0 * m, 4)), "position_usd": pos_usd,
+    committed_usd = round(contracts * cost, 2)
+    committed_pct = min(pct0, round(pct0 * committed_usd / usd0, 4)) if usd0 > 0 else 0.0
+    return {**sizing, "position_pct": committed_pct, "position_usd": committed_usd,
+            "pct_of_depot": committed_pct, "target_budget_usd": pos_usd,
             "contracts": contracts, "max_risk_usd": round(risk0 * contracts / orig, 2) if orig else 0.0, "note": note,
             "size_adjustment": {"multiplier": round(m, 4), "applied_by": applied_by or [],
                                 "original_contracts": sizing.get("contracts"),
