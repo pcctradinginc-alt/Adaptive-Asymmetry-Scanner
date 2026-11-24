@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 CFG_PATH = Path(__file__).resolve().parent.parent / "config" / "economics_first.yaml"
 
 DEFAULTS = {
-    "mode": "active", "max_quote_probes": 24, "audit_quote_probes": 2,
+    "mode": "active", "max_quote_probes": 8, "audit_quote_probes": 2,
     "max_haiku_candidates": 12, "max_sonnet_candidates": 3,
     "sonnet_audit_candidates": 1, "max_immediate_friction": 0.30,
     "probe_dte_min": 150, "probe_dte_max": 365,
@@ -31,12 +31,22 @@ DEFAULTS = {
 def settings(path: Path | None = None) -> dict:
     import yaml
     try:
-        raw = yaml.safe_load((path or CFG_PATH).read_text(encoding="utf-8")) or {}
-        return {**DEFAULTS, **(raw if isinstance(raw, dict) else {})}
+        raw = yaml.safe_load((path or CFG_PATH).read_text(encoding="utf-8"))
+        if not isinstance(raw, dict):
+            raise ValueError("economics policy must be a mapping")
+        merged = {**DEFAULTS, **raw}
+        for key in ("max_quote_probes", "audit_quote_probes", "max_haiku_candidates", "max_sonnet_candidates", "sonnet_audit_candidates"):
+            if type(merged[key]) is not int or not 0 <= merged[key] <= DEFAULTS[key]:
+                raise ValueError(f"invalid or excessive budget: {key}")
+        if merged["mode"] not in ("active", "shadow", "off"):
+            raise ValueError("invalid mode")
+        return merged
     except Exception as exc:
         # Configuration failure is observable; don't allow silently unlimited calls.
         log.error("economics_first configuration unavailable: %s", exc)
-        return dict(DEFAULTS)
+        return {**DEFAULTS, "max_quote_probes": 0, "audit_quote_probes": 0,
+                "max_haiku_candidates": 0, "max_sonnet_candidates": 0,
+                "sonnet_audit_candidates": 0}
 
 
 def _num(value, fallback=0.0) -> float:
