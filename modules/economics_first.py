@@ -31,7 +31,7 @@ DEFAULTS = {
 def settings(path: Path | None = None) -> dict:
     import yaml
     try:
-        raw = yaml.safe_load((path or CFG_PATH).read_text(encoding="utf-8")) or {}
+        raw = yaml.safe_load((path or CFG_PATH).read_text(encoding="utf-8"))
         if not isinstance(raw, dict):
             raise ValueError("economics policy must be a mapping")
         merged = {**DEFAULTS, **raw}

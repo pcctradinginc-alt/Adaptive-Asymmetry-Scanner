@@ -31,6 +31,7 @@ def audit(rows: list[dict], *, horizon: int = HORIZON) -> dict:
               "production_influence": "NONE", "status": "INSUFFICIENT_EVIDENCE"}
     by_id = {}
     invalid = 0
+    pending = 0
     for row in rows:
         if not isinstance(row, dict):
             invalid += 1
@@ -42,6 +43,9 @@ def audit(rows: list[dict], *, horizon: int = HORIZON) -> dict:
             if not isinstance(pid, str) or not pid.strip() or not isinstance(day, str):
                 raise ValueError("missing key/date")
             date.fromisoformat(day)
+            if value is None:
+                pending += 1
+                continue
             if type(value) not in (int, float) or not math.isfinite(value):
                 raise ValueError("invalid return")
             if pid in by_id:
@@ -52,7 +56,8 @@ def audit(rows: list[dict], *, horizon: int = HORIZON) -> dict:
         except (ValueError, TypeError):
             invalid += 1
     report["invalid_or_conflicting_rows"] = invalid
-    report["duplicate_rows"] = len(rows) - len(by_id) - invalid
+    report["pending_outcome_rows"] = pending
+    report["duplicate_rows"] = len(rows) - len(by_id) - invalid - pending
     days = defaultdict(list)
     for day, value in by_id.values():
         days[day].append(value)
@@ -102,8 +107,20 @@ def main(argv=None) -> int:
     parser.add_argument("--output", type=Path, default=Path("outputs/research/forward_cohort_audit.json"))
     args = parser.parse_args(argv)
     from modules import prediction_memory
-    records = prediction_memory.load_memory(args.memory_dir)
-    payload = audit(records.to_dict("records"))
+    try:
+        records = prediction_memory.load_memory(args.memory_dir)
+        # DataFrame conversion represents absent outcomes as NaN. Only rows
+        # without an outcome event are pending; actual nonfinite outcomes stay invalid.
+        rows = records.to_dict("records")
+        for row in rows:
+            recorded = row.get("recorded_at")
+            if recorded is None or (isinstance(recorded, float) and math.isnan(recorded)):
+                if isinstance(row.get("actual_return"), float) and math.isnan(row["actual_return"]):
+                    row["actual_return"] = None
+        payload = audit(rows)
+    except ValueError as exc:
+        payload = audit([])
+        payload.update(status="INVALID_LEDGER", reason=str(exc))
     payload["generated_at"] = datetime.now(timezone.utc).isoformat()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(payload, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
