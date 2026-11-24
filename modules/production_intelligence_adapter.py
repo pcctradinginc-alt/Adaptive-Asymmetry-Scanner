@@ -259,12 +259,16 @@ _PROMPT_VERSION = None
 
 def kill_switch_active(path: Path | None = None) -> bool:
     """Globaler Not-Aus für jeden Produktionseinfluss (Abstinenz, Rerank, Score, Gewicht, Sizing).
-    Datei fehlt -> nicht aktiv (verifizierte Stufen wie bisher); `active: true` -> nur Champion;
+    Datei fehlt oder Schema ungültig -> AKTIV; `active: true` -> nur Champion;
     Datei unlesbar/defekt -> AKTIV (fail-safe: im Zweifel kein Einfluss)."""
     p = path or KILL_SWITCH
     try:
         import yaml
-        return bool((yaml.safe_load(p.read_text(encoding="utf-8")) or {}).get("active", False)) if p.exists() else False
+        data = yaml.safe_load(p.read_text(encoding="utf-8"))
+        if not isinstance(data, dict) or type(data.get("active")) is not bool:
+            log.error("Adapter: Kill-Switch-Schema ungültig – als AKTIV behandelt")
+            return True
+        return data["active"]
     except Exception as e:  # noqa: BLE001 – unlesbar: lieber sicher (aktiv) als still Einfluss zulassen
         log.error(f"Adapter: Kill-Switch-Datei unlesbar ({e}) – als AKTIV behandelt")
         return True

@@ -264,3 +264,26 @@ def test_existing_bid_ask_economics_is_used_not_theoretical_prices():
     assert sp["pnl_usd"] == 107.4
     adverse = oe.position_economics(long + [short], [exit_long, exit_short], rule, "ADVERSE")
     assert adverse["pnl_usd"] < sp["pnl_usd"]
+
+
+def test_open_mark_jobs_only_actual_bookings(account):
+    root, _, _, _ = account
+    activate(root)
+    assert pa.open_mark_jobs(root) == []
+    pa.sync(root, now=NOW, capture=True, persist_report=False)
+    assert pa.open_mark_jobs(root) == [("ALD-1", ["XYZ270116C00100000"])]
+
+
+def test_mark_rejects_leg_observed_before_booking(account, monkeypatch):
+    from modules import option_quotes as oq
+    root, _, _, _ = account
+    position = {"occurred_at": ENTRY.isoformat(), "exit_fee_per_contract_usd": 0.65,
+                "legs": [{"occ_symbol": "L", "side": "long"},
+                         {"occ_symbol": "S", "side": "short"}]}
+    def quote(ts, name):
+        return {"retrieved_at": ts, "source": "SYNTHETIC_TEST_ONLY",
+                "bid": 1.0, "ask": 1.1, "record_id": name}
+    monkeypatch.setattr(oq, "rth_quote_history", lambda *args, **kwargs: {
+        "L": [("2026-11-09", quote("2026-11-09T14:49:00+00:00", "l"))],
+        "S": [("2026-11-09", quote("2026-11-09T14:51:00+00:00", "s"))]})
+    assert pa._mark(root, position, NOW)["status"] == "NO_VERIFIED_MARK"
