@@ -287,3 +287,19 @@ def test_mark_rejects_leg_observed_before_booking(account, monkeypatch):
         "L": [("2026-11-09", quote("2026-11-09T14:49:00+00:00", "l"))],
         "S": [("2026-11-09", quote("2026-11-09T14:51:00+00:00", "s"))]})
     assert pa._mark(root, position, NOW)["status"] == "NO_VERIFIED_MARK"
+
+
+def test_daily_mark_targets_share_cap_and_prioritize_due_exits(account, monkeypatch):
+    root, _, _, _ = account
+    al = pa.al
+    monkeypatch.setattr(al, "configured", lambda root: True)
+    monkeypatch.setattr(al, "config", lambda root: {"enabled": True, "max_capture_symbols_per_run": 3})
+    decision = {"decision": "TRADE", "decision_id": "due", "exit_target_day": "2026-11-09",
+                "exit_deadline_day": "2026-11-10", "legs": [{"occ_symbol": "EXIT"}]}
+    monkeypatch.setattr(al, "_read_kind", lambda root, kind: ([decision] if kind == "decisions" else [], {}))
+    monkeypatch.setattr(pa, "open_mark_jobs", lambda root: [("spread", ["L", "S"]), ("extra", ["X"])])
+    targets = al.due_capture_targets(today=NOW.date(), root=root)
+    assert set(targets) == {"EXIT", "L", "S"}
+    monkeypatch.setattr(al, "config", lambda root: {"enabled": True, "max_capture_symbols_per_run": 2})
+    targets = al.due_capture_targets(today=NOW.date(), root=root)
+    assert set(targets) == {"EXIT", "X"}

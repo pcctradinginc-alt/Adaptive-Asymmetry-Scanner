@@ -19,7 +19,9 @@ UTC = timezone.utc
 @pytest.fixture(autouse=True)
 def _isolated(monkeypatch, tmp_path):
     monkeypatch.setattr(pc, "_safe_mode_state", lambda: {"active": False, "reasons": []})
-    monkeypatch.setattr(pia, "KILL_SWITCH", tmp_path / "kill_switch_missing.yaml")
+    switch = tmp_path / "kill_switch.yaml"
+    switch.write_text("active: false\n", encoding="utf-8")
+    monkeypatch.setattr(pia, "KILL_SWITCH", switch)
     monkeypatch.setattr(ml, "ROOT", tmp_path / "no_meta_model")
 
 
@@ -115,7 +117,7 @@ def test_apply_size_multiplier_never_increases(monkeypatch):
 # ── Kill-Switch ─────────────────────────────────────────────────────────────
 def test_kill_switch_file_states(tmp_path):
     ks = tmp_path / "ks.yaml"
-    assert pia.kill_switch_active(ks) is False                                        # fehlt -> aus
+    assert pia.kill_switch_active(ks) is True                                         # fehlt -> fail-closed
     ks.write_text("active: false\nreason: null\n")
     assert pia.kill_switch_active(ks) is False
     ks.write_text("active: true\nreason: Test\n")

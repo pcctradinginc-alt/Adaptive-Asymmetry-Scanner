@@ -32,7 +32,7 @@ def test_promotion_cap_defaults_to_abstention_and_unknown_to_none():
 
 
 def test_learning_defaults_without_artifacts(tmp_path):
-    assert pia.kill_switch_active(tmp_path / "fehlt.yaml") is False
+    assert pia.kill_switch_active(tmp_path / "fehlt.yaml") is True
     assert ml.status(tmp_path) == {"status": "NEVER_RUN"}
     assert ml.active_model(tmp_path) == (None, None)
     assert ml.predict_one({"impact": 5}, "BULLISH", root=tmp_path) is None

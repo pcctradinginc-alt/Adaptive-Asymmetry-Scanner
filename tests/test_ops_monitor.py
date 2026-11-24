@@ -1236,10 +1236,10 @@ def test_every_active_state_of_the_controller_except_full_is_justified(env):
 
 
 @pytest.mark.parametrize("content, active", [
-    (None, False),                                    # Datei fehlt -> nicht aktiv
+    (None, True),                                     # Datei fehlt -> fail-closed aktiv
     ("active: true\n", True),
     ("active: false\n", False),
-    ("{}\n", False),
+    ("{}\n", True),
     ("active: [unclosed\n", True),                    # defekt -> fail-safe AKTIV
     ("- 1\n- 2\n", True)])                            # falscher Typ -> fail-safe AKTIV
 def test_kill_switch_file(env, content, active):
