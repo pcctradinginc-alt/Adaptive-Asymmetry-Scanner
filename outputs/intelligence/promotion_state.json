@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-21T00:56:01+00:00",
+ "generated": "2026-11-24T02:30:42+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "71c8335c6b19",
+ "code_version": "68bf059cf1c6",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -254,7 +254,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Technology",
+    "dominant_sector_fired": "Financial Services",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -685,9 +685,9 @@
    "registered_at": "2026-10-03T20:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 19/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 1 Marktregime beobachtet; Ereignis-Cluster 19/80; Treffer-Cluster 0/15"
+    "NEED_MORE_DATA: n 50/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; Ereignis-Cluster 37/80; Treffer-Cluster 0/15"
    ],
-   "next_requirement": "n 19/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 1 Marktregime beobachtet; Ereignis-Cluster 19/80; Treffer-Cluster 0/15",
+   "next_requirement": "n 50/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; Ereignis-Cluster 37/80; Treffer-Cluster 0/15",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -702,74 +702,74 @@
     "stage": "FINAL_MC_SURVIVOR",
     "data_kind": "prospective_forward",
     "horizon_days": 45,
-    "n_observations": 19,
-    "n_independent_dates": 1,
-    "n_event_clusters": 19,
-    "calendar_span_days": 0,
+    "n_observations": 50,
+    "n_independent_dates": 4,
+    "n_event_clusters": 37,
+    "calendar_span_days": 3,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
+    "last_observation": "2026-10-09",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "n_fired_event_clusters": 0,
     "all": {
-     "n": 19,
-     "win_rate": 0.2632,
-     "average_return": -0.16332,
-     "median_return": -0.17722,
-     "expectancy": -0.16332,
-     "profit_factor": 0.188,
-     "max_drawdown": -3.4307,
-     "mfe": 0.1081,
-     "mae": -0.2262,
+     "n": 50,
+     "win_rate": 0.36,
+     "average_return": -0.11536,
+     "median_return": -0.09128,
+     "expectancy": -0.11536,
+     "profit_factor": 0.209,
+     "max_drawdown": -6.1503,
+     "mfe": 0.0947,
+     "mae": -0.185,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.47326
     },
     "fired": {
      "n": 0,
      "downside_tail_10pct": null
     },
     "not_fired": {
-     "n": 19,
-     "win_rate": 0.2632,
-     "average_return": -0.16332,
-     "median_return": -0.17722,
-     "expectancy": -0.16332,
-     "profit_factor": 0.188,
-     "max_drawdown": -3.4307,
-     "mfe": 0.1081,
-     "mae": -0.2262,
+     "n": 50,
+     "win_rate": 0.36,
+     "average_return": -0.11536,
+     "median_return": -0.09128,
+     "expectancy": -0.11536,
+     "profit_factor": 0.209,
+     "max_drawdown": -6.1503,
+     "mfe": 0.0947,
+     "mae": -0.185,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.47326
     },
     "policy": {
-     "n": 19,
-     "win_rate": 0.2632,
-     "average_return": -0.16332,
-     "median_return": -0.17722,
-     "expectancy": -0.16332,
-     "profit_factor": 0.188,
-     "max_drawdown": -3.4307,
-     "mfe": 0.1081,
-     "mae": -0.2262,
+     "n": 50,
+     "win_rate": 0.36,
+     "average_return": -0.11536,
+     "median_return": -0.09128,
+     "expectancy": -0.11536,
+     "profit_factor": 0.209,
+     "max_drawdown": -6.1503,
+     "mfe": 0.0947,
+     "mae": -0.185,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.47326
     },
     "delta_expectancy": 0.0,
     "triggered_minus_non_triggered": null,
     "ci_by_date": [
-     null,
-     null
+     0.0,
+     0.0
     ],
     "ci_by_cluster": [
      0.0,
      0.0
     ],
     "ci": [
-     null,
-     null
+     0.0,
+     0.0
     ],
     "outlier_trims": {
      "top1": 0.0,
@@ -777,11 +777,12 @@
      "top5pct": 0.0
     },
     "time_windows": [
-     null,
-     null,
+     0.0,
+     0.0,
      0.0
     ],
     "regimes": [
+     "vix_low",
      "vix_normal"
     ],
     "max_sector_share_fired": null,
@@ -795,7 +796,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 181,
+      "n": 183,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -835,9 +836,9 @@
    "registered_at": "2026-10-03T20:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 18/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 10/30; Treffer-Tage 1/10; nur 1 Marktregime beobachtet; Sektor Technology dominiert (80%) – nur sektor-gescopte neue Hypothese zulässig; Ereignis-Cluster 18/80; Treffer-Cluster 10/15"
+    "NEED_MORE_DATA: n 45/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 14/30; Treffer-Tage 4/10; Ereignis-Cluster 34/80; Treffer-Cluster 12/15"
    ],
-   "next_requirement": "n 18/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 10/30; Treffer-Tage 1/10; nur 1 Marktregime beobachtet; Sektor Technology dominiert (80%) – nur sektor-gescopte neue Hypothese zulässig; Ereignis-Cluster 18/80; Treffer-Cluster 10/15",
+   "next_requirement": "n 45/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 14/30; Treffer-Tage 4/10; Ereignis-Cluster 34/80; Treffer-Cluster 12/15",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -852,110 +853,111 @@
     "stage": "FINAL_MC_SURVIVOR",
     "data_kind": "prospective_forward",
     "horizon_days": 45,
-    "n_observations": 18,
-    "n_independent_dates": 1,
-    "n_event_clusters": 18,
-    "calendar_span_days": 0,
+    "n_observations": 45,
+    "n_independent_dates": 4,
+    "n_event_clusters": 34,
+    "calendar_span_days": 3,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
-    "n_fired": 10,
-    "n_fired_independent_dates": 1,
-    "n_fired_event_clusters": 10,
+    "last_observation": "2026-10-09",
+    "n_fired": 14,
+    "n_fired_independent_dates": 4,
+    "n_fired_event_clusters": 12,
     "all": {
-     "n": 18,
-     "win_rate": 0.2778,
-     "average_return": -0.15747,
-     "median_return": -0.14224,
-     "expectancy": -0.15747,
-     "profit_factor": 0.202,
-     "max_drawdown": -3.1619,
-     "mfe": 0.1109,
-     "mae": -0.2232,
+     "n": 45,
+     "win_rate": 0.4,
+     "average_return": -0.10323,
+     "median_return": -0.06537,
+     "expectancy": -0.10323,
+     "profit_factor": 0.248,
+     "max_drawdown": -5.0273,
+     "mfe": 0.0989,
+     "mae": -0.1726,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.48035
     },
     "fired": {
-     "n": 10,
-     "win_rate": 0.1,
-     "average_return": -0.2756,
-     "median_return": -0.29039,
-     "expectancy": -0.2756,
-     "profit_factor": 0.01,
-     "max_drawdown": -2.756,
-     "mfe": 0.0682,
-     "mae": -0.3059,
+     "n": 14,
+     "win_rate": 0.2143,
+     "average_return": -0.21163,
+     "median_return": -0.15472,
+     "expectancy": -0.21163,
+     "profit_factor": 0.012,
+     "max_drawdown": -2.9628,
+     "mfe": 0.0519,
+     "mae": -0.2533,
      "brier": null,
      "ece": null,
      "downside_tail_10pct": -0.50184
     },
     "not_fired": {
-     "n": 8,
-     "win_rate": 0.5,
-     "average_return": -0.0098,
-     "median_return": 0.01872,
-     "expectancy": -0.0098,
-     "profit_factor": 0.898,
-     "max_drawdown": -0.7685,
-     "mfe": 0.1642,
-     "mae": -0.1198,
+     "n": 31,
+     "win_rate": 0.4839,
+     "average_return": -0.05427,
+     "median_return": -0.02009,
+     "expectancy": -0.05427,
+     "profit_factor": 0.47,
+     "max_drawdown": -2.2469,
+     "mfe": 0.1202,
+     "mae": -0.1362,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.45583
     },
     "policy": {
-     "n": 8,
-     "win_rate": 0.5,
-     "average_return": -0.0098,
-     "median_return": 0.01872,
-     "expectancy": -0.0098,
-     "profit_factor": 0.898,
-     "max_drawdown": -0.7685,
-     "mfe": 0.1642,
-     "mae": -0.1198,
+     "n": 31,
+     "win_rate": 0.4839,
+     "average_return": -0.05427,
+     "median_return": -0.02009,
+     "expectancy": -0.05427,
+     "profit_factor": 0.47,
+     "max_drawdown": -2.2469,
+     "mfe": 0.1202,
+     "mae": -0.1362,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.45583
     },
-    "delta_expectancy": 0.14766,
-    "triggered_minus_non_triggered": -0.2658,
+    "delta_expectancy": 0.04896,
+    "triggered_minus_non_triggered": -0.15736,
     "ci_by_date": [
-     null,
-     null
-    ],
-    "ci_by_cluster": [
-     -0.09309,
-     0.44584
-    ],
-    "ci": [
-     null,
-     null
-    ],
-    "outlier_trims": {
-     "top1": 0.13151,
-     "top3": 0.09584,
-     "top5pct": 0.13151
-    },
-    "time_windows": [
-     null,
-     null,
+     -0.01744,
      0.14766
     ],
+    "ci_by_cluster": [
+     -0.0559,
+     0.1742
+    ],
+    "ci": [
+     -0.0559,
+     0.1742
+    ],
+    "outlier_trims": {
+     "top1": 0.0399,
+     "top3": 0.02903,
+     "top5pct": 0.02903
+    },
+    "time_windows": [
+     0.14766,
+     0.02171,
+     -0.00548
+    ],
     "regimes": [
+     "vix_low",
      "vix_normal"
     ],
-    "max_sector_share_fired": 0.8,
+    "max_sector_share_fired": 0.571,
     "dominant_sector_fired": "Technology",
     "abstention": {
-     "n_blocked": 10,
-     "avoided_loss_potential": 2.7826,
-     "missed_gain": 0.0267,
-     "net_value_of_abstention": 0.15311,
-     "precision": 0.9
+     "n_blocked": 14,
+     "avoided_loss_potential": 2.9994,
+     "missed_gain": 0.0366,
+     "net_value_of_abstention": 0.06584,
+     "precision": 0.7857
     },
     "secondary_horizons": {
      "20": {
-      "n": 168,
+      "n": 170,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -995,9 +997,9 @@
    "registered_at": "2026-10-03T20:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 19/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 1/30; Treffer-Tage 1/10; nur 1 Marktregime beobachtet; Sektor Consumer Cyclical dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig; Ereignis-Cluster 19/80; Treffer-Cluster 1/15"
+    "NEED_MORE_DATA: n 50/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 5/30; Treffer-Tage 4/10; Ereignis-Cluster 37/80; Treffer-Cluster 3/15"
    ],
-   "next_requirement": "n 19/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 1/30; Treffer-Tage 1/10; nur 1 Marktregime beobachtet; Sektor Consumer Cyclical dominiert (100%) – nur sektor-gescopte neue Hypothese zulässig; Ereignis-Cluster 19/80; Treffer-Cluster 1/15",
+   "next_requirement": "n 50/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 5/30; Treffer-Tage 4/10; Ereignis-Cluster 37/80; Treffer-Cluster 3/15",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -1012,110 +1014,111 @@
     "stage": "FINAL_MC_SURVIVOR",
     "data_kind": "prospective_forward",
     "horizon_days": 45,
-    "n_observations": 19,
-    "n_independent_dates": 1,
-    "n_event_clusters": 19,
-    "calendar_span_days": 0,
+    "n_observations": 50,
+    "n_independent_dates": 4,
+    "n_event_clusters": 37,
+    "calendar_span_days": 3,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
-    "n_fired": 1,
-    "n_fired_independent_dates": 1,
-    "n_fired_event_clusters": 1,
+    "last_observation": "2026-10-09",
+    "n_fired": 5,
+    "n_fired_independent_dates": 4,
+    "n_fired_event_clusters": 3,
     "all": {
-     "n": 19,
-     "win_rate": 0.2632,
-     "average_return": -0.16332,
-     "median_return": -0.17722,
-     "expectancy": -0.16332,
-     "profit_factor": 0.188,
-     "max_drawdown": -3.4307,
-     "mfe": 0.1081,
-     "mae": -0.2262,
+     "n": 50,
+     "win_rate": 0.36,
+     "average_return": -0.11536,
+     "median_return": -0.09128,
+     "expectancy": -0.11536,
+     "profit_factor": 0.209,
+     "max_drawdown": -6.1503,
+     "mfe": 0.0947,
+     "mae": -0.185,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.47326
     },
     "fired": {
-     "n": 1,
-     "win_rate": 1.0,
-     "average_return": 0.02666,
-     "median_return": 0.02666,
-     "expectancy": 0.02666,
-     "profit_factor": null,
-     "max_drawdown": 0.0,
-     "mfe": 0.1854,
-     "mae": -0.0564,
+     "n": 5,
+     "win_rate": 0.4,
+     "average_return": -0.08017,
+     "median_return": -0.13241,
+     "expectancy": -0.08017,
+     "profit_factor": 0.078,
+     "max_drawdown": -0.4275,
+     "mfe": 0.1023,
+     "mae": -0.1307,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": null
+     "downside_tail_10pct": -0.15147
     },
     "not_fired": {
-     "n": 18,
-     "win_rate": 0.2222,
-     "average_return": -0.17388,
-     "median_return": -0.17981,
-     "expectancy": -0.17388,
-     "profit_factor": 0.181,
-     "max_drawdown": -3.4574,
-     "mfe": 0.1038,
-     "mae": -0.2356,
+     "n": 45,
+     "win_rate": 0.3556,
+     "average_return": -0.11927,
+     "median_return": -0.08976,
+     "expectancy": -0.11927,
+     "profit_factor": 0.218,
+     "max_drawdown": -5.7495,
+     "mfe": 0.0938,
+     "mae": -0.191,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.48035
     },
     "policy": {
-     "n": 18,
-     "win_rate": 0.2222,
-     "average_return": -0.17388,
-     "median_return": -0.17981,
-     "expectancy": -0.17388,
-     "profit_factor": 0.181,
-     "max_drawdown": -3.4574,
-     "mfe": 0.1038,
-     "mae": -0.2356,
+     "n": 45,
+     "win_rate": 0.3556,
+     "average_return": -0.11927,
+     "median_return": -0.08976,
+     "expectancy": -0.11927,
+     "profit_factor": 0.218,
+     "max_drawdown": -5.7495,
+     "mfe": 0.0938,
+     "mae": -0.191,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.48035
     },
-    "delta_expectancy": -0.01055,
-    "triggered_minus_non_triggered": 0.20054,
+    "delta_expectancy": -0.00391,
+    "triggered_minus_non_triggered": 0.0391,
     "ci_by_date": [
-     null,
-     null
+     -0.01055,
+     0.02439
     ],
     "ci_by_cluster": [
-     -0.09701,
-     0.0
+     -0.03533,
+     0.02239
     ],
     "ci": [
-     null,
-     null
+     -0.03533,
+     0.02439
     ],
     "outlier_trims": {
-     "top1": -0.01264,
-     "top3": -0.01734,
-     "top5pct": -0.01264
+     "top1": -0.00493,
+     "top3": -0.00666,
+     "top5pct": -0.00666
     },
     "time_windows": [
-     null,
-     null,
-     -0.01055
+     -0.01055,
+     0.02439,
+     0.00146
     ],
     "regimes": [
+     "vix_low",
      "vix_normal"
     ],
-    "max_sector_share_fired": 1.0,
-    "dominant_sector_fired": "Consumer Cyclical",
+    "max_sector_share_fired": 0.6,
+    "dominant_sector_fired": "Energy",
     "abstention": {
-     "n_blocked": 1,
-     "avoided_loss_potential": 0,
-     "missed_gain": 0.0267,
-     "net_value_of_abstention": -0.0014,
-     "precision": 0.0
+     "n_blocked": 5,
+     "avoided_loss_potential": 0.4347,
+     "missed_gain": 0.0339,
+     "net_value_of_abstention": 0.00802,
+     "precision": 0.6
     },
     "secondary_horizons": {
      "20": {
-      "n": 181,
+      "n": 183,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -1155,9 +1158,9 @@
    "registered_at": "2026-10-03T20:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 18/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 10/30; Treffer-Tage 1/10; nur 1 Marktregime beobachtet; Sektor Technology dominiert (80%) – nur sektor-gescopte neue Hypothese zulässig; Ereignis-Cluster 18/80; Treffer-Cluster 10/15"
+    "NEED_MORE_DATA: n 45/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 16/30; Treffer-Tage 4/10; Sektor Technology dominiert (75%) – nur sektor-gescopte neue Hypothese zulässig; Ereignis-Cluster 34/80; Treffer-Cluster 14/15"
    ],
-   "next_requirement": "n 18/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 10/30; Treffer-Tage 1/10; nur 1 Marktregime beobachtet; Sektor Technology dominiert (80%) – nur sektor-gescopte neue Hypothese zulässig; Ereignis-Cluster 18/80; Treffer-Cluster 10/15",
+   "next_requirement": "n 45/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 16/30; Treffer-Tage 4/10; Sektor Technology dominiert (75%) – nur sektor-gescopte neue Hypothese zulässig; Ereignis-Cluster 34/80; Treffer-Cluster 14/15",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -1172,110 +1175,111 @@
     "stage": "FINAL_MC_SURVIVOR",
     "data_kind": "prospective_forward",
     "horizon_days": 45,
-    "n_observations": 18,
-    "n_independent_dates": 1,
-    "n_event_clusters": 18,
-    "calendar_span_days": 0,
+    "n_observations": 45,
+    "n_independent_dates": 4,
+    "n_event_clusters": 34,
+    "calendar_span_days": 3,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
-    "n_fired": 10,
-    "n_fired_independent_dates": 1,
-    "n_fired_event_clusters": 10,
+    "last_observation": "2026-10-09",
+    "n_fired": 16,
+    "n_fired_independent_dates": 4,
+    "n_fired_event_clusters": 14,
     "all": {
-     "n": 18,
-     "win_rate": 0.2778,
-     "average_return": -0.15747,
-     "median_return": -0.14224,
-     "expectancy": -0.15747,
-     "profit_factor": 0.202,
-     "max_drawdown": -3.1619,
-     "mfe": 0.1109,
-     "mae": -0.2232,
+     "n": 45,
+     "win_rate": 0.4,
+     "average_return": -0.10323,
+     "median_return": -0.06537,
+     "expectancy": -0.10323,
+     "profit_factor": 0.248,
+     "max_drawdown": -5.0273,
+     "mfe": 0.0989,
+     "mae": -0.1726,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.48035
     },
     "fired": {
-     "n": 10,
+     "n": 16,
      "win_rate": 0.0,
-     "average_return": -0.32627,
-     "median_return": -0.40496,
-     "expectancy": -0.32627,
+     "average_return": -0.30585,
+     "median_return": -0.33857,
+     "expectancy": -0.30585,
      "profit_factor": 0.0,
-     "max_drawdown": -3.2627,
-     "mfe": 0.0479,
-     "mae": -0.3544,
+     "max_drawdown": -4.8936,
+     "mfe": 0.0374,
+     "mae": -0.3572,
      "brier": null,
      "ece": null,
      "downside_tail_10pct": -0.5186
     },
     "not_fired": {
-     "n": 8,
-     "win_rate": 0.625,
-     "average_return": 0.05353,
-     "median_return": 0.04278,
-     "expectancy": 0.05353,
-     "profit_factor": 2.485,
-     "max_drawdown": -0.2885,
-     "mfe": 0.1896,
-     "mae": -0.0592,
+     "n": 29,
+     "win_rate": 0.6207,
+     "average_return": 0.00857,
+     "median_return": 0.00856,
+     "expectancy": 0.00857,
+     "profit_factor": 1.194,
+     "max_drawdown": -0.3564,
+     "mfe": 0.1329,
+     "mae": -0.0708,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.21577
+     "downside_tail_10pct": -0.22434
     },
     "policy": {
-     "n": 8,
-     "win_rate": 0.625,
-     "average_return": 0.05353,
-     "median_return": 0.04278,
-     "expectancy": 0.05353,
-     "profit_factor": 2.485,
-     "max_drawdown": -0.2885,
-     "mfe": 0.1896,
-     "mae": -0.0592,
+     "n": 29,
+     "win_rate": 0.6207,
+     "average_return": 0.00857,
+     "median_return": 0.00856,
+     "expectancy": 0.00857,
+     "profit_factor": 1.194,
+     "max_drawdown": -0.3564,
+     "mfe": 0.1329,
+     "mae": -0.0708,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.21577
+     "downside_tail_10pct": -0.22434
     },
-    "delta_expectancy": 0.211,
-    "triggered_minus_non_triggered": -0.3798,
+    "delta_expectancy": 0.11179,
+    "triggered_minus_non_triggered": -0.31442,
     "ci_by_date": [
-     null,
-     null
-    ],
-    "ci_by_cluster": [
-     0.02576,
-     0.47934
-    ],
-    "ci": [
-     null,
-     null
-    ],
-    "outlier_trims": {
-     "top1": 0.20389,
-     "top3": 0.16034,
-     "top5pct": 0.20389
-    },
-    "time_windows": [
-     null,
-     null,
+     0.02171,
      0.211
     ],
+    "ci_by_cluster": [
+     0.03196,
+     0.25135
+    ],
+    "ci": [
+     0.02171,
+     0.25135
+    ],
+    "outlier_trims": {
+     "top1": 0.10235,
+     "top3": 0.09177,
+     "top5pct": 0.09177
+    },
+    "time_windows": [
+     0.211,
+     0.02171,
+     0.06205
+    ],
     "regimes": [
+     "vix_low",
      "vix_normal"
     ],
-    "max_sector_share_fired": 0.8,
+    "max_sector_share_fired": 0.75,
     "dominant_sector_fired": "Technology",
     "abstention": {
-     "n_blocked": 10,
-     "avoided_loss_potential": 3.2627,
+     "n_blocked": 16,
+     "avoided_loss_potential": 4.8936,
      "missed_gain": 0,
-     "net_value_of_abstention": 0.18126,
+     "net_value_of_abstention": 0.10875,
      "precision": 1.0
     },
     "secondary_horizons": {
      "20": {
-      "n": 168,
+      "n": 170,
       "fired_expectancy": NaN,
       "non_fired_expectancy": NaN
      },
@@ -1315,9 +1319,9 @@
    "registered_at": "2026-10-03T20:00:00Z",
    "decision": "KEEP_SHADOW",
    "reasons": [
-    "NEED_MORE_DATA: n 19/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 1 Marktregime beobachtet; Ereignis-Cluster 19/80; Treffer-Cluster 0/15"
+    "NEED_MORE_DATA: n 50/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; Ereignis-Cluster 37/80; Treffer-Cluster 0/15"
    ],
-   "next_requirement": "n 19/150; unabhängige Tage 1/30; Kalenderspanne 0/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; nur 1 Marktregime beobachtet; Ereignis-Cluster 19/80; Treffer-Cluster 0/15",
+   "next_requirement": "n 50/150; unabhängige Tage 4/30; Kalenderspanne 3/90 T; Regel-Treffer 0/30; Treffer-Tage 0/10; Ereignis-Cluster 37/80; Treffer-Cluster 0/15",
    "recommendation": null,
    "looks_used": 0,
    "multiple_testing": {
@@ -1332,74 +1336,74 @@
     "stage": "FINAL_MC_SURVIVOR",
     "data_kind": "prospective_forward",
     "horizon_days": 45,
-    "n_observations": 19,
-    "n_independent_dates": 1,
-    "n_event_clusters": 19,
-    "calendar_span_days": 0,
+    "n_observations": 50,
+    "n_independent_dates": 4,
+    "n_event_clusters": 37,
+    "calendar_span_days": 3,
     "first_observation": "2026-10-06",
-    "last_observation": "2026-10-06",
+    "last_observation": "2026-10-09",
     "n_fired": 0,
     "n_fired_independent_dates": 0,
     "n_fired_event_clusters": 0,
     "all": {
-     "n": 19,
-     "win_rate": 0.2632,
-     "average_return": -0.16332,
-     "median_return": -0.17722,
-     "expectancy": -0.16332,
-     "profit_factor": 0.188,
-     "max_drawdown": -3.4307,
-     "mfe": 0.1081,
-     "mae": -0.2262,
+     "n": 50,
+     "win_rate": 0.36,
+     "average_return": -0.11536,
+     "median_return": -0.09128,
+     "expectancy": -0.11536,
+     "profit_factor": 0.209,
+     "max_drawdown": -6.1503,
+     "mfe": 0.0947,
+     "mae": -0.185,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.47326
     },
     "fired": {
      "n": 0,
      "downside_tail_10pct": null
     },
     "not_fired": {
-     "n": 19,
-     "win_rate": 0.2632,
-     "average_return": -0.16332,
-     "median_return": -0.17722,
-     "expectancy": -0.16332,
-     "profit_factor": 0.188,
-     "max_drawdown": -3.4307,
-     "mfe": 0.1081,
-     "mae": -0.2262,
+     "n": 50,
+     "win_rate": 0.36,
+     "average_return": -0.11536,
+     "median_return": -0.09128,
+     "expectancy": -0.11536,
+     "profit_factor": 0.209,
+     "max_drawdown": -6.1503,
+     "mfe": 0.0947,
+     "mae": -0.185,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.47326
     },
     "policy": {
-     "n": 19,
-     "win_rate": 0.2632,
-     "average_return": -0.16332,
-     "median_return": -0.17722,
-     "expectancy": -0.16332,
-     "profit_factor": 0.188,
-     "max_drawdown": -3.4307,
-     "mfe": 0.1081,
-     "mae": -0.2262,
+     "n": 50,
+     "win_rate": 0.36,
+     "average_return": -0.11536,
+     "median_return": -0.09128,
+     "expectancy": -0.11536,
+     "profit_factor": 0.209,
+     "max_drawdown": -6.1503,
+     "mfe": 0.0947,
+     "mae": -0.185,
      "brier": null,
      "ece": null,
-     "downside_tail_10pct": -0.5186
+     "downside_tail_10pct": -0.47326
     },
     "delta_expectancy": 0.0,
     "triggered_minus_non_triggered": null,
     "ci_by_date": [
-     null,
-     null
+     0.0,
+     0.0
     ],
     "ci_by_cluster": [
      0.0,
      0.0
     ],
     "ci": [
-     null,
-     null
+     0.0,
+     0.0
     ],
     "outlier_trims": {
      "top1": 0.0,
@@ -1407,11 +1411,12 @@
      "top5pct": 0.0
     },
     "time_windows": [
-     null,
-     null,
+     0.0,
+     0.0,
      0.0
     ],
     "regimes": [
+     "vix_low",
      "vix_normal"
     ],
     "max_sector_share_fired": null,
@@ -1425,7 +1430,7 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 164,
+      "n": 166,
       "fired_expectancy": null,
       "non_fired_expectancy": NaN
      },
@@ -1924,9 +1929,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 474,
-      "fired_expectancy": -0.03174,
-      "non_fired_expectancy": 0.0293
+      "n": 509,
+      "fired_expectancy": -0.03485,
+      "non_fired_expectancy": 0.02962
      },
      "120": {
       "n": 0,
@@ -2032,9 +2037,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 436,
-      "fired_expectancy": 0.03363,
-      "non_fired_expectancy": -0.00226
+      "n": 468,
+      "fired_expectancy": 0.02978,
+      "non_fired_expectancy": -0.00448
      },
      "120": {
       "n": 0,
@@ -2140,9 +2145,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 241,
+      "n": 262,
       "fired_expectancy": null,
-      "non_fired_expectancy": -0.03174
+      "non_fired_expectancy": -0.03485
      },
      "120": {
       "n": 0,
@@ -2336,9 +2341,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 430,
-      "fired_expectancy": -0.08758,
-      "non_fired_expectancy": 0.02671
+      "n": 461,
+      "fired_expectancy": -0.09142,
+      "non_fired_expectancy": 0.02717
      },
      "120": {
       "n": 0,
@@ -2451,9 +2456,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 478,
-      "fired_expectancy": 0.00615,
-      "non_fired_expectancy": -0.08044
+      "n": 513,
+      "fired_expectancy": 0.00432,
+      "non_fired_expectancy": -0.08079
      },
      "120": {
       "n": 0,
@@ -2650,8 +2655,8 @@
  "safe_mode": {
   "active": true,
   "reasons": [
-   "MODEL: EXCESSIVE MODEL DISAGREEMENT",
-   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-7.70"
+   "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-4.81",
+   "DRIFT: FEATURE DRIFT SEVERE: ['vix', 'vix_chg_21', 'tnx']"
   ]
  },
  "multiple_testing": {
@@ -2738,5 +2743,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "745ecc7d9053bf18938d15ab3b51d676407bfcb8dad4e5cc52dd6c7a34cb21cd"
+ "state_hash": "4d7cc865c1735814c264170023f4ca247051d7d580d2472c4d2a8eddd2876086"
 }

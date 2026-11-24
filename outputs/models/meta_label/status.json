@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-21T00:56:00+00:00",
- "as_of": "2026-11-21",
+ "generated": "2026-11-24T02:30:41+00:00",
+ "as_of": "2026-11-24",
  "spec_hash": "68d6d2eafa354139d66544c0f183964095f3fc25f1aa94508b297b5bd4432f6a",
  "n_labels": 235,
  "n_label_dates": 18,
@@ -12,7 +12,7 @@
  "population_shift": {
   "status": "OK",
   "n_target": 241,
-  "n_other": 814,
+  "n_other": 815,
   "n_shifted": 10,
   "shifted": [
    "final_mc_hit_rate",
@@ -29,7 +29,7 @@
   "top": [
    {
     "feature": "ml_q10_ret_60",
-    "smd": -1.249,
+    "smd": -1.248,
     "missing_target": 0.12,
     "missing_other": 0.052
    },
@@ -41,37 +41,37 @@
    },
    {
     "feature": "ml_exp_ret_60",
-    "smd": 0.959,
+    "smd": 0.941,
     "missing_target": 0.12,
     "missing_other": 0.052
    },
    {
     "feature": "ml_exp_dd_60",
-    "smd": -0.469,
+    "smd": -0.465,
     "missing_target": 0.12,
     "missing_other": 0.052
    },
    {
     "feature": "sentiment_score",
-    "smd": 0.39,
+    "smd": 0.388,
     "missing_target": 0.062,
     "missing_other": 0.025
    },
    {
     "feature": "ml_disagreement_sd",
-    "smd": 0.244,
+    "smd": 0.242,
     "missing_target": 0.12,
     "missing_other": 0.052
    },
    {
     "feature": "sentiment_drift",
-    "smd": 0.217,
+    "smd": 0.216,
     "missing_target": 0.062,
     "missing_other": 0.025
    },
    {
     "feature": "impact",
-    "smd": 0.166,
+    "smd": 0.167,
     "missing_target": 0.0,
     "missing_other": 0.0
    }
