@@ -941,12 +941,29 @@ def due_capture_targets(*, today: date, root: Path = Path(".")) -> dict[str, dat
     jobs.sort()
     budget = int(cfg["max_capture_symbols_per_run"])
     out: dict[str, datetime] = {}
+    # Paper NAV needs daily marks, not only quotes near a research exit horizon.
+    # Share the EXISTING research capture cap; never add another quote budget.
+    # Whole positions only. Corrupt account state must not stop research exits.
+    try:
+        from . import paper_account
+        paper_jobs = paper_account.open_mark_jobs(root) if (root / paper_account.CONFIG).exists() else []
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        import logging
+        logging.getLogger(__name__).warning("Paper mark inventory unavailable: %s", exc)
+        paper_jobs = []
+    # Due exits take precedence over daily indicative marks.
     for _, _, legs, target in jobs:
         add = set(legs) - set(out)
         if len(out) + len(add) > budget:
             continue
         for sym in legs:
             start = _ny_midnight_utc(target)
+            out[sym] = max(out.get(sym, start), start)
+    for _, legs in paper_jobs:
+        if len(set(out) | set(legs)) > budget:
+            continue
+        for sym in legs:
+            start = _ny_midnight_utc(today)
             out[sym] = max(out.get(sym, start), start)
     return out
 

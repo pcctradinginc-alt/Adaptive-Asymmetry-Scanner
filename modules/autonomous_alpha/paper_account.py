@@ -345,6 +345,16 @@ def _close(root: Path, data: dict, cfg: dict, current: dict) -> int:
     return written
 
 
+def open_mark_jobs(root: Path = Path(".")) -> list[tuple[str, list[str]]]:
+    """Read-only inventory of actual open virtual positions, whole leg sets."""
+    cfg = policy(root)
+    if not cfg["enabled"]:
+        return []
+    current = _replay(events(root), cfg)
+    return sorted((p["decision_id"], [leg["occ_symbol"] for leg in p["legs"]])
+                  for p in current["positions"].values() if p["status"] == "OPEN")
+
+
 def _mark(root: Path, position: dict, as_of: datetime) -> dict:
     """Observed same-day, near-synchronous leg prices only; no model fallback."""
     from modules import option_quotes as oq
@@ -365,7 +375,7 @@ def _mark(root: Path, position: dict, as_of: datetime) -> dict:
         times = [_utc(r["retrieved_at"]) for r in records]
         if (max(times) - min(times)).total_seconds() > 900:
             continue
-        if max(times) < _utc(position["occurred_at"]):
+        if min(times) < _utc(position["occurred_at"]):
             continue
         value = sum((_amount(r["bid"]) if leg["side"] == "long" else -_amount(r["ask"])) * MULTIPLIER
                     for leg, r in zip(legs, records))

@@ -40,6 +40,8 @@ def quote(root: Path, sym: str, at: str, bid: float, ask: float) -> None:
 @pytest.fixture
 def archive(tmp_path, monkeypatch):
     root = tmp_path / "quotes"
+    from modules.autonomous_alpha import paper_account
+    monkeypatch.setattr(paper_account, "open_mark_jobs", lambda root: [])
     monkeypatch.setattr(oq, "ROOT", root)
     monkeypatch.setattr(ms, "fetch_option_quotes",                    # außerhalb der Sitzung nie live abrufen
                         lambda *a, **k: pytest.fail("Live-Abruf außerhalb der Sitzung"))
