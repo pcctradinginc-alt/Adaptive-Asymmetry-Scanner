@@ -48,6 +48,7 @@ import numpy as np
 from scipy.stats import norm as _scipy_norm
 import yfinance as yf
 from functools import lru_cache
+from datetime import date, datetime, timedelta, timezone
 
 log = logging.getLogger(__name__)
 
@@ -254,6 +255,42 @@ def _compute_dynamic_target(current: float, sigma: float, days: int) -> float:
     return current * (1.0 + target_pct)
 
 
+def trading_steps(as_of: date, calendar_days: int) -> int:
+    """Count NYSE sessions after the signal day through calendar expiry inclusive."""
+    from modules.market_snapshot import is_trading_day
+    if type(calendar_days) is not int or calendar_days < 1:
+        raise ValueError("positive integer calendar DTE required")
+    return sum(is_trading_day(as_of + timedelta(days=i)) for i in range(1, calendar_days + 1))
+
+
+def paired_time_scale_shadow(current, sigma, alpha, decay, calendar_days, n_paths, *, as_of, seed, cap, threshold):
+    """Paired, reproducible research-only comparison using common random numbers.
+    The legacy comparison here is a fresh paired control, not the historical
+    Champion draw (which uses early termination and a different RNG layout).
+    """
+    steps = trading_steps(as_of, calendar_days)
+    old_target = _compute_dynamic_target(current, sigma, calendar_days)
+    new_target = _compute_dynamic_target(current, sigma, steps)
+    rng = np.random.default_rng(seed)
+    old_hits = new_hits = 0
+    # Bounded memory; no additional data or network calls.
+    for start in range(0, n_paths, 256):
+        n = min(256, n_paths-start)
+        returns = alpha * np.exp(-decay*np.arange(calendar_days)) + sigma*rng.standard_normal((n,calendar_days))
+        prices = current*np.cumprod(1+returns,axis=1)
+        old_hits += int((prices>=old_target).any(axis=1).sum())
+        if steps:
+            new_hits += int((prices[:,:steps]>=new_target).any(axis=1).sum())
+    old, new = old_hits/n_paths, new_hits/n_paths
+    return {"version":"paired-nyse-shadow-v1","production_influence":"NONE",
+            "as_of":as_of.isoformat(),"calendar_days":calendar_days,"trading_steps":steps,
+            "calendar_target":old_target,"trading_target":new_target,
+            "calendar_hit_rate_uncapped":old,"trading_hit_rate_uncapped":new,
+            "calendar_hit_rate":min(old,cap),"trading_hit_rate":min(new,cap),
+            "calendar_pass":min(old,cap)>=threshold,"trading_pass":min(new,cap)>=threshold,
+            "threshold":threshold,"seed":seed,"n_paths":n_paths}
+
+
 class MirofishSimulation:
 
     def __init__(self):
@@ -368,6 +405,16 @@ class MirofishSimulation:
             log.debug(f"  [{ticker}] V4-Shadow Fehler (ignoriert): {e}")
             shadow_v4 = None
 
+        try:
+            from modules.market_snapshot import NY_TZ
+            signal_day = candidate.get("signal_date") or candidate.get("scan_date")
+            as_of = date.fromisoformat(str(signal_day)[:10]) if signal_day else datetime.now(timezone.utc).astimezone(NY_TZ).date()
+            paired_shadow = paired_time_scale_shadow(current, sigma, base_alpha, decay_rate,
+                days_to_expiry, n_paths, as_of=as_of, seed=seed, cap=hit_rate_cap, threshold=threshold)
+        except Exception as e:
+            log.warning("paired MC shadow unavailable: %s", type(e).__name__)
+            paired_shadow = {"status":"UNAVAILABLE","production_influence":"NONE"}
+
         log.info(
             f"  [{ticker}] Simulation ({days_to_expiry}d, {n_paths} Pfade): "
             f"Hit={hit_rate:.1%} ±{stderr:.1%} "
@@ -392,6 +439,7 @@ class MirofishSimulation:
                 "sigma_source":  sigma_source,
                 "alpha":         round(base_alpha, 5),
                 "shadow_v4":     shadow_v4,
+                "paired_time_scale_shadow": paired_shadow,
             }
         }
 
