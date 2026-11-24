@@ -243,7 +243,7 @@ def main(argv=None) -> int:
             and (res.get("alpha_link") or {}).get("status") != "ERROR":
         try:
             from modules.autonomous_alpha import paper_account
-            res["paper_account"] = paper_account.sync(capture=True, persist_report=False)
+            res["paper_account"] = paper_account.sync(capture=True, persist_report=True)
         except Exception as exc:  # noqa: BLE001
             log.exception("virtual paper account failed; quote archive is preserved")
             res["paper_account"] = {"status": "ERROR", "error": f"{type(exc).__name__}: {exc}"[:300]}

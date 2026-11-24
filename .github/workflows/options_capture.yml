@@ -57,7 +57,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          bash scripts/ci_push.sh "chore: options capture $(date -u +%Y-%m-%dT%H:%M)" outputs/options_archive/ outputs/research/autonomous_alpha/option_link/ outputs/research/autonomous_alpha/option_link.json
+          bash scripts/ci_push.sh "chore: options capture $(date -u +%Y-%m-%dT%H:%M)" outputs/options_archive/ outputs/research/autonomous_alpha/option_link/ outputs/research/autonomous_alpha/option_link.json outputs/research/paper_account/account.json
 
       - name: Daten-Sicherung als Artefakt (nur nach Fehler)
         if: failure()
@@ -70,3 +70,4 @@ jobs:
             outputs/options_archive/
             outputs/research/autonomous_alpha/option_link/
             outputs/research/autonomous_alpha/option_link.json
+            outputs/research/paper_account/account.json
