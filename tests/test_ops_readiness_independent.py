@@ -1471,6 +1471,7 @@ def test_options_capture_eigene_concurrency_gruppe_und_nur_archiv_push():
         "outputs/options_archive/",
         "outputs/research/autonomous_alpha/option_link/",
         "outputs/research/autonomous_alpha/option_link.json",
+        "outputs/research/paper_account/account.json",
     ]
     assert doc["permissions"] == {"contents": "write"}
 
@@ -1496,6 +1497,7 @@ def test_options_capture_fehlerpfad_artefakt_nur_archiv():
         "outputs/options_archive/",
         "outputs/research/autonomous_alpha/option_link/",
         "outputs/research/autonomous_alpha/option_link.json",
+        "outputs/research/paper_account/account.json",
     ]
 
 
