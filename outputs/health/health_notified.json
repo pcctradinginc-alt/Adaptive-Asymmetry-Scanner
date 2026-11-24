@@ -1,12 +1,12 @@
 {
- "at": "2026-11-23T18:25:53+00:00",
+ "at": "2026-11-24T00:18:27+00:00",
  "changes": [
   {
-   "source_id": "nasdaq100_members",
-   "type": "recovery",
-   "from": "DEGRADED",
-   "to": "HEALTHY",
-   "error": null
+   "source_id": "finra_short_interest",
+   "type": "degradation",
+   "from": "HEALTHY",
+   "to": "STALE",
+   "error": "veraltet (Frequenz-Grenze der Registry)"
   }
  ],
  "mail": "sent"
