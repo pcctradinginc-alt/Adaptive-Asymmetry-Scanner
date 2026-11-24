@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-11-23T18:23:55+00:00",
+  "measured_at": "2026-11-24T11:41:09+00:00",
   "total_bytes_per_day": 131000487.0,
   "one_off_backfill_bytes": 1172927917,
   "projections_bytes": {
@@ -231,11 +231,11 @@
       "normalized_bytes_per_day": 0.0
     },
     "imf_portwatch_disruptions": {
-      "retrieval_days": 49,
+      "retrieval_days": 50,
       "rows": 944,
       "one_off_backfill_bytes": 747526,
-      "raw_bytes_per_day": 0.0,
-      "normalized_bytes_per_day": 0.0
+      "raw_bytes_per_day": 0,
+      "normalized_bytes_per_day": 0
     },
     "imf_portwatch_ports": {
       "retrieval_days": 44,
