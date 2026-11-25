@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-25T00:00:24+00:00",
+ "generated": "2026-11-25T03:08:17+00:00",
  "policy_version": "promo-v1",
  "policy_hash": "3c13594cc843f89d",
  "max_automatic_influence": "ABSTENTION_ONLY",
- "code_version": "bfc7de6c0c05",
+ "code_version": "d627d98f7ec0",
  "data_version": "7855256418e9709b",
  "integrity": {
   "registry": [],
@@ -254,7 +254,7 @@
      "vix_normal"
     ],
     "max_sector_share_fired": 0.5,
-    "dominant_sector_fired": "Technology",
+    "dominant_sector_fired": "Financial Services",
     "abstention": {
      "n_blocked": 2,
      "blocked_trade_win_rate": 0.0,
@@ -1929,9 +1929,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 509,
-      "fired_expectancy": -0.03485,
-      "non_fired_expectancy": 0.02962
+      "n": 537,
+      "fired_expectancy": -0.03842,
+      "non_fired_expectancy": 0.02666
      },
      "120": {
       "n": 0,
@@ -2037,9 +2037,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 468,
-      "fired_expectancy": 0.02978,
-      "non_fired_expectancy": -0.00448
+      "n": 493,
+      "fired_expectancy": 0.02905,
+      "non_fired_expectancy": -0.0089
      },
      "120": {
       "n": 0,
@@ -2145,9 +2145,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 262,
+      "n": 283,
       "fired_expectancy": null,
-      "non_fired_expectancy": -0.03485
+      "non_fired_expectancy": -0.03842
      },
      "120": {
       "n": 0,
@@ -2341,9 +2341,9 @@
     "dominant_sector_fired": null,
     "secondary_horizons": {
      "20": {
-      "n": 461,
-      "fired_expectancy": -0.09142,
-      "non_fired_expectancy": 0.02717
+      "n": 485,
+      "fired_expectancy": -0.09692,
+      "non_fired_expectancy": 0.02472
      },
      "120": {
       "n": 0,
@@ -2456,9 +2456,9 @@
     },
     "secondary_horizons": {
      "20": {
-      "n": 513,
-      "fired_expectancy": 0.00432,
-      "non_fired_expectancy": -0.08079
+      "n": 541,
+      "fired_expectancy": 0.00318,
+      "non_fired_expectancy": -0.09408
      },
      "120": {
       "n": 0,
@@ -2743,5 +2743,5 @@
   "n_resolved_decisions": 3,
   "n_excluded_approximate_outcomes": 0
  },
- "state_hash": "1a32706a04afbf1af3f7c23edc8899f661f0694f7ffb11e1b0c1ddf9f466d627"
+ "state_hash": "384172b64ab2fefc02bd814b8256d965e9d7fdb86692776d2301ac501e30ddcd"
 }
