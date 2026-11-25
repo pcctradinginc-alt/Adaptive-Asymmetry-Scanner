@@ -1,0 +1,286 @@
+{
+  "date": "2026-11-25",
+  "stats": {
+    "vix": 30.8700008392334,
+    "universe": 518,
+    "candidates": 0,
+    "prescreened": 0,
+    "sector_ok": 0,
+    "pre_mc": 0,
+    "analyzed": 0,
+    "mismatch_ok": 0,
+    "quick_mc": 0,
+    "intraday_ok": 0,
+    "final_mc": 0,
+    "final_selected": 0,
+    "roi_ok": 0,
+    "trades": 0,
+    "stop_reason": "Keine Kandidaten nach Hard-Filter.",
+    "cost_budget": {
+      "level": "OK",
+      "week_usd": 0.1187,
+      "month_usd": 1.3652,
+      "warnings": [],
+      "projected_month_usd": 1.79,
+      "monthly_api_budget_usd": 10.0,
+      "soft_pressure": false,
+      "deferred_tiers": []
+    },
+    "session": "regular",
+    "data_health": {
+      "proceed": true,
+      "blocked_decisions": [],
+      "data_quality": 0.992,
+      "source": "snapshot",
+      "fallbacks": [],
+      "data_safe_mode": false,
+      "reasons": []
+    },
+    "system_state": {
+      "state_version": 153,
+      "active": true,
+      "reasons": [
+        "MODEL: PERFORMANCE BREAKDOWN: Forward-Expectancy t=-4.81",
+        "DRIFT: FEATURE DRIFT SEVERE: ['vix', 'vix_chg_21', 'tnx']"
+      ],
+      "drift_level": "SEVERE",
+      "known": true
+    },
+    "tradier_data_health": {
+      "state": "NOT_OBSERVED",
+      "total_provider_failures": 0,
+      "valid_empty_results": 0,
+      "by_endpoint_category": {},
+      "scope": "current scanner process only",
+      "additional_api_requests": 0
+    }
+  },
+  "rejects": {},
+  "health": {
+    "status": "WARN",
+    "warnings": [
+      "D\u00fcrre-Streak: 27 Tage ohne Trade in Folge (dominanter Killer: roi_ok, 13x). Durchsatz: \u00d8 13.1 LLM-Analysen/Tag im Streak (letzte 5: 1.0) vs. \u00d8 33.1 in den 30 Tagen davor; bei deren Quote (1.11% Trades je Analyse) w\u00e4ren 3.9 Trades zu erwarten, P(0 Trades) = 2%. Durchsatz seit 2026-10-28 unter 25% der Basis (seitdem erwartet 0.4 Trades): bei so wenigen Analysen ist der Killer-Befund dieser Tage kein Beleg f\u00fcr ein zu scharfes Gate."
+    ],
+    "metrics": {
+      "duerre": {
+        "streak": 27,
+        "streak_capped": false,
+        "killer_counts": {
+          "prescreened": 1,
+          "mismatch_ok": 10,
+          "roi_ok": 13,
+          "analyzed": 1,
+          "intraday_ok": 1,
+          "quick_mc": 1
+        },
+        "last_10_days": [
+          {
+            "date": "2026-11-25",
+            "trades": 0,
+            "killer": "prescreened"
+          },
+          {
+            "date": "2026-11-23",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-20",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-19",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-18",
+            "trades": 0,
+            "killer": "analyzed"
+          },
+          {
+            "date": "2026-11-17",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-16",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-13",
+            "trades": 0,
+            "killer": "mismatch_ok"
+          },
+          {
+            "date": "2026-11-12",
+            "trades": 0,
+            "killer": "roi_ok"
+          },
+          {
+            "date": "2026-11-11",
+            "trades": 0,
+            "killer": "roi_ok"
+          }
+        ],
+        "throughput": {
+          "baseline_days": 30,
+          "baseline_from": "2026-09-02",
+          "baseline_to": "2026-10-16",
+          "baseline_analyzed_per_day": 33.1,
+          "baseline_trades_per_analysis": 0.01108,
+          "streak_analyzed": 353,
+          "streak_analyzed_per_day": 13.07,
+          "recent_analyzed_per_day": 1.0,
+          "expected_trades": 3.91,
+          "p_zero_trades": 0.02,
+          "throughput_collapsed_since": "2026-10-28",
+          "expected_trades_since_collapse": 0.38
+        }
+      },
+      "parallel_tests": {
+        "shadow_by_reason": {
+          "final_mc_survivor": {
+            "total": 195,
+            "evaluated": 87,
+            "ready_in_14d": 86,
+            "next_eval_date": "2026-11-28"
+          },
+          "roi_gate": {
+            "total": 100,
+            "evaluated": 70,
+            "ready_in_14d": 20,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_54": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_45": {
+            "total": 1,
+            "evaluated": 1,
+            "ready_in_14d": 0,
+            "next_eval_date": null
+          },
+          "score_49": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_47": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-11-28"
+          },
+          "score_40": {
+            "total": 1,
+            "evaluated": 0,
+            "ready_in_14d": 1,
+            "next_eval_date": "2026-12-03"
+          }
+        },
+        "trailing_sim": {
+          "open": 0,
+          "closed": 2,
+          "avg_delta": -0.5492
+        }
+      },
+      "learn_loop": {
+        "learn_loop_frozen": false,
+        "feature_corr": {},
+        "weight_update_status": "REMOVED",
+        "weight_learning": "REMOVED (2026-11-09: Pearson-Update mit QuasiML/RL entfernt; Korrelationen nur Diagnose)",
+        "n_reliable": 8,
+        "n_non_reliable": 110,
+        "min_reliable_for_weight_update": 5,
+        "feature_corr_exploratory": {
+          "impact": -0.008,
+          "mismatch": -0.043,
+          "eps_drift": -0.046
+        }
+      },
+      "external": {
+        "missingness": {
+          "freight_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          },
+          "us_freight_tsi_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          },
+          "shipping_global_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          },
+          "suez_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          },
+          "panama_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          },
+          "hormuz_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          },
+          "malacca_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          },
+          "bab_el_mandeb_z": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          },
+          "weather_disruption_index": {
+            "missing_ratio": 0.0,
+            "constant": false,
+            "constant_days": 0,
+            "stale": false,
+            "n": 2055
+          }
+        },
+        "source_health": {
+          "stale_high_criticality": []
+        },
+        "feature_stats_external": {
+          "tiny_effective_n_buckets": []
+        },
+        "promoted_dominance": {
+          "promoted_external_features": []
+        }
+      }
+    }
+  }
+}
