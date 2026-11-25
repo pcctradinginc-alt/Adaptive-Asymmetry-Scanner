@@ -1,33 +1,137 @@
 {
-  "account_skips": 20,
+  "account_skips": 30,
   "activated_at": "2026-11-09T20:00:47+00:00",
   "broker_connection": "NONE",
   "broker_orders": 0,
-  "cash_usd": 95726.1,
+  "cash_usd": 85178.4,
   "closed_trades": 0,
-  "generated_at": "2026-11-21T16:26:51+00:00",
+  "generated_at": "2026-11-25T19:34:02+00:00",
   "marks": {
     "ALD-027e0651c036231ffa36": {
-      "day": null,
-      "status": "NO_VERIFIED_MARK",
-      "value_usd": null
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "d6cbc2c385e5ade7e5f1"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 276.35
+    },
+    "ALD-11c5878fee60c804f2c8": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "9a8bb47090578af8972b",
+        "4ccbf0b585c68c36366e"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 573.7
+    },
+    "ALD-1e380a112c34cc31df65": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "05db5c22d4b4ccc83571"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 344.35
     },
     "ALD-22371462f0c32233dd27": {
-      "day": null,
-      "status": "NO_VERIFIED_MARK",
-      "value_usd": null
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "15cb09a9eec3adb83cf5",
+        "610314c4785dff70122d"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 1648.7
+    },
+    "ALD-415b7b9654ce56f5cb21": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "de52312d19b5125e8f90",
+        "38c32a62d2c2a4333a90"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 588.7
     },
     "ALD-46342d652849deab4d34": {
-      "day": null,
-      "status": "NO_VERIFIED_MARK",
-      "value_usd": null
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "61655790b0258e05f198"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 969.35
     },
     "ALD-51a894e79b8a28c97feb": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "762f750c2078c9a590a0"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 269.35
+    },
+    "ALD-7c392a736799dcdca222": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "9a8bb47090578af8972b",
+        "4ccbf0b585c68c36366e"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 573.7
+    },
+    "ALD-8d845b035f44fd78079f": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "c938c9b106f70751b098",
+        "bde886d5526a1afbc9e0"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 1608.7
+    },
+    "ALD-9f0f975371030609e0dd": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "633c7c06c4d3dced4dad",
+        "6a96deb1336f2d8441eb"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 618.7
+    },
+    "ALD-a082fe0999cbe7385abb": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "e68da941617fa32973a2"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 1489.35
+    },
+    "ALD-c2b103d899c8aef7509f": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "e4e3ec0550bcaad220f3"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 809.35
+    },
+    "ALD-d59d1fc4792bf6077adf": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "89fb2437412469e68c6b"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 1359.35
+    },
+    "ALD-e43c18fbcdc453acb2ba": {
+      "day": "2026-11-25",
+      "quote_record_ids": [
+        "ad38086b400139168b33",
+        "1ded68ff4c7845377a23"
+      ],
+      "status": "OBSERVED",
+      "value_usd": 888.7
+    },
+    "ALD-f6442dfac803b9248988": {
       "day": null,
       "status": "NO_VERIFIED_MARK",
       "value_usd": null
     },
-    "ALD-c2b103d899c8aef7509f": {
+    "ALD-f8930a543f14a3313ac3": {
       "day": null,
       "status": "NO_VERIFIED_MARK",
       "value_usd": null
@@ -35,17 +139,21 @@
   },
   "max_drawdown_closed_book": 0.0,
   "nav_at_cost_usd": 100000.0,
+  "nav_last_observed_usd": null,
   "nav_market_status": "INCOMPLETE_MISSING_QUOTES",
   "nav_market_usd": null,
   "net_pnl_adverse_usd": 0.0,
   "net_pnl_base_usd": 0.0,
   "new_close": 0,
-  "new_events": 0,
-  "new_open_or_skip": 0,
-  "open_cost_basis_usd": 4273.9,
+  "new_events": 9,
+  "new_open_or_skip": 9,
+  "observed_mark_days": [
+    "2026-11-25"
+  ],
+  "open_cost_basis_usd": 14821.6,
   "open_market_value_usd": null,
-  "open_risk_usd": 4277.8,
-  "open_trades": 5,
+  "open_risk_usd": 14837.2,
+  "open_trades": 16,
   "production_influence": "NONE",
   "profit_factor_closed": null,
   "realized_pnl_usd": 0.0,
@@ -58,6 +166,7 @@
   "status": "ACTIVE",
   "trades_by_structure": {},
   "unrealized_pnl_usd": null,
+  "valuation_day": "2026-11-25",
   "verified_outcome_count": 0,
   "winrate_closed": null
 }
