@@ -5,17 +5,15 @@
   "skipped": false,
   "alpha_link": {
     "status": "OK",
-    "pending": 11,
+    "pending": 0,
     "window_missed": 0,
-    "underlyings_observed": 11,
-    "underlyings_retry_later": [],
-    "n_new_decisions": 22,
-    "n_trade": 13
+    "n_new_decisions": 0,
+    "n_trade": 0
   },
-  "targets": 26,
-  "already_captured": 4,
-  "requested": 22,
-  "quotes": 21,
+  "targets": 29,
+  "already_captured": 25,
+  "requested": 4,
+  "quotes": 3,
   "missing": [
     "CTVA270319P00080000"
   ],
@@ -28,7 +26,7 @@
   "alpha_link_coverage": {
     "schema": "alpha-option-link-coverage-v1",
     "as_of": "2026-11-25",
-    "generated_at": "2026-11-25T19:34:02+00:00",
+    "generated_at": "2026-11-25T20:27:48+00:00",
     "link_version": "alpha-option-link-v1",
     "link_start": "2026-11-02",
     "rule_version": "alpha-option-rule-v1",
@@ -630,7 +628,7 @@
   "paper_account": {
     "schema": "github-paper-account-report-v1",
     "status": "ACTIVE",
-    "generated_at": "2026-11-25T19:34:02+00:00",
+    "generated_at": "2026-11-25T20:27:49+00:00",
     "activated_at": "2026-11-09T20:00:47+00:00",
     "starting_cash_usd": 100000.0,
     "cash_usd": 85178.4,
@@ -795,9 +793,9 @@
     "broker_orders": 0,
     "broker_connection": "NONE",
     "production_influence": "NONE",
-    "new_events": 9,
-    "new_open_or_skip": 9,
+    "new_events": 0,
+    "new_open_or_skip": 0,
     "new_close": 0
   },
-  "observed_at": "2026-11-25T19:34:02.804621+00:00"
+  "observed_at": "2026-11-25T20:27:49.225734+00:00"
 }
