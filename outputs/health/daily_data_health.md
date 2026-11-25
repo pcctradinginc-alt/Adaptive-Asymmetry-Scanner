@@ -8,7 +8,7 @@ Status: HEALTHY 48 · DEGRADED 2 · STALE 0 · BROKEN 0 · UNVALIDATED 13
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| finra_short_interest | DEGRADED | NON_CRITICAL | 0 | 2026-11-13 | – | RECOVERING 1/2: vollständiger Abruf ok, Bestätigung ausstehend |
+| finra_short_interest | DEGRADED | NON_CRITICAL | 0 | 2026-11-13 | – | RECOVERING 1/2: kein neuer erfolgreicher Abruf seit der letzten Prüfung, Bestätigung ausstehend |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
 
 ## Fallbacks
