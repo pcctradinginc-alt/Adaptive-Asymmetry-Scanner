@@ -159,39 +159,47 @@ class RiskGates:
 
         return None   # keine Quelle -> global_ok() schließt das Gate (fail-closed)
 
-    def has_upcoming_earnings(self, ticker: str) -> bool:
-        """Prüft ob Earnings innerhalb der nächsten 14 Tage."""
+    def earnings_status(self, ticker: str) -> str:
+        """Distinguish a known future date from missing or ambiguous evidence."""
         try:
             cal = yf.Ticker(ticker).calendar
             if cal is None:
-                return False
+                return "UNKNOWN"
             if isinstance(cal, dict):
-                # yfinance >= 0.2.3x: dict {"Earnings Date": [date, ...], ...} (Live 2026-10-14: das alte
-                # DataFrame-Handling warf AttributeError -> Gate lief ohne Datengrundlage)
-                earnings_dates = cal.get("Earnings Date") or []
-                if not isinstance(earnings_dates, (list, tuple)):
-                    earnings_dates = [earnings_dates]
+                values = cal.get("Earnings Date")
+                if values is None:
+                    return "UNKNOWN"
+                if not isinstance(values, (list, tuple)):
+                    values = [values]
             else:
                 if cal.empty or "Earnings Date" not in cal.index:
-                    return False
-                earnings_dates = cal.loc["Earnings Date"]
-            if hasattr(earnings_dates, "__iter__"):
-                for ed in earnings_dates:
-                    try:
-                        if isinstance(ed, str):
-                            ed = datetime.strptime(ed, "%Y-%m-%d").date()
-                        elif hasattr(ed, "date"):
-                            ed = ed.date()
-                        days_away = (ed - date.today()).days
-                        if 0 <= days_away <= 14:
-                            log.info(
-                                f"  [{ticker}] Earnings in {days_away}d "
-                                f"→ Earnings-Gate aktiv"
-                            )
-                            return True
-                    except Exception as e:
-                        log.warning(f"  [{ticker}] Earnings-Datum nicht lesbar: {e}")
-                        continue
-        except Exception as e:
-            log.warning(f"  [{ticker}] Earnings-Kalender Fehler: {e} → Earnings-Gate ohne Datengrundlage")
-        return False
+                    return "UNKNOWN"
+                values = list(cal.loc["Earnings Date"])
+            days = []
+            invalid = False
+            for value in values:
+                try:
+                    if isinstance(value, str):
+                        value = datetime.strptime(value, "%Y-%m-%d").date()
+                    elif hasattr(value, "date"):
+                        value = value.date()
+                    if not isinstance(value, date):
+                        raise ValueError("invalid earnings date")
+                    days.append((value-date.today()).days)
+                except (TypeError, ValueError, OverflowError):
+                    invalid = True
+            if any(0 <= d <= 14 for d in days):
+                return "UPCOMING"
+            # A past date alone does not establish absence of future earnings.
+            if not invalid and days and all(d > 14 for d in days):
+                return "CLEAR"
+        except Exception as exc:
+            log.warning("earnings calendar unavailable for %s: %s", ticker, type(exc).__name__)
+        return "UNKNOWN"
+
+    def has_upcoming_earnings(self, ticker: str) -> bool:
+        """Legacy Champion decision unchanged; unknown is explicitly logged."""
+        state = self.earnings_status(ticker)
+        if state == "UNKNOWN":
+            log.warning("earnings risk UNKNOWN for %s; legacy decision unchanged", ticker)
+        return state == "UPCOMING"
