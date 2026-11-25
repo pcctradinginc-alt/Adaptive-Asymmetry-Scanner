@@ -70,6 +70,14 @@ resolve_rebase() {
     conflicted=$(git diff --name-only --diff-filter=U)
     for f in $conflicted; do
       case "$f" in
+        outputs/research/paper_account/account.json)
+          # Preserve the newer generated report; immutable bookings remain in the archive.
+          local ours theirs choice
+          ours=$(git show ":2:$f" | python -c 'import json,sys; from datetime import datetime; print(datetime.fromisoformat(json.load(sys.stdin)["generated_at"]).timestamp())') || { git rebase --abort; return 1; }
+          theirs=$(git show ":3:$f" | python -c 'import json,sys; from datetime import datetime; print(datetime.fromisoformat(json.load(sys.stdin)["generated_at"]).timestamp())') || { git rebase --abort; return 1; }
+          choice=ours
+          if python -c 'import sys; sys.exit(0 if float(sys.argv[1]) > float(sys.argv[2]) else 1)' "$theirs" "$ours"; then choice=theirs; fi
+          git checkout --"$choice" -- "$f" && git add -- "$f" || { git rebase --abort; return 1; } ;;
         outputs/state/*.json|outputs/health/*.json|outputs/research/autonomous_alpha/option_link.json|outputs/research/improvement_tasks.json)
           echo "Konflikt in abgeleiteter Datei $f -> Version dieses Laufs"
           git checkout --theirs -- "$f" && git add -- "$f" ;;
