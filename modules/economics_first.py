@@ -94,11 +94,20 @@ def probe_candidate(candidate: dict, *, designer, gates, policy: dict) -> dict:
     spot = _num(candidate.get("current_price"))
     if spot <= 0:
         return {"status": "unknown", "reason": "spot_unavailable"}
+    earnings_state = "UNKNOWN"
     try:
-        if gates.has_upcoming_earnings(ticker):
-            return {"status": "reject", "reason": "earnings_gate"}
+        if hasattr(gates, "earnings_status"):
+            earnings_state = gates.earnings_status(ticker)
+        elif gates.has_upcoming_earnings(ticker):
+            earnings_state = "UPCOMING"
+        if earnings_state == "UPCOMING":
+            return {"status": "reject", "reason": "earnings_gate", "earnings_status": earnings_state}
     except Exception as exc:
-        log.warning("economics_first %s earnings check unknown: %s", ticker, exc)
+        log.warning("economics_first %s earnings check unknown: %s", ticker, type(exc).__name__)
+    # Preserve the frozen Champion decision while recording event uncertainty.
+    def annotated(result):
+        return {**result, "earnings_status": earnings_state,
+                "earnings_shadow_would_block": earnings_state != "CLEAR"}
 
     def _direction_quote(direction: str, iv_rank: float) -> dict:
         strategy = designer._select_strategy(ticker, direction, iv_rank)
@@ -149,10 +158,10 @@ def probe_candidate(candidate: dict, *, designer, gates, policy: dict) -> dict:
     try:
         iv_rank = designer._get_iv_rank(ticker)
         if iv_rank is None:
-            return {"status": "unknown", "reason": "iv_rank_unavailable"}
+            return annotated({"status": "unknown", "reason": "iv_rank_unavailable"})
         bullish = _direction_quote("BULLISH", iv_rank)
         if bullish["status"] != "reject":
-            return bullish
+            return annotated(bullish)
         # A bearish candidate must never be excluded solely on call costs.
         bearish = _direction_quote("BEARISH", iv_rank)
         if bearish["status"] == "reject":
@@ -160,10 +169,10 @@ def probe_candidate(candidate: dict, *, designer, gates, policy: dict) -> dict:
             return bullish
         bearish["bullish_probe_status"] = bullish["status"]
         bearish["directions_checked"] = ["BULLISH", "BEARISH"]
-        return bearish
+        return annotated(bearish)
     except Exception as exc:
         log.warning("economics_first %s probe unavailable: %s", ticker, exc)
-        return {"status": "unknown", "reason": "probe_error"}
+        return annotated({"status": "unknown", "reason": "probe_error"})
 
 def select_before_haiku(candidates: list[dict], *, day: str, probe,
                         policy: dict | None = None, deadline: float | None = None) -> tuple[list, dict, dict]:
