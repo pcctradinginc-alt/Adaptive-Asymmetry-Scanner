@@ -24,6 +24,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -49,10 +50,21 @@ def _events(mem_dir: Path) -> list[dict]:
             if not line.strip():
                 continue
             try:
-                out.append(json.loads(line))
-            except json.JSONDecodeError:
-                log.warning(f"prediction_memory: defekte Zeile in {p.name} übersprungen")
-    return out
+                event = json.loads(line)
+                if not isinstance(event, dict) or event.get('type') not in ('prediction', 'outcome') or not isinstance(event.get('prediction_id'), str) or not event['prediction_id']:
+                    raise ValueError(f'prediction_memory: invalid event in {p.name}')
+                out.append(event)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f'prediction_memory: corrupt JSON in {p.name}') from exc
+    # Reject conflicting immutable events before any consumer can collapse them.
+    unique = {}
+    for event in out:
+        key = (event['type'], event['prediction_id'])
+        canonical = json.dumps(event, sort_keys=True, default=str)
+        if key in unique and unique[key][0] != canonical:
+            raise ValueError(f'prediction_memory: conflicting immutable event {key}')
+        unique[key] = (canonical, event)
+    return [pair[1] for pair in unique.values()]
 
 
 def _append(events: list[dict], mem_dir: Path) -> None:
@@ -110,10 +122,17 @@ def record_outcomes(panel: pd.DataFrame, mem_dir: Path = MEMORY_DIR) -> int:
             continue
         r = lab.loc[key]
         if isinstance(r, pd.DataFrame):
+            label_cols = [k for k in ('fwd_xs_20', 'fwd_ret_60', 'mae_20', 'mfe_20') if k in r.columns]
+            if len(r[label_cols].drop_duplicates()) != 1:
+                log.error('prediction_memory: conflicting panel labels for %s', key)
+                continue
             r = r.iloc[0]
         if pd.isna(r.get("fwd_xs_20")):
             continue
         xs = float(r["fwd_xs_20"])
+        if not math.isfinite(xs):
+            log.error("prediction_memory: nonfinite forward label for %s", key)
+            continue
         r60 = float(r["fwd_ret_60"]) if pd.notna(r.get("fwd_ret_60")) else None
         new.append({"type": "outcome", "prediction_id": p["prediction_id"], "signal_date": p["signal_date"],
                     "recorded_at": now, "actual_return": round(xs, 5), "actual_return_60": r60 if r60 is None else round(r60, 5),

@@ -303,3 +303,25 @@ def test_daily_mark_targets_share_cap_and_prioritize_due_exits(account, monkeypa
     monkeypatch.setattr(al, "config", lambda root: {"enabled": True, "max_capture_symbols_per_run": 2})
     targets = al.due_capture_targets(today=NOW.date(), root=root)
     assert set(targets) == {"EXIT", "X"}
+
+
+def test_stale_observed_marks_are_not_current_nav(account, monkeypatch):
+    root, _, _, _ = account
+    activate(root)
+    pa.sync(root, now=NOW, capture=True, persist_report=False)
+    monkeypatch.setattr(pa, "_mark", lambda *args: {"status":"OBSERVED","day":"2026-11-09","value_usd":120.0})
+    out = pa.sync(root, now=LATER, persist_report=False)
+    assert out["nav_market_status"] == "STALE_OR_MIXED_NAV"
+    assert out["nav_market_usd"] is None
+    assert out["nav_last_observed_usd"] == 100019.0
+
+
+def test_current_observed_marks_have_valuation_day(account, monkeypatch):
+    root, _, _, _ = account
+    activate(root)
+    pa.sync(root, now=NOW, capture=True, persist_report=False)
+    monkeypatch.setattr(pa, "_mark", lambda *args: {"status":"OBSERVED","day":"2026-12-09","value_usd":120.0})
+    out = pa.sync(root, now=LATER, persist_report=False)
+    assert out["nav_market_status"] == "VERIFIED_MARKS"
+    assert out["valuation_day"] == "2026-12-09"
+    assert out["nav_market_usd"] == 100019.0

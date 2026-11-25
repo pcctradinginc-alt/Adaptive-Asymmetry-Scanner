@@ -395,7 +395,18 @@ def report(root: Path, cfg: dict, current: dict, now: datetime) -> dict:
     cost_basis = _amount(sum(p["entry_cost_usd"] for p in opened))
     marks = {p["decision_id"]: _mark(root, p, now) for p in opened}
     marks_complete = all(m["status"] == "OBSERVED" for m in marks.values())
-    market_value = _amount(sum(m["value_usd"] for m in marks.values())) if marks_complete else None
+    from modules import market_snapshot as ms
+    valuation_day = now.astimezone(ms.NY_TZ).date()
+    # Before the quote capture window, use the preceding completed session.
+    from modules import option_quotes as oq
+    if not ms.is_trading_day(valuation_day) or oq.mark_window(now) == "BEFORE_WINDOW":
+        valuation_day -= timedelta(days=1)
+        while not ms.is_trading_day(valuation_day):
+            valuation_day -= timedelta(days=1)
+    observed_days = sorted({m["day"] for m in marks.values() if m.get("day")})
+    current_marks = marks_complete and all(m["day"] == valuation_day.isoformat() for m in marks.values())
+    observed_value = _amount(sum(m["value_usd"] for m in marks.values())) if marks_complete else None
+    market_value = observed_value if current_marks else None
     pnl_values = [p["pnl_usd"] for p in closed]
     wins, losses = [p for p in pnl_values if p > 0], [p for p in pnl_values if p < 0]
     profit_factor = round(sum(wins) / -sum(losses), 4) if losses else (None if not wins else "NO_LOSSES")
@@ -419,7 +430,11 @@ def report(root: Path, cfg: dict, current: dict, now: datetime) -> dict:
         "open_risk_usd": _amount(sum(p["risk_usd"] for p in opened)),
         "open_cost_basis_usd": cost_basis, "open_market_value_usd": market_value,
         "nav_at_cost_usd": nav_cost, "nav_market_usd": nav_market,
-        "nav_market_status": "VERIFIED_MARKS" if marks_complete else "INCOMPLETE_MISSING_QUOTES",
+        "nav_market_status": ("VERIFIED_MARKS" if current_marks else
+                              "STALE_OR_MIXED_NAV" if marks_complete else "INCOMPLETE_MISSING_QUOTES"),
+        "valuation_day": valuation_day.isoformat(),
+        "observed_mark_days": observed_days,
+        "nav_last_observed_usd": _amount(current["cash"] + observed_value) if observed_value is not None else None,
         "realized_pnl_usd": realized,
         "unrealized_pnl_usd": _amount(market_value - cost_basis) if market_value is not None else None,
         "return_on_starting_capital_realized": round(realized / current["initial"], 6),
@@ -463,6 +478,8 @@ def sync(root: Path = Path("."), *, now: datetime | None = None,
         out = report(root, cfg, _replay(events(root), cfg), now)
         out["new_events"] = 1
         out["note"] = "ACTIVATED_NO_HISTORICAL_BACKFILL"
+        if persist_report:
+            _atomic_json(root / REPORT, out)
         return out
     data = al.read_all(root)
     if any(v.get("conflicting_duplicates") for v in data.get("integrity", {}).values()):
