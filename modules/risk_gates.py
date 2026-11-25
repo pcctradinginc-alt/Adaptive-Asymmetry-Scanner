@@ -16,8 +16,9 @@ VIX-Gate (Source Health, 2026-10-03): FAIL-CLOSED.
 
 from __future__ import annotations
 import logging
+import math
 import os
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from typing import Optional
 
 import requests
@@ -32,6 +33,20 @@ VIX_MAX_RETRIES  = 2
 VIX_TIMEOUT      = 15     # Sekunden (war 30 → zu lang für GitHub Actions)
 
 
+def _valid_vix(value) -> bool:
+    try:
+        return not isinstance(value, bool) and math.isfinite(float(value)) and float(value) > 0
+    except (TypeError, ValueError, OverflowError):
+        return False
+
+
+def _valid_age(day) -> bool:
+    try:
+        return 0 <= (date.today() - day).days <= VIX_MAX_AGE_DAYS
+    except (TypeError, ValueError, OverflowError):
+        return False
+
+
 class RiskGates:
 
     def __init__(self):
@@ -41,11 +56,11 @@ class RiskGates:
     def global_ok(self) -> bool:
         """
         Prüft ob globales Marktumfeld Trading erlaubt.
-        Bei VIX-Fehler: Fallback statt Abbruch.
+        Bei ungültigem oder fehlendem VIX: Gate geschlossen.
         """
         vix = self._fetch_vix()
 
-        if vix is None:
+        if not _valid_vix(vix):
             log.error("VIX aus keiner Quelle abrufbar (yfinance, FRED API, FRED CSV) -> "
                       "Risk Gate geschlossen: kein Handel mit unbekanntem Risiko")
             self.last_vix = None
@@ -72,12 +87,15 @@ class RiskGates:
                 ticker = yf.Ticker("^VIX")
                 hist   = ticker.history(period="2d", timeout=VIX_TIMEOUT)
                 if not hist.empty:
-                    self.vix_source = "vix_level"
-                    return float(hist["Close"].iloc[-1])
+                    value = hist["Close"].iloc[-1]
+                    if _valid_vix(value) and _valid_age(hist.index[-1].date()):
+                        self.vix_source = "vix_level"
+                        return float(value)
 
                 info = ticker.info
                 vix  = info.get("regularMarketPrice") or info.get("previousClose")
-                if vix:
+                stamp = info.get("regularMarketTime")
+                if _valid_vix(vix) and stamp is not None and _valid_age(datetime.fromtimestamp(stamp, timezone.utc).date()):
                     self.vix_source = "vix_level"
                     return float(vix)
 
@@ -100,9 +118,11 @@ class RiskGates:
                         if val in (None, "", ".") or not d:
                             continue
                         age = (date.today() - datetime.strptime(d, "%Y-%m-%d").date()).days
-                        if age > VIX_MAX_AGE_DAYS:
+                        if not 0 <= age <= VIX_MAX_AGE_DAYS:
                             log.warning(f"VIX via FRED API zu alt ({d}) -> unbekannt")
                             break
+                        if not _valid_vix(val):
+                            continue
                         log.info(f"VIX via FRED API: {val} ({d})")
                         self.vix_source = "vix_fred"
                         return float(val)
@@ -128,9 +148,9 @@ class RiskGates:
                         age = (date.today() - datetime.strptime(d_s, "%Y-%m-%d").date()).days
                     except ValueError:
                         age = None
-                    if age is None or age > VIX_MAX_AGE_DAYS:
+                    if age is None or not 0 <= age <= VIX_MAX_AGE_DAYS:
                         log.warning(f"VIX via FRED CSV ohne aktuelles Datum ({d_s}) -> unbekannt")
-                    elif val and val != ".":
+                    elif _valid_vix(val):
                         log.info(f"VIX via FRED CSV: {val} ({d_s})")
                         self.vix_source = "vix_fred"
                         return float(val)

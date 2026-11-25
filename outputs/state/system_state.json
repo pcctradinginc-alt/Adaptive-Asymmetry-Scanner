@@ -9,16 +9,16 @@
  "safe_mode_effect": "Wirkt nur auf den Research-Einfluss: keine positiven Boosts/Gewichte des Production Intelligence Adapters (validierte Abstinenz bleibt erlaubt), Promotionen pausiert, Meta-Learning nicht aktiv. Champion-Entscheidungen (Gates, Filter, Optionsauswahl) unverändert.",
  "data_health": {
   "status": "OK",
-  "data_quality": 0.976,
+  "data_quality": 0.992,
   "blocked_decisions": [],
   "disabled_signals": [],
   "unavailable_features": [],
   "stale_features": [],
   "global_reasons": [],
-  "generated": "2026-11-24T00:18:27+00:00",
+  "generated": "2026-11-24T22:44:34+00:00",
   "counts": {
-   "HEALTHY": 47,
-   "DEGRADED": 2,
+   "HEALTHY": 48,
+   "DEGRADED": 1,
    "STALE": 1,
    "BROKEN": 0,
    "UNVALIDATED": 13
@@ -98,7 +98,7 @@
    },
    "data": {
     "level": "NORMAL",
-    "data_quality": 0.976
+    "data_quality": 0.992
    }
   },
   "reasons": [
@@ -113,7 +113,7 @@
    "safe_mode": true
   },
   "drift_input_timestamp": "2026-11-21T16:26:27+00:00",
-  "drift_input_age_days": 2.5,
+  "drift_input_age_days": 3.3,
   "drift_input_status": "FRESH"
  },
  "champion_version": {
@@ -123,7 +123,7 @@
   "version": "scanner_rules@9aaf7a892de0"
  },
  "promotion_state": {
-  "generated": "2026-11-24T02:30:42+00:00",
+  "generated": "2026-11-24T04:22:47+00:00",
   "policy_version": "promo-v1",
   "counts": {
    "PROSPECTIVE_CHALLENGER": 22
@@ -187,15 +187,15 @@
  "inputs": {
   "model_health": "da5454d65221",
   "meta_learning": "7dffa228c571",
-  "data_health": "1713164320fa",
-  "promotion": "ff5775166065",
+  "data_health": "07446f3dab72",
+  "promotion": "ed6013e414ef",
   "model_registry": "a0c0ce90b949",
   "champion_config": "9aaf7a892de0",
   "universe_v1_frozen": "17ce31b69fde",
   "commodity_status": "cad29e379c56"
  },
- "state_version": 150,
- "fingerprint": "810b6fbe585407c3",
- "updated_at": "2026-11-24T04:22:47+00:00",
- "code_version": "532a85ef1c04"
+ "state_version": 151,
+ "fingerprint": "273ff701a27f13fb",
+ "updated_at": "2026-11-24T22:44:34+00:00",
+ "code_version": "143830c8aa54"
 }

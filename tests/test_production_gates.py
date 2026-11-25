@@ -25,7 +25,7 @@ class _FakeTicker:
 
 
 def _vix(monkeypatch, value=None, fred=None, raise_hist=False, fred_age_days=1, api=None, api_age_days=1):
-    hist = pd.DataFrame({"Close": [value - 1, value]}) if value is not None else pd.DataFrame()
+    hist = pd.DataFrame({"Close": [value - 1, value]}, index=pd.date_range(end=pd.Timestamp(date.today()), periods=2)) if value is not None else pd.DataFrame()
     monkeypatch.setattr(rg.yf, "Ticker", lambda s: _FakeTicker(hist=hist, raise_hist=raise_hist))
     if api is None:
         monkeypatch.delenv("FRED_API_KEY", raising=False)
