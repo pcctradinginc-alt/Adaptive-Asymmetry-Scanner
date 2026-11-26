@@ -399,8 +399,8 @@ class DataIngestion:
                 info = yf.Ticker(tk).info
                 if isinstance(info, dict) and (info.get("marketCap") or 0) > 0:
                     ok += 1
-            except Exception:  # noqa: BLE001, S110 – Fehler der Kontrollabfrage = kein Börsenwert
-                pass
+            except Exception as e:  # noqa: BLE001 – Fehler der Kontrollabfrage = kein Börsenwert
+                log.warning(f"  Provider-Kontrollabfrage {tk} fehlgeschlagen: {type(e).__name__}: {e}")
         return {"tickers": list(PROVIDER_PROBE_TICKERS), "with_market_cap": ok, "ok": ok > 0}
 
     def _evaluate_ticker(
