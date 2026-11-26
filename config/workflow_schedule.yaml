@@ -41,7 +41,9 @@ workflows:
     # 9 -> 4 (2026-10-19): Frist 17:30 UTC (13:30 ET Sommer / 12:30 ET Winter); zusätzlich nie später als
     # spätester Start − 1 h (verkürzte Sitzung: 11:00 ET). Danach MISSED ohne Dispatch (gates.scanner).
     max_delay_hours: 4
-    artifact: {kind: file, path: "outputs/daily_reports/{date}.json"}
+    # unless_field (Audit 2026-11-26): Tagesbericht mit Datenausfall-Befund (Provider-Ausfall in Stufe 1) versorgt
+    # den Tag nicht -> Guard erlaubt einen erneuten Lauf, Watchdog startet im Fenster höchstens einmal nach.
+    artifact: {kind: file, path: "outputs/daily_reports/{date}.json", unless_field: stats.data_failure}
     depends_on: [source_health]
   feedback:
     file: feedback.yml

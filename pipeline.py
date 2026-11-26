@@ -929,9 +929,23 @@ def main() -> None:
         except Exception as e:
             log.error(f"Stats-Snapshot-Fehler: {e}")
         try:
-            candidate_ledger.flush()
+            _flush = candidate_ledger.flush() or {}
         except Exception as e:
-            log.warning(f"candidate_ledger.flush Fehler (ignoriert): {e}")
+            _flush = {"status": "failed", "rows": 0, "error": f"{type(e).__name__}: {e}"[:200]}
+        if _flush.get("status") in ("ok", "empty", "failed"):
+            # Audit 2026-11-26 (AUD-007): Ledger-Schreibstatus in den Tagesbericht. Ein Fehler bricht den Lauf
+            # weiterhin nicht ab, macht den Tag aber als NICHT vollständig auswertbar kenntlich.
+            stats["candidate_ledger_flush"] = {**_flush, "research_evaluable": _flush["status"] != "failed"}
+            if _flush["status"] == "failed":
+                log.error(f"Kandidaten-Ledger NICHT gespeichert – Tag nicht auswertbar: {_flush.get('error')}")
+            try:
+                path = REPORTS_DIR / f"{today}.json"
+                if path.exists():      # nie einen Tagesbericht neu anlegen (Guard: Datei = Tag versorgt)
+                    data = json.loads(path.read_text())
+                    data.setdefault("stats", {})["candidate_ledger_flush"] = stats["candidate_ledger_flush"]
+                    path.write_text(json.dumps(data, indent=2, default=str))
+            except Exception as e:  # noqa: BLE001 – Observability, nie lauf-brechend
+                log.error(f"Ledger-Schreibstatus nicht im Tagesbericht: {e}")
 
     def send_email():
         save_stats_snapshot()
@@ -1008,6 +1022,22 @@ def main() -> None:
         or len(candidates)
     )
     stats["candidates"] = len(candidates)
+    _hf = getattr(ingestion, "filter_stats", None)
+    if isinstance(_hf, dict):
+        stats["hard_filter"] = _hf
+    _outage = getattr(ingestion, "provider_outage", None)
+    if _outage:
+        # Audit 2026-11-26: Provider-Ausfall ist kein Marktbefund. Kein Ledger-Eintrag, kein LLM, kein Trade;
+        # stats.data_failure macht den Tagesbericht für Guard/Watchdog zu "Tag NICHT versorgt"
+        # (config/workflow_schedule.yaml, unless_field) -> eine Recovery im Handelsfenster bleibt möglich.
+        stats["data_failure"] = _outage
+        stats["stop_reason"] = (
+            f"Datenausfall Stufe 1 (Marktdaten-Provider): {_outage['no_data']} ohne Daten, "
+            f"{_outage['market_cap_reject']} ohne Börsenwert von {_outage['total']} – kein Marktbefund, "
+            f"Tag gilt als nicht versorgt.")
+        log.error(stats["stop_reason"])
+        send_email()
+        return
     for c in candidates:
         try:
             candidate_ledger.note(c.get("ticker"), stage="universe", universe_version="V1",

@@ -52,6 +52,82 @@ _sec_fail_streak = 0
 
 # ── Fix 5: SEC EDGAR XBRL EPS ────────────────────────────────────────────────
 
+_EPS_FORMS = frozenset({"10-Q", "10-K", "10-Q/A", "10-K/A"})
+
+
+def _sec_day(value):
+    from datetime import date
+    try:
+        return date.fromisoformat(str(value)[:10])
+    except (TypeError, ValueError):
+        return None
+
+
+def ttm_eps_from_units(units: list, as_of=None) -> tuple[float, str] | None:
+    """TTM-EPS aus SEC-companyfacts-Einträgen (Audit 2026-11-26, AUD-001).
+
+    Vorher wurden die vier Einträge mit dem jüngsten Periodenende summiert. companyfacts enthält aber je
+    10-Q das Quartal UND den kumulierten Jahreswert (6/9 Monate) mit demselben Periodenende, dazu
+    Jahreswerte und Vergleichsperioden – die Summe war meist ein Vielfaches des Jahres-EPS.
+    Jetzt nur eindeutig bestimmte, nicht überlappende Perioden:
+      * jüngstes Periodenende ist ein Geschäftsjahr   -> Jahres-EPS
+      * sonst Geschäftsjahr + laufender YTD-Wert − YTD-Wert des Vorjahres (gleiche Dauer)
+      * sonst vier lückenlos aufeinanderfolgende Einzelquartale
+      * sonst None (kein Wert ist besser als ein falscher; Aufrufer fällt auf andere Quellen zurück)
+    Revisionen: je (start, end) zählt die zuletzt eingereichte Fassung mit filed <= as_of (Point-in-Time).
+    Returns (eps, methode) oder None."""
+    from datetime import date, timedelta
+    cutoff = as_of if isinstance(as_of, date) else (_sec_day(as_of) if as_of else date.today())  # noqa: DTZ011
+    periods: dict = {}
+    for u in units or []:
+        if not isinstance(u, dict) or u.get("form") not in _EPS_FORMS:
+            continue
+        start, end, filed = _sec_day(u.get("start")), _sec_day(u.get("end")), _sec_day(u.get("filed"))
+        val = u.get("val")
+        if start is None or end is None or filed is None or end < start or filed > cutoff:
+            continue
+        if not isinstance(val, (int, float)) or isinstance(val, bool) or not math.isfinite(val):
+            continue
+        key = (start, end)
+        if key not in periods or filed >= periods[key][1]:
+            periods[key] = (float(val), filed)
+    if not periods:
+        return None
+
+    def days(k):
+        return (k[1] - k[0]).days
+
+    def near(a, b, tol):
+        return abs((a - b).days) <= tol
+
+    fiscal_years = [k for k in periods if 350 <= days(k) <= 380]
+    quarters = [k for k in periods if 80 <= days(k) <= 100]
+    latest_end = max(k[1] for k in periods)
+
+    fy_now = [k for k in fiscal_years if k[1] == latest_end]
+    if fy_now:
+        return round(periods[fy_now[0]][0], 4), "Geschäftsjahr"
+
+    ytd_now = [k for k in periods if k[1] == latest_end and 80 <= days(k) < 350]
+    for cur in sorted(ytd_now, key=days, reverse=True):
+        prev = [k for k in periods if near(k[1], cur[1] - timedelta(days=365), 15)
+                and abs(days(k) - days(cur)) <= 10]
+        fy = [k for k in fiscal_years if near(k[1], cur[0] - timedelta(days=1), 15)]
+        if prev and fy:
+            ttm = periods[fy[0]][0] + periods[cur][0] - periods[prev[0]][0]
+            return round(ttm, 4), "Geschäftsjahr + YTD − Vorjahres-YTD"
+
+    chain = sorted((k for k in quarters if k[1] == latest_end), key=days)[:1]
+    while chain and len(chain) < 4:
+        nxt = [k for k in quarters if near(k[1], chain[-1][0] - timedelta(days=1), 10)]
+        if not nxt:
+            break
+        chain.append(nxt[0])
+    if len(chain) == 4:
+        return round(sum(periods[k][0] for k in chain), 4), "4 Einzelquartale"
+    return None
+
+
 def fetch_eps_sec_edgar(ticker: str) -> Optional[float]:
     """
     Ruft EPS (TTM) direkt aus SEC EDGAR XBRL-Daten ab.
@@ -88,29 +164,16 @@ def fetch_eps_sec_edgar(ticker: str) -> Optional[float]:
             if not eps_data:
                 continue
 
-            # Nur USD-Einheit, Quartals-Filings (10-Q)
             units = eps_data.get("units", {}).get("USD/shares", [])
             if not units:
                 continue
 
-            # Neueste 4 Quartale für TTM
-            quarterly = [
-                u for u in units
-                if u.get("form") in ("10-Q", "10-K") and u.get("val") is not None
-            ]
-
-            if not quarterly:
+            ttm = ttm_eps_from_units(units)
+            if ttm is None:
                 continue
-
-            # Neueste 4 Einträge
-            quarterly.sort(key=lambda x: x.get("end", ""), reverse=True)
-            ttm_eps = sum(u["val"] for u in quarterly[:4])
-
-            log.info(
-                f"  [{ticker}] SEC EDGAR EPS: TTM={ttm_eps:.2f} "
-                f"(aus {min(4, len(quarterly))} Quartalen, Tag={tag})"
-            )
-            return round(ttm_eps, 4)
+            ttm_eps, method = ttm
+            log.info(f"  [{ticker}] SEC EDGAR EPS: TTM={ttm_eps:.2f} ({method}, Tag={tag})")
+            return ttm_eps
 
         return None
 

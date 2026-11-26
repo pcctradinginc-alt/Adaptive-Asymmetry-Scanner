@@ -1223,15 +1223,20 @@ def _fetch_prices_batch(tickers: list[str]) -> dict:
     return prices
 
 
-def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
+def flush(reports_dir_root: Path = LEDGER_ROOT) -> dict:
     """Schreibt alle Signale des aktuellen Runs als JSONL-Zeilen (dedup je
-    Tag+Event; P0-1: ein Ticker kann mehrere Signale/Zeilen haben)."""
+    Tag+Event; P0-1: ein Ticker kann mehrere Signale/Zeilen haben).
+
+    Wirft nie (der Scanner-Lauf bricht nicht ab). Audit 2026-11-26 (AUD-007): liefert den Status zurück,
+    damit ein Schreibfehler im Tagesbericht steht – nicht gespeicherte Kandidaten sind später nicht
+    auswertbar, der Tag darf dann nicht als vollständige Forschungsbeobachtung zählen.
+    -> {"status": "ok"|"empty"|"already_flushed"|"failed", "rows": n, "error": str?}"""
     try:
         if _state.get("flushed"):
-            return
+            return {"status": "already_flushed"}
         if not _state.get("date") or not _state.get("entries"):
             _state["flushed"] = True
-            return
+            return {"status": "empty", "rows": 0}
 
         today   = _state["date"]
         entries = _state["entries"]   # ticker -> [signal, ...] (P0-1)
@@ -1506,9 +1511,11 @@ def flush(reports_dir_root: Path = LEDGER_ROOT) -> None:
             log.info(f"candidate_ledger: {len(new_lines)} Kandidat(en) geloggt → {month_file}")
 
         _state["flushed"] = True
+        return {"status": "ok", "rows": len(new_lines)}
     except Exception as e:
-        log.error(f"candidate_ledger.flush Fehler (ignoriert): {e}")
+        log.error(f"candidate_ledger.flush Fehler – Kandidaten dieses Laufs NICHT gespeichert: {e}")
         _state["flushed"] = True
+        return {"status": "failed", "rows": 0, "error": f"{type(e).__name__}: {e}"[:200]}
 
 
 # ── Outcome-Update (aus feedback.py) ─────────────────────────────────────────

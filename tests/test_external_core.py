@@ -61,6 +61,20 @@ def test_pit_filter_picks_latest_vintage_up_to_t():
     assert len(out_early) == 1 and out_early[0].value == 1.0
 
 
+def test_pit_filter_never_returns_a_revision_valid_only_after_t():
+    """AUD-005 (Audit 2026-11-26): ursprüngliche Veröffentlichung + spätere Revision. Der historische Reader
+    liefert nur die zum Zeitpunkt bekannte Version – auch bei inkonsistentem Konnektor-Zeitstempel
+    (Revision mit available_at <= t, aber vintage_time > t)."""
+    base = {"obs_time": "2026-01-01T00:00:00+00:00"}
+    original = mk_obs(value=1.0, available_at="2026-01-02T00:00:00+00:00", **base)
+    revision = mk_obs(value=9.0, available_at="2026-01-03T00:00:00+00:00",
+                      vintage_time="2026-02-01T00:00:00+00:00", **base)
+    t = datetime(2026, 1, 10, tzinfo=UTC)
+    assert [o.value for o in available_as_of([original, revision], t)] == [1.0]
+    later = datetime(2026, 2, 2, tzinfo=UTC)
+    assert [o.value for o in available_as_of([original, revision], later)] == [9.0]
+
+
 def test_naive_datetime_becomes_utc():
     o = mk_obs(obs_time=datetime(2026, 1, 1), available_at=datetime(2026, 1, 1),
                retrieved_at=datetime(2026, 1, 1))

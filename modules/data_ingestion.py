@@ -64,6 +64,37 @@ FINNHUB_CALLS_PER_MIN = 55
 FINNHUB_MAX_429_RETRIES = 3
 
 
+# Provider-Ausfall in Stufe 1 (Audit 2026-11-26): am 25.11.2026 lieferte yfinance für 473/518 Ticker HTTP 401
+# ("Invalid Crumb"). Die eingefrorene V1-Logik zählt ein info-Dict ohne marketCap als "Market Cap < 2 Mrd."
+# -> 462 S&P-500/Nasdaq-100-Werte galten als zu klein, der Tag endete als "Keine Kandidaten" (Marktbefund statt
+# Datenfehler) und galt dem Guard als versorgt. Betriebsschwelle, keine Handels-/Statistikschwelle.
+PROVIDER_OUTAGE_SHARE  = 0.5
+PROVIDER_PROBE_TICKERS = ("AAPL", "MSFT", "NVDA")   # Mega Caps: marketCap fehlt nur bei Provider-Fehler
+
+
+def hard_filter_outage(stats: dict, probe: dict | None = None) -> dict | None:
+    """Datenausfall statt Marktbefund? -> Befund-Dict oder None.
+
+    Ausfall, wenn (a) >= PROVIDER_OUTAGE_SHARE des Universums gar keine Daten lieferte, oder (b) zusätzlich die
+    Kontrollabfrage bekannter Mega Caps keinen Börsenwert lieferte und no_data + "Market Cap < 2 Mrd." zusammen
+    >= PROVIDER_OUTAGE_SHARE ausmachen (fehlender Börsenwert wird von der V1-Logik als zu klein gezählt)."""
+    total = int(stats.get("total") or 0)
+    if total <= 0:
+        return None
+    no_data, small = int(stats.get("no_data") or 0), int(stats.get("market_cap") or 0)
+    share_missing = no_data / total
+    share_suspect = (no_data + small) / total
+    if share_missing >= PROVIDER_OUTAGE_SHARE:
+        why = "no_data"
+    elif probe is not None and probe.get("ok") is False and share_suspect >= PROVIDER_OUTAGE_SHARE:
+        why = "probe_failed_market_cap_missing"
+    else:
+        return None
+    return {"stage": "hard_filter", "kind": "provider_outage", "reason": why, "total": total,
+            "no_data": no_data, "market_cap_reject": small, "share_suspect": round(share_suspect, 4),
+            "probe": probe, "passed": int(stats.get("passed") or 0)}
+
+
 def news_fetch_gap(ns: dict) -> bool:
     """Datenlücke nur bei endgültig fehlgeschlagenen Abrufen; ein 429, der beim Retry gelang, ist keine
     (Live 2026-10-14: 8x 429, alle wiederholt, Fehler 0 -> trotzdem Datenlücken-Warnung)."""
@@ -339,6 +370,14 @@ class DataIngestion:
                     stats["no_data"] += 1
 
         self._log_filter_stats(stats)
+        self.filter_stats = dict(stats)
+        probe = None
+        total = stats.get("total") or 0
+        if total and (stats.get("no_data", 0) + stats.get("market_cap", 0)) / total >= PROVIDER_OUTAGE_SHARE:
+            probe = self._provider_probe()        # nur im Verdachtsfall: an normalen Tagen kein Zusatzabruf
+        self.provider_outage = hard_filter_outage(stats, probe)
+        if self.provider_outage:
+            log.error(f"Stufe 1: Datenausfall des Marktdaten-Providers statt Marktbefund: {self.provider_outage}")
         ns = self.news_source_stats
         log.info(f"  News-Quellen: {ns}")
         if news_fetch_gap(ns):
@@ -350,6 +389,19 @@ class DataIngestion:
         passed_initials = sorted({c["ticker"][0] for c in candidates if c.get("ticker")})
         log.info(f"  Anfangsbuchstaben der Kandidaten: {''.join(passed_initials)}")
         return candidates
+
+    @staticmethod
+    def _provider_probe() -> dict:
+        """Kontrollabfrage: liefern bekannte Mega Caps überhaupt einen Börsenwert?"""
+        ok = 0
+        for tk in PROVIDER_PROBE_TICKERS:
+            try:
+                info = yf.Ticker(tk).info
+                if isinstance(info, dict) and (info.get("marketCap") or 0) > 0:
+                    ok += 1
+            except Exception:  # noqa: BLE001, S110 – Fehler der Kontrollabfrage = kein Börsenwert
+                pass
+        return {"tickers": list(PROVIDER_PROBE_TICKERS), "with_market_cap": ok, "ok": ok > 0}
 
     def _evaluate_ticker(
         self, ticker: str, _stats: dict, vix_current: float = 20.0

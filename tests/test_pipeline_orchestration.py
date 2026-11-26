@@ -121,3 +121,33 @@ def test_ingestion_crash_propagates_after_no_trade(env, monkeypatch):
     with pytest.raises(ConnectionError):            # laut statt still: Workflow schlägt sichtbar fehl
         pipeline.main()
     assert not env["trade"]
+
+
+def test_provider_outage_is_a_data_failure_not_a_market_finding(env, monkeypatch):
+    """Audit 2026-11-26: 25.11.2026 lieferte yfinance für fast alle Ticker 401; 462 Werte galten als 'Market Cap
+    < 2 Mrd.'. Ein Provider-Ausfall endet jetzt als data_failure – der Tag gilt dem Guard als NICHT versorgt."""
+    outage = {"stage": "hard_filter", "kind": "provider_outage", "reason": "probe_failed_market_cap_missing",
+              "total": 518, "no_data": 56, "market_cap_reject": 462, "share_suspect": 1.0,
+              "probe": {"ok": False}, "passed": 0}
+
+    class _Outage:
+        def __init__(self, history=None):
+            self.universe_size, self.provider_outage = 518, outage
+            self.filter_stats = {"total": 518, "no_data": 56, "market_cap": 462, "passed": 0}
+
+        def run(self):
+            return []
+    monkeypatch.setattr(pipeline, "DataIngestion", _Outage)
+    pipeline.main()
+    st = _snapshot()["stats"]
+    assert st["data_failure"] == outage and st["stop_reason"].startswith("Datenausfall Stufe 1")
+    assert st["hard_filter"]["market_cap"] == 462
+    assert env["status"] and not env["trade"]
+    from datetime import date
+    from pathlib import Path
+
+    from modules.workflow_health import artifact_ok, load_cfg
+    repo = Path(pipeline.__file__).resolve().parent              # Test läuft im tmp-Verzeichnis
+    spec = load_cfg(repo / "config" / "workflow_schedule.yaml")["workflows"]["scanner"]["artifact"]
+    day = date.fromisoformat(Path(__import__("glob").glob(TODAY_GLOB)[0]).stem)
+    assert artifact_ok(spec, day) is False           # Guard/Watchdog: Tag nicht versorgt -> Recovery möglich
