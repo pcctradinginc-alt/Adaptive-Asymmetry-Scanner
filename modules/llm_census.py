@@ -62,6 +62,7 @@ def _record(a: dict, design: dict, scorer) -> dict:
     rec = {"census_impact": da.get("impact"), "census_surprise": da.get("surprise"),
            "census_direction": da.get("direction"), "census_bear_case_severity": da.get("bear_case_severity"),
            "census_mismatch": ((res or {}).get("features") or {}).get("mismatch", sh.get("mismatch_raw")),
+           "census_red_team_verdict": (da.get("red_team") or {}).get("red_team_verdict"),
            "llm_census": {**design, "status": "analyzed"}}
     for k in ("mismatch_dir_48h", "mismatch_dir_news", "move_since_news"):
         if k in sh:
@@ -83,7 +84,11 @@ def run(picks: list[dict], design: dict, deadline: float | None, analyzer=None, 
     if scorer_cls is None:
         from modules.mismatch_scorer import MismatchScorer
         scorer_cls = MismatchScorer
-    analyses = analyzer.run(picks, deadline=deadline) or []
+    import inspect
+    # Audit 2026-11-26: auch Red-Team-VETO-Analysen notieren (sonst misst der Zensus nur die Nicht-VETO-Teilmenge).
+    keep = "keep_vetoed" in inspect.signature(analyzer.run).parameters
+    analyses = (analyzer.run(picks, deadline=deadline, keep_vetoed=True) if keep
+                else analyzer.run(picks, deadline=deadline)) or []
     done = set()
     scorer = scorer_cls()
     for a in analyses:
@@ -136,9 +141,48 @@ def report(rows: list[dict], as_of: date | None = None) -> dict:
         for k in ("census_impact", "census_mismatch", "census_mismatch_dir_48h", "census_mismatch_dir_news"):
             xy = [(float(f[k]), y) for f, y in pts if isinstance(f.get(k), (int, float))]
             res[f"ic_{k}"] = _spearman([x for x, _ in xy], [y for _, y in xy]) if xy else None
+        # Trennt das Red Team? (Zufallsstichprobe: VETO vs. kein VETO, beschreibend)
+        by_rt = {}
+        for f, y in pts:
+            grp = "VETO" if str(f.get("census_red_team_verdict") or "").upper() == "VETO" else "NO_VETO"
+            by_rt.setdefault(grp, []).append(y)
+        res["by_red_team"] = {g: {"n": len(v), "mean_dir_return": round(sum(v) / len(v), 6)} for g, v in by_rt.items()}
         out["horizons"][f"{h}d"] = res
     out["note"] = ("Zufallsstichprobe der Hard-Filter-Population (π je Zeile protokolliert); Rangkorrelation mit der "
                    "richtungsbereinigten Underlying-Rendite; beschreibend, keine Bestätigung.")
+    return out
+
+
+OFFLINE_OUT = Path("outputs/research/llm_census_offline")
+
+
+def with_offline_census(rows: list[dict], root: Path = OFFLINE_OUT) -> list[dict]:
+    """Audit 2026-11-26: Ergebnisse des unabhängigen Offline-Zensus (modules/llm_census_offline.py, eigene
+    append-only Dateien, nie im Ledger) an die Ledger-Zeile desselben Tages und Tickers hängen – nur im Speicher,
+    nur census_*-Felder. Vorher las der Bericht ausschließlich Ledger-Felder und sah den Offline-Zensus nie."""
+    overlay: dict = {}
+    for path in sorted(Path(root).glob("*.json")) if Path(root).exists() else []:
+        try:
+            rep = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if rep.get("status") != "DONE" or not rep.get("day"):
+            continue
+        for r in rep.get("rows") or []:
+            if not isinstance(r, dict):
+                continue
+            f = r.get("fields") or {}
+            if r.get("ticker") and (f.get("llm_census") or {}).get("status") == "analyzed":
+                overlay[(str(rep["day"]), r["ticker"])] = {k: v for k, v in f.items()
+                                                          if k.startswith("census_") or k == "llm_census"}
+    if not overlay:
+        return rows
+    out = []
+    for row in rows:
+        add = overlay.get((str(row.get("date")), row.get("ticker"))) if isinstance(row, dict) else None
+        if add and ((row.get("features") or {}).get("llm_census") or {}).get("status") != "analyzed":
+            row = {**row, "features": {**(row.get("features") or {}), **add}}
+        out.append(row)
     return out
 
 
@@ -150,7 +194,8 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     from modules.challenger import load_ledger_rows
     as_of = date.fromisoformat(args.as_of) if args.as_of else datetime.now(timezone.utc).date()
-    rep = report(load_ledger_rows(), as_of)
+    rows = with_offline_census(load_ledger_rows())
+    rep = report(rows, as_of)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({k: rep[k] for k in ("analyzed_rows", "days")}, ensure_ascii=False))

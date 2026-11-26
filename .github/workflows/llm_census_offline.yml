@@ -34,7 +34,9 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           RESEARCH_ONLY_LLM_CENSUS: '1'
-        run: python -m modules.llm_census_offline --day "$(date -u +%Y-%m-%d)"
+        # Ohne --day (Audit 2026-11-26): der Cron startet real am nächsten UTC-Tag; "$(date -u)" fand nie eine
+        # Kohorte. Das Modul wählt die zeitnah eingefrorenen Kohorten ohne Ergebnis selbst.
+        run: python -m modules.llm_census_offline
       - name: Commit independent outcomes (never Candidate Ledger)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
