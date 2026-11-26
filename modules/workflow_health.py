@@ -116,7 +116,21 @@ def artifact_ok(spec: dict | None, day: date, root: Path = Path(".")) -> bool | 
     if not spec:
         return None
     if spec.get("kind") == "file":
-        return (root / spec["path"].format(date=day.isoformat())).exists()
+        path = root / spec["path"].format(date=day.isoformat())
+        if not path.exists():
+            return False
+        if spec.get("unless_field"):
+            # Audit 2026-11-26: ein Tagesbericht mit Datenausfall-Befund (z. B. stats.data_failure) versorgt den
+            # Tag NICHT -> Guard lässt einen erneuten Lauf zu, Watchdog kann im Fenster einmal nachstarten.
+            try:
+                node = json.loads(path.read_text(encoding="utf-8"))
+                for part in str(spec["unless_field"]).split("."):
+                    node = node.get(part) if isinstance(node, dict) else None
+                if node:
+                    return False
+            except (OSError, ValueError):
+                return False       # unlesbarer Tagesbericht = nicht versorgt (fail-closed für die Recovery)
+        return True
     ts = latest_timestamp(spec, root)
     return ts is not None and ts.date() == day
 

@@ -10,7 +10,7 @@ import logging
 import math
 import os
 import time
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 import yaml
 
@@ -121,18 +121,71 @@ def analyze_frozen(frozen: dict, *, cfg: dict, budget: dict,
     return report
 
 
+# Audit 2026-11-26: Der Workflow rief --day "$(date -u)" auf; der Cron (22:30 UTC) startet real 4–7 h später, also
+# am NÄCHSTEN UTC-Tag -> es gab nie eine Eingabe für "heute", seit dem 11.11. wurde keine Kohorte analysiert.
+# Jetzt: ohne --day alle eingefrorenen Kohorten ohne Ergebnis. Analysiert wird nur zeitnah zum Einfrieren
+# (Deep Analysis/Mismatch lesen Live-Kurse; eine Tage später analysierte Kohorte wäre nicht mehr point-in-time);
+# ältere Kohorten erhalten einmalig einen SKIPPED-Bericht (stale_cohort) – sichtbar statt still verloren.
+MAX_COHORT_AGE_H = 36
+
+
+def pending_cohorts(input_root: Path = INPUT, out_root: Path = OUT,
+                    now: datetime | None = None) -> tuple[list[str], list[str]]:
+    """(fresh, stale): Tage mit eingefrorener Kohorte und ohne Ergebnisdatei; fresh = frozen_at <= MAX_COHORT_AGE_H."""
+    now = now or datetime.now(timezone.utc)
+    fresh, stale = [], []
+    for path in sorted(Path(input_root).glob("*.json")) if Path(input_root).exists() else []:
+        day = path.stem
+        if (Path(out_root) / f"{day}.json").exists():
+            continue
+        try:
+            frozen_at = datetime.fromisoformat(json.loads(path.read_text(encoding="utf-8"))["frozen_at"])
+            if frozen_at.tzinfo is None:
+                frozen_at = frozen_at.replace(tzinfo=timezone.utc)
+        except (OSError, ValueError, KeyError, TypeError):
+            stale.append(day)
+            continue
+        age_h = (now - frozen_at).total_seconds() / 3600
+        (fresh if 0 <= age_h <= MAX_COHORT_AGE_H else stale).append(day)
+    return fresh, stale
+
+
+def _write_once(target: Path, report: dict) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with target.open("x", encoding="utf-8") as fh:
+        json.dump(report, fh, ensure_ascii=False, indent=2)
+        fh.write("\n")
+
+
 def main(argv=None):
     p = argparse.ArgumentParser()
-    p.add_argument("--day", default=date.today().isoformat())
+    p.add_argument("--day", default=None,
+                   help="ein bestimmter Tag; ohne Angabe: alle zeitnah eingefrorenen Kohorten ohne Ergebnis")
     p.add_argument("--input", type=Path, default=INPUT)
     p.add_argument("--out", type=Path, default=OUT)
     args = p.parse_args(argv)
+    if args.day:
+        return _run_day(args.day, args.input, args.out)
+    fresh, stale = pending_cohorts(args.input, args.out)
+    for day in stale:
+        _write_once(args.out / f"{day}.json", {
+            "status": "SKIPPED", "reason": "stale_cohort", "day": day, "policy": lc.POLICY,
+            "production_influence": "NONE", "orders_created": 0, "analyzed": 0, "rows": [],
+            "max_cohort_age_h": MAX_COHORT_AGE_H, "completed_at": datetime.now(timezone.utc).isoformat()})
+        print(f"Kohorte {day}: nicht mehr zeitnah (> {MAX_COHORT_AGE_H} h) – SKIPPED stale_cohort, keine LLM-Analyse")
+    if not fresh:
+        print("Keine zeitnah eingefrorene Kohorte ohne Ergebnis.")
+        return 0
+    return max(_run_day(day, args.input, args.out) for day in fresh)
+
+
+def _run_day(day: str, input_root: Path, out_root: Path) -> int:
     cfg = policy()
-    target = args.out / f"{args.day}.json"
+    target = out_root / f"{day}.json"
     if target.exists():
         print("Already evaluated (append-only): " + str(target))
         return 0
-    frozen_path = args.input / f"{args.day}.json"
+    frozen_path = input_root / f"{day}.json"
     if not frozen_path.exists():
         print("No frozen, point-in-time cohort: " + str(frozen_path))
         return 0
@@ -144,10 +197,7 @@ def main(argv=None):
         budget = {}
     report = analyze_frozen(frozen, cfg=cfg, budget=budget)
     report["completed_at"] = datetime.now(timezone.utc).isoformat()
-    args.out.mkdir(parents=True, exist_ok=True)
-    with target.open("x", encoding="utf-8") as fh:
-        json.dump(report, fh, ensure_ascii=False, indent=2)
-        fh.write("\n")
+    _write_once(target, report)
     print(json.dumps({k: v for k, v in report.items() if k != "rows"}, indent=2))
     return 0 if report["status"] in ("DONE", "SKIPPED") else 1
 

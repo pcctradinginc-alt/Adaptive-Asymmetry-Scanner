@@ -185,9 +185,13 @@ class DeepAnalysis:
                 f"YC={self._macro.get('yield_curve_desc', 'n/a')}"
             )
 
-    def run(self, shortlist: list[dict], deadline: float | None = None) -> list[dict]:
+    def run(self, shortlist: list[dict], deadline: float | None = None, keep_vetoed: bool = False) -> list[dict]:
         """deadline: time.monotonic()-Wert, ab dem keine weitere Analyse mehr
-        beginnt (Laufzeitbudget der Pipeline); übersprungene -> skipped_for_time."""
+        beginnt (Laufzeitbudget der Pipeline); übersprungene -> skipped_for_time.
+
+        keep_vetoed (nur Research, Audit 2026-11-26): Red-Team-VETO-Analysen werden mit verdict VETO
+        zurückgegeben statt verworfen. Der LLM-Zensus verlor sonst jede bezahlte Analyse mit VETO
+        (10.11.: KMB, CBRE -> "no_analysis") und maß nur die Nicht-VETO-Teilmenge. Produktion: False."""
         import time as _time
         analyses = []
         self.skipped_for_time = []
@@ -236,10 +240,12 @@ class DeepAnalysis:
 
             if red_team.get("red_team_verdict") == "VETO":
                 log.info(
-                    f"  [{candidate['ticker']}] RED TEAM VETO → verworfen. "
+                    f"  [{candidate['ticker']}] RED TEAM VETO → "
+                    f"{'behalten (Research)' if keep_vetoed else 'verworfen'}. "
                     f"Grund: {red_team.get('argument_1', 'n/a')}"
                 )
-                continue
+                if not keep_vetoed:
+                    continue
 
             stats = analysis.get("stats_check", {})
             if stats.get("concern_level") == "high" and analysis.get("impact", 0) > 6:

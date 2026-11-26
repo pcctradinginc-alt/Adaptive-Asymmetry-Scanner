@@ -132,11 +132,16 @@ class Observation:
 
 def available_as_of(observations: Iterable[Observation], t: datetime) -> list[Observation]:
     """PIT-Filter: nur Beobachtungen mit available_at <= t; pro identity_key die
-    jüngste bis t verfügbare Version (Vintage)."""
+    jüngste bis t verfügbare Version (Vintage).
+
+    Audit 2026-11-26 (AUD-005): zusätzlich vintage_time <= t. Alle Konnektoren setzen heute
+    vintage_time <= available_at; ein Konnektor mit inkonsistenten Zeitstempeln (Revision mit späterer
+    Gültigkeit, aber früherem available_at) darf trotzdem nie eine erst später gültige Revision in eine
+    historische Entscheidung tragen."""
     t = ensure_utc(t)
     best: dict[str, Observation] = {}
     for o in observations:
-        if o.available_at > t:
+        if o.available_at > t or (o.vintage_time is not None and o.vintage_time > t):
             continue
         k = o.identity_key()
         cur = best.get(k)
