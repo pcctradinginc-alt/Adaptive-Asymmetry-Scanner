@@ -1,33 +1,21 @@
 {
-  "checked_at": "2026-11-19T01:28:52.603342+00:00",
+  "checked_at": "2026-11-26T02:26:28.497688+00:00",
   "mode": "SHADOW_ONLY",
   "ports_global_coverage": false,
   "production_fallback_enabled": false,
   "resources": {
     "chokepoints": {
-      "bytes": 10040024,
-      "data_age_days": 4,
+      "error": "HDX_RESOURCE_SHOW_INVALID_JSON",
       "family": "chokepoints",
-      "latest_observation_date": "2026-11-15",
-      "metric": "n_total",
-      "provenance": {
-        "name": "daily-chokepoint-transit-calls-and-shipment-volume-estimates.csv",
-        "package_id": "91d28bb8-986d-430c-961c-6a24ecbd66ee",
-        "publisher": "HDX/PortWatch",
-        "resource_id": "cbd17f06-8ab2-4ba4-a666-f7a4bcc9ea3f"
-      },
       "resource_id": "cbd17f06-8ab2-4ba4-a666-f7a4bcc9ea3f",
-      "rows": 80528,
       "scope": "GLOBAL_CHOKEPOINTS",
-      "sha256": "b6fc0f42e3496da45a22169333bc6b1eecafdd365e249502caf4f67dde039e8d",
-      "status": "PASS",
-      "unique_days": 2876
+      "status": "FAIL"
     },
     "djibouti": {
-      "bytes": 376881,
+      "bytes": 377822,
       "data_age_days": 6,
       "family": "ports",
-      "latest_observation_date": "2026-11-13",
+      "latest_observation_date": "2026-11-20",
       "metric": "portcalls",
       "provenance": {
         "name": "djibouti-daily-port-activity-data-and-shipment-estimates.csv",
@@ -36,17 +24,17 @@
         "resource_id": "96a7bdea-8297-49b7-ad6c-adb1d1f48e6d"
       },
       "resource_id": "96a7bdea-8297-49b7-ad6c-adb1d1f48e6d",
-      "rows": 2874,
+      "rows": 2881,
       "scope": "COUNTRY_ONLY",
-      "sha256": "1c90e2e637474bfeeb2ecda9583d9a451329e427745e419bfb36412e98346dfd",
+      "sha256": "9ab21186c25832f5c48c3652e54b804a54502ca432e21ee13f23b3ea5b4b3cae",
       "status": "PASS",
-      "unique_days": 2874
+      "unique_days": 2881
     },
     "kenya": {
-      "bytes": 659534,
+      "bytes": 661226,
       "data_age_days": 6,
       "family": "ports",
-      "latest_observation_date": "2026-11-13",
+      "latest_observation_date": "2026-11-20",
       "metric": "portcalls",
       "provenance": {
         "name": "kenya-daily-port-activity-data-and-shipment-estimates.csv",
@@ -55,17 +43,17 @@
         "resource_id": "e0bde7c9-2cb7-4eab-ae71-3e2c2e225207"
       },
       "resource_id": "e0bde7c9-2cb7-4eab-ae71-3e2c2e225207",
-      "rows": 5748,
+      "rows": 5762,
       "scope": "COUNTRY_ONLY",
-      "sha256": "3a35e3220524e43cc861a3d0976743ab33686c71098ce1d63f640f46c95824aa",
+      "sha256": "4edd55de83380e593ba12038b0e855378a70798d4b8de0a16fb06a3001e33fab",
       "status": "PASS",
-      "unique_days": 2874
+      "unique_days": 2881
     },
     "lebanon": {
-      "bytes": 1638066,
+      "bytes": 1642074,
       "data_age_days": 6,
       "family": "ports",
-      "latest_observation_date": "2026-11-13",
+      "latest_observation_date": "2026-11-20",
       "metric": "portcalls",
       "provenance": {
         "name": "lebanon-daily-port-activity-data-and-shipment-estimates.csv",
@@ -74,109 +62,49 @@
         "resource_id": "8d1d8984-fd6d-4f8e-af84-32b0ab8bacd3"
       },
       "resource_id": "8d1d8984-fd6d-4f8e-af84-32b0ab8bacd3",
-      "rows": 14370,
+      "rows": 14405,
       "scope": "COUNTRY_ONLY",
-      "sha256": "d6ad5576f7b1354661b301a317ba467b08d00e88bea96ee2615845f3375b0a05",
+      "sha256": "fb88855db49c1697646d5f9dc1184e9182776b1b556d08eadcf20693246b5b4a",
       "status": "PASS",
-      "unique_days": 2874
+      "unique_days": 2881
     },
     "mozambique": {
-      "bytes": 1760829,
-      "data_age_days": 6,
+      "error": "HDX_RESOURCE_SHOW_INVALID_JSON",
       "family": "ports",
-      "latest_observation_date": "2026-11-13",
-      "metric": "portcalls",
-      "provenance": {
-        "name": "mozambique-daily-port-activity-data-and-shipment-estimates.csv",
-        "package_id": "c2652dde-c666-45d9-b1f2-6f39b2ffcbb9",
-        "publisher": "HDX/PortWatch",
-        "resource_id": "9c88af9b-9868-44a6-af3b-2df6db2e8c58"
-      },
       "resource_id": "9c88af9b-9868-44a6-af3b-2df6db2e8c58",
-      "rows": 14370,
       "scope": "COUNTRY_ONLY",
-      "sha256": "d897bf1f42ae2987260ce024fe0551189dbf8da9863130a6529c9102154be20f",
-      "status": "PASS",
-      "unique_days": 2874
+      "status": "FAIL"
     },
     "oman": {
-      "bytes": 2139619,
-      "data_age_days": 6,
+      "error": "HDX_RESOURCE_SHOW_INVALID_JSON",
       "family": "ports",
-      "latest_observation_date": "2026-11-13",
-      "metric": "portcalls",
-      "provenance": {
-        "name": "oman-daily-port-activity-data-and-shipment-estimates.csv",
-        "package_id": "d9991e83-f865-40ad-9b52-6272967881fc",
-        "publisher": "HDX/PortWatch",
-        "resource_id": "381b41b9-12c8-4bb3-b056-65ef6ddf1c6b"
-      },
       "resource_id": "381b41b9-12c8-4bb3-b056-65ef6ddf1c6b",
-      "rows": 17244,
       "scope": "COUNTRY_ONLY",
-      "sha256": "c59a1b8b41d4eef5eb6b6d4a8fc85c907ef5cc53bf752493dbf4245fd5177d8d",
-      "status": "PASS",
-      "unique_days": 2874
+      "status": "FAIL"
     },
     "somalia": {
-      "bytes": 1595779,
-      "data_age_days": 6,
+      "error": "HDX_RESOURCE_SHOW_INVALID_JSON",
       "family": "ports",
-      "latest_observation_date": "2026-11-13",
-      "metric": "portcalls",
-      "provenance": {
-        "name": "somalia-daily-port-activity-data-and-shipment-estimates.csv",
-        "package_id": "e10b9923-74e6-4105-b61c-1c3a4802cbd0",
-        "publisher": "HDX/PortWatch",
-        "resource_id": "8bf8a420-56b3-492a-96b0-e8acb7f14c04"
-      },
       "resource_id": "8bf8a420-56b3-492a-96b0-e8acb7f14c04",
-      "rows": 14370,
       "scope": "COUNTRY_ONLY",
-      "sha256": "0a94abb19da14ba34186fcd5c0deba2fe13ba445e975ca57dba0496996168d2b",
-      "status": "PASS",
-      "unique_days": 2874
+      "status": "FAIL"
     },
     "sudan": {
-      "bytes": 976829,
-      "data_age_days": 6,
+      "error": "HDX_RESOURCE_SHOW_INVALID_JSON",
       "family": "ports",
-      "latest_observation_date": "2026-11-13",
-      "metric": "portcalls",
-      "provenance": {
-        "name": "sudan-daily-port-activity-data-and-shipment-estimates.csv",
-        "package_id": "e9a64d76-fd52-42a1-bdce-ed8a427c3202",
-        "publisher": "HDX/PortWatch",
-        "resource_id": "6ce7a041-ce33-4e83-bc66-7fd1d1fa4af8"
-      },
       "resource_id": "6ce7a041-ce33-4e83-bc66-7fd1d1fa4af8",
-      "rows": 8622,
       "scope": "COUNTRY_ONLY",
-      "sha256": "a43c31d868b80820b4de2e3be8f111f295154e7781888cc9ba330888374a1faf",
-      "status": "PASS",
-      "unique_days": 2874
+      "status": "FAIL"
     },
     "yemen": {
-      "bytes": 2883562,
-      "data_age_days": 6,
+      "error": "HDX_RESOURCE_SHOW_INVALID_JSON",
       "family": "ports",
-      "latest_observation_date": "2026-11-13",
-      "metric": "portcalls",
-      "provenance": {
-        "name": "yemen-daily-port-activity-data-and-shipment-estimates.csv",
-        "package_id": "a05e0d19-956f-441c-a5da-fd0cd8b73c94",
-        "publisher": "HDX/PortWatch",
-        "resource_id": "5b130c44-8c57-485c-b1bf-6ab07aa12ce9"
-      },
       "resource_id": "5b130c44-8c57-485c-b1bf-6ab07aa12ce9",
-      "rows": 25866,
       "scope": "COUNTRY_ONLY",
-      "sha256": "7ff31816ae1f0b647f050a997662e0ee85e21821bff3e7f068a6f56a64ff4f7a",
-      "status": "PASS",
-      "unique_days": 2874
+      "status": "FAIL"
     }
   },
   "safe_mode_override": false,
   "source": "OCHA/HDX IMF PortWatch",
-  "status": "PASS_SHADOW"
+  "status": "FAIL_SHADOW"
 }
