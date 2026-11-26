@@ -1,6 +1,6 @@
 # Expectation Alpha – SHADOW – Research, keine Handelsempfehlung
 
-Stand 2026-11-26T02:21:22+00:00 · config 9772eff4a0fef81d
+Stand 2026-11-26T23:58:07+00:00 · config 9772eff4a0fef81d
 
 Population EA_NEWS_CANDIDATE: n=578, Signaltage 28, Ereignis-Cluster 299, Status {'ABSTAIN': 510, 'WAIT': 64, 'TRADE': 4}
 
@@ -40,20 +40,20 @@ Population EA_NEWS_CANDIDATE: n=578, Signaltage 28, Ereignis-Cluster 299, Status
 
 | Feature | Familie | IC 20T (n) | IC 60T (n) | IC 120T (n) | IC 250T (n) |
 |---|---|---|---|---|---|
-| macro_alignment | expectation_gap | -0.2221 (537) | – (0) | – (0) | – (0) |
-| gap_abs_z | expectation_gap | 0.0065 (537) | – (0) | – (0) | – (0) |
-| gap_aligned | expectation_gap | -0.1994 (537) | – (0) | – (0) | – (0) |
-| gap_percentile | percentile | 0.0299 (537) | – (0) | – (0) | – (0) |
-| gap_acceleration_aligned | rate_of_change | 0.1994 (537) | – (0) | – (0) | – (0) |
-| sector_alignment | relative | -0.2099 (539) | – (0) | – (0) | – (0) |
-| confirmation_ratio_raw | cross_asset | 0.2674 (541) | – (0) | – (0) | – (0) |
-| confirmation_ratio_effective | cross_asset | 0.2685 (541) | – (0) | – (0) | – (0) |
-| confirmation_family_count | cross_asset | -0.0022 (541) | – (0) | – (0) | – (0) |
-| regime_uncertainty | regime | -0.0875 (541) | – (0) | – (0) | – (0) |
-| regime_transition_probability | regime_transition | 0.0407 (533) | – (0) | – (0) | – (0) |
-| verified_claim_fraction | claims | -0.0411 (111) | – (0) | – (0) | – (0) |
-| news_impact | news | 0.0126 (541) | – (0) | – (0) | – (0) |
-| news_surprise | news | 0.0112 (541) | – (0) | – (0) | – (0) |
+| macro_alignment | expectation_gap | -0.2215 (538) | – (0) | – (0) | – (0) |
+| gap_abs_z | expectation_gap | 0.0045 (538) | – (0) | – (0) | – (0) |
+| gap_aligned | expectation_gap | -0.1976 (538) | – (0) | – (0) | – (0) |
+| gap_percentile | percentile | 0.0279 (538) | – (0) | – (0) | – (0) |
+| gap_acceleration_aligned | rate_of_change | 0.1976 (538) | – (0) | – (0) | – (0) |
+| sector_alignment | relative | -0.2113 (540) | – (0) | – (0) | – (0) |
+| confirmation_ratio_raw | cross_asset | 0.2665 (542) | – (0) | – (0) | – (0) |
+| confirmation_ratio_effective | cross_asset | 0.2674 (542) | – (0) | – (0) | – (0) |
+| confirmation_family_count | cross_asset | -0.0004 (542) | – (0) | – (0) | – (0) |
+| regime_uncertainty | regime | -0.0874 (542) | – (0) | – (0) | – (0) |
+| regime_transition_probability | regime_transition | 0.0386 (534) | – (0) | – (0) | – (0) |
+| verified_claim_fraction | claims | -0.0437 (112) | – (0) | – (0) | – (0) |
+| news_impact | news | 0.0116 (542) | – (0) | – (0) | – (0) |
+| news_surprise | news | 0.0106 (542) | – (0) | – (0) | – (0) |
 
 Fehlerklassen (Shadow-TRADE): – · je Status: –
 
