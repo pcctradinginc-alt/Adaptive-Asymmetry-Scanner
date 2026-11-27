@@ -4,11 +4,6 @@
 
 Status: HEALTHY 49 · DEGRADED 1 · STALE 1 · BROKEN 0 · UNVALIDATED 13
 
-## Neue Änderungen
-
-- recovery: eia_petroleum_weekly DEGRADED → HEALTHY
-- degradation: estat_jp_truck HEALTHY → STALE (veraltet (Frequenz-Grenze der Registry))
-
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
