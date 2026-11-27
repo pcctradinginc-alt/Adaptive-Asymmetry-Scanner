@@ -6,6 +6,7 @@
 
 | Datum | Sektor | Quote-Probes | Budget-untersucht: nein | Earnings-Reject | Haiku | Sonnet | Quick-MC | ROI OK | Trades |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2026-11-27 | 85 | 8 | 77 | 0 | 6 | 1 | 0 | 0 | 0 |
 | 2026-11-23 | 218 | 8 | 210 | 2 | 5 | 1 | 0 | 0 | 0 |
 | 2026-11-20 | 309 | 8 | 301 | 0 | 7 | 2 | 1 | 0 | 0 |
 | 2026-11-19 | 90 | 8 | 82 | 1 | 6 | 2 | 0 | 0 | 0 |
@@ -15,7 +16,6 @@
 | 2026-11-13 | 80 | 8 | 72 | 0 | 8 | 2 | 0 | 0 | 0 |
 | 2026-11-12 | 208 | 8 | 200 | 0 | 8 | 3 | 1 | 0 | 0 |
 | 2026-11-11 | 173 | 8 | 165 | 1 | 7 | 3 | 1 | 0 | 0 |
-| 2026-11-10 | 175 | 8 | 167 | 1 | 7 | 2 | 1 | 0 | 0 |
 
 Budget-bedingt nicht untersuchte Kandidaten sind **keine** nachgewiesenen
 ökonomischen Rejects. Für unbepreiste Aktien existieren keine realen Options-Outcomes.
@@ -47,12 +47,12 @@ Es erfolgt keine Änderung an Champion, Gates, Sizing, PPO oder Promotion.
 
 | Ablehnungsgrund | Signale | Richtung bekannt | Aktienmark 5d | Ø 5d* | Aktienmark 20d | Ø 20d* |
 |---|---:|---:|---:|---:|---:|---:|
-| prescreen_no | 3969 | 0 | 3947 | 0.5% | 3908 | 2.0% |
-| economics_first_quote_probe_budget | 3599 | 0 | 3389 | -0.4% | 2099 | n/v |
-| sector_momentum_weak | 1189 | 1 | 1129 | -0.4% | 833 | -0.1% |
+| prescreen_no | 3974 | 0 | 3947 | 0.5% | 3908 | 2.0% |
+| economics_first_quote_probe_budget | 3676 | 0 | 3389 | -0.4% | 2099 | n/v |
+| sector_momentum_weak | 1223 | 1 | 1129 | -0.4% | 833 | -0.1% |
 | earnings_gate | 439 | 43 | 439 | -0.3% | 439 | -0.1% |
 | mismatch_below_min | 351 | 351 | 349 | 0.3% | 342 | -0.4% |
-| bearish_disabled | 316 | 316 | 312 | -0.1% | 307 | 0.4% |
+| bearish_disabled | 317 | 317 | 312 | -0.1% | 307 | 0.4% |
 | time_budget_exceeded | 253 | 0 | 252 | n/v | 252 | n/v |
 | pre_mc_sigma_too_low | 204 | 0 | 204 | 1.0% | 204 | 6.9% |
 | options_design_roi_or_edge | 170 | 170 | 170 | 0.1% | 165 | -2.3% |

@@ -4,8 +4,8 @@
   "candidate_underlying_by_gate": {
     "by_reject_reason": {
       "bearish_disabled": {
-        "direction_known": 316,
-        "registered": 316,
+        "direction_known": 317,
+        "registered": 317,
         "underlying": {
           "20": {
             "independent_days": 23,
@@ -101,7 +101,7 @@
       },
       "economics_first_excessive_quote_friction": {
         "direction_known": 0,
-        "registered": 10,
+        "registered": 12,
         "underlying": {
           "20": {
             "independent_days": 3,
@@ -125,7 +125,7 @@
       },
       "economics_first_quote_probe_budget": {
         "direction_known": 0,
-        "registered": 3599,
+        "registered": 3676,
         "underlying": {
           "20": {
             "independent_days": 8,
@@ -365,7 +365,7 @@
       },
       "prescreen_no": {
         "direction_known": 0,
-        "registered": 3969,
+        "registered": 3974,
         "underlying": {
           "20": {
             "independent_days": 27,
@@ -413,7 +413,7 @@
       },
       "sector_momentum_weak": {
         "direction_known": 1,
-        "registered": 1189,
+        "registered": 1223,
         "underlying": {
           "20": {
             "independent_days": 27,
@@ -535,13 +535,28 @@
     "direction_mixed_or_unknown": true,
     "interpretation": "Direction unknown for early deferrals, so their stock returns are not comparable to long-call option outcomes. No causal inference.",
     "lookback_days": 100,
-    "signals_read": 10927,
+    "signals_read": 11046,
     "stocks_are_not_option_returns": true,
     "unreadable_rows": 0
   },
   "economics_first_acquisition": {
     "budget_not_probed_is_unprofitable": false,
     "days": [
+      {
+        "budget_not_probed": 77,
+        "date": "2026-11-27",
+        "earnings_rejected": 0,
+        "haiku_audit_inputs": 2,
+        "haiku_inputs": 6,
+        "mismatch_rejected": 0,
+        "mode": "active",
+        "quick_mc_survivors": 0,
+        "quote_probes": 8,
+        "roi_approved": 0,
+        "sector_survivors": 85,
+        "sonnet_analyzed": 1,
+        "trades": 0
+      },
       {
         "budget_not_probed": 210,
         "date": "2026-11-23",
@@ -676,37 +691,22 @@
         "sector_survivors": 173,
         "sonnet_analyzed": 3,
         "trades": 0
-      },
-      {
-        "budget_not_probed": 167,
-        "date": "2026-11-10",
-        "earnings_rejected": 1,
-        "haiku_audit_inputs": 2,
-        "haiku_inputs": 7,
-        "mismatch_rejected": 1,
-        "mode": "active",
-        "quick_mc_survivors": 1,
-        "quote_probes": 8,
-        "roi_approved": 0,
-        "sector_survivors": 175,
-        "sonnet_analyzed": 2,
-        "trades": 0
       }
     ],
     "interpretation": "Quote-probe budget deferrals are unpriced, not economic rejects.",
     "options_outcomes_for_unprobed_candidates": "UNKNOWN",
     "status": "OBSERVED_DESCRIPTIVE_ONLY",
     "totals": {
-      "budget_not_probed": 1363,
-      "earnings_rejected": 10,
+      "budget_not_probed": 1273,
+      "earnings_rejected": 9,
       "haiku_audit_inputs": 18,
-      "haiku_inputs": 64,
-      "mismatch_rejected": 7,
-      "quick_mc_survivors": 5,
+      "haiku_inputs": 63,
+      "mismatch_rejected": 6,
+      "quick_mc_survivors": 4,
       "quote_probes": 80,
       "roi_approved": 0,
-      "sector_survivors": 1443,
-      "sonnet_analyzed": 17,
+      "sector_survivors": 1353,
+      "sonnet_analyzed": 16,
       "trades": 0
     }
   },
