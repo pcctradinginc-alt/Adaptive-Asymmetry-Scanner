@@ -46,6 +46,10 @@ den Zensus (Produktion unverändert), `census_red_team_verdict` und `by_red_team
 die Offline-Ergebnisse mit den Forward-Renditen des Ledgers. Kosten: k = 5 Analysen je Handelstag, Budget-Guard
 und Monatsdeckel (10 USD) unverändert.
 
+**Nachtrag 27.11.:** Die Recovery für NEU-1 hätte so nicht gegriffen – der Watchdog zählte den Scanner-Direkt-Dispatch
+aus Source Health als Recovery und hielt einen veralteten Snapshot für „versorgt“. Behoben in
+`docs/SCIENTIFIC_AUDIT_2026-11-27.md` (DA-01/DA-02).
+
 ## Nicht umgesetzt, Owner-Entscheidung
 
 * Branch-Schutz/Rulesets für `main` (Issue #202) und Klärung der abgeschnittenen Historie vom 23.11.
