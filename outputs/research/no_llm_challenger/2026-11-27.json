@@ -1,0 +1,66 @@
+{
+  "policy": "no-llm-acquisition-ridge-v1",
+  "day": "2026-11-27",
+  "mode": "research_only",
+  "production_influence": "NONE",
+  "orders": 0,
+  "model_id": "f3e15dabd1c0",
+  "action": "ABSTAIN",
+  "candidates_seen": 119,
+  "eligible_contracts": 39,
+  "watchlist": [
+    {
+      "ticker": "SPCX",
+      "signal_id": "bc2c4e2306824e669a79eaf797922fd0",
+      "contract": "SPCX270416C00130000",
+      "model_net_estimate": -0.055132,
+      "entry_ask_debit": 20.25,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "SCHW",
+      "signal_id": "5e02e752fa03489eb14147e38cc0f918",
+      "contract": "SCHW270617C00095000",
+      "model_net_estimate": -0.068695,
+      "entry_ask_debit": 8.75,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "SNDK",
+      "signal_id": "cfd855094d5a484e9d8d6d48422f46ae",
+      "contract": "SNDK270416C00083750",
+      "model_net_estimate": -0.074068,
+      "entry_ask_debit": 4.5,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "SHOP",
+      "signal_id": "95a714eb6f7d451aa4fd319977138b9e",
+      "contract": "SHOP270416C00140000",
+      "model_net_estimate": -0.076123,
+      "entry_ask_debit": 9.3,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    },
+    {
+      "ticker": "ABBV",
+      "signal_id": "72458b9fbca845ad9f0dcd0892ab2089",
+      "contract": "ABBV270521C00290000",
+      "model_net_estimate": -0.085779,
+      "entry_ask_debit": 26.8,
+      "sample": "research_census",
+      "entry_status": "FILLED",
+      "snapshot_selected": true
+    }
+  ],
+  "reason": "research_only_unvalidated",
+  "prediction_id": "a91377b473452e1b",
+  "recorded_at": "2026-11-27T17:05:28.075409+00:00"
+}

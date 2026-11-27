@@ -1,22 +1,36 @@
 {
+ "SCANNER_FAILED:scanner": {
+  "fingerprint": "2c2791c00e0c19f8",
+  "first_seen": "2026-11-27",
+  "last_seen": "2026-11-27",
+  "severity": "WARNING",
+  "component": "Lauf"
+ },
+ "WORKFLOW_FAILED:PortWatch HDX Shadow (OCHA mirror, no fallback)": {
+  "fingerprint": "368b305a78f2b63c",
+  "first_seen": "2026-11-27",
+  "last_seen": "2026-11-27",
+  "severity": "WARNING",
+  "component": "Lauf"
+ },
  "BRANCH_UNPROTECTED": {
   "fingerprint": "56422ebe1ea059ca",
   "first_seen": "2026-11-10",
-  "last_seen": "2026-11-25",
+  "last_seen": "2026-11-27",
   "severity": "WARNING",
   "component": "Governance"
  },
  "UNREVIEWED_CRITICAL_MERGE": {
-  "fingerprint": "0e0b626a406c2c9a",
+  "fingerprint": "cda7d1d890055685",
   "first_seen": "2026-11-10",
-  "last_seen": "2026-11-25",
+  "last_seen": "2026-11-27",
   "severity": "WARNING",
   "component": "Governance"
  },
  "OUTCOMES_OVERDUE:marks": {
   "fingerprint": "499626ffb717cea2",
   "first_seen": "2026-11-13",
-  "last_seen": "2026-11-25",
+  "last_seen": "2026-11-27",
   "severity": "WARNING",
   "component": "Quote-Abdeckung"
  }
