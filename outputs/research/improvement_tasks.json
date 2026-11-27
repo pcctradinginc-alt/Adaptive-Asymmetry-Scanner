@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-26T03:44:40+00:00",
+ "generated": "2026-11-27T03:46:21+00:00",
  "last_runs": {
   "weekly": {
    "generated": "2026-11-21T16:27:10+00:00",
@@ -30,7 +30,7 @@
    ]
   },
   "critical": {
-   "generated": "2026-11-26T03:44:40+00:00",
+   "generated": "2026-11-27T03:46:21+00:00",
    "mail_status": "nothing_to_send",
    "pending": [],
    "deferred_by_weekly_limit": [],
@@ -427,8 +427,8 @@
     "Test der erweiterten Stichprobenregel"
    ],
    "verify": "Verteilung der Snapshots nach Stichprobe und Richtung im Ledger auszählen.",
-   "status": "NOTIFIED",
-   "decision_note": null,
+   "status": "REJECTED",
+   "decision_note": "Keine Snapshot-Störung: im 5d Walk-Forward nur 1 Directional und 91 Census-Fälle, Zeitraum 7 Tage. Directionals bereits priorisiert; zusätzliche Census-Snapshots erzeugen kein produktives Richtungssignal. Übertragbarkeitswarnung bleibt; prospektiver Kohorten-Challenger nur separat mit Freigabe.",
    "first_detected": "2026-11-21T16:27:10+00:00",
    "last_changed": "2026-11-21T16:27:10+00:00",
    "resolved_at": null,
@@ -510,8 +510,8 @@
     "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
    ],
    "verify": "In outputs/candidate_ledger/ Format und Speicherort von impact auszählen und mit option_learner.features() vergleichen.",
-   "status": "NOTIFIED",
-   "decision_note": null,
+   "status": "REJECTED",
+   "decision_note": "Kein Reader-Fehler: 5d directional impact 507/507, census 0/980; 20d directional 445/445, census 0/47. 0 Reader-Mismatches. Keine synthetische Befüllung/Feature-Ablation; Audit 21.11.2026.",
    "first_detected": "2026-11-14T15:24:13+00:00",
    "last_changed": "2026-11-14T15:24:13+00:00",
    "resolved_at": null,
@@ -590,8 +590,8 @@
     "Test: fehlender oder ungültiger Wert bleibt fehlend (keine erfundenen Werte)"
    ],
    "verify": "In outputs/candidate_ledger/ Format und Speicherort von dealer_oi_ratio auszählen und mit option_learner.features() vergleichen.",
-   "status": "NOTIFIED",
-   "decision_note": null,
+   "status": "REJECTED",
+   "decision_note": "Kein Reader-Fehler: 5d directional dealer_oi_ratio 478/507, census 2/980; 20d directional 416/445, census 0/47. 0 Reader-Mismatches. Fehlende Quellwerte nicht erfinden; Audit 21.11.2026.",
    "first_detected": "2026-11-14T15:24:13+00:00",
    "last_changed": "2026-11-14T15:24:13+00:00",
    "resolved_at": null,
