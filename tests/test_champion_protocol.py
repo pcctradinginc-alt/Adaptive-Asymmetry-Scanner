@@ -162,3 +162,29 @@ def test_real_registry_routes_new_challengers_and_the_champion_through_the_ledge
     subs = {s for c in cfg["classes"].values() for s in c["subsystems"]}
     assert {"challenger", "promotion_contract", "champion"} <= subs
     assert Path(cp.PROTOCOL).exists()
+
+
+def test_feasibility_reports_rate_projection_and_mde_without_changing_the_test():
+    """Audit 2026-11-27: Ist der vorregistrierte Test bei der beobachteten Trade-Rate entscheidbar?"""
+    def trade(d, y):
+        return {"ticker": "T", "entry_date": d, "close_date": d, "outcome_net": y, "outcome_method": "option_quote"}
+    hist = {"closed_trades": [trade("2026-09-01", -0.4), trade("2026-09-02", 0.3), trade("2026-09-03", -0.2),
+                              trade("2026-11-13", -0.1)]}
+    trades = cp.reliable_trades(hist, date(2026, 11, 12))
+    fz = cp.feasibility(hist, trades, date(2026, 11, 12), date(2026, 12, 31), [30, 60], 0.003, 365)
+    assert fz["sd_basis"]["n_prior_reliable_outcomes"] == 3          # nur Outcomes VOR dem Start
+    assert fz["trading_days_elapsed"] > 20 and fz["reliable_trades_per_trading_day"] > 0
+    look30 = fz["looks"][0]
+    assert look30["missing_trades"] == 29 and look30["projected_trading_days"] > fz["trading_days_remaining"]
+    assert fz["verdict"] == "INFEASIBLE_AT_CURRENT_RATE"
+    assert fz["looks"][1]["mde_mean_return_per_trade"] < look30["mde_mean_return_per_trade"]
+    early = cp.feasibility(hist, trades, date(2026, 11, 12), date(2026, 11, 20), [30], 0.003, 365)
+    assert early["verdict"] == "TOO_EARLY_TO_ESTIMATE"
+
+
+def test_real_protocol_status_carries_feasibility_and_keeps_pinned_hash():
+    res = cp.evaluate(date(2026, 11, 27), persist=False)
+    assert res["decision_config_sha256"] == res["decision_config_pinned"]
+    fz = res["feasibility"]
+    assert fz["verdict"] in ("TOO_EARLY_TO_ESTIMATE", "INFEASIBLE_AT_CURRENT_RATE", "FEASIBLE")
+    assert all(isinstance(r["mde_mean_return_per_trade"], float) for r in fz["looks"])

@@ -29,7 +29,9 @@ workflows:
     # Scanner nach Recovery den ganzen Nachmittag. Beobachteter Verzug 3–9 h -> an späten Tagen läuft Source Health
     # zweimal (Recovery + verspäteter Cron); unschädlich: überschreibt nur den Snapshot, Scanner-Guard ist idempotent.
     max_delay_hours: 3
-    artifact: {kind: json_date, path: outputs/health/source_health_snapshot.json, field: generated}
+    # max_age_hours (Audit 2026-11-27) = Frische, die gates.scanner.requires verlangt: ein älterer Snapshot versorgt
+    # den Scanner nicht, also ist der Tag auch für den Watchdog nicht versorgt (sonst kein Recovery, Tag verloren).
+    artifact: {kind: json_date, path: outputs/health/source_health_snapshot.json, field: generated, max_age_hours: 12}
     # External Data ist Observability (external_context.mode != production) und KEIN Pflicht-Upstream:
     # Source Health muss auch bei fehlendem External-Data-Lauf laufen und genau das als STALE melden.
     depends_on: []

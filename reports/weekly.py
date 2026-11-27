@@ -1024,10 +1024,21 @@ def champion_protocol_text(data: dict) -> str:
     n, looks = cp.get("reliable_trades"), [int(x) for x in cp.get("looks_at_n") or []]
     nxt = next((k for k in looks if n is not None and k > int(n)), None)
     la = cp.get("look_alpha")
+    # Machbarkeit (Audit 2026-11-27): Trade-Rate und kleinster nachweisbarer Effekt bei der nächsten Prüfung
+    fz = _d(cp.get("feasibility"))
+    look = next((r for r in fz.get("looks") or [] if r.get("n_trades") == nxt), None) if nxt else None
+    rate = fz.get("reliable_trades_per_trading_day")
+    mde = (look or {}).get("mde_mean_return_per_trade")
+    feas = ""
+    if fz.get("verdict"):
+        feas = (f" · Machbarkeit {fz['verdict']}"
+                + (f" ({rate:.2f} Trades/Handelstag)" if isinstance(rate, (int, float)) else "")
+                + (f", nachweisbar erst ab Ø {mde:+.0%} je Trade" if isinstance(mde, (int, float)) else ""))
     return (f"{cp.get('status', NA)} · {cp.get('protocol', NA)} ab {cp.get('start_date', NA)} · "
             f"{int(n) if n is not None else NA} verlässliche Netto-Trades"
             + (f" (nächste Prüfung bei {nxt})" if nxt else "")
             + (f" · α je Prüfung {la:.4f} (Alpha-Ledger)" if isinstance(la, (int, float)) else " · keine Ledger-Zuteilung")
+            + feas
             + (f" – {cp.get('reason')}" if cp.get("status") in ("PROTOCOL_BROKEN", "AWAITING_ALLOCATION") else ""))
 
 

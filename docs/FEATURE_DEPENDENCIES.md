@@ -6,6 +6,7 @@ Signale, die zwingend davon abhängen, werden blockiert oder laufen über einen 
 
 | Feature | Quelle(n) | Fallback | Entscheidungspfade der Quelle | Modelle/Hypothesen der Quelle |
 |---|---|---|---|---|
+| avg_volume | market_fundamentals_info | – | – | – |
 | beta_126 | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
 | cmdx_copper__copper_ret_3m | fred_commodities | – | – | – |
 | cmdx_copper__cot_copper_mm_net_chg_4w | cftc_cot | – | – | – |
@@ -50,6 +51,7 @@ Signale, die zwingend davon abhängen, werden blockiert oder laufen über einen 
 | finbert_sentiment | news_finnhub | – | candidate_discovery | – |
 | implied_vol | options_chain, options_chain_yfinance | options_chain_yfinance | options_design, roi_precheck | – |
 | log_dollar_vol | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
+| market_cap | market_fundamentals_info | – | – | – |
 | max_ret_21 | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
 | mom_12_1 | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
 | mom_3m | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
@@ -57,6 +59,7 @@ Signale, die zwingend davon abhängen, werden blockiert oder laufen über einen 
 | option_quotes | options_chain, options_chain_yfinance | options_chain_yfinance | options_design, roi_precheck | – |
 | price_history | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
 | realized_vol | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
+| rel_volume | market_fundamentals_info | – | – | – |
 | relvol_5_60 | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
 | ret_5d | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |
 | rev_1m | market_prices | – | intraday_delta, mismatch_score, monte_carlo, scanner_candidates | enet_xs20_v1, hgb_asym20_v1, hgb_xs20_v1, momentum_12_1 |

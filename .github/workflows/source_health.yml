@@ -77,7 +77,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           if [ "$(date -u +%u)" -le 5 ]; then
-            gh workflow run scanner.yml --repo "$GH_REPO" --ref main
+            gh workflow run scanner.yml --repo "$GH_REPO" --ref main -f trigger=source_health
           else
             echo "Weekend: no scanner dispatch (existing NYSE guard also protects holidays)."
           fi

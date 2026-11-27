@@ -502,3 +502,8 @@ def test_champion_protocol_line_shows_status_next_look_and_ledger_alpha():
     t = w.champion_protocol_text({"champion_protocol": {"status": "AWAITING_ALLOCATION", "reliable_trades": 0,
                                                         "looks_at_n": [30], "reason": "Noch keine Zuteilung"}})
     assert "keine Ledger-Zuteilung" in t and "Noch keine Zuteilung" in t
+    t = w.champion_protocol_text({"champion_protocol": {
+        "status": "NEED_MORE_DATA", "reliable_trades": 0, "looks_at_n": [30, 60], "look_alpha": 0.0029,
+        "feasibility": {"verdict": "INFEASIBLE_AT_CURRENT_RATE", "reliable_trades_per_trading_day": 0.05,
+                        "looks": [{"n_trades": 30, "mde_mean_return_per_trade": 0.247}]}}})
+    assert "INFEASIBLE_AT_CURRENT_RATE" in t and "0.05 Trades/Handelstag" in t and "+25% je Trade" in t

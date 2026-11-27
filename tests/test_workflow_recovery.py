@@ -185,7 +185,7 @@ def _watchdog_env(tmp_path, monkeypatch, now: datetime):
     monkeypatch.setenv("GITHUB_TOKEN", "t")
     summary = tmp_path / "summary.md"
     monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
-    monkeypatch.setattr(wd, "artifact_ok", lambda spec, day: False)
+    monkeypatch.setattr(wd, "artifact_ok", lambda spec, day, **kw: False)
 
     class _DT(datetime):
         @classmethod
@@ -329,3 +329,33 @@ def test_source_health_failure_never_dispatches_scanner():
     assert any(s.get("id") == "snapshot_commit" and s.get("if") == "always()" for s in steps)
     direct = next(s for s in steps if "Direct scanner dispatch" in s["name"])
     assert "success" in direct["if"] and "snapshot_commit" in direct["if"]
+
+
+# ── Audit 2026-11-27: 24.11. verloren (Ketten-Dispatch verbrauchte das Budget, veralteter Snapshot "versorgt") ──
+def test_source_health_ketten_dispatch_ist_kein_recovery():
+    chain = {**run("2026-11-24T00:18:00Z", event="workflow_dispatch"),
+             "display_title": "Adaptive Asymmetry Scanner " + wh.CHAIN_RUN_MARK}
+    sh = {"source_health": [run("2026-11-24T14:00:00Z")]}
+    p = plan("2026-11-24T17:51", {**sh, "scanner": [chain]}, {"source_health": True, "scanner": False})
+    assert dispatches(p) == ["scanner"] and p["scanner"]["recoveries_today"] == 0
+    # ein echter (Watchdog-)Dispatch zählt weiterhin: kein Endlos-Retry
+    real = run("2026-11-24T17:00:00Z", event="workflow_dispatch")
+    p = plan("2026-11-24T17:51", {**sh, "scanner": [real]}, {"source_health": True, "scanner": False})
+    assert p["scanner"]["state"] == "RECOVERY_EXHAUSTED" and not dispatches(p)
+
+
+def test_veralteter_source_health_snapshot_versorgt_den_tag_nicht(tmp_path):
+    spec = CFG["workflows"]["source_health"]["artifact"]
+    assert spec["max_age_hours"] == CFG["gates"]["scanner"]["requires"][0]["max_age_hours"]   # deckungsgleich
+    r = root(tmp_path, snap="2026-11-24T00:17:00+00:00")                      # verspäteter Lauf des Vortags
+    day = utc("2026-11-24T17:51").date()
+    assert wh.artifact_ok(spec, day, r, now=utc("2026-11-24T09:00")) is True
+    assert wh.artifact_ok(spec, day, r, now=utc("2026-11-24T17:51")) is False  # 17,5 h > 12 h -> Recovery möglich
+    assert guard(tmp_path, "2026-11-24T17:51", snap="2026-11-24T00:17:00+00:00")["status"] == "UPSTREAM_NOT_READY"
+
+
+def test_workflows_markieren_den_ketten_dispatch():
+    sc = yaml.safe_load((WF_DIR / "scanner.yml").read_text(encoding="utf-8"))
+    assert wh.CHAIN_RUN_MARK in sc["run-name"] and "trigger" in sc[True]["workflow_dispatch"]["inputs"]
+    sh = (WF_DIR / "source_health.yml").read_text(encoding="utf-8")
+    assert "gh workflow run scanner.yml" in sh and "-f trigger=source_health" in sh
