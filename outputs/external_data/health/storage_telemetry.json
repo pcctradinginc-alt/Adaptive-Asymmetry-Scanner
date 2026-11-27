@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-11-26T17:12:42+00:00",
+  "measured_at": "2026-11-27T10:11:50+00:00",
   "total_bytes_per_day": 131042443.0,
   "one_off_backfill_bytes": 1172927917,
   "projections_bytes": {
@@ -224,25 +224,25 @@
       "normalized_bytes_per_day": 0
     },
     "imf_portwatch_chokepoints": {
-      "retrieval_days": 50,
+      "retrieval_days": 51,
       "rows": 30621,
       "one_off_backfill_bytes": 3728415,
-      "raw_bytes_per_day": 0,
-      "normalized_bytes_per_day": 0
-    },
-    "imf_portwatch_disruptions": {
-      "retrieval_days": 52,
-      "rows": 944,
-      "one_off_backfill_bytes": 747526,
-      "raw_bytes_per_day": 0,
-      "normalized_bytes_per_day": 0
-    },
-    "imf_portwatch_ports": {
-      "retrieval_days": 47,
-      "rows": 90215,
-      "one_off_backfill_bytes": 6126087,
       "raw_bytes_per_day": 0.0,
       "normalized_bytes_per_day": 0.0
+    },
+    "imf_portwatch_disruptions": {
+      "retrieval_days": 53,
+      "rows": 944,
+      "one_off_backfill_bytes": 747526,
+      "raw_bytes_per_day": 0.0,
+      "normalized_bytes_per_day": 0.0
+    },
+    "imf_portwatch_ports": {
+      "retrieval_days": 48,
+      "rows": 90215,
+      "one_off_backfill_bytes": 6126087,
+      "raw_bytes_per_day": 0,
+      "normalized_bytes_per_day": 0
     },
     "imf_weo": {
       "retrieval_days": 1,
