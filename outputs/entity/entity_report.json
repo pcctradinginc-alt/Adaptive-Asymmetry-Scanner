@@ -1,10 +1,10 @@
 {
- "date": "2026-11-20",
+ "date": "2026-11-27",
  "status": "COMPLETE",
  "sec": {
-  "tickers_total": 10398,
+  "tickers_total": 10400,
   "wanted": 777,
-  "mapped": 626,
+  "mapped": 627,
   "unmapped": [
    "ABMD",
    "ACE",
@@ -14,7 +14,6 @@
    "ALTR",
    "ALXN",
    "ANDV",
-   "ANSS",
    "ARG",
    "ARNC",
    "ATVI",
@@ -159,31 +158,27 @@
    "YHOO"
   ],
   "changes": {
-   "opened": 0,
-   "replaced": 2,
-   "unchanged": 1250,
-   "closed": 2
+   "opened": 2,
+   "replaced": 0,
+   "unchanged": 1252,
+   "closed": 0
   }
  },
  "gleif": {
-  "attempted": 15,
-  "HIGH": 0,
+  "attempted": 1,
+  "HIGH": 1,
   "MEDIUM": 0,
-  "LOW": 15,
+  "LOW": 0,
   "with_parent": 0,
-  "cooling_down": 123,
-  "low_reasons": {
-   "kein exakter Treffer": 13,
-   "mehrdeutig (2 Treffer)": 1,
-   "mehrdeutig (3 Treffer)": 1
-  },
+  "cooling_down": 138,
+  "low_reasons": {},
   "remaining": 0
  },
  "errors": [],
  "gleif_children": {
-  "fetched": 60,
-  "children": 189,
-  "opened": 189,
-  "linked_entities": 491
+  "fetched": 12,
+  "children": 15,
+  "opened": 15,
+  "linked_entities": 492
  }
 }
