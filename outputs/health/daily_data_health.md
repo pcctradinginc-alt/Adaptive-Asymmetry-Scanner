@@ -1,14 +1,19 @@
-# Daily Data Health Report – 2026-11-26
+# Daily Data Health Report – 2026-11-27
 
-**Safe Mode (Daten): aus** – gewichtete Data Quality 0.992
+**Safe Mode (Daten): aus** – gewichtete Data Quality 0.976
 
-Status: HEALTHY 48 · DEGRADED 2 · STALE 0 · BROKEN 0 · UNVALIDATED 13
+Status: HEALTHY 49 · DEGRADED 1 · STALE 1 · BROKEN 0 · UNVALIDATED 13
+
+## Neue Änderungen
+
+- recovery: eia_petroleum_weekly DEGRADED → HEALTHY
+- degradation: estat_jp_truck HEALTHY → STALE (veraltet (Frequenz-Grenze der Registry))
 
 ## Nicht gesunde Quellen
 
 | Quelle | Status | Kritikalität | Fehler in Folge | letzter Datenstand | betroffene Features/Modelle/Entscheidungen | Grund |
 |---|---|---|---|---|---|---|
-| eia_petroleum_weekly | DEGRADED | NON_CRITICAL | 2 | 2026-11-17 | cmdx_oil__crude_stocks_chg_z_52w, cmdx_oil__crude_stocks_vs_5y, cmdx_oil__div_oil_price_inventory, cmdx_oil__product_supplied_chg_4w | Ingest FAIL: SourceTimeout('Zeitbudget 300s überschritten') |
+| estat_jp_truck | STALE | NON_CRITICAL | 0 | 2026-04-01 | – | veraltet (Frequenz-Grenze der Registry) |
 | ncei_normals | DEGRADED | NON_CRITICAL | 0 | – | – | Missing-Rate 35% |
 
 ## Fallbacks

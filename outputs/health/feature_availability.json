@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-26T21:53:38+00:00",
+ "generated": "2026-11-27T16:52:11+00:00",
  "features": {
   "beta_126": {
    "available": true,
@@ -171,6 +171,33 @@
    "source_actual": "market_prices",
    "source_status": "HEALTHY",
    "criticality": "CRITICAL"
+  },
+  "avg_volume": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_fundamentals_info",
+   "source_actual": "market_fundamentals_info",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "market_cap": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_fundamentals_info",
+   "source_actual": "market_fundamentals_info",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
+  },
+  "rel_volume": {
+   "available": true,
+   "stale": false,
+   "data_quality": 1.0,
+   "source_primary": "market_fundamentals_info",
+   "source_actual": "market_fundamentals_info",
+   "source_status": "HEALTHY",
+   "criticality": "IMPORTANT"
   },
   "vix": {
    "available": true,
@@ -391,46 +418,46 @@
   "cmdx_oil__crude_stocks_chg_z_52w": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "eia_petroleum_weekly",
    "source_actual": "eia_petroleum_weekly",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_oil__crude_stocks_vs_5y": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "eia_petroleum_weekly",
    "source_actual": "eia_petroleum_weekly",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_oil__div_oil_price_inventory": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "eia_petroleum_weekly",
    "source_actual": "eia_petroleum_weekly",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_oil__product_supplied_chg_4w": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "eia_petroleum_weekly",
    "source_actual": "eia_petroleum_weekly",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_oil__refinery_utilization_z_52w": {
    "available": true,
    "stale": false,
-   "data_quality": 0.6,
+   "data_quality": 1.0,
    "source_primary": "eia_petroleum_weekly",
    "source_actual": "eia_petroleum_weekly",
-   "source_status": "DEGRADED",
+   "source_status": "HEALTHY",
    "criticality": "NON_CRITICAL"
   },
   "cmdx_natural_gas__div_gas_storage_price": {
