@@ -46,7 +46,8 @@ def list_runs(repo: str, file: str, day: str) -> list[dict] | None:
         print(f"::warning::Run-Liste {file} nicht lesbar ({type(e).__name__}) -> UNKNOWN, kein Dispatch")
         return None
     return [{"created_at": r.get("created_at"), "status": r.get("status"), "conclusion": r.get("conclusion"),
-             "event": r.get("event")} for r in (data or {}).get("workflow_runs") or []
+             "event": r.get("event"), "display_title": r.get("display_title")}
+            for r in (data or {}).get("workflow_runs") or []
             if str(r.get("created_at") or "")[:10] == day]
 
 
@@ -97,7 +98,7 @@ def main(argv=None) -> int:
     ref = os.environ.get("WATCHDOG_REF") or "main"
     wfs = cfg.get("workflows") or {}
     runs = {job: (list_runs(repo, wf["file"], day) if repo and token else None) for job, wf in wfs.items()}
-    artifacts = {job: artifact_ok(wf.get("artifact"), now.date()) for job, wf in wfs.items()}
+    artifacts = {job: artifact_ok(wf.get("artifact"), now.date(), now=now) for job, wf in wfs.items()}
     prev = _read(STATUS)
     already = ((prev or {}).get("recoveries") or {}).get(day) or {}
     plan = plan_recovery(now, runs, cfg, artifacts=artifacts, recoveries=already)

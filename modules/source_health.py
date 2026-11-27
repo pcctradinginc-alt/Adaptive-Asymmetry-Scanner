@@ -199,6 +199,21 @@ def run_probe(spec: dict, now: datetime, *, fetch=None, yf_module=None, env: dic
             return _probe_result(ok=last is not None, reachable=True, auth_ok=True, latency_s=lat, schema_ok=True,
                                  empty=len(ok_rows) == 0, latest_observation=_iso(last), n_items=int(len(h)),
                                  missing_rate=round(1 - len(ok_rows) / len(h), 3))
+        if kind == "yfinance_info":
+            # Audit 2026-11-27: der Hard-Filter liest yfinance .info (quoteSummary, Crumb-pflichtig) – am 25.11.
+            # lieferte genau dieser Endpunkt 401, während history/options gesund waren. Nur Inhalt zählt:
+            # Pflichtfelder müssen positive Zahlen sein (ein erfolgreicher Aufruf ist kein Beweis für Daten).
+            yf = yf_module or __import__("yfinance")
+            info = yf.Ticker(spec["symbol"]).info or {}
+            lat = round(time.monotonic() - t0, 2)
+            fields = list(spec.get("required_fields") or ["marketCap"])
+            missing = [f for f in fields if not (isinstance(info.get(f), (int, float))
+                                                 and not isinstance(info.get(f), bool) and info.get(f) > 0)]
+            return _probe_result(ok=not missing, reachable=True, auth_ok=True, latency_s=lat,
+                                 schema_ok=not missing, empty=not info, n_items=len(fields) - len(missing),
+                                 missing_rate=round(len(missing) / len(fields), 3),
+                                 latest_observation=_iso(now) if not missing else None,
+                                 error=None if not missing else f"info ohne {missing} (Crumb/401?)")
         if kind == "yfinance_options":
             yf = yf_module or __import__("yfinance")
             exps = yf.Ticker(spec["symbol"]).options

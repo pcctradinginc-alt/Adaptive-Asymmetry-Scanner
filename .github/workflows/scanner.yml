@@ -1,4 +1,7 @@
 name: Adaptive Asymmetry Scanner
+# Audit 2026-11-27: Der Direkt-Dispatch aus Source Health ist kein Watchdog-Recovery. Der Lauftitel macht ihn für den
+# Watchdog unterscheidbar (modules/workflow_health.CHAIN_RUN_MARK), sonst verbraucht er das Recovery-Budget des Tages.
+run-name: ${{ inputs.trigger == 'source_health' && 'Adaptive Asymmetry Scanner (nach Source Health)' || 'Adaptive Asymmetry Scanner' }}
 
 on:
   schedule:
@@ -18,6 +21,10 @@ on:
         description: "Upstream-Guard übersteuern (wird protokolliert)"
         type: boolean
         default: false
+      trigger:
+        description: "Auslöser (source_health = Direkt-Dispatch nach dem Snapshot; zählt nicht als Recovery)"
+        type: string
+        default: ""
 
 concurrency:
   group: history-write    # nie parallel zum Feedback-Workflow auf history.json schreiben

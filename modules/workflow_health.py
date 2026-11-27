@@ -111,8 +111,15 @@ def latest_timestamp(spec: dict, root: Path = Path(".")) -> datetime | None:
     return _ts(doc.get(field))
 
 
-def artifact_ok(spec: dict | None, day: date, root: Path = Path(".")) -> bool | None:
-    """Ist der Tag `day` durch das Artefakt versorgt? None = kein Artefakt konfiguriert (Run-Status zählt)."""
+CHAIN_RUN_MARK = "(nach Source Health)"      # Lauftitel des Scanner-Direkt-Dispatches aus source_health.yml
+
+
+def artifact_ok(spec: dict | None, day: date, root: Path = Path("."), now: datetime | None = None) -> bool | None:
+    """Ist der Tag `day` durch das Artefakt versorgt? None = kein Artefakt konfiguriert (Run-Status zählt).
+
+    max_age_hours (Audit 2026-11-27): versorgt nur, solange das Artefakt jünger ist – deckungsgleich mit der Frische,
+    die der Downstream-Guard verlangt. Sonst galt ein verspäteter Source-Health-Lauf nach 00:00 UTC als "heute
+    versorgt", während der Scanner-Guard denselben Snapshot als zu alt ablehnte (24.11.: 17,5 h > 12 h)."""
     if not spec:
         return None
     if spec.get("kind") == "file":
@@ -132,7 +139,12 @@ def artifact_ok(spec: dict | None, day: date, root: Path = Path(".")) -> bool | 
                 return False       # unlesbarer Tagesbericht = nicht versorgt (fail-closed für die Recovery)
         return True
     ts = latest_timestamp(spec, root)
-    return ts is not None and ts.date() == day
+    if ts is None or ts.date() != day:
+        return False
+    if spec.get("max_age_hours") is not None:
+        age_h = ((now or datetime.now(timezone.utc)) - ts).total_seconds() / 3600
+        return age_h <= float(spec["max_age_hours"])
+    return True
 
 
 def upstream_ready(job: str, now: datetime, root: Path = Path("."), cfg: dict | None = None) -> dict:
@@ -215,7 +227,11 @@ def plan_recovery(now: datetime, runs: dict[str, list[dict] | None], cfg: dict |
         due, cut = deadline(wf, (cfg.get("gates") or {}).get(job) or {}, today)
         api_ok = runs.get(job) is not None
         rs = sorted(runs.get(job) or [], key=lambda r: r.get("created_at") or "")
-        n_rec = max(sum(1 for r in rs if r.get("event") == "workflow_dispatch"), int(recoveries.get(job, 0)))
+        # Audit 2026-11-27: Der Direkt-Dispatch des Scanners aus Source Health (Lauftitel CHAIN_RUN_MARK) ist kein
+        # Recovery. Vorher verbrauchte er das Tagesbudget – am 24.11. schon um 00:18 UTC durch den verspäteten Lauf des
+        # Vortags, danach war im Handelsfenster keine Recovery mehr erlaubt und der Tag ging verloren.
+        n_rec = max(sum(1 for r in rs if r.get("event") == "workflow_dispatch"
+                        and CHAIN_RUN_MARK not in str(r.get("display_title") or "")), int(recoveries.get(job, 0)))
         first = _ts(rs[0].get("created_at")) if rs else None
         row = {"file": wf["file"], "expected": exp.isoformat(timespec="minutes"),
                "deadline": due.isoformat(timespec="minutes"),

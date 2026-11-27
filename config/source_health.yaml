@@ -37,6 +37,14 @@ core_sources:
     max_observation_age_days: 5      # Wochenende/Feiertag + Puffer
     decisions: [scanner_candidates, mismatch_score, monte_carlo, intraday_delta]
     features: [price_history, realized_vol]
+  # Audit 2026-11-27: Endpunkt, den der Hard-Filter tatsächlich liest (Börsenwert/Volumen). IMPORTANT statt CRITICAL:
+  # der Snapshot ist Stunden alt und Crumb-Fehler sind oft vorübergehend – den Tag entscheidet die Ausfall-Erkennung
+  # im Scanner-Lauf selbst (data_ingestion.hard_filter_outage); hier zählt die Sichtbarkeit in Data Quality.
+  - source_id: market_fundamentals_info
+    display_name: "Stammdaten (yfinance info: Börsenwert, Volumen)"
+    criticality: IMPORTANT
+    probe: {kind: yfinance_info, symbol: AAPL, required_fields: [marketCap, averageVolume]}
+    features: [market_cap, avg_volume, rel_volume]
   - source_id: vix_level
     display_name: "VIX (Risk Gates)"
     criticality: CRITICAL

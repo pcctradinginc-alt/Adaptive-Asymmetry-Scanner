@@ -398,3 +398,21 @@ def test_broken_fallback_only_adapter_does_not_disable_feature_of_healthy_primar
     assert sh.feature_availability(snap, c, NOW)["vix"]["available"] is True
     snap["sources"]["vix_level"]["status"] = sh.BROKEN                   # Primary weg, kein Fallback aktiv
     assert sh.feature_availability(snap, c, NOW)["vix"]["available"] is False
+
+
+def test_yfinance_info_probe_checks_content_not_just_reachability():
+    """Audit 2026-11-27: 25.11. lieferte .info nur ein Rumpf-Dict (401 Invalid Crumb) – history/options waren gesund."""
+    class _Yf:
+        def __init__(self, info):
+            self._info = info
+
+        def Ticker(self, sym):
+            return type("T", (), {"info": self._info})()
+    spec = next(x for x in sh.load_config()["core_sources"] if x["source_id"] == "market_fundamentals_info")
+    assert spec["criticality"] == "IMPORTANT" and not spec.get("decisions")        # sichtbar, nie blockierend
+    ok = sh.run_probe(spec["probe"], NOW, yf_module=_Yf({"marketCap": 3.5e12, "averageVolume": 5e7}))
+    assert ok["ok"] and ok["missing_rate"] == 0.0
+    bad = sh.run_probe(spec["probe"], NOW, yf_module=_Yf({"trailingPegRatio": None}))
+    assert not bad["ok"] and bad["schema_ok"] is False and "marketCap" in bad["error"]
+    zero = sh.run_probe(spec["probe"], NOW, yf_module=_Yf({"marketCap": 0, "averageVolume": 5e7}))
+    assert not zero["ok"]                                                       # 0 ist kein Messwert

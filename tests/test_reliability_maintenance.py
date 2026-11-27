@@ -216,7 +216,7 @@ def test_watchdog_twice_dispatches_once_and_records(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(wd, "list_runs", lambda repo, f, day: [])               # API zeigt den Dispatch (noch) nicht
     monkeypatch.setattr(wd, "dispatch", lambda repo, f, ref: calls.append(f) or True)
-    monkeypatch.setattr(wd, "artifact_ok", lambda spec, day: False)
+    monkeypatch.setattr(wd, "artifact_ok", lambda spec, day, **kw: False)
 
     class _DT(datetime):
         @classmethod

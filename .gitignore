@@ -11,3 +11,6 @@ outputs/models/finbert/
 # PPO-Modell MIT commit (klein, <1 MB)
 # outputs/models/ppo_options_agent.zip  ← NICHT ignorieren
 outputs/research/feature_store/
+
+# macOS-Metadaten (Audit 2026-11-27: waren seit der neuen main-Wurzel committet)
+.DS_Store
