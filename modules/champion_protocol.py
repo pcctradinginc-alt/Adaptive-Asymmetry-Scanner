@@ -109,6 +109,49 @@ def one_sided_test(xs: list[float], alpha: float) -> dict:
             "lower": round(m - tq * se, 6), "upper": round(m + tq * se, 6)}
 
 
+FEASIBILITY_POWER = 0.80
+FEASIBILITY_MIN_DAYS = 20      # erst ab so vielen Handelstagen ist die Trade-Rate schätzbar
+
+
+def feasibility(history: dict, trades: list[dict], start: date, today: date, looks: list[int],
+                look_alpha: float | None, max_duration_days: int) -> dict:
+    """Ist der vorregistrierte Test bei der beobachteten Trade-Rate überhaupt entscheidbar? (Audit 2026-11-27)
+
+    Nur Messung, ändert weder Test noch Prüfzeitpunkte. Rate = verlässliche Trades je NYSE-Handelstag seit Start.
+    Kleinster nachweisbarer Effekt je Trade (MDE) bei Prüfung n: (z_{1-α_look} + z_{Power}) · SD / √n, SD aus den
+    verlässlichen Paper-Outcomes VOR dem Start (unabhängig von der Teststichprobe; Tagesmittel-Aggregation ignoriert
+    -> eher optimistisch)."""
+    from statistics import NormalDist, stdev
+
+    from modules.market_snapshot import is_trading_day
+    end = date.fromordinal(start.toordinal() + int(max_duration_days))
+    elapsed = sum(1 for o in range(start.toordinal(), min(today, end).toordinal() + 1)
+                  if is_trading_day(date.fromordinal(o)))
+    remaining = sum(1 for o in range(max(today, start).toordinal() + 1, end.toordinal() + 1)
+                    if is_trading_day(date.fromordinal(o)))
+    prior = [t["y"] for t in reliable_trades(history, date.min) if date.fromisoformat(t["entry_date"]) < start]
+    sd = stdev(prior) if len(prior) >= 3 else None
+    rate = len(trades) / elapsed if elapsed else None
+    z = NormalDist().inv_cdf
+    rows = []
+    for n in looks:
+        need = max(0, n - len(trades))
+        days = (need / rate) if rate else None
+        mde = ((z(1 - look_alpha) + z(FEASIBILITY_POWER)) * sd / math.sqrt(n)) if (sd and look_alpha) else None
+        rows.append({"n_trades": n, "missing_trades": need,
+                     "projected_trading_days": round(days, 1) if days is not None else None,
+                     "reachable_before_end": (need == 0) or (days is not None and days <= remaining),
+                     "mde_mean_return_per_trade": round(mde, 4) if mde is not None else None})
+    first = rows[0] if rows else {}
+    verdict = ("TOO_EARLY_TO_ESTIMATE" if elapsed < FEASIBILITY_MIN_DAYS else
+               "INFEASIBLE_AT_CURRENT_RATE" if not first.get("reachable_before_end") else "FEASIBLE")
+    return {"trading_days_elapsed": elapsed, "trading_days_remaining": remaining,
+            "reliable_trades_per_trading_day": round(rate, 4) if rate is not None else None,
+            "sd_basis": {"n_prior_reliable_outcomes": len(prior), "sd": round(sd, 4) if sd else None},
+            "power": FEASIBILITY_POWER, "looks": rows, "verdict": verdict,
+            "note": "Nur Messung; Test, Alpha und Prüfzeitpunkte bleiben wie registriert."}
+
+
 def _freeze(out: Path, look: int, report: dict) -> dict:
     """Prüfbericht je Prüfung einmal einfrieren (create-only); ein bestehender Bericht gilt unverändert."""
     p = out / f"look_{look}.json"
@@ -144,6 +187,12 @@ def evaluate(today: date | None = None, *, protocol_path: Path = PROTOCOL, histo
            "decision_config_pinned": proto.get("decision_config_sha256"),
            "ledger_alpha": (alloc or {}).get("alpha"), "look_alpha": look_alpha, "looks_at_n": looks,
            "reliable_trades": len(trades), "looks": [], "production_influence": "NONE"}
+    try:
+        res["feasibility"] = feasibility(history, trades, start, today, looks, look_alpha,
+                                         int(proto.get("max_duration_days", 365)))
+    except Exception as e:  # noqa: BLE001 – reine Diagnose, darf die Auswertung nie verhindern
+        log.warning("Champion-Machbarkeitsdiagnose nicht berechenbar: %s", e)
+        res["feasibility"] = {"verdict": "UNKNOWN", "error": f"{type(e).__name__}: {e}"[:160]}
     if current_sha != proto.get("decision_config_sha256"):
         res["status"] = "PROTOCOL_BROKEN"
         res["reason"] = ("Entscheidungs-Konfiguration weicht vom registrierten Stand ab – neue Protokollversion "
