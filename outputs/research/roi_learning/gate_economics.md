@@ -1,4 +1,4 @@
-# Gate- und Optionsökonomie – 2026-11-27
+# Gate- und Optionsökonomie – 2026-11-28
 
 **READ-ONLY SHADOW – keine Handels- oder Gate-Freigabe.**
 
