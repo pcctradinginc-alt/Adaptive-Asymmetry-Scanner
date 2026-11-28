@@ -1,0 +1,124 @@
+{
+  "status": "DONE",
+  "day": "2026-11-27",
+  "policy": "uniform-without-replacement-v1",
+  "production_influence": "NONE",
+  "orders_created": 0,
+  "n": 119,
+  "k": 5,
+  "analyzed": 5,
+  "rows": [
+    {
+      "ticker": "PANW",
+      "fields": {
+        "census_impact": 3,
+        "census_surprise": 2,
+        "census_direction": "BEARISH",
+        "census_bear_case_severity": 6,
+        "census_mismatch": 2.06,
+        "census_red_team_verdict": "VETO",
+        "llm_census": {
+          "policy": "uniform-without-replacement-v1",
+          "day": "2026-11-27",
+          "n": 119,
+          "k": 5,
+          "pi": 0.04201680672268908,
+          "status": "analyzed"
+        },
+        "census_mismatch_dir_48h": 3.0,
+        "census_mismatch_dir_news": 3.0,
+        "census_move_since_news": 0.0
+      }
+    },
+    {
+      "ticker": "HPQ",
+      "fields": {
+        "census_impact": 4,
+        "census_surprise": 3,
+        "census_direction": "BEARISH",
+        "census_bear_case_severity": 7,
+        "census_mismatch": -6.857,
+        "census_red_team_verdict": "PASSIERT",
+        "llm_census": {
+          "policy": "uniform-without-replacement-v1",
+          "day": "2026-11-27",
+          "n": 119,
+          "k": 5,
+          "pi": 0.04201680672268908,
+          "status": "analyzed"
+        },
+        "census_mismatch_dir_48h": 4.0,
+        "census_mismatch_dir_news": 4.0,
+        "census_move_since_news": 0.0
+      }
+    },
+    {
+      "ticker": "TPR",
+      "fields": {
+        "census_impact": 4,
+        "census_surprise": 3,
+        "census_direction": "BULLISH",
+        "census_bear_case_severity": 6,
+        "census_mismatch": -0.412,
+        "census_red_team_verdict": "PASSIERT",
+        "llm_census": {
+          "policy": "uniform-without-replacement-v1",
+          "day": "2026-11-27",
+          "n": 119,
+          "k": 5,
+          "pi": 0.04201680672268908,
+          "status": "analyzed"
+        },
+        "census_mismatch_dir_48h": -0.412,
+        "census_mismatch_dir_news": 3.008,
+        "census_move_since_news": 0.0053
+      }
+    },
+    {
+      "ticker": "EXE",
+      "fields": {
+        "census_impact": 4,
+        "census_surprise": 3,
+        "census_direction": "BEARISH",
+        "census_bear_case_severity": 6,
+        "census_mismatch": -15.728,
+        "census_red_team_verdict": "PASSIERT",
+        "llm_census": {
+          "policy": "uniform-without-replacement-v1",
+          "day": "2026-11-27",
+          "n": 119,
+          "k": 5,
+          "pi": 0.04201680672268908,
+          "status": "analyzed"
+        },
+        "census_mismatch_dir_48h": 4.0,
+        "census_mismatch_dir_news": 4.0,
+        "census_move_since_news": 0.0575
+      }
+    },
+    {
+      "ticker": "APO",
+      "fields": {
+        "census_impact": 2,
+        "census_surprise": 2,
+        "census_direction": "BEARISH",
+        "census_bear_case_severity": 6,
+        "census_mismatch": -3.377,
+        "census_red_team_verdict": "VETO",
+        "llm_census": {
+          "policy": "uniform-without-replacement-v1",
+          "day": "2026-11-27",
+          "n": 119,
+          "k": 5,
+          "pi": 0.04201680672268908,
+          "status": "analyzed"
+        },
+        "census_mismatch_dir_48h": 2.0,
+        "census_mismatch_dir_news": 2.0,
+        "census_move_since_news": 0.0053
+      }
+    }
+  ],
+  "not_analyzed": 0,
+  "completed_at": "2026-11-28T04:12:24.323036+00:00"
+}
